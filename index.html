@@ -1,0 +1,1180 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#1a0f2e">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<link rel="manifest" href="manifest.json">
+<title>LinguaVillage</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root {
+  --gold:#FFD700;--gold-dim:#c8a030;--bg-deep:#0d0a1a;--bg-mid:#1a1030;
+  --bg-card:rgba(255,255,255,0.06);--border:rgba(255,215,0,0.2);
+  --text:#f0e8d0;--text-dim:#9a8a70;--success:#4ecf70;--error:#e05555;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+html,body{width:100%;height:100%;overflow:hidden;background:var(--bg-deep);font-family:'Nunito',sans-serif;color:var(--text);}
+.screen{display:none;width:100%;height:100vh;position:relative;overflow:hidden;}
+.screen.active{display:flex;flex-direction:column;}
+
+/* NOTIF */
+#notif{position:fixed;top:70px;left:50%;transform:translateX(-50%) translateY(-20px);background:rgba(15,10,5,0.97);border:2px solid var(--gold);border-radius:30px;padding:10px 24px;color:var(--gold);font-weight:800;font-size:0.9rem;z-index:9999;opacity:0;transition:all 0.3s;pointer-events:none;white-space:nowrap;}
+#notif.show{opacity:1;transform:translateX(-50%) translateY(0);}
+
+/* LOADING OVERLAY */
+#loadingOverlay{position:fixed;inset:0;background:rgba(13,10,26,0.95);z-index:10000;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;opacity:0;pointer-events:none;transition:opacity 0.3s;}
+#loadingOverlay.show{opacity:1;pointer-events:all;}
+.loading-spinner{width:40px;height:40px;border:3px solid rgba(255,215,0,0.2);border-top-color:var(--gold);border-radius:50%;animation:spin 0.8s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading-text{color:var(--gold-dim);font-size:0.9rem;font-weight:700;}
+
+/* ===== SCREEN 1: WELCOME ===== */
+#screen-welcome{background:radial-gradient(ellipse at 50% 0%,#1a3a6a 0%,#0d0a1a 70%);align-items:center;justify-content:center;}
+.welcome-stars{position:absolute;inset:0;pointer-events:none;}
+.w-star{position:absolute;background:white;border-radius:50%;animation:twinkle 3s infinite;}
+@keyframes twinkle{0%,100%{opacity:0.2}50%{opacity:1}}
+.welcome-logo{font-family:'Cinzel',serif;font-size:clamp(2.2rem,8vw,4.5rem);font-weight:900;color:var(--gold);letter-spacing:3px;text-shadow:0 0 60px rgba(255,215,0,0.5);animation:logoGlow 3s ease-in-out infinite;position:relative;z-index:1;margin-bottom:6px;}
+@keyframes logoGlow{0%,100%{text-shadow:0 0 40px rgba(255,215,0,0.4)}50%{text-shadow:0 0 80px rgba(255,215,0,0.8)}}
+.welcome-sub{font-size:0.95rem;color:#a0b8d0;letter-spacing:2px;margin-bottom:28px;position:relative;z-index:1;}
+.welcome-form{background:rgba(255,255,255,0.05);border:1px solid var(--border);border-radius:20px;padding:24px;width:min(400px,92vw);display:flex;flex-direction:column;gap:16px;position:relative;z-index:1;backdrop-filter:blur(10px);}
+.form-label{font-size:0.75rem;font-weight:900;color:var(--gold-dim);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:5px;}
+.form-input{width:100%;background:rgba(255,255,255,0.08);border:2px solid var(--border);border-radius:12px;padding:11px 16px;color:var(--text);font-family:'Nunito',sans-serif;font-size:0.95rem;font-weight:700;outline:none;transition:border-color 0.2s;}
+.form-input:focus{border-color:var(--gold);}
+
+/* Langue maternelle — ÉTAPE 1 : grandes tuiles avec drapeaux */
+.native-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;}
+.native-tile{background:rgba(255,255,255,0.05);border:2px solid var(--border);border-radius:12px;padding:10px 4px;text-align:center;cursor:pointer;transition:all 0.2s;color:var(--text-dim);}
+.native-tile .t-flag{font-size:1.6rem;display:block;margin-bottom:4px;}
+.native-tile .t-name{font-size:0.7rem;font-weight:800;line-height:1.2;}
+.native-tile:hover,.native-tile.sel{background:rgba(255,215,0,0.15);border-color:var(--gold);color:var(--gold);}
+
+/* Langue cible */
+.lang-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;}
+.lang-opt{background:rgba(255,255,255,0.05);border:2px solid var(--border);border-radius:10px;padding:8px 4px;text-align:center;cursor:pointer;font-size:0.72rem;font-weight:800;transition:all 0.2s;color:var(--text-dim);}
+.lang-opt .flag{font-size:1.4rem;display:block;margin-bottom:3px;}
+.lang-opt:hover,.lang-opt.sel{background:rgba(255,215,0,0.15);border-color:var(--gold);color:var(--gold);}
+.lang-opt:disabled,.lang-opt.disabled{opacity:0.3;pointer-events:none;}
+
+.play-btn{background:linear-gradient(135deg,#b87800,#ffd700,#b87800);color:#1a0800;border:none;padding:14px;border-radius:14px;font-family:'Cinzel',serif;font-size:1.05rem;font-weight:700;cursor:pointer;letter-spacing:2px;transition:all 0.2s;box-shadow:0 4px 20px rgba(255,215,0,0.3);}
+.play-btn:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 8px 30px rgba(255,215,0,0.5);}
+.play-btn:disabled{opacity:0.3;cursor:not-allowed;}
+
+/* ===== HUD ===== */
+.village-hud{position:absolute;top:0;left:0;right:0;height:52px;z-index:100;background:linear-gradient(180deg,rgba(5,3,15,0.97),rgba(5,3,15,0.7));border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 12px;gap:10px;}
+.hud-player{font-weight:900;font-size:0.88rem;color:var(--gold);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100px;}
+.hud-lang-badge{background:rgba(255,215,0,0.12);border:1px solid var(--border);border-radius:20px;padding:3px 10px;font-size:0.75rem;font-weight:800;color:var(--gold-dim);white-space:nowrap;}
+.hud-xp-wrap{display:flex;align-items:center;gap:5px;margin-left:auto;}
+.hud-xp-label{font-size:0.72rem;color:var(--text-dim);}
+.xp-bar-bg{width:70px;height:7px;background:rgba(255,255,255,0.1);border-radius:4px;overflow:hidden;}
+.xp-bar-fill{height:100%;background:linear-gradient(90deg,#c8900a,#ffd700);border-radius:4px;transition:width 0.5s;width:0%;}
+.hud-btns{display:flex;gap:5px;margin-left:6px;}
+.hud-btn{background:rgba(255,255,255,0.07);border:1px solid var(--border);color:var(--text);padding:4px 9px;border-radius:15px;font-size:0.72rem;font-weight:800;cursor:pointer;transition:all 0.2s;font-family:'Nunito',sans-serif;white-space:nowrap;}
+.hud-btn:hover{background:rgba(255,215,0,0.15);border-color:var(--gold);color:var(--gold);}
+
+/* ===== VILLAGE CANVAS ===== */
+#villageCanvas{position:absolute;inset:0;width:100%;height:100%;cursor:pointer;}
+.loc-tooltip{position:absolute;background:rgba(10,6,2,0.92);border:1px solid var(--gold);border-radius:10px;padding:6px 12px;font-size:0.78rem;font-weight:800;color:var(--gold);pointer-events:none;z-index:50;white-space:nowrap;transform:translate(-50%,-100%);margin-top:-8px;opacity:0;transition:opacity 0.2s;}
+.loc-tooltip.show{opacity:1;}
+
+/* ===== LOCATION SCREEN ===== */
+.loc-header{background:linear-gradient(180deg,rgba(5,3,15,0.98),rgba(5,3,15,0.8));border-bottom:1px solid var(--border);padding:12px 16px;display:flex;align-items:center;gap:10px;flex-shrink:0;}
+.loc-back{background:transparent;border:1px solid var(--border);color:var(--text);padding:5px 12px;border-radius:15px;font-size:0.78rem;font-weight:800;cursor:pointer;transition:all 0.2s;font-family:'Nunito',sans-serif;}
+.loc-back:hover{border-color:var(--gold);color:var(--gold);}
+.loc-title-wrap{flex:1;}
+.loc-title{font-family:'Cinzel',serif;font-size:1rem;color:var(--gold);}
+.loc-subtitle{font-size:0.72rem;color:var(--text-dim);}
+.loc-learn-btn{background:rgba(255,215,0,0.1);border:1px solid var(--border);color:var(--gold-dim);padding:5px 12px;border-radius:15px;font-size:0.75rem;font-weight:800;cursor:pointer;transition:all 0.2s;font-family:'Nunito',sans-serif;}
+.loc-learn-btn:hover{background:rgba(255,215,0,0.2);border-color:var(--gold);color:var(--gold);}
+.npc-list{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:12px;}
+.npc-card{background:var(--bg-card);border:1px solid var(--border);border-radius:16px;padding:14px 16px;display:flex;align-items:center;gap:14px;cursor:pointer;transition:all 0.25s;}
+.npc-card:hover{background:rgba(255,215,0,0.08);border-color:rgba(255,215,0,0.4);transform:translateX(4px);}
+.npc-avatar-big{width:52px;height:52px;border-radius:50%;background:rgba(255,255,255,0.07);border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:1.8rem;flex-shrink:0;}
+.npc-info{flex:1;}
+.npc-card-name{font-weight:900;font-size:1rem;}
+.npc-card-role{font-size:0.78rem;color:var(--text-dim);margin-top:2px;}
+.npc-card-preview{font-size:0.8rem;color:var(--gold-dim);margin-top:4px;font-style:italic;}
+.npc-arrow{color:var(--gold-dim);font-size:1.2rem;}
+
+/* ===== DIALOGUE ===== */
+.dial-header{background:linear-gradient(180deg,rgba(5,3,15,0.98),rgba(5,3,15,0.8));border-bottom:1px solid var(--border);padding:12px 16px;display:flex;align-items:center;gap:12px;flex-shrink:0;}
+.dial-npc-avatar{width:44px;height:44px;border-radius:50%;background:rgba(255,255,255,0.07);border:2px solid var(--gold);display:flex;align-items:center;justify-content:center;font-size:1.5rem;flex-shrink:0;}
+.dial-npc-name{font-weight:900;font-size:0.95rem;color:var(--gold);}
+.dial-npc-role{font-size:0.72rem;color:var(--text-dim);}
+.dial-back{margin-left:auto;background:transparent;border:1px solid var(--border);color:var(--text);padding:5px 12px;border-radius:15px;font-size:0.75rem;font-weight:800;cursor:pointer;transition:all 0.2s;font-family:'Nunito',sans-serif;}
+.dial-back:hover{border-color:var(--gold);color:var(--gold);}
+.chat-messages{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px;}
+.msg{display:flex;gap:10px;align-items:flex-end;max-width:85%;}
+.msg.npc{align-self:flex-start;}
+.msg.player{align-self:flex-end;flex-direction:row-reverse;}
+.msg-avatar{width:32px;height:32px;border-radius:50%;background:rgba(255,255,255,0.07);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:1rem;flex-shrink:0;}
+.msg-bubble{padding:10px 14px;border-radius:16px;font-size:0.9rem;line-height:1.45;font-weight:600;}
+.msg.npc .msg-bubble{background:rgba(255,255,255,0.09);border:1px solid var(--border);border-bottom-left-radius:4px;}
+.msg.player .msg-bubble{background:linear-gradient(135deg,rgba(255,215,0,0.2),rgba(255,160,0,0.15));border:1px solid rgba(255,215,0,0.3);border-bottom-right-radius:4px;}
+.typing-indicator{display:flex;gap:5px;align-items:center;padding:6px 0;}
+.typing-dot{width:7px;height:7px;background:var(--gold-dim);border-radius:50%;animation:typingBounce 1.2s infinite;}
+.typing-dot:nth-child(2){animation-delay:0.2s;}
+.typing-dot:nth-child(3){animation-delay:0.4s;}
+@keyframes typingBounce{0%,60%,100%{transform:translateY(0)}30%{transform:translateY(-8px)}}
+.dial-input-area{padding:12px 14px 16px;background:rgba(5,3,15,0.95);border-top:1px solid var(--border);flex-shrink:0;}
+.dial-input-row{display:flex;gap:10px;align-items:center;}
+.dial-input{flex:1;background:rgba(255,255,255,0.07);border:2px solid var(--border);border-radius:25px;padding:11px 18px;color:var(--text);font-family:'Nunito',sans-serif;font-size:0.95rem;font-weight:700;outline:none;transition:border-color 0.2s;}
+.dial-input:focus{border-color:var(--gold);}
+.dial-send{width:44px;height:44px;border-radius:50%;border:none;background:linear-gradient(135deg,#c8900a,#ffd700);color:#1a0800;font-size:1.1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.2s;flex-shrink:0;font-weight:900;}
+.dial-send:hover{transform:scale(1.1);box-shadow:0 0 15px rgba(255,215,0,0.4);}
+.dial-send:disabled{opacity:0.4;cursor:not-allowed;transform:none;}
+.dial-hint-row{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap;}
+.dial-hint-btn{background:transparent;border:1px solid var(--border);color:var(--text-dim);padding:4px 12px;border-radius:15px;font-size:0.75rem;font-weight:800;cursor:pointer;transition:all 0.2s;font-family:'Nunito',sans-serif;}
+.dial-hint-btn:hover{border-color:var(--gold);color:var(--gold);}
+.correction-box{margin-top:8px;background:rgba(78,207,112,0.1);border:1px solid rgba(78,207,112,0.3);border-radius:10px;padding:8px 12px;font-size:0.8rem;color:#4ecf70;display:none;}
+.correction-box.error{background:rgba(224,85,85,0.1);border-color:rgba(224,85,85,0.3);color:#e05555;}
+.correction-box.show{display:block;}
+
+/* ===== LEARN ===== */
+.learn-header{background:rgba(5,3,15,0.98);border-bottom:1px solid var(--border);padding:12px 16px;display:flex;align-items:center;gap:10px;flex-shrink:0;}
+.learn-title{font-family:'Cinzel',serif;font-size:1rem;color:var(--gold);flex:1;}
+.learn-tabs{display:flex;gap:6px;padding:12px 16px 0;flex-shrink:0;overflow-x:auto;}
+.learn-tab{background:rgba(255,255,255,0.05);border:1px solid var(--border);color:var(--text-dim);padding:7px 14px;border-radius:20px;font-size:0.78rem;font-weight:800;cursor:pointer;transition:all 0.2s;white-space:nowrap;font-family:'Nunito',sans-serif;}
+.learn-tab.active,.learn-tab:hover{background:rgba(255,215,0,0.15);border-color:var(--gold);color:var(--gold);}
+.learn-body{flex:1;overflow-y:auto;padding:14px;}
+.learn-section-title{font-size:0.68rem;font-weight:900;color:var(--text-dim);letter-spacing:2px;text-transform:uppercase;margin:14px 0 8px;}
+.vocab-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px;}
+.vocab-card{background:var(--bg-card);border:1px solid var(--border);border-radius:14px;padding:12px;text-align:center;cursor:pointer;transition:all 0.2s;}
+.vocab-card:hover{background:rgba(255,215,0,0.08);border-color:rgba(255,215,0,0.4);transform:translateY(-2px);}
+.vocab-emoji{font-size:1.8rem;margin-bottom:5px;}
+.vocab-target{font-size:1rem;font-weight:900;color:var(--gold);}
+.vocab-native{font-size:0.75rem;color:var(--text-dim);margin-top:2px;}
+.vocab-phonetic{font-size:0.65rem;color:#666;font-style:italic;margin-top:1px;}
+.phrase-card{background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:11px 14px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;gap:10px;}
+.phrase-native{font-size:0.8rem;color:var(--text-dim);flex:1;}
+.phrase-arrow{color:var(--border);font-size:0.8rem;flex-shrink:0;}
+.phrase-target{font-size:0.88rem;font-weight:800;flex:1;text-align:right;}
+
+::-webkit-scrollbar{width:3px;}
+::-webkit-scrollbar-thumb{background:rgba(255,215,0,0.2);border-radius:2px;}
+</style>
+</head>
+<body>
+
+<div id="notif"></div>
+<div id="loadingOverlay"><div class="loading-spinner"></div><div class="loading-text" id="loadingText">Chargement...</div></div>
+
+<!-- ====== SCREEN 1 : WELCOME ====== -->
+<div class="screen active" id="screen-welcome">
+  <div class="welcome-stars" id="welcomeStars"></div>
+  <div class="welcome-logo">🏘️ LinguaVillage</div>
+  <div class="welcome-sub" id="ws-tagline">Apprendre en vivant</div>
+  <div class="welcome-form">
+
+    <!-- ÉTAPE 1 : Langue maternelle (choisie EN PREMIER) -->
+    <div>
+      <div class="form-label" id="lbl-native">🌍 Votre langue maternelle</div>
+      <div class="native-grid">
+        <div class="native-tile" data-native="fr"><span class="t-flag">🇫🇷</span><span class="t-name">Français</span></div>
+        <div class="native-tile" data-native="ht"><span class="t-flag">🇭🇹</span><span class="t-name">Kreyòl</span></div>
+        <div class="native-tile" data-native="en"><span class="t-flag">🇬🇧</span><span class="t-name">English</span></div>
+        <div class="native-tile" data-native="es"><span class="t-flag">🇪🇸</span><span class="t-name">Español</span></div>
+        <div class="native-tile" data-native="de"><span class="t-flag">🇩🇪</span><span class="t-name">Deutsch</span></div>
+        <div class="native-tile" data-native="ru"><span class="t-flag">🇷🇺</span><span class="t-name">Русский</span></div>
+        <div class="native-tile" data-native="zh"><span class="t-flag">🇨🇳</span><span class="t-name">中文</span></div>
+        <div class="native-tile" data-native="ja"><span class="t-flag">🇯🇵</span><span class="t-name">日本語</span></div>
+      </div>
+    </div>
+
+    <!-- ÉTAPE 2 : Prénom (apparaît après choix langue) -->
+    <div id="step2" style="display:none">
+      <div class="form-label" id="lbl-name">✏️ Votre prénom</div>
+      <input class="form-input" id="inputName" type="text" maxlength="20">
+    </div>
+
+    <!-- ÉTAPE 3 : Langue cible (apparaît après prénom) -->
+    <div id="step3" style="display:none">
+      <div class="form-label" id="lbl-target">🎯 Langue à apprendre</div>
+      <div class="lang-grid" id="langGrid">
+        <div class="lang-opt" data-lang="en"><span class="flag">🇬🇧</span>English</div>
+        <div class="lang-opt" data-lang="fr"><span class="flag">🇫🇷</span>Français</div>
+        <div class="lang-opt" data-lang="es"><span class="flag">🇪🇸</span>Español</div>
+        <div class="lang-opt" data-lang="ht"><span class="flag">🇭🇹</span>Kreyòl</div>
+        <div class="lang-opt" data-lang="de"><span class="flag">🇩🇪</span>Deutsch</div>
+        <div class="lang-opt" data-lang="ru"><span class="flag">🇷🇺</span>Русский</div>
+        <div class="lang-opt" data-lang="zh"><span class="flag">🇨🇳</span>中文</div>
+        <div class="lang-opt" data-lang="ja"><span class="flag">🇯🇵</span>日本語</div>
+      </div>
+    </div>
+
+    <button class="play-btn" id="playBtn" style="display:none" disabled>✨ Entrer dans le village</button>
+  </div>
+</div>
+
+<!-- ====== SCREEN 2 : VILLAGE ====== -->
+<div class="screen" id="screen-village">
+  <div class="village-hud">
+    <span class="hud-player" id="hudPlayer">👤</span>
+    <span class="hud-lang-badge" id="hudLang"></span>
+    <div class="hud-xp-wrap">
+      <span class="hud-xp-label" id="hudXP">0 XP</span>
+      <div class="xp-bar-bg"><div class="xp-bar-fill" id="xpBarFill"></div></div>
+    </div>
+    <div class="hud-btns">
+      <button class="hud-btn" id="btn-learn-hud" onclick="openLearn()">📚</button>
+      <button class="hud-btn" id="btn-menu-hud" onclick="showScreen('screen-welcome')">🏠</button>
+    </div>
+  </div>
+  <canvas id="villageCanvas"></canvas>
+  <div class="loc-tooltip" id="locTooltip"></div>
+</div>
+
+<!-- ====== SCREEN 3 : LOCATION ====== -->
+<div class="screen" id="screen-location">
+  <div class="loc-header">
+    <button class="loc-back" id="btn-back-loc" onclick="showScreen('screen-village')">←</button>
+    <div class="loc-title-wrap">
+      <div class="loc-title" id="locTitle"></div>
+      <div class="loc-subtitle" id="locSubtitle"></div>
+    </div>
+    <button class="loc-learn-btn" id="btn-learn-loc" onclick="openLearn()">📚</button>
+  </div>
+  <div class="npc-list" id="npcList"></div>
+</div>
+
+<!-- ====== SCREEN 4 : DIALOGUE ====== -->
+<div class="screen" id="screen-dialogue">
+  <div class="dial-header">
+    <div class="dial-npc-avatar" id="dialAvatar">🧑</div>
+    <div>
+      <div class="dial-npc-name" id="dialNpcName"></div>
+      <div class="dial-npc-role" id="dialNpcRole"></div>
+    </div>
+    <button class="dial-back" id="btn-back-dial" onclick="showScreen('screen-location')">←</button>
+  </div>
+  <div class="chat-messages" id="chatMessages"></div>
+  <div class="dial-input-area">
+    <div class="dial-input-row">
+      <input class="dial-input" id="dialInput" type="text" autocomplete="off">
+      <button class="dial-send" id="dialSend" onclick="sendMessage()">➤</button>
+    </div>
+    <div class="dial-hint-row">
+      <button class="dial-hint-btn" id="btn-hint" onclick="requestHint()">💡</button>
+      <button class="dial-hint-btn" id="btn-translate" onclick="requestTranslation()">🔤</button>
+      <button class="dial-hint-btn" id="btn-correct" onclick="requestCorrection()">✅</button>
+    </div>
+    <div class="correction-box" id="correctionBox"></div>
+  </div>
+</div>
+
+<!-- ====== SCREEN 5 : LEARN ====== -->
+<div class="screen" id="screen-learn">
+  <div class="learn-header">
+    <button class="loc-back" id="btn-back-learn" onclick="goBackFromLearn()">←</button>
+    <div class="learn-title" id="learn-title-text">📚</div>
+    <span id="learnLangBadge" style="font-size:0.78rem;color:var(--gold-dim);font-weight:800;"></span>
+  </div>
+  <div class="learn-tabs" id="learnTabs"></div>
+  <div class="learn-body" id="learnBody"></div>
+</div>
+
+<script>
+// =================================================================
+//  API CONFIG
+// =================================================================
+const API_BASE = 'https://linguavillage-api--marckensbou2.replit.app'; // ← Remplacez
+
+// =================================================================
+//  TRADUCTIONS UI — Pré-écrites pour les 8 langues
+// =================================================================
+const UI = {
+  fr:{
+    tagline:'Apprendre en vivant',
+    lbl_native:'🌍 Votre langue maternelle',
+    lbl_name:'✏️ Votre prénom',
+    name_placeholder:'Alex, Sam, Jordan...',
+    lbl_target:'🎯 Langue à apprendre',
+    play_btn:'✨ Entrer dans le village',
+    btn_learn:'📚 Apprendre',
+    btn_menu:'🏠 Menu',
+    btn_back:'← Retour',
+    choose_npc:'Choisissez un personnage',
+    talk_to:'Parler à',
+    click_to_talk:'Appuyez pour commencer →',
+    btn_hint:'💡 Indice',
+    btn_translate:'🔤 Traduire',
+    btn_correct:'✅ Corriger',
+    learn_title:'📚 Salle d\'apprentissage',
+    tab_vocab:'📖 Vocabulaire',
+    tab_grammar:'✏️ Grammaire',
+    tab_phrases:'💬 Phrases',
+    tab_context:'🏘️ Par lieu',
+    loading:'Chargement...',
+    section_vocab:'Mots essentiels — cliquez pour écouter',
+    section_greet:'Salutations',
+    section_grammar:'Structure des phrases',
+    section_survival:'Phrases de survie',
+    section_context:'Vocabulaire par lieu',
+    xp_label:'XP',
+    level_up:'🎉 Niveau',
+    xp_gained:'XP ⭐',
+  },
+  ht:{
+    tagline:'Aprann pandan w ap viv',
+    lbl_native:'🌍 Lang manman ou',
+    lbl_name:'✏️ Prenon ou',
+    name_placeholder:'Alex, Sam, Jordan...',
+    lbl_target:'🎯 Lang ou vle aprann',
+    play_btn:'✨ Antre nan vilaj la',
+    btn_learn:'📚 Aprann',
+    btn_menu:'🏠 Meni',
+    btn_back:'← Retounen',
+    choose_npc:'Chwazi yon pèsonaj',
+    talk_to:'Pale ak',
+    click_to_talk:'Klike pou kòmanse →',
+    btn_hint:'💡 Endis',
+    btn_translate:'🔤 Tradui',
+    btn_correct:'✅ Korije',
+    learn_title:'📚 Sal aprann',
+    tab_vocab:'📖 Vokabilè',
+    tab_grammar:'✏️ Gramè',
+    tab_phrases:'💬 Fraz',
+    tab_context:'🏘️ Pa kote',
+    loading:'Chajman...',
+    section_vocab:'Mo esansyèl — klike pou tande',
+    section_greet:'Salitasyon',
+    section_grammar:'Estrikti fraz',
+    section_survival:'Fraz siviv',
+    section_context:'Vokabilè pa kote',
+    xp_label:'XP',
+    level_up:'🎉 Nivo',
+    xp_gained:'XP ⭐',
+  },
+  en:{
+    tagline:'Learn by living',
+    lbl_native:'🌍 Your native language',
+    lbl_name:'✏️ Your first name',
+    name_placeholder:'Alex, Sam, Jordan...',
+    lbl_target:'🎯 Language to learn',
+    play_btn:'✨ Enter the village',
+    btn_learn:'📚 Learn',
+    btn_menu:'🏠 Menu',
+    btn_back:'← Back',
+    choose_npc:'Choose a character',
+    talk_to:'Talk to',
+    click_to_talk:'Tap to start →',
+    btn_hint:'💡 Hint',
+    btn_translate:'🔤 Translate',
+    btn_correct:'✅ Correct',
+    learn_title:'📚 Learning Room',
+    tab_vocab:'📖 Vocabulary',
+    tab_grammar:'✏️ Grammar',
+    tab_phrases:'💬 Phrases',
+    tab_context:'🏘️ By place',
+    loading:'Loading...',
+    section_vocab:'Essential words — click to hear',
+    section_greet:'Greetings',
+    section_grammar:'Sentence structure',
+    section_survival:'Survival phrases',
+    section_context:'Vocabulary by place',
+    xp_label:'XP',
+    level_up:'🎉 Level',
+    xp_gained:'XP ⭐',
+  },
+  es:{
+    tagline:'Aprender viviendo',
+    lbl_native:'🌍 Tu idioma nativo',
+    lbl_name:'✏️ Tu nombre',
+    name_placeholder:'Alex, Sam, Jordan...',
+    lbl_target:'🎯 Idioma a aprender',
+    play_btn:'✨ Entrar al pueblo',
+    btn_learn:'📚 Aprender',
+    btn_menu:'🏠 Menú',
+    btn_back:'← Volver',
+    choose_npc:'Elige un personaje',
+    talk_to:'Hablar con',
+    click_to_talk:'Toca para empezar →',
+    btn_hint:'💡 Pista',
+    btn_translate:'🔤 Traducir',
+    btn_correct:'✅ Corregir',
+    learn_title:'📚 Sala de aprendizaje',
+    tab_vocab:'📖 Vocabulario',
+    tab_grammar:'✏️ Gramática',
+    tab_phrases:'💬 Frases',
+    tab_context:'🏘️ Por lugar',
+    loading:'Cargando...',
+    section_vocab:'Palabras esenciales — toca para escuchar',
+    section_greet:'Saludos',
+    section_grammar:'Estructura de frases',
+    section_survival:'Frases de supervivencia',
+    section_context:'Vocabulario por lugar',
+    xp_label:'XP',
+    level_up:'🎉 Nivel',
+    xp_gained:'XP ⭐',
+  },
+  de:{
+    tagline:'Durch Leben lernen',
+    lbl_native:'🌍 Deine Muttersprache',
+    lbl_name:'✏️ Dein Vorname',
+    name_placeholder:'Alex, Sam, Jordan...',
+    lbl_target:'🎯 Zu lernende Sprache',
+    play_btn:'✨ Das Dorf betreten',
+    btn_learn:'📚 Lernen',
+    btn_menu:'🏠 Menü',
+    btn_back:'← Zurück',
+    choose_npc:'Wähle eine Figur',
+    talk_to:'Sprechen mit',
+    click_to_talk:'Tippen zum Starten →',
+    btn_hint:'💡 Hinweis',
+    btn_translate:'🔤 Übersetzen',
+    btn_correct:'✅ Korrigieren',
+    learn_title:'📚 Lernraum',
+    tab_vocab:'📖 Wortschatz',
+    tab_grammar:'✏️ Grammatik',
+    tab_phrases:'💬 Sätze',
+    tab_context:'🏘️ Nach Ort',
+    loading:'Laden...',
+    section_vocab:'Wesentliche Wörter — klicken zum Hören',
+    section_greet:'Begrüßungen',
+    section_grammar:'Satzstruktur',
+    section_survival:'Überlebensphrasen',
+    section_context:'Wortschatz nach Ort',
+    xp_label:'XP',
+    level_up:'🎉 Level',
+    xp_gained:'XP ⭐',
+  },
+  ru:{
+    tagline:'Учиться живя',
+    lbl_native:'🌍 Ваш родной язык',
+    lbl_name:'✏️ Ваше имя',
+    name_placeholder:'Алекс, Сэм, Джордан...',
+    lbl_target:'🎯 Язык для изучения',
+    play_btn:'✨ Войти в деревню',
+    btn_learn:'📚 Учиться',
+    btn_menu:'🏠 Меню',
+    btn_back:'← Назад',
+    choose_npc:'Выберите персонажа',
+    talk_to:'Говорить с',
+    click_to_talk:'Нажмите чтобы начать →',
+    btn_hint:'💡 Подсказка',
+    btn_translate:'🔤 Перевести',
+    btn_correct:'✅ Исправить',
+    learn_title:'📚 Учебная комната',
+    tab_vocab:'📖 Словарь',
+    tab_grammar:'✏️ Грамматика',
+    tab_phrases:'💬 Фразы',
+    tab_context:'🏘️ По месту',
+    loading:'Загрузка...',
+    section_vocab:'Основные слова — нажмите чтобы услышать',
+    section_greet:'Приветствия',
+    section_grammar:'Структура предложений',
+    section_survival:'Фразы выживания',
+    section_context:'Словарь по месту',
+    xp_label:'ОП',
+    level_up:'🎉 Уровень',
+    xp_gained:'ОП ⭐',
+  },
+  zh:{
+    tagline:'在生活中学习',
+    lbl_native:'🌍 您的母语',
+    lbl_name:'✏️ 您的名字',
+    name_placeholder:'小明、小红、Alex...',
+    lbl_target:'🎯 要学习的语言',
+    play_btn:'✨ 进入村庄',
+    btn_learn:'📚 学习',
+    btn_menu:'🏠 菜单',
+    btn_back:'← 返回',
+    choose_npc:'选择一个角色',
+    talk_to:'与...交谈',
+    click_to_talk:'点击开始 →',
+    btn_hint:'💡 提示',
+    btn_translate:'🔤 翻译',
+    btn_correct:'✅ 纠正',
+    learn_title:'📚 学习室',
+    tab_vocab:'📖 词汇',
+    tab_grammar:'✏️ 语法',
+    tab_phrases:'💬 短语',
+    tab_context:'🏘️ 按地点',
+    loading:'加载中...',
+    section_vocab:'基本词汇 — 点击收听',
+    section_greet:'问候语',
+    section_grammar:'句子结构',
+    section_survival:'生存短语',
+    section_context:'按地点词汇',
+    xp_label:'经验',
+    level_up:'🎉 等级',
+    xp_gained:'经验 ⭐',
+  },
+  ja:{
+    tagline:'生きながら学ぶ',
+    lbl_native:'🌍 あなたの母国語',
+    lbl_name:'✏️ あなたの名前',
+    name_placeholder:'アレックス、サム...',
+    lbl_target:'🎯 学ぶ言語',
+    play_btn:'✨ 村に入る',
+    btn_learn:'📚 学ぶ',
+    btn_menu:'🏠 メニュー',
+    btn_back:'← 戻る',
+    choose_npc:'キャラクターを選ぶ',
+    talk_to:'話す相手',
+    click_to_talk:'タップして開始 →',
+    btn_hint:'💡 ヒント',
+    btn_translate:'🔤 翻訳',
+    btn_correct:'✅ 訂正',
+    learn_title:'📚 学習ルーム',
+    tab_vocab:'📖 語彙',
+    tab_grammar:'✏️ 文法',
+    tab_phrases:'💬 フレーズ',
+    tab_context:'🏘️ 場所別',
+    loading:'読み込み中...',
+    section_vocab:'基本単語 — タップして聞く',
+    section_greet:'あいさつ',
+    section_grammar:'文の構造',
+    section_survival:'サバイバルフレーズ',
+    section_context:'場所別語彙',
+    xp_label:'XP',
+    level_up:'🎉 レベル',
+    xp_gained:'XP ⭐',
+  },
+};
+
+// =================================================================
+//  LIEUX DU VILLAGE
+// =================================================================
+const LOC_NAMES = {
+  church:  {fr:'Église',        ht:'Legliz',       en:'Church',      es:'Iglesia',     de:'Kirche',       ru:'Церковь',    zh:'教堂',    ja:'教会'},
+  school:  {fr:'École',         ht:'Lekòl',        en:'School',      es:'Escuela',     de:'Schule',       ru:'Школа',      zh:'学校',    ja:'学校'},
+  factory: {fr:'Atelier',       ht:'Atelye',       en:'Workshop',    es:'Taller',      de:'Werkstatt',    ru:'Мастерская', zh:'工坊',    ja:'工房'},
+  market:  {fr:'Marché',        ht:'Mache',        en:'Market',      es:'Mercado',     de:'Markt',        ru:'Рынок',      zh:'市场',    ja:'市場'},
+  hospital:{fr:'Hôpital',       ht:'Lopital',      en:'Hospital',    es:'Hospital',    de:'Krankenhaus',  ru:'Больница',   zh:'医院',    ja:'病院'},
+  tavern:  {fr:'Taverne',       ht:'Tàvèn',        en:'Tavern',      es:'Taberna',     de:'Taverne',      ru:'Таверна',    zh:'酒馆',    ja:'酒場'},
+  friends: {fr:'Maison des amis',ht:'Kay zanmi',   en:'Friends\' House',es:'Casa amigos',de:'Freundeshaus',ru:'Дом друзей',zh:'友谊之家',ja:'友達の家'},
+  park:    {fr:'Parc romantique',ht:'Pak romantik', en:'Romantic Park',es:'Parque rom.',de:'Romantikpark', ru:'Романт. парк',zh:'浪漫公园',ja:'恋愛公園'},
+  police:  {fr:'Poste de Police',ht:'Pos lapolis', en:'Police Station',es:'Comisaría',  de:'Polizeistation',ru:'Полиция',   zh:'警察局',  ja:'警察署'},
+  bank:    {fr:'Banque',         ht:'Bank',         en:'Bank',         es:'Banco',       de:'Bank',         ru:'Банк',       zh:'银行',    ja:'銀行'},
+  station: {fr:'Gare',           ht:'Estasyon',     en:'Station',      es:'Estación',    de:'Bahnhof',      ru:'Вокзал',     zh:'车站',    ja:'駅'},
+  farm:    {fr:'Ferme',          ht:'Fèm',          en:'Farm',         es:'Granja',      de:'Bauernhof',    ru:'Ферма',      zh:'农场',    ja:'農場'},
+};
+
+const LOC_DESC = {
+  church:  {fr:'Politesse formelle et cérémonies',ht:'Politès fòmèl ak seremoni',en:'Formal politeness & ceremonies',es:'Educación formal y ceremonias',de:'Formelle Höflichkeit',ru:'Формальная вежливость',zh:'正式礼节与仪式',ja:'礼儀と式典'},
+  school:  {fr:'Grammaire et conjugaison',ht:'Gramè ak konjigèzon',en:'Grammar & conjugation',es:'Gramática y conjugación',de:'Grammatik & Konjugation',ru:'Грамматика и спряжение',zh:'语法与变位',ja:'文法と活用'},
+  factory: {fr:'Vocabulaire du travail',ht:'Vokabilè travay',en:'Work vocabulary',es:'Vocabulario de trabajo',de:'Arbeitswortschatz',ru:'Рабочий словарь',zh:'工作词汇',ja:'仕事の語彙'},
+  market:  {fr:'Chiffres, achats et négociation',ht:'Chif, acha ak negosyasyon',en:'Numbers, shopping & bargaining',es:'Números y compras',de:'Zahlen & Einkaufen',ru:'Числа и покупки',zh:'数字与购物',ja:'数字と買い物'},
+  hospital:{fr:'Corps humain et santé',ht:'Kò imen ak sante',en:'Human body & health',es:'Cuerpo humano y salud',de:'Körper & Gesundheit',ru:'Тело и здоровье',zh:'人体与健康',ja:'体と健康'},
+  tavern:  {fr:'Expressions familières et humour',ht:'Ekspresyon familyè ak imè',en:'Casual expressions & humor',es:'Expresiones informales',de:'Umgangssprache',ru:'Разговорные выражения',zh:'日常表达与幽默',ja:'くだけた表現'},
+  friends: {fr:'Langage familier et émotions',ht:'Lang familyè ak emosyon',en:'Casual language & emotions',es:'Lenguaje informal y emociones',de:'Umgangssprache & Emotionen',ru:'Неформальный язык',zh:'日常语言与情感',ja:'カジュアルな言葉'},
+  park:    {fr:'Vocabulaire affectif et doux',ht:'Vokabilè afektif',en:'Affectionate vocabulary',es:'Vocabulario afectivo',de:'Liebevoller Wortschatz',ru:'Ласковый словарь',zh:'感情词汇',ja:'愛情表現'},
+  police:  {fr:'Directions et urgences',ht:'Direksyon ak ijans',en:'Directions & emergencies',es:'Direcciones y emergencias',de:'Wegbeschreibung & Notfälle',ru:'Направления и экстренные',zh:'方向与紧急情况',ja:'方向と緊急事態'},
+  bank:    {fr:'Argent et transactions',ht:'Lajan ak tranzaksyon',en:'Money & transactions',es:'Dinero y transacciones',de:'Geld & Transaktionen',ru:'Деньги и транзакции',zh:'金钱与交易',ja:'お金と取引'},
+  station: {fr:'Voyages et horaires',ht:'Vwayaj ak orè',en:'Travel & schedules',es:'Viajes y horarios',de:'Reisen & Fahrpläne',ru:'Путешествия и расписание',zh:'旅行与时刻表',ja:'旅行と時刻表'},
+  farm:    {fr:'Nature, animaux et saisons',ht:'Nati, bèt ak sezon',en:'Nature, animals & seasons',es:'Naturaleza, animales y estaciones',de:'Natur, Tiere & Jahreszeiten',ru:'Природа, животные и сезоны',zh:'自然、动物与季节',ja:'自然、動物と季節'},
+};
+
+const LOCATIONS = [
+  {id:'church', emoji:'⛪',color:'#6a50a8',x:0.05,y:0.25,w:0.14,h:0.18,
+   npcs:[{id:'pastor',emoji:'🧑‍⚖️',name:'Morgan',role:{fr:'Pasteur·e',en:'Pastor',es:'Pastor/a',ht:'Pastè',de:'Pastor/in',ru:'Пастор',zh:'牧师',ja:'牧師'},context:'Tu es Morgan, pasteur bienveillant. Tu parles avec respect et solennité. Tu enseignes la politesse formelle et les expressions de gratitude.'},
+         {id:'choir',emoji:'🎵',name:'River',role:{fr:'Choriste',en:'Choir member',es:'Corista',ht:'Chantè koral',de:'Chorsänger/in',ru:'Хорист',zh:'合唱团成员',ja:'聖歌隊員'},context:'Tu es River, choriste enthousiaste. Tu aides à apprendre la prononciation à travers la musique.'}]},
+  {id:'school',emoji:'🏫',color:'#3a7aaa',x:0.30,y:0.15,w:0.14,h:0.18,
+   npcs:[{id:'teacher',emoji:'🧑‍🏫',name:'Robin',role:{fr:'Professeur·e',en:'Teacher',es:'Profesor/a',ht:'Pwofesè',de:'Lehrer/in',ru:'Учитель',zh:'老师',ja:'先生'},context:'Tu es Robin, professeur patient. Tu corriges doucement les erreurs et tu expliques la grammaire simplement.'},
+         {id:'student',emoji:'🧒',name:'Charlie',role:{fr:'Élève',en:'Student',es:'Estudiante',ht:'Elèv',de:'Schüler/in',ru:'Ученик',zh:'学生',ja:'生徒'},context:'Tu es Charlie, élève curieux. Tu parles simplement et tu apprends en même temps que le joueur.'}]},
+  {id:'factory',emoji:'🏭',color:'#8a6a30',x:0.72,y:0.18,w:0.14,h:0.18,
+   npcs:[{id:'foreman',emoji:'👷',name:'Casey',role:{fr:'Contremaître·sse',en:'Foreman',es:'Capataz',ht:'Chèf travay',de:'Vorarbeiter/in',ru:'Прораб',zh:'工头',ja:'現場監督'},context:'Tu es Casey, contremaître direct. Tu parles de travail, d\'outils, tu donnes des ordres simples.'},
+         {id:'craftsperson',emoji:'🔨',name:'Blake',role:{fr:'Artisan·e',en:'Craftsperson',es:'Artesano/a',ht:'Atizan',de:'Handwerker/in',ru:'Мастер',zh:'工匠',ja:'職人'},context:'Tu es Blake, artisan fier. Tu décris ce que tu fabriques avec des comparaisons concrètes.'}]},
+  {id:'market',emoji:'🛒',color:'#2a8a50',x:0.52,y:0.52,w:0.14,h:0.16,
+   npcs:[{id:'vendor',emoji:'🧑‍🍳',name:'Sage',role:{fr:'Vendeur·se',en:'Vendor',es:'Vendedor/a',ht:'Machann',de:'Verkäufer/in',ru:'Продавец',zh:'商贩',ja:'売り手'},context:'Tu es Sage, vendeur souriant. Tu parles de prix, quantités et couleurs.'},
+         {id:'cashier',emoji:'💰',name:'Quinn',role:{fr:'Caissier·ère',en:'Cashier',es:'Cajero/a',ht:'Kesye',de:'Kassierer/in',ru:'Кассир',zh:'收银员',ja:'レジ係'},context:'Tu es Quinn, caissier méthodique. Tu comptes à voix haute et tu expliques les chiffres.'}]},
+  {id:'hospital',emoji:'🏥',color:'#aa3a3a',x:0.82,y:0.50,w:0.12,h:0.16,
+   npcs:[{id:'doctor',emoji:'🧑‍⚕️',name:'Drew',role:{fr:'Médecin',en:'Doctor',es:'Médico/a',ht:'Doktè',de:'Arzt/Ärztin',ru:'Врач',zh:'医生',ja:'医師'},context:'Tu es Drew, médecin calme. Tu parles du corps humain et des soins avec un vocabulaire simple.'},
+         {id:'nurse',emoji:'💊',name:'Avery',role:{fr:'Infirmier·ère',en:'Nurse',es:'Enfermero/a',ht:'Enfimyè',de:'Pfleger/in',ru:'Медсестра',zh:'护士',ja:'看護師'},context:'Tu es Avery, infirmier attentionné. Tu rassures avec des phrases douces.'}]},
+  {id:'tavern',emoji:'🍺',color:'#8a4a10',x:0.06,y:0.56,w:0.13,h:0.16,
+   npcs:[{id:'bartender',emoji:'🧑‍🍽️',name:'Lane',role:{fr:'Barman·aid',en:'Bartender',es:'Bartender',ht:'Bòkay',de:'Barkeeper/in',ru:'Бармен',zh:'酒保',ja:'バーテンダー'},context:'Tu es Lane, barman jovial. Tu utilises des expressions populaires et de l\'humour léger.'},
+         {id:'regular',emoji:'🎲',name:'Sky',role:{fr:'Client·e habituel·le',en:'Regular customer',es:'Cliente habitual',ht:'Kliyan regilye',de:'Stammgast',ru:'Завсегдатай',zh:'常客',ja:'常連客'},context:'Tu es Sky, habitué décontracté. Tu parles de ta journée et tu utilises un langage très courant.'}]},
+  {id:'friends',emoji:'🏠',color:'#3a6aaa',x:0.26,y:0.58,w:0.13,h:0.15,
+   npcs:[{id:'friend',emoji:'🤝',name:'Alex',role:{fr:'Ami·e proche',en:'Close friend',es:'Amigo/a cercano/a',ht:'Zanmi pwòch',de:'Enger Freund/in',ru:'Близкий друг',zh:'亲密朋友',ja:'親友'},context:'Tu es Alex, le meilleur ami. Tu parles avec beaucoup d\'affection et de familiarité.'},
+         {id:'neighbor',emoji:'😊',name:'Jamie',role:{fr:'Voisin·e',en:'Neighbor',es:'Vecino/a',ht:'Vwazen',de:'Nachbar/in',ru:'Сосед',zh:'邻居',ja:'隣人'},context:'Tu es Jamie, voisin agréable. Tu fais la conversation quotidienne avec sincérité.'}]},
+  {id:'park',emoji:'🌳',color:'#6a9a30',x:0.60,y:0.18,w:0.12,h:0.14,
+   npcs:[{id:'partner',emoji:'💝',name:'Sam',role:{fr:'Partenaire',en:'Partner',es:'Pareja',ht:'Patnè',de:'Partner/in',ru:'Партнёр',zh:'伴侣',ja:'パートナー'},context:'Tu es Sam, le partenaire romantique. Tu parles avec douceur et tendresse, de façon respectueuse et non genrée.'},
+         {id:'date',emoji:'🌹',name:'Jordan',role:{fr:'Rendez-vous',en:'Date',es:'Cita',ht:'Randevou',de:'Verabredung',ru:'Свидание',zh:'约会对象',ja:'デート相手'},context:'C\'est votre première rencontre. Tu es charmant·e et nerveux·se. Tu poses des questions respectueuses.'}]},
+  {id:'police',emoji:'👮',color:'#2a4a8a',x:0.18,y:0.42,w:0.12,h:0.14,
+   npcs:[{id:'officer',emoji:'🧑‍✈️',name:'Remy',role:{fr:'Agent·e',en:'Officer',es:'Agente',ht:'Ofisye',de:'Beamter/in',ru:'Офицер',zh:'警察',ja:'警察官'},context:'Tu es Remy, agent de police professionnel. Tu donnes des directions et tu gères des urgences.'}]},
+  {id:'bank',emoji:'🏦',color:'#5a7a30',x:0.67,y:0.36,w:0.12,h:0.14,
+   npcs:[{id:'banker',emoji:'💼',name:'Reese',role:{fr:'Banquier·ère',en:'Banker',es:'Banquero/a',ht:'Bankye',de:'Banker/in',ru:'Банкир',zh:'银行家',ja:'銀行員'},context:'Tu es Reese, banquier formel. Tu parles d\'argent, de comptes et de transactions avec précision.'}]},
+  {id:'station',emoji:'🚉',color:'#4a4a8a',x:0.40,y:0.68,w:0.15,h:0.13,
+   npcs:[{id:'stationmaster',emoji:'🚂',name:'Pax',role:{fr:'Chef·fe de gare',en:'Stationmaster',es:'Jefe de estación',ht:'Chèf estasyon',de:'Bahnhofsvorsteher/in',ru:'Начальник вокзала',zh:'站长',ja:'駅長'},context:'Tu es Pax, chef de gare précis. Tu parles d\'horaires, destinations et billets.'},
+         {id:'traveler',emoji:'🧳',name:'Wren',role:{fr:'Voyageur·se',en:'Traveler',es:'Viajero/a',ht:'Vwayajè',de:'Reisende/r',ru:'Путешественник',zh:'旅行者',ja:'旅行者'},context:'Tu es Wren, voyageur curieux. Tu poses des questions sur l\'endroit et tu partages tes aventures.'}]},
+  {id:'farm',emoji:'🌾',color:'#7a6a20',x:0.84,y:0.30,w:0.12,h:0.15,
+   npcs:[{id:'farmer',emoji:'🧑‍🌾',name:'Dale',role:{fr:'Fermier·ère',en:'Farmer',es:'Granjero/a',ht:'Kiltivatè',de:'Bauer/Bäuerin',ru:'Фермер',zh:'农民',ja:'農家'},context:'Tu es Dale, fermier proche de la nature. Tu parles des animaux, des plantes et des saisons.'}]},
+];
+
+// =================================================================
+//  VOCABULAIRE PAR LANGUE
+// =================================================================
+const VOCAB_DATA = {
+  en:[{e:'🍞',t:'bread',p:'brɛd',natives:{fr:'pain',ht:'pen',es:'pan',de:'Brot',ru:'хлеб',zh:'面包',ja:'パン'}},
+      {e:'💧',t:'water',p:'ˈwɔːtər',natives:{fr:'eau',ht:'dlo',es:'agua',de:'Wasser',ru:'вода',zh:'水',ja:'水'}},
+      {e:'🏠',t:'house',p:'haʊs',natives:{fr:'maison',ht:'kay',es:'casa',de:'Haus',ru:'дом',zh:'房子',ja:'家'}},
+      {e:'🐕',t:'dog',p:'dɒɡ',natives:{fr:'chien',ht:'chen',es:'perro',de:'Hund',ru:'собака',zh:'狗',ja:'犬'}},
+      {e:'☀️',t:'sun',p:'sʌn',natives:{fr:'soleil',ht:'solèy',es:'sol',de:'Sonne',ru:'солнце',zh:'太阳',ja:'太陽'}},
+      {e:'📚',t:'book',p:'bʊk',natives:{fr:'livre',ht:'liv',es:'libro',de:'Buch',ru:'книга',zh:'书',ja:'本'}},
+      {e:'🍎',t:'apple',p:'ˈæpəl',natives:{fr:'pomme',ht:'pòm',es:'manzana',de:'Apfel',ru:'яблоко',zh:'苹果',ja:'りんご'}},
+      {e:'❤️',t:'love',p:'lʌv',natives:{fr:'amour',ht:'lanmou',es:'amor',de:'Liebe',ru:'любовь',zh:'爱',ja:'愛'}},
+      {e:'🌧️',t:'rain',p:'reɪn',natives:{fr:'pluie',ht:'lapli',es:'lluvia',de:'Regen',ru:'дождь',zh:'雨',ja:'雨'}},
+      {e:'🚗',t:'car',p:'kɑː',natives:{fr:'voiture',ht:'machin',es:'coche',de:'Auto',ru:'машина',zh:'汽车',ja:'車'}},
+      {e:'😊',t:'happy',p:'ˈhæpi',natives:{fr:'heureux',ht:'kontan',es:'feliz',de:'glücklich',ru:'счастливый',zh:'快乐',ja:'嬉しい'}},
+      {e:'💰',t:'money',p:'ˈmʌni',natives:{fr:'argent',ht:'lajan',es:'dinero',de:'Geld',ru:'деньги',zh:'钱',ja:'お金'}},],
+  fr:[{e:'🍞',t:'pain',p:'pɛ̃',natives:{en:'bread',ht:'pen',es:'pan',de:'Brot',ru:'хлеб',zh:'面包',ja:'パン'}},
+      {e:'💧',t:'eau',p:'o',natives:{en:'water',ht:'dlo',es:'agua',de:'Wasser',ru:'вода',zh:'水',ja:'水'}},
+      {e:'🏠',t:'maison',p:'mɛzɔ̃',natives:{en:'house',ht:'kay',es:'casa',de:'Haus',ru:'дом',zh:'房子',ja:'家'}},
+      {e:'🐕',t:'chien',p:'ʃjɛ̃',natives:{en:'dog',ht:'chen',es:'perro',de:'Hund',ru:'собака',zh:'狗',ja:'犬'}},
+      {e:'☀️',t:'soleil',p:'sɔlɛj',natives:{en:'sun',ht:'solèy',es:'sol',de:'Sonne',ru:'солнце',zh:'太阳',ja:'太陽'}},
+      {e:'❤️',t:'amour',p:'amuʁ',natives:{en:'love',ht:'lanmou',es:'amor',de:'Liebe',ru:'любовь',zh:'爱',ja:'愛'}},
+      {e:'🌧️',t:'pluie',p:'plɥi',natives:{en:'rain',ht:'lapli',es:'lluvia',de:'Regen',ru:'дождь',zh:'雨',ja:'雨'}},
+      {e:'🚗',t:'voiture',p:'vwatyʁ',natives:{en:'car',ht:'machin',es:'coche',de:'Auto',ru:'машина',zh:'汽车',ja:'車'}},],
+  es:[{e:'🍞',t:'pan',p:'pan',natives:{fr:'pain',en:'bread',ht:'pen',de:'Brot',ru:'хлеб',zh:'面包',ja:'パン'}},
+      {e:'💧',t:'agua',p:'ˈaɣwa',natives:{fr:'eau',en:'water',ht:'dlo',de:'Wasser',ru:'вода',zh:'水',ja:'水'}},
+      {e:'🏠',t:'casa',p:'ˈkasa',natives:{fr:'maison',en:'house',ht:'kay',de:'Haus',ru:'дом',zh:'房子',ja:'家'}},
+      {e:'❤️',t:'amor',p:'aˈmoɾ',natives:{fr:'amour',en:'love',ht:'lanmou',de:'Liebe',ru:'любовь',zh:'爱',ja:'愛'}},],
+  ht:[{e:'🍞',t:'pen',p:'pɛn',natives:{fr:'pain',en:'bread',es:'pan',de:'Brot',ru:'хлеб',zh:'面包',ja:'パン'}},
+      {e:'💧',t:'dlo',p:'dlo',natives:{fr:'eau',en:'water',es:'agua',de:'Wasser',ru:'вода',zh:'水',ja:'水'}},
+      {e:'🏠',t:'kay',p:'kaj',natives:{fr:'maison',en:'house',es:'casa',de:'Haus',ru:'дом',zh:'房子',ja:'家'}},
+      {e:'❤️',t:'lanmou',p:'lanmu',natives:{fr:'amour',en:'love',es:'amor',de:'Liebe',ru:'любовь',zh:'爱',ja:'愛'}},],
+  de:[{e:'🍞',t:'Brot',p:'bʁoːt',natives:{fr:'pain',en:'bread',es:'pan',ht:'pen',ru:'хлеб',zh:'面包',ja:'パン'}},
+      {e:'💧',t:'Wasser',p:'ˈvasɐ',natives:{fr:'eau',en:'water',es:'agua',ht:'dlo',ru:'вода',zh:'水',ja:'水'}},
+      {e:'🏠',t:'Haus',p:'haʊs',natives:{fr:'maison',en:'house',es:'casa',ht:'kay',ru:'дом',zh:'房子',ja:'家'}},
+      {e:'❤️',t:'Liebe',p:'ˈliːbə',natives:{fr:'amour',en:'love',es:'amor',ht:'lanmou',ru:'любовь',zh:'爱',ja:'愛'}},],
+  ru:[{e:'🍞',t:'хлеб',p:'xlʲep',natives:{fr:'pain',en:'bread',es:'pan',ht:'pen',de:'Brot',zh:'面包',ja:'パン'}},
+      {e:'💧',t:'вода',p:'vɐˈda',natives:{fr:'eau',en:'water',es:'agua',ht:'dlo',de:'Wasser',zh:'水',ja:'水'}},
+      {e:'🏠',t:'дом',p:'dom',natives:{fr:'maison',en:'house',es:'casa',ht:'kay',de:'Haus',zh:'房子',ja:'家'}},
+      {e:'❤️',t:'любовь',p:'lʲʊˈbofʲ',natives:{fr:'amour',en:'love',es:'amor',ht:'lanmou',de:'Liebe',zh:'爱',ja:'愛'}},],
+  zh:[{e:'🍞',t:'面包',p:'miànbāo',natives:{fr:'pain',en:'bread',es:'pan',ht:'pen',de:'Brot',ru:'хлеб',ja:'パン'}},
+      {e:'💧',t:'水',p:'shuǐ',natives:{fr:'eau',en:'water',es:'agua',ht:'dlo',de:'Wasser',ru:'вода',ja:'水'}},
+      {e:'🏠',t:'房子',p:'fángzi',natives:{fr:'maison',en:'house',es:'casa',ht:'kay',de:'Haus',ru:'дом',ja:'家'}},
+      {e:'❤️',t:'爱',p:'ài',natives:{fr:'amour',en:'love',es:'amor',ht:'lanmou',de:'Liebe',ru:'любовь',ja:'愛'}},],
+  ja:[{e:'🍞',t:'パン',p:'pan',natives:{fr:'pain',en:'bread',es:'pan',ht:'pen',de:'Brot',ru:'хлеб',zh:'面包'}},
+      {e:'💧',t:'水',p:'mizu',natives:{fr:'eau',en:'water',es:'agua',ht:'dlo',de:'Wasser',ru:'вода',zh:'水'}},
+      {e:'🏠',t:'家',p:'ie',natives:{fr:'maison',en:'house',es:'casa',ht:'kay',de:'Haus',ru:'дом',zh:'房子'}},
+      {e:'❤️',t:'愛',p:'ai',natives:{fr:'amour',en:'love',es:'amor',ht:'lanmou',de:'Liebe',ru:'любовь',zh:'爱'}},],
+};
+
+// =================================================================
+//  ÉTAT
+// =================================================================
+let S = {
+  playerName:'',
+  nativeLang:'',
+  targetLang:'',
+  xp:0,
+  level:1,
+  currentLocation:null,
+  currentNPC:null,
+  chatHistory:[],
+  previousScreen:'screen-village',
+};
+let ui = {}; // UI strings for current native lang
+
+// =================================================================
+//  INITIALISATION ÉTOILES
+// =================================================================
+(function(){
+  const c=document.getElementById('welcomeStars');
+  for(let i=0;i<120;i++){
+    const s=document.createElement('div');
+    s.className='w-star';
+    const sz=Math.random()*2+0.5;
+    s.style.cssText=`width:${sz}px;height:${sz}px;left:${Math.random()*100}%;top:${Math.random()*100}%;animation-delay:${Math.random()*5}s;animation-duration:${2+Math.random()*4}s`;
+    c.appendChild(s);
+  }
+})();
+
+// =================================================================
+//  WELCOME — Étape 1 : Choix langue maternelle → traduit tout
+// =================================================================
+document.querySelectorAll('.native-tile').forEach(tile=>{
+  tile.addEventListener('click',()=>{
+    document.querySelectorAll('.native-tile').forEach(t=>t.classList.remove('sel'));
+    tile.classList.add('sel');
+    S.nativeLang = tile.dataset.native;
+    applyUILanguage(S.nativeLang);
+    // Révèle étape 2
+    document.getElementById('step2').style.display='block';
+    document.getElementById('step3').style.display='none';
+    document.getElementById('playBtn').style.display='none';
+    document.getElementById('playBtn').disabled=true;
+    // Désactive langue cible identique
+    document.querySelectorAll('.lang-opt').forEach(o=>{
+      if(o.dataset.lang===S.nativeLang) o.classList.add('disabled');
+      else o.classList.remove('disabled');
+    });
+  });
+});
+
+document.getElementById('inputName').addEventListener('input',function(){
+  if(this.value.trim().length>0){
+    document.getElementById('step3').style.display='block';
+  } else {
+    document.getElementById('step3').style.display='none';
+    document.getElementById('playBtn').style.display='none';
+  }
+});
+
+document.querySelectorAll('.lang-opt').forEach(opt=>{
+  opt.addEventListener('click',()=>{
+    if(opt.classList.contains('disabled')) return;
+    document.querySelectorAll('.lang-opt').forEach(o=>o.classList.remove('sel'));
+    opt.classList.add('sel');
+    S.targetLang = opt.dataset.lang;
+    document.getElementById('playBtn').style.display='block';
+    document.getElementById('playBtn').disabled=false;
+  });
+});
+
+document.getElementById('playBtn').addEventListener('click',()=>{
+  S.playerName = document.getElementById('inputName').value.trim();
+  if(!S.playerName||!S.nativeLang||!S.targetLang) return;
+  startVillage();
+});
+
+// =================================================================
+//  APPLIQUER LA LANGUE UI — Traduit toute l'interface
+// =================================================================
+function applyUILanguage(lang){
+  ui = UI[lang] || UI['fr'];
+  // Welcome screen
+  document.getElementById('ws-tagline').textContent = ui.tagline;
+  document.getElementById('lbl-native').textContent = ui.lbl_native;
+  document.getElementById('lbl-name').textContent = ui.lbl_name;
+  document.getElementById('inputName').placeholder = ui.name_placeholder;
+  document.getElementById('lbl-target').textContent = ui.lbl_target;
+  document.getElementById('playBtn').textContent = ui.play_btn;
+  document.getElementById('loadingText').textContent = ui.loading;
+  // HUD
+  document.getElementById('btn-learn-hud').textContent = '📚';
+  document.getElementById('btn-menu-hud').textContent = '🏠';
+  // Dialogue buttons
+  document.getElementById('btn-hint').textContent = ui.btn_hint;
+  document.getElementById('btn-translate').textContent = ui.btn_translate;
+  document.getElementById('btn-correct').textContent = ui.btn_correct;
+  // Back buttons
+  document.querySelectorAll('.loc-back,.dial-back').forEach(b=>b.textContent=ui.btn_back);
+  // Learn
+  document.getElementById('learn-title-text').textContent = ui.learn_title;
+  // Learn tabs
+  buildLearnTabs();
+  // Learn/back buttons in loc
+  const locLearn = document.getElementById('btn-learn-loc');
+  if(locLearn) locLearn.textContent = '📚';
+}
+
+function buildLearnTabs(){
+  const tabs = document.getElementById('learnTabs');
+  if(!ui.tab_vocab) return;
+  tabs.innerHTML = `
+    <button class="learn-tab active" onclick="showLearnTab('vocab',this)">${ui.tab_vocab}</button>
+    <button class="learn-tab" onclick="showLearnTab('grammar',this)">${ui.tab_grammar}</button>
+    <button class="learn-tab" onclick="showLearnTab('phrases',this)">${ui.tab_phrases}</button>
+    <button class="learn-tab" onclick="showLearnTab('context',this)">${ui.tab_context}</button>
+  `;
+}
+
+// =================================================================
+//  VILLAGE CANVAS
+// =================================================================
+let canvas, ctx, tick=0, hoveredLoc=null;
+
+function startVillage(){
+  const flags={en:'🇬🇧',fr:'🇫🇷',es:'🇪🇸',ht:'🇭🇹',de:'🇩🇪',ru:'🇷🇺',zh:'🇨🇳',ja:'🇯🇵'};
+  const names={en:'English',fr:'Français',es:'Español',ht:'Kreyòl',de:'Deutsch',ru:'Русский',zh:'中文',ja:'日本語'};
+  document.getElementById('hudPlayer').textContent='👤 '+S.playerName;
+  document.getElementById('hudLang').textContent=(flags[S.targetLang]||'🌐')+' '+(names[S.targetLang]||S.targetLang);
+  document.getElementById('learnLangBadge').textContent=(flags[S.targetLang]||'🌐')+' '+(names[S.targetLang]||S.targetLang);
+  document.getElementById('hudXP').textContent='0 '+ui.xp_label;
+  showScreen('screen-village');
+  if(!canvas){
+    canvas=document.getElementById('villageCanvas');
+    canvas.width=canvas.offsetWidth; canvas.height=canvas.offsetHeight;
+    ctx=canvas.getContext('2d');
+    window.addEventListener('resize',()=>{canvas.width=canvas.offsetWidth;canvas.height=canvas.offsetHeight;});
+    canvas.addEventListener('click',onVillageClick);
+    canvas.addEventListener('mousemove',onVillageHover);
+    canvas.addEventListener('touchstart',onVillageTouch,{passive:true});
+    requestAnimationFrame(villageLoop);
+  }
+}
+
+function villageLoop(){ tick++; drawVillage(); requestAnimationFrame(villageLoop); }
+
+function drawVillage(){
+  if(!canvas||!ctx) return;
+  const W=canvas.width,H=canvas.height;
+  const sky=ctx.createLinearGradient(0,0,0,H*0.6);
+  sky.addColorStop(0,'#0a1830'); sky.addColorStop(1,'#1a4880');
+  ctx.fillStyle=sky; ctx.fillRect(0,0,W,H);
+  // Moon
+  ctx.beginPath(); ctx.arc(W*0.88,H*0.1,24,0,Math.PI*2);
+  ctx.fillStyle='#ffe0a0'; ctx.fill();
+  ctx.beginPath(); ctx.arc(W*0.88,H*0.1,34,0,Math.PI*2);
+  ctx.fillStyle='rgba(255,224,160,0.1)'; ctx.fill();
+  // Stars
+  for(let i=0;i<35;i++){
+    const sx=(Math.sin(i*437)*0.5+0.5)*W, sy=(Math.sin(i*293)*0.5+0.5)*H*0.42;
+    ctx.beginPath(); ctx.arc(sx,sy,1,0,Math.PI*2);
+    ctx.fillStyle=`rgba(255,255,200,${0.3+0.7*Math.sin(tick*0.02+i)})`; ctx.fill();
+  }
+  // Ground
+  const g=ctx.createLinearGradient(0,H*0.5,0,H);
+  g.addColorStop(0,'#1a4a18'); g.addColorStop(1,'#0d2a0c');
+  ctx.fillStyle=g; ctx.fillRect(0,H*0.5,W,H);
+  // Path
+  ctx.fillStyle='rgba(180,140,80,0.2)';
+  ctx.beginPath(); ctx.moveTo(W*0.45,H*0.5); ctx.lineTo(W*0.38,H); ctx.lineTo(W*0.62,H); ctx.lineTo(W*0.55,H*0.5); ctx.fill();
+  // Locations
+  LOCATIONS.forEach(loc=>{
+    const bob=Math.sin(tick*0.025+loc.x*10)*2;
+    drawLoc(loc,loc.x*W,(loc.y*H)+bob,loc.w*W,loc.h*H,hoveredLoc===loc.id);
+  });
+}
+
+function drawLoc(loc,x,y,w,h,hovered){
+  const a=hovered?1:0.88;
+  ctx.fillStyle='rgba(0,0,0,0.25)'; ctx.fillRect(x+3,y+3,w,h);
+  ctx.fillStyle=hexAlpha(loc.color,a); ctx.fillRect(x,y,w,h);
+  ctx.beginPath(); ctx.moveTo(x-5,y); ctx.lineTo(x+w/2,y-h*0.35); ctx.lineTo(x+w+5,y);
+  ctx.fillStyle=hexAlpha(darken(loc.color),a); ctx.fill();
+  ctx.fillStyle='rgba(30,15,5,0.8)';
+  ctx.fillRect(x+w/2-w*0.12,y+h-h*0.3,w*0.24,h*0.3);
+  if(hovered){ ctx.strokeStyle='rgba(255,215,0,0.8)'; ctx.lineWidth=2; ctx.strokeRect(x,y,w,h); }
+  ctx.font=`${Math.min(w,h)*0.44}px serif`;
+  ctx.textAlign='center'; ctx.textBaseline='middle';
+  ctx.fillText(loc.emoji,x+w/2,y+h*0.35);
+  // Name in native language
+  const name = LOC_NAMES[loc.id]?.[S.nativeLang] || LOC_NAMES[loc.id]?.en || loc.id;
+  ctx.font=`bold ${Math.max(9,Math.min(w*0.13,13))}px Nunito,sans-serif`;
+  ctx.fillStyle=hovered?'#FFD700':'rgba(255,240,200,0.92)';
+  ctx.fillText(name,x+w/2,y+h+13);
+}
+
+function hexAlpha(hex,a){const r=parseInt(hex.slice(1,3),16),g=parseInt(hex.slice(3,5),16),b=parseInt(hex.slice(5,7),16);return `rgba(${r},${g},${b},${a})`;}
+function darken(hex){return `#${[1,3,5].map(i=>Math.max(0,parseInt(hex.slice(i,i+2),16)-40).toString(16).padStart(2,'0')).join('')}`;}
+
+function getLocAt(mx,my){
+  const W=canvas.width,H=canvas.height;
+  return LOCATIONS.find(l=>{const lx=l.x*W,ly=l.y*H,lw=l.w*W,lh=l.h*H;return mx>=lx&&mx<=lx+lw&&my>=ly-lh*0.35&&my<=ly+lh+18;});
+}
+function onVillageHover(e){
+  const r=canvas.getBoundingClientRect(),l=getLocAt(e.clientX-r.left,e.clientY-r.top);
+  hoveredLoc=l?l.id:null;
+  const tip=document.getElementById('locTooltip');
+  if(l){
+    const name=LOC_NAMES[l.id]?.[S.nativeLang]||l.id;
+    const desc=LOC_DESC[l.id]?.[S.nativeLang]||'';
+    tip.textContent=l.emoji+' '+name+' — '+desc;
+    tip.style.left=(l.x*canvas.width+l.w*canvas.width/2)+'px';
+    tip.style.top=(l.y*canvas.height)+'px';
+    tip.classList.add('show');
+  } else tip.classList.remove('show');
+}
+function onVillageClick(e){const r=canvas.getBoundingClientRect(),l=getLocAt(e.clientX-r.left,e.clientY-r.top);if(l)openLocation(l);}
+function onVillageTouch(e){const r=canvas.getBoundingClientRect(),t=e.touches[0],l=getLocAt(t.clientX-r.left,t.clientY-r.top);if(l)openLocation(l);}
+
+// =================================================================
+//  LOCATION SCREEN
+// =================================================================
+function openLocation(loc){
+  S.currentLocation=loc;
+  const name=LOC_NAMES[loc.id]?.[S.nativeLang]||loc.id;
+  const desc=LOC_DESC[loc.id]?.[S.nativeLang]||'';
+  document.getElementById('locTitle').textContent=loc.emoji+' '+name;
+  document.getElementById('locSubtitle').textContent=desc;
+  document.getElementById('btn-back-loc').textContent=ui.btn_back||'← Retour';
+  document.getElementById('btn-learn-loc').textContent='📚 '+(ui.btn_learn||'Apprendre').replace('📚','').trim();
+  const list=document.getElementById('npcList');
+  list.innerHTML=loc.npcs.map(npc=>{
+    const role=typeof npc.role==='object'?(npc.role[S.nativeLang]||npc.role.en||''):npc.role;
+    const talkLabel=(ui.click_to_talk||'Tap to start →');
+    return `<div class="npc-card" onclick="openDialogue('${loc.id}','${npc.id}')">
+      <div class="npc-avatar-big" style="border-color:${npc.color||'#ffd700'}">${npc.emoji}</div>
+      <div class="npc-info">
+        <div class="npc-card-name">${npc.name}</div>
+        <div class="npc-card-role">${role}</div>
+        <div class="npc-card-preview">${talkLabel}</div>
+      </div>
+      <div class="npc-arrow">›</div>
+    </div>`;
+  }).join('');
+  showScreen('screen-location');
+}
+
+// =================================================================
+//  DIALOGUE
+// =================================================================
+function openDialogue(locId,npcId){
+  const loc=LOCATIONS.find(l=>l.id===locId);
+  const npc=loc.npcs.find(n=>n.id===npcId);
+  S.currentNPC=npc; S.currentLocation=loc; S.chatHistory=[];
+  const role=typeof npc.role==='object'?(npc.role[S.nativeLang]||npc.role.en):npc.role;
+  const locName=LOC_NAMES[loc.id]?.[S.nativeLang]||loc.id;
+  document.getElementById('dialAvatar').textContent=npc.emoji;
+  document.getElementById('dialNpcName').textContent=npc.name;
+  document.getElementById('dialNpcRole').textContent=role+' — '+locName;
+  document.getElementById('chatMessages').innerHTML='';
+  document.getElementById('correctionBox').className='correction-box';
+  document.getElementById('dialInput').placeholder=ui.name_placeholder||'...';
+  document.getElementById('btn-back-dial').textContent=ui.btn_back||'←';
+  document.getElementById('btn-hint').textContent=ui.btn_hint||'💡';
+  document.getElementById('btn-translate').textContent=ui.btn_translate||'🔤';
+  document.getElementById('btn-correct').textContent=ui.btn_correct||'✅';
+  showScreen('screen-dialogue');
+  setTimeout(()=>npcOpenConversation(),500);
+}
+
+const LANG_NAMES={en:'anglais',fr:'français',es:'espagnol',ht:'créole haïtien',de:'allemand',ru:'russe',zh:'mandarin',ja:'japonais'};
+const LANG_NAMES_NATIVE={
+  fr:{en:'anglais',fr:'français',es:'espagnol',ht:'créole haïtien',de:'allemand',ru:'russe',zh:'mandarin',ja:'japonais'},
+  en:{en:'English',fr:'French',es:'Spanish',ht:'Haitian Creole',de:'German',ru:'Russian',zh:'Mandarin',ja:'Japanese'},
+  es:{en:'inglés',fr:'francés',es:'español',ht:'criollo haitiano',de:'alemán',ru:'ruso',zh:'mandarín',ja:'japonés'},
+  ht:{en:'anglè',fr:'fransè',es:'espanyòl',ht:'kreyòl ayisyen',de:'alman',ru:'ris',zh:'mandaren',ja:'japonè'},
+  de:{en:'Englisch',fr:'Französisch',es:'Spanisch',ht:'Haitianisches Kreolisch',de:'Deutsch',ru:'Russisch',zh:'Mandarin',ja:'Japanisch'},
+  ru:{en:'английский',fr:'французский',es:'испанский',ht:'гаитянский креольский',de:'немецкий',ru:'русский',zh:'мандаринский',ja:'японский'},
+  zh:{en:'英语',fr:'法语',es:'西班牙语',ht:'海地克里奥尔语',de:'德语',ru:'俄语',zh:'普通话',ja:'日语'},
+  ja:{en:'英語',fr:'フランス語',es:'スペイン語',ht:'ハイチ語',de:'ドイツ語',ru:'ロシア語',zh:'中国語',ja:'日本語'},
+};
+
+function getLangName(lang, inLang){ return (LANG_NAMES_NATIVE[inLang]||LANG_NAMES_NATIVE.fr)[lang]||lang; }
+
+async function npcOpenConversation(){
+  const npc=S.currentNPC, loc=S.currentLocation;
+  const targetLangName=getLangName(S.targetLang,S.nativeLang);
+  showTyping();
+  document.getElementById('dialSend').disabled=true;
+  const prompt=`${npc.context}
+Le joueur s'appelle ${S.playerName}.
+Tu DOIS répondre UNIQUEMENT en ${LANG_NAMES[S.targetLang]||S.targetLang}.
+Max 2 phrases courtes.
+Lance la conversation : dis bonjour et pose une question simple adaptée à ton rôle de ${typeof npc.role==='object'?npc.role.fr:npc.role} dans ${LOC_NAMES[loc.id]?.fr||loc.id}.`;
+  try{
+    const r=await fetch(`${API_BASE}/api/dialogue`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({npcName:npc.name,npcRole:typeof npc.role==='object'?npc.role.fr:npc.role,location:LOC_NAMES[loc.id]?.fr||loc.id,language:LANG_NAMES[S.targetLang],playerName:S.playerName,playerMessage:'__OPEN__',history:[],systemContext:prompt})});
+    const d=await r.json();
+    removeTyping(); const reply=d.reply||'...';
+    addMsg('npc',npc.emoji,reply); S.chatHistory.push({role:'assistant',content:reply});
+  }catch(e){
+    removeTyping();
+    const fb=getOpeningFallback(npc);
+    addMsg('npc',npc.emoji,fb); S.chatHistory.push({role:'assistant',content:fb});
+  }
+  document.getElementById('dialSend').disabled=false;
+  document.getElementById('dialInput').focus();
+}
+
+function getOpeningFallback(npc){
+  const f={pastor:'Welcome. How may I help you today?',teacher:`Hello ${S.playerName}! Ready to learn?`,friend:`Hey ${S.playerName}! So great to see you!`,partner:`Hi ${S.playerName}... glad you came.`,vendor:'Welcome! What can I get you?',doctor:'Hello. How are you feeling today?',bartender:'Hey! What\'ll it be?',farmer:'Howdy! Fine day, isn\'t it?'};
+  return f[npc.id]||`Hello ${S.playerName}! Nice to meet you.`;
+}
+
+async function sendMessage(){
+  const inp=document.getElementById('dialInput');
+  const text=inp.value.trim(); if(!text) return;
+  inp.value='';
+  document.getElementById('correctionBox').className='correction-box';
+  addMsg('player','😊',text);
+  S.chatHistory.push({role:'user',content:text});
+  gainXP(10);
+  const npc=S.currentNPC,loc=S.currentLocation;
+  const prompt=`${npc.context}
+Le joueur s'appelle ${S.playerName}.
+Tu DOIS répondre UNIQUEMENT en ${LANG_NAMES[S.targetLang]||S.targetLang}.
+Max 2 phrases. Si faute de langue : reformule naturellement.`;
+  showTyping(); document.getElementById('dialSend').disabled=true;
+  try{
+    const r=await fetch(`${API_BASE}/api/dialogue`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({npcName:npc.name,npcRole:typeof npc.role==='object'?npc.role.fr:npc.role,location:LOC_NAMES[loc.id]?.fr||loc.id,language:LANG_NAMES[S.targetLang],playerName:S.playerName,playerMessage:text,history:S.chatHistory.slice(-8),systemContext:prompt})});
+    const d=await r.json(); removeTyping();
+    const reply=d.reply||'...'; addMsg('npc',npc.emoji,reply);
+    S.chatHistory.push({role:'assistant',content:reply});
+  }catch(e){ removeTyping(); addMsg('npc',npc.emoji,'...'); }
+  document.getElementById('dialSend').disabled=false;
+}
+
+function addMsg(type,avatar,text){
+  const c=document.getElementById('chatMessages');
+  const d=document.createElement('div'); d.className=`msg ${type}`;
+  d.innerHTML=`<div class="msg-avatar">${avatar}</div><div class="msg-bubble">${text}</div>`;
+  c.appendChild(d); c.scrollTop=c.scrollHeight;
+}
+function showTyping(){
+  const c=document.getElementById('chatMessages');
+  const d=document.createElement('div'); d.className='msg npc'; d.id='typingIndicator';
+  d.innerHTML=`<div class="msg-avatar">${S.currentNPC?.emoji||'🧑'}</div><div class="msg-bubble"><div class="typing-indicator"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div></div>`;
+  c.appendChild(d); c.scrollTop=c.scrollHeight;
+}
+function removeTyping(){ document.getElementById('typingIndicator')?.remove(); }
+
+async function requestHint(){
+  const last=S.chatHistory.filter(m=>m.role==='assistant').slice(-1)[0]?.content;
+  if(!last) return;
+  const nativeLangName=getLangName(S.nativeLang,S.nativeLang);
+  const targetLangName=getLangName(S.targetLang,S.nativeLang);
+  try{
+    const r=await fetch(`${API_BASE}/api/dialogue`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({npcName:'',npcRole:'',location:'',language:LANG_NAMES[S.nativeLang]||'français',playerName:S.playerName,playerMessage:`Donne un indice court en ${LANG_NAMES[S.nativeLang]||'français'} pour répondre à: "${last}". Format: juste l'indice, max 1 phrase.`,history:[]})});
+    const d=await r.json();
+    showCorrBox('💡 '+d.reply,'ok');
+  }catch(e){ showCorrBox('💡 '+ui.btn_hint,'ok'); }
+}
+
+async function requestTranslation(){
+  const last=S.chatHistory.filter(m=>m.role==='assistant').slice(-1)[0]?.content;
+  if(!last){ showCorrBox(ui.btn_translate||'...','ok'); return; }
+  try{
+    const r=await fetch(`${API_BASE}/api/translate`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text:last,targetLanguage:LANG_NAMES[S.nativeLang]||'français'})});
+    const d=await r.json();
+    showCorrBox('🔤 '+(d.translation||last),'ok');
+  }catch(e){ showCorrBox('🔤 ...','ok'); }
+}
+
+async function requestCorrection(){
+  const last=S.chatHistory.filter(m=>m.role==='user').slice(-1)[0]?.content;
+  if(!last){ showCorrBox('...','error'); return; }
+  try{
+    const r=await fetch(`${API_BASE}/api/correct`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text:last,language:LANG_NAMES[S.targetLang]||'anglais',nativeLanguage:LANG_NAMES[S.nativeLang]||'français'})});
+    const d=await r.json();
+    if(d.correct){ gainXP(5); showCorrBox('✅ '+d.corrected,'ok'); }
+    else showCorrBox('✏️ '+d.corrected+(d.explanation?' — '+d.explanation:''),'error');
+  }catch(e){ showCorrBox('...','ok'); }
+}
+
+function showCorrBox(msg,type){
+  const b=document.getElementById('correctionBox');
+  b.textContent=msg; b.className=`correction-box ${type==='error'?'error':''} show`;
+}
+
+document.getElementById('dialInput').addEventListener('keydown',e=>{ if(e.key==='Enter') sendMessage(); });
+
+// =================================================================
+//  LEARN SCREEN
+// =================================================================
+let learnFrom='screen-village';
+function openLearn(){
+  learnFrom=document.querySelector('.screen.active')?.id||'screen-village';
+  document.getElementById('learn-title-text').textContent=ui.learn_title||'📚';
+  buildLearnTabs();
+  showLearnTab('vocab',document.querySelector('.learn-tab'));
+  showScreen('screen-learn');
+}
+function goBackFromLearn(){ showScreen(learnFrom); }
+
+function showLearnTab(tab,btn){
+  document.querySelectorAll('.learn-tab').forEach(b=>b.classList.remove('active'));
+  if(btn) btn.classList.add('active');
+  const body=document.getElementById('learnBody');
+  const tl=S.targetLang, nl=S.nativeLang;
+  const vocab=VOCAB_DATA[tl]||VOCAB_DATA.en;
+
+  if(tab==='vocab'){
+    body.innerHTML=`<div class="learn-section-title">${ui.section_vocab||'Vocabulaire'}</div>
+    <div class="vocab-grid">${vocab.map(v=>`
+      <div class="vocab-card" onclick="speakWord('${v.t}')">
+        <div class="vocab-emoji">${v.e}</div>
+        <div class="vocab-target">${v.t}</div>
+        <div class="vocab-native">${v.natives?.[nl]||''}</div>
+        <div class="vocab-phonetic">[${v.p}]</div>
+      </div>`).join('')}</div>`;
+  } else if(tab==='grammar'){
+    body.innerHTML=`<div class="learn-section-title">${ui.section_greet||'Salutations'}</div>
+    ${buildGreetings(tl,nl)}
+    <div class="learn-section-title" style="margin-top:18px">${ui.section_grammar||'Grammaire'}</div>
+    ${buildGrammar(tl,nl)}`;
+  } else if(tab==='phrases'){
+    body.innerHTML=`<div class="learn-section-title">${ui.section_survival||'Phrases'}</div>
+    ${buildSurvivalPhrases(tl,nl)}`;
+  } else if(tab==='context'){
+    body.innerHTML=`<div class="learn-section-title">${ui.section_context||'Par lieu'}</div>
+    ${LOCATIONS.map(loc=>{
+      const name=LOC_NAMES[loc.id]?.[nl]||loc.id;
+      const desc=LOC_DESC[loc.id]?.[nl]||'';
+      return `<div style="margin-bottom:14px">
+        <div class="learn-section-title">${loc.emoji} ${name}</div>
+        <div class="phrase-card"><span class="phrase-native">${desc}</span></div>
+      </div>`;
+    }).join('')}`;
+  }
+}
+
+function speakWord(word){
+  if('speechSynthesis' in window){
+    const u=new SpeechSynthesisUtterance(word);
+    const langMap={en:'en-US',fr:'fr-FR',es:'es-ES',ht:'fr-HT',de:'de-DE',ru:'ru-RU',zh:'zh-CN',ja:'ja-JP'};
+    u.lang=langMap[S.targetLang]||'en-US';
+    speechSynthesis.speak(u);
+  }
+  showNotif('🔊 '+word);
+}
+
+// Greetings avec traduction dans la langue maternelle
+const GREET_DATA = {
+  en:{greets:['Hello','Good morning','Good evening','Goodbye','Thank you','Please','You\'re welcome','Excuse me','How are you?','My name is...','Nice to meet you'],trans:{fr:['Bonjour','Bonjour','Bonsoir','Au revoir','Merci','S\'il vous plaît','De rien','Excusez-moi','Comment allez-vous ?','Je m\'appelle...','Enchanté·e'],ht:['Bonjou','Bonjou maten','Bonswa','Orevwa','Mèsi','Tanpri','Pa gen pwoblèm','Eskize m','Kijan ou ye?','Mwen rele...','Kontan konnen ou'],es:['Hola','Buenos días','Buenas noches','Adiós','Gracias','Por favor','De nada','Perdón','¿Cómo estás?','Me llamo...','Mucho gusto'],de:['Hallo','Guten Morgen','Guten Abend','Auf Wiedersehen','Danke','Bitte','Gern geschehen','Entschuldigung','Wie geht es Ihnen?','Ich heiße...','Angenehm'],ru:['Привет','Доброе утро','Добрый вечер','До свидания','Спасибо','Пожалуйста','Не за что','Извините','Как дела?','Меня зовут...','Приятно познакомиться'],zh:['你好','早上好','晚上好','再见','谢谢','请','不客气','对不起','你好吗？','我叫...','很高兴认识你'],ja:['こんにちは','おはようございます','こんばんは','さようなら','ありがとう','ください','どういたしまして','すみません','お元気ですか？','私の名前は...','はじめまして']}},
+  fr:{greets:['Bonjour','Bonsoir','Au revoir','Merci','S\'il vous plaît','De rien','Excusez-moi','Comment allez-vous ?','Je m\'appelle...','Enchanté·e'],trans:{en:['Hello','Good evening','Goodbye','Thank you','Please','You\'re welcome','Excuse me','How are you?','My name is...','Nice to meet you'],ht:['Bonjou','Bonswa','Orevwa','Mèsi','Tanpri','Pa gen pwoblèm','Eskize m','Kijan ou ye?','Mwen rele...','Kontan konnen ou'],es:['Hola','Buenas noches','Adiós','Gracias','Por favor','De nada','Perdón','¿Cómo estás?','Me llamo...','Mucho gusto']}},
+};
+
+function buildGreetings(targetLang, nativeLang){
+  const data=GREET_DATA[targetLang]||GREET_DATA.en;
+  const translations=data.trans?.[nativeLang]||[];
+  return data.greets.map((g,i)=>`
+    <div class="phrase-card">
+      <span class="phrase-native">${translations[i]||g}</span>
+      <span class="phrase-arrow">→</span>
+      <span class="phrase-target">${g}</span>
+    </div>`).join('');
+}
+
+function buildGrammar(tl,nl){
+  const tips={
+    en:[['Sujet + Verbe + Complément','I + eat + apple'],['Question','Do you...? / Are you...?'],['Négation','I do not / I don\'t...'],['Passé simple','I + verbe + ed']],
+    fr:[['Sujet + Verbe + Complément','Je + mange + une pomme'],['Question','Est-ce que... ? / ...?'],['Négation','Je ne... pas'],['Accord','adjectif s\'accorde avec le nom']],
+    es:[['Sujeto + Verbo + Complemento','Yo + como + manzana'],['Question','¿...? (même ordre)'],['Negación','No + verbo'],['Genre','o=masculin, a=féminin']],
+    ht:[['Sijè + Vèb + Konplèman','Mwen + manje + pòm'],['Kesyon','Èske... ?'],['Negasyon','Mwen pa...'],['Pa gen fòm chanje','menm mo pou tout']],
+    de:[['Sujet + Verbe + Complément','Ich + esse + Apfel'],['Question','Verb + Sujet ?'],['Négation','nicht / kein'],['Genre','der/die/das']],
+    ru:[['Sujet + Verbe + Complément','Я + ем + яблоко'],['Question','intonation montante'],['Négation','не + verbe'],['Genre','masculin/féminin/neutre']],
+    zh:[['Sujet + Verbe + Complément','我 + 吃 + 苹果'],['Question','...吗？'],['Négation','不 + verbe'],['Pas de conjugaison','même forme']],
+    ja:[['Sujet + Complément + Verbe','私 + りんご + 食べます'],['Politesse','verbe + です/ます'],['Question','phrase + か？'],['Négation','verbe + ません']],
+  };
+  const t=tips[tl]||tips.en;
+  return t.map(r=>`<div class="phrase-card"><span class="phrase-native">${r[0]}</span><span class="phrase-arrow">→</span><span class="phrase-target">${r[1]}</span></div>`).join('');
+}
+
+function buildSurvivalPhrases(tl,nl){
+  const phrases={
+    en:{nativ:{fr:['Je ne comprends pas','Pouvez-vous répéter ?','Parlez lentement','Où est... ?','Combien ?','Au secours !','Je suis perdu·e'],ht:['Mwen pa konprann','Repete tanpri','Pale dousman','Ki kote... ?','Konbyen?','Ede m!','Mwen pèdi'],es:['No entiendo','¿Puede repetir?','Despacio','¿Dónde está?','¿Cuánto?','¡Ayuda!','Estoy perdido'],de:['Ich verstehe nicht','Bitte wiederholen','Langsam bitte','Wo ist...?','Wie viel?','Hilfe!','Ich bin verloren'],ru:['Не понимаю','Повторите','Медленнее','Где...?','Сколько?','Помогите!','Я потерялся'],zh:['我不明白','请再说','请说慢点','...在哪？','多少？','救命！','我迷路了'],ja:['わかりません','もう一度','ゆっくり','どこですか','いくら？','助けて！','迷子です']},target:["I don't understand","Can you repeat?","Please speak slowly","Where is...?","How much?","Help!","I'm lost"]},
+    fr:{nativ:{en:['I don\'t understand','Can you repeat?','Speak slowly','Where is?','How much?','Help!','I\'m lost'],ht:['Mwen pa konprann','Repete tanpri','Pale dousman','Ki kote?','Konbyen?','Ede m!','Mwen pèdi']},target:['Je ne comprends pas','Pouvez-vous répéter ?','Parlez lentement','Où est... ?','Combien ?','Au secours !','Je suis perdu·e']},
+  };
+  const p=phrases[tl];
+  const natives=p?.nativ?.[nl]||p?.target||[];
+  const targets=p?.target||[];
+  return targets.map((t,i)=>`<div class="phrase-card"><span class="phrase-native">${natives[i]||t}</span><span class="phrase-arrow">→</span><span class="phrase-target">${t}</span></div>`).join('');
+}
+
+// =================================================================
+//  XP & UTILS
+// =================================================================
+function gainXP(n){
+  S.xp+=n;
+  const pct=S.xp%100;
+  document.getElementById('hudXP').textContent=S.xp+' '+(ui.xp_label||'XP');
+  document.getElementById('xpBarFill').style.width=pct+'%';
+  const newLevel=Math.floor(S.xp/100)+1;
+  if(newLevel>S.level){ S.level=newLevel; showNotif((ui.level_up||'🎉 Niveau')+' '+S.level+' !'); }
+  else showNotif('+'+n+' '+(ui.xp_gained||'XP ⭐'));
+}
+
+function showScreen(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+function showNotif(msg){
+  const n=document.getElementById('notif');
+  n.textContent=msg; n.classList.add('show');
+  clearTimeout(n._t); n._t=setTimeout(()=>n.classList.remove('show'),2200);
+}
+
+function showLoading(show){
+  document.getElementById('loadingOverlay').classList[show?'add':'remove']('show');
+}
+</script>
+</body>
+</html>
