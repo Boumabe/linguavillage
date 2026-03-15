@@ -1176,5 +1176,50 @@ function showLoading(show){
   document.getElementById('loadingOverlay').classList[show?'add':'remove']('show');
 }
 </script>
+  <div id="chat-container" style="padding: 20px; font-family: sans-serif;">
+    <input type="text" id="userInput" placeholder="Écris ton message ici..." style="padding: 10px; width: 250px;">
+    <button onclick="envoyerMessage()" style="padding: 10px; cursor: pointer;">Envoyer</button>
+    
+    <p id="statut" style="color: blue;"></p>
+    <div id="reponsePNJ" style="margin-top: 20px; padding: 15px; background: #f0f0f0; border-radius: 8px;">
+        La réponse du PNJ s'affichera ici...
+    </div>
+</div>
+
+<script>
+async function envoyerMessage() {
+    const input = document.getElementById('userInput');
+    const display = document.getElementById('reponsePNJ');
+    const statut = document.getElementById('statut');
+    
+    if (!input.value) return;
+
+    statut.innerText = "Le PNJ réfléchit...";
+    
+    try {
+        const response = await fetch("https://linguavillage-api--marckensbou2.replit.app/api/dialogue", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                npcName: "Kako",
+                npcRole: "Guide du village",
+                location: "Entrée du village",
+                language: "Japanese",
+                playerName: "Joueur",
+                playerMessage: input.value
+            })
+        });
+
+        const data = await response.json();
+        display.innerText = data.reply;
+        statut.innerText = "";
+        input.value = ""; // Vide le champ après l'envoi
+    } catch (error) {
+        console.error("Erreur:", error);
+        statut.innerText = "Erreur : Vérifie que ton Replit est bien allumé (clique sur RUN).";
+    }
+}
+</script>
+
 </body>
 </html> 
