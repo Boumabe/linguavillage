@@ -145,6 +145,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--bg-deep);font-
 .vocab-card:hover{background:rgba(255,215,0,0.08);border-color:rgba(255,215,0,0.4);transform:translateY(-2px);}
 .vocab-emoji{font-size:1.8rem;margin-bottom:5px;}
 .vocab-target{font-size:1rem;font-weight:900;color:var(--gold);}
+.vocab-roman{font-size:0.78rem;font-weight:700;color:var(--accent, #ff9f43);margin-top:2px;}
 .vocab-native{font-size:0.75rem;color:var(--text-dim);margin-top:2px;}
 .vocab-phonetic{font-size:0.65rem;color:#666;font-style:italic;margin-top:1px;}
 .phrase-card{background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:11px 14px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;gap:10px;}
@@ -640,18 +641,42 @@ const VOCAB_DATA = {
       {e:'💧',t:'Wasser',p:'ˈvasɐ',natives:{fr:'eau',en:'water',es:'agua',ht:'dlo',ru:'вода',zh:'水',ja:'水'}},
       {e:'🏠',t:'Haus',p:'haʊs',natives:{fr:'maison',en:'house',es:'casa',ht:'kay',ru:'дом',zh:'房子',ja:'家'}},
       {e:'❤️',t:'Liebe',p:'ˈliːbə',natives:{fr:'amour',en:'love',es:'amor',ht:'lanmou',ru:'любовь',zh:'爱',ja:'愛'}},],
-  ru:[{e:'🍞',t:'хлеб',p:'xlʲep',natives:{fr:'pain',en:'bread',es:'pan',ht:'pen',de:'Brot',zh:'面包',ja:'パン'}},
-      {e:'💧',t:'вода',p:'vɐˈda',natives:{fr:'eau',en:'water',es:'agua',ht:'dlo',de:'Wasser',zh:'水',ja:'水'}},
-      {e:'🏠',t:'дом',p:'dom',natives:{fr:'maison',en:'house',es:'casa',ht:'kay',de:'Haus',zh:'房子',ja:'家'}},
-      {e:'❤️',t:'любовь',p:'lʲʊˈbofʲ',natives:{fr:'amour',en:'love',es:'amor',ht:'lanmou',de:'Liebe',zh:'爱',ja:'愛'}},],
-  zh:[{e:'🍞',t:'面包',p:'miànbāo',natives:{fr:'pain',en:'bread',es:'pan',ht:'pen',de:'Brot',ru:'хлеб',ja:'パン'}},
-      {e:'💧',t:'水',p:'shuǐ',natives:{fr:'eau',en:'water',es:'agua',ht:'dlo',de:'Wasser',ru:'вода',ja:'水'}},
-      {e:'🏠',t:'房子',p:'fángzi',natives:{fr:'maison',en:'house',es:'casa',ht:'kay',de:'Haus',ru:'дом',ja:'家'}},
-      {e:'❤️',t:'爱',p:'ài',natives:{fr:'amour',en:'love',es:'amor',ht:'lanmou',de:'Liebe',ru:'любовь',ja:'愛'}},],
-  ja:[{e:'🍞',t:'パン',p:'pan',natives:{fr:'pain',en:'bread',es:'pan',ht:'pen',de:'Brot',ru:'хлеб',zh:'面包'}},
-      {e:'💧',t:'水',p:'mizu',natives:{fr:'eau',en:'water',es:'agua',ht:'dlo',de:'Wasser',ru:'вода',zh:'水'}},
-      {e:'🏠',t:'家',p:'ie',natives:{fr:'maison',en:'house',es:'casa',ht:'kay',de:'Haus',ru:'дом',zh:'房子'}},
-      {e:'❤️',t:'愛',p:'ai',natives:{fr:'amour',en:'love',es:'amor',ht:'lanmou',de:'Liebe',ru:'любовь',zh:'爱'}},],
+  ru:[{e:'🍞',t:'хлеб',r:'Khleb',p:'xlʲep',natives:{fr:'pain',en:'bread',es:'pan',ht:'pen',de:'Brot',zh:'面包',ja:'パン'}},
+      {e:'💧',t:'вода',r:'Voda',p:'vɐˈda',natives:{fr:'eau',en:'water',es:'agua',ht:'dlo',de:'Wasser',zh:'水',ja:'水'}},
+      {e:'🏠',t:'дом',r:'Dom',p:'dom',natives:{fr:'maison',en:'house',es:'casa',ht:'kay',de:'Haus',zh:'房子',ja:'家'}},
+      {e:'🐕',t:'собака',r:'Sobaka',p:'sɐˈbakə',natives:{fr:'chien',en:'dog',es:'perro',ht:'chen',de:'Hund',zh:'狗',ja:'犬'}},
+      {e:'☀️',t:'солнце',r:'Solntse',p:'ˈsont͡sə',natives:{fr:'soleil',en:'sun',es:'sol',ht:'solèy',de:'Sonne',zh:'太阳',ja:'太陽'}},
+      {e:'📚',t:'книга',r:'Kniga',p:'ˈknʲiɡə',natives:{fr:'livre',en:'book',es:'libro',ht:'liv',de:'Buch',zh:'书',ja:'本'}},
+      {e:'🍎',t:'яблоко',r:'Yabloko',p:'ˈjabləkə',natives:{fr:'pomme',en:'apple',es:'manzana',ht:'pòm',de:'Apfel',zh:'苹果',ja:'りんご'}},
+      {e:'❤️',t:'любовь',r:'Lyubov',p:'lʲʊˈbofʲ',natives:{fr:'amour',en:'love',es:'amor',ht:'lanmou',de:'Liebe',zh:'爱',ja:'愛'}},
+      {e:'🌧️',t:'дождь',r:'Dozhd',p:'doʂtʲ',natives:{fr:'pluie',en:'rain',es:'lluvia',ht:'lapli',de:'Regen',zh:'雨',ja:'雨'}},
+      {e:'🚗',t:'машина',r:'Mashina',p:'mɐˈʂɨnə',natives:{fr:'voiture',en:'car',es:'coche',ht:'machin',de:'Auto',zh:'汽车',ja:'車'}},
+      {e:'😊',t:'счастливый',r:'Schastlivyy',p:'ɕːɪsˈlʲivɨj',natives:{fr:'heureux',en:'happy',es:'feliz',ht:'kontan',de:'glücklich',zh:'快乐',ja:'嬉しい'}},
+      {e:'💰',t:'деньги',r:'Dengi',p:'ˈdʲenʲɡʲɪ',natives:{fr:'argent',en:'money',es:'dinero',ht:'lajan',de:'Geld',zh:'钱',ja:'お金'}},],
+  zh:[{e:'🍞',t:'面包',r:'Miànbāo',p:'miànbāo',natives:{fr:'pain',en:'bread',es:'pan',ht:'pen',de:'Brot',ru:'хлеб',ja:'パン'}},
+      {e:'💧',t:'水',r:'Shuǐ',p:'shuǐ',natives:{fr:'eau',en:'water',es:'agua',ht:'dlo',de:'Wasser',ru:'вода',ja:'水'}},
+      {e:'🏠',t:'房子',r:'Fángzi',p:'fángzi',natives:{fr:'maison',en:'house',es:'casa',ht:'kay',de:'Haus',ru:'дом',ja:'家'}},
+      {e:'🐕',t:'狗',r:'Gǒu',p:'gǒu',natives:{fr:'chien',en:'dog',es:'perro',ht:'chen',de:'Hund',ru:'собака',ja:'犬'}},
+      {e:'☀️',t:'太阳',r:'Tàiyáng',p:'tàiyáng',natives:{fr:'soleil',en:'sun',es:'sol',ht:'solèy',de:'Sonne',ru:'солнце',ja:'太陽'}},
+      {e:'📚',t:'书',r:'Shū',p:'shū',natives:{fr:'livre',en:'book',es:'libro',ht:'liv',de:'Buch',ru:'книга',ja:'本'}},
+      {e:'🍎',t:'苹果',r:'Píngguǒ',p:'píngguǒ',natives:{fr:'pomme',en:'apple',es:'manzana',ht:'pòm',de:'Apfel',ru:'яблоко',ja:'りんご'}},
+      {e:'❤️',t:'爱',r:'Ài',p:'ài',natives:{fr:'amour',en:'love',es:'amor',ht:'lanmou',de:'Liebe',ru:'любовь',ja:'愛'}},
+      {e:'🌧️',t:'雨',r:'Yǔ',p:'yǔ',natives:{fr:'pluie',en:'rain',es:'lluvia',ht:'lapli',de:'Regen',ru:'дождь',ja:'雨'}},
+      {e:'🚗',t:'汽车',r:'Qìchē',p:'qìchē',natives:{fr:'voiture',en:'car',es:'coche',ht:'machin',de:'Auto',ru:'машина',ja:'車'}},
+      {e:'😊',t:'快乐',r:'Kuàilè',p:'kuàilè',natives:{fr:'heureux',en:'happy',es:'feliz',ht:'kontan',de:'glücklich',ru:'счастливый',ja:'嬉しい'}},
+      {e:'💰',t:'钱',r:'Qián',p:'qián',natives:{fr:'argent',en:'money',es:'dinero',ht:'lajan',de:'Geld',ru:'деньги',ja:'お金'}},],
+  ja:[{e:'🍞',t:'パン',r:'Pan',p:'pan',natives:{fr:'pain',en:'bread',es:'pan',ht:'pen',de:'Brot',ru:'хлеб',zh:'面包'}},
+      {e:'💧',t:'水',r:'Mizu',p:'mizu',natives:{fr:'eau',en:'water',es:'agua',ht:'dlo',de:'Wasser',ru:'вода',zh:'水'}},
+      {e:'🏠',t:'家',r:'Ie / Uchi',p:'ie',natives:{fr:'maison',en:'house',es:'casa',ht:'kay',de:'Haus',ru:'дом',zh:'房子'}},
+      {e:'🐕',t:'犬',r:'Inu',p:'inu',natives:{fr:'chien',en:'dog',es:'perro',ht:'chen',de:'Hund',ru:'собака',zh:'狗'}},
+      {e:'☀️',t:'太陽',r:'Taiyō',p:'taiyō',natives:{fr:'soleil',en:'sun',es:'sol',ht:'solèy',de:'Sonne',ru:'солнце',zh:'太阳'}},
+      {e:'📚',t:'本',r:'Hon',p:'hon',natives:{fr:'livre',en:'book',es:'libro',ht:'liv',de:'Buch',ru:'книга',zh:'书'}},
+      {e:'🍎',t:'りんご',r:'Ringo',p:'ringo',natives:{fr:'pomme',en:'apple',es:'manzana',ht:'pòm',de:'Apfel',ru:'яблоко',zh:'苹果'}},
+      {e:'❤️',t:'愛',r:'Ai',p:'ai',natives:{fr:'amour',en:'love',es:'amor',ht:'lanmou',de:'Liebe',ru:'любовь',zh:'爱'}},
+      {e:'🌧️',t:'雨',r:'Ame',p:'ame',natives:{fr:'pluie',en:'rain',es:'lluvia',ht:'lapli',de:'Regen',ru:'дождь',zh:'雨'}},
+      {e:'🚗',t:'車',r:'Kuruma',p:'kuruma',natives:{fr:'voiture',en:'car',es:'coche',ht:'machin',de:'Auto',ru:'машина',zh:'汽车'}},
+      {e:'😊',t:'嬉しい',r:'Ureshii',p:'ureshii',natives:{fr:'heureux',en:'happy',es:'feliz',ht:'kontan',de:'glücklich',ru:'счастливый',zh:'快乐'}},
+      {e:'💰',t:'お金',r:'Okane',p:'okane',natives:{fr:'argent',en:'money',es:'dinero',ht:'lajan',de:'Geld',ru:'деньги',zh:'钱'}},],
 };
 
 // =================================================================
@@ -1066,11 +1091,13 @@ function showLearnTab(tab,btn){
   const vocab=VOCAB_DATA[tl]||VOCAB_DATA.en;
 
   if(tab==='vocab'){
+    const needsRoman = ['zh','ja','ru'].includes(tl);
     body.innerHTML=`<div class="learn-section-title">${ui.section_vocab||'Vocabulaire'}</div>
     <div class="vocab-grid">${vocab.map(v=>`
       <div class="vocab-card" onclick="speakWord('${v.t}')">
         <div class="vocab-emoji">${v.e}</div>
         <div class="vocab-target">${v.t}</div>
+        ${needsRoman && v.r ? `<div class="vocab-roman">${v.r}</div>` : ''}
         <div class="vocab-native">${v.natives?.[nl]||''}</div>
         <div class="vocab-phonetic">[${v.p}]</div>
       </div>`).join('')}</div>`;
@@ -1109,17 +1136,37 @@ function speakWord(word){
 const GREET_DATA = {
   en:{greets:['Hello','Good morning','Good evening','Goodbye','Thank you','Please','You\'re welcome','Excuse me','How are you?','My name is...','Nice to meet you'],trans:{fr:['Bonjour','Bonjour','Bonsoir','Au revoir','Merci','S\'il vous plaît','De rien','Excusez-moi','Comment allez-vous ?','Je m\'appelle...','Enchanté·e'],ht:['Bonjou','Bonjou maten','Bonswa','Orevwa','Mèsi','Tanpri','Pa gen pwoblèm','Eskize m','Kijan ou ye?','Mwen rele...','Kontan konnen ou'],es:['Hola','Buenos días','Buenas noches','Adiós','Gracias','Por favor','De nada','Perdón','¿Cómo estás?','Me llamo...','Mucho gusto'],de:['Hallo','Guten Morgen','Guten Abend','Auf Wiedersehen','Danke','Bitte','Gern geschehen','Entschuldigung','Wie geht es Ihnen?','Ich heiße...','Angenehm'],ru:['Привет','Доброе утро','Добрый вечер','До свидания','Спасибо','Пожалуйста','Не за что','Извините','Как дела?','Меня зовут...','Приятно познакомиться'],zh:['你好','早上好','晚上好','再见','谢谢','请','不客气','对不起','你好吗？','我叫...','很高兴认识你'],ja:['こんにちは','おはようございます','こんばんは','さようなら','ありがとう','ください','どういたしまして','すみません','お元気ですか？','私の名前は...','はじめまして']}},
   fr:{greets:['Bonjour','Bonsoir','Au revoir','Merci','S\'il vous plaît','De rien','Excusez-moi','Comment allez-vous ?','Je m\'appelle...','Enchanté·e'],trans:{en:['Hello','Good evening','Goodbye','Thank you','Please','You\'re welcome','Excuse me','How are you?','My name is...','Nice to meet you'],ht:['Bonjou','Bonswa','Orevwa','Mèsi','Tanpri','Pa gen pwoblèm','Eskize m','Kijan ou ye?','Mwen rele...','Kontan konnen ou'],es:['Hola','Buenas noches','Adiós','Gracias','Por favor','De nada','Perdón','¿Cómo estás?','Me llamo...','Mucho gusto']}},
+  zh:{
+    greets:['你好\nNǐ hǎo','早上好\nZǎoshang hǎo','晚上好\nWǎnshàng hǎo','再见\nZàijiàn','谢谢\nXièxiè','请\nQǐng','不客气\nBù kèqì','对不起\nDuìbuqǐ','你好吗？\nNǐ hǎo ma?','我叫...\nWǒ jiào...','很高兴认识你\nHěn gāoxìng rènshi nǐ'],
+    trans:{fr:['Bonjour','Bonjour','Bonsoir','Au revoir','Merci','S\'il vous plaît','De rien','Pardon','Comment allez-vous ?','Je m\'appelle...','Enchanté·e'],en:['Hello','Good morning','Good evening','Goodbye','Thank you','Please','You\'re welcome','Sorry','How are you?','My name is...','Nice to meet you'],ht:['Bonjou','Bonjou maten','Bonswa','Orevwa','Mèsi','Tanpri','Pa gen pwoblèm','Eskize m','Kijan ou ye?','Mwen rele...','Kontan konnen ou']}
+  },
+  ja:{
+    greets:['こんにちは\nKonnichiwa','おはようございます\nOhayō gozaimasu','こんばんは\nKonbanwa','さようなら\nSayōnara','ありがとう\nArigatō','ください\nKudasai','どういたしまして\nDō itashimashite','すみません\nSumimasen','お元気ですか？\nO-genki desu ka?','私の名前は...\nWatashi no namae wa...','はじめまして\nHajimemashite'],
+    trans:{fr:['Bonjour','Bonjour matin','Bonsoir','Au revoir','Merci','S\'il vous plaît','De rien','Excusez-moi','Comment allez-vous ?','Mon nom est...','Enchanté·e'],en:['Hello','Good morning','Good evening','Goodbye','Thank you','Please','You\'re welcome','Excuse me','How are you?','My name is...','Nice to meet you']}
+  },
+  ru:{
+    greets:['Привет\nPrivyet','Доброе утро\nDobroye utro','Добрый вечер\nDobryy vecher','До свидания\nDo svidaniya','Спасибо\nSpasibo','Пожалуйста\nPozhaluysta','Не за что\nNe za chto','Извините\nIzvinite','Как дела?\nKak dela?','Меня зовут...\nMenya zovut...','Приятно познакомиться\nPriyatno poznakomitsya'],
+    trans:{fr:['Salut','Bonjour','Bonsoir','Au revoir','Merci','S\'il vous plaît','De rien','Excusez-moi','Comment allez-vous ?','Je m\'appelle...','Enchanté·e'],en:['Hi','Good morning','Good evening','Goodbye','Thank you','Please','You\'re welcome','Excuse me','How are you?','My name is...','Nice to meet you']}
+  },
 };
 
 function buildGreetings(targetLang, nativeLang){
   const data=GREET_DATA[targetLang]||GREET_DATA.en;
   const translations=data.trans?.[nativeLang]||[];
-  return data.greets.map((g,i)=>`
-    <div class="phrase-card">
-      <span class="phrase-native">${translations[i]||g}</span>
+  const needsRoman = ['zh','ja','ru'].includes(targetLang);
+  return data.greets.map((g,i)=>{
+    const parts = g.split('\n');
+    const chars = parts[0];
+    const roman = parts[1]||'';
+    return `<div class="phrase-card">
+      <span class="phrase-native">${translations[i]||chars}</span>
       <span class="phrase-arrow">→</span>
-      <span class="phrase-target">${g}</span>
-    </div>`).join('');
+      <span class="phrase-target" style="text-align:right">
+        ${chars}
+        ${needsRoman && roman ? `<span style="display:block;font-size:0.72rem;color:#ff9f43;font-weight:700">${roman}</span>` : ''}
+      </span>
+    </div>`;
+  }).join('');
 }
 
 function buildGrammar(tl,nl){
@@ -1176,50 +1223,5 @@ function showLoading(show){
   document.getElementById('loadingOverlay').classList[show?'add':'remove']('show');
 }
 </script>
-  <div id="chat-container" style="padding: 20px; font-family: sans-serif;">
-    <input type="text" id="userInput" placeholder="Écris ton message ici..." style="padding: 10px; width: 250px;">
-    <button onclick="envoyerMessage()" style="padding: 10px; cursor: pointer;">Envoyer</button>
-    
-    <p id="statut" style="color: blue;"></p>
-    <div id="reponsePNJ" style="margin-top: 20px; padding: 15px; background: #f0f0f0; border-radius: 8px;">
-        La réponse du PNJ s'affichera ici...
-    </div>
-</div>
-
-<script>
-async function envoyerMessage() {
-    const input = document.getElementById('userInput');
-    const display = document.getElementById('reponsePNJ');
-    const statut = document.getElementById('statut');
-    
-    if (!input.value) return;
-
-    statut.innerText = "Le PNJ réfléchit...";
-    
-    try {
-        const response = await fetch("https://linguavillage-api--marckensbou2.replit.app/api/dialogue", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-                npcName: "Kako",
-                npcRole: "Guide du village",
-                location: "Entrée du village",
-                language: "Japanese",
-                playerName: "Joueur",
-                playerMessage: input.value
-            })
-        });
-
-        const data = await response.json();
-        display.innerText = data.reply;
-        statut.innerText = "";
-        input.value = ""; // Vide le champ après l'envoi
-    } catch (error) {
-        console.error("Erreur:", error);
-        statut.innerText = "Erreur : Vérifie que ton Replit est bien allumé (clique sur RUN).";
-    }
-}
-</script>
-
 </body>
-</html> 
+</html>
