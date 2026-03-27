@@ -124,6 +124,73 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--bg-deep);font-
 .npc-card-preview{font-size:0.78rem;color:var(--gold-dim);margin-top:4px;font-style:italic;}
 .npc-arrow{color:var(--gold-dim);font-size:1.2rem;}
 
+/* NPC CARD — dual action buttons */
+.npc-card{cursor:default;transform:none !important;}
+.npc-card:hover{background:var(--bg-card);border-color:var(--border);}
+.npc-actions{display:flex;gap:8px;margin-top:10px;}
+.npc-action-btn{flex:1;padding:8px 6px;border-radius:12px;border:none;font-family:'Nunito',sans-serif;font-size:0.78rem;font-weight:800;cursor:pointer;transition:all 0.2s;display:flex;flex-direction:column;align-items:center;gap:3px;}
+.npc-action-btn .btn-icon{font-size:1.2rem;}
+.npc-action-btn.learn{background:linear-gradient(135deg,rgba(78,207,112,0.2),rgba(78,207,112,0.1));border:1px solid rgba(78,207,112,0.4);color:#4ecf70;}
+.npc-action-btn.learn:hover{background:linear-gradient(135deg,rgba(78,207,112,0.35),rgba(78,207,112,0.2));transform:translateY(-2px);}
+.npc-action-btn.discuss{background:linear-gradient(135deg,rgba(255,215,0,0.2),rgba(255,160,0,0.1));border:1px solid rgba(255,215,0,0.4);color:var(--gold);}
+.npc-action-btn.discuss:hover{background:linear-gradient(135deg,rgba(255,215,0,0.35),rgba(255,160,0,0.2));transform:translateY(-2px);}
+
+/* LEARN SCREEN — improved tabs always visible */
+.learn-tabs-bar{display:flex;gap:0;padding:0;flex-shrink:0;background:rgba(5,3,15,0.95);border-bottom:1px solid var(--border);overflow-x:auto;}
+.learn-tab-new{flex:1;background:transparent;border:none;border-bottom:2px solid transparent;color:var(--text-dim);padding:12px 6px 10px;font-size:0.72rem;font-weight:800;cursor:pointer;transition:all 0.2s;white-space:nowrap;font-family:'Nunito',sans-serif;text-align:center;min-width:70px;}
+.learn-tab-new:hover{color:var(--text);background:rgba(255,255,255,0.04);}
+.learn-tab-new.active{color:var(--gold);border-bottom-color:var(--gold);background:rgba(255,215,0,0.06);}
+.learn-tab-new .tab-icon{font-size:1.1rem;display:block;margin-bottom:2px;}
+
+/* LOCATION LEARN MODE */
+.loc-learn-header{background:linear-gradient(135deg,rgba(78,207,112,0.1),rgba(0,0,0,0));border-bottom:1px solid rgba(78,207,112,0.2);padding:10px 16px;flex-shrink:0;display:flex;align-items:center;gap:10px;}
+.loc-learn-title{font-family:'Cinzel',serif;font-size:0.9rem;color:#4ecf70;flex:1;}
+.loc-learn-subtitle{font-size:0.7rem;color:var(--text-dim);}
+.lesson-tabs{display:flex;gap:0;background:rgba(5,3,15,0.8);border-bottom:1px solid var(--border);flex-shrink:0;overflow-x:auto;}
+.lesson-tab{flex:1;background:transparent;border:none;border-bottom:2px solid transparent;color:var(--text-dim);padding:10px 4px 8px;font-size:0.7rem;font-weight:800;cursor:pointer;transition:all 0.2s;font-family:'Nunito',sans-serif;text-align:center;min-width:60px;}
+.lesson-tab.active{color:#4ecf70;border-bottom-color:#4ecf70;}
+.lesson-body{flex:1;overflow-y:auto;padding:16px;}
+.lesson-card{background:var(--bg-card);border:1px solid var(--border);border-radius:14px;padding:14px;margin-bottom:12px;}
+.lesson-card h3{color:var(--gold);font-size:0.9rem;margin-bottom:8px;}
+.lesson-word{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.05);font-size:0.88rem;}
+.lesson-word:last-child{border-bottom:none;}
+.lesson-native{color:var(--text-dim);}
+.lesson-target{font-weight:800;color:var(--text);text-align:right;}
+.lesson-target .roman{display:block;font-size:0.7rem;color:var(--accent);font-weight:700;}
+.quiz-question{background:linear-gradient(135deg,rgba(255,215,0,0.08),rgba(255,160,0,0.04));border:1px solid rgba(255,215,0,0.2);border-radius:14px;padding:16px;margin-bottom:12px;}
+.quiz-q{font-size:1rem;font-weight:800;color:var(--gold);margin-bottom:12px;text-align:center;}
+.quiz-options{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.quiz-opt{background:rgba(255,255,255,0.06);border:1px solid var(--border);border-radius:10px;padding:10px 8px;text-align:center;cursor:pointer;font-size:0.85rem;font-weight:700;transition:all 0.2s;font-family:'Nunito',sans-serif;color:var(--text);}
+.quiz-opt:hover{background:rgba(255,215,0,0.15);border-color:var(--gold);}
+.quiz-opt.correct{background:rgba(78,207,112,0.2);border-color:#4ecf70;color:#4ecf70;}
+.quiz-opt.wrong{background:rgba(224,85,85,0.2);border-color:var(--error);color:var(--error);}
+
+/* DICTIONARY SCREEN */
+#screen-dict{overflow:hidden;}
+.dict-header{background:rgba(5,3,15,0.98);border-bottom:1px solid var(--border);padding:12px 16px;display:flex;align-items:center;gap:10px;flex-shrink:0;}
+.dict-title{font-family:'Cinzel',serif;font-size:0.95rem;color:var(--gold);flex:1;}
+.dict-search-area{padding:14px 16px;background:rgba(5,3,15,0.7);border-bottom:1px solid var(--border);flex-shrink:0;}
+.dict-search-row{display:flex;gap:8px;align-items:center;}
+.dict-input{flex:1;background:rgba(255,255,255,0.08);border:2px solid var(--border);border-radius:25px;padding:11px 18px;color:var(--text);font-family:'Nunito',sans-serif;font-size:0.95rem;font-weight:700;outline:none;transition:border-color 0.2s;}
+.dict-input:focus{border-color:var(--gold);}
+.dict-search-btn{width:44px;height:44px;border-radius:50%;border:none;background:linear-gradient(135deg,#c8900a,#ffd700);color:#1a0800;font-size:1.1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;font-weight:900;flex-shrink:0;}
+.dict-mode-row{display:flex;gap:8px;margin-top:10px;}
+.dict-mode-btn{flex:1;background:rgba(255,255,255,0.05);border:1px solid var(--border);border-radius:20px;padding:6px 10px;font-size:0.72rem;font-weight:800;cursor:pointer;color:var(--text-dim);font-family:'Nunito',sans-serif;transition:all 0.2s;text-align:center;}
+.dict-mode-btn.active{background:rgba(255,215,0,0.15);border-color:var(--gold);color:var(--gold);}
+.dict-result{flex:1;overflow-y:auto;padding:16px;}
+.dict-result-card{background:var(--bg-card);border:1px solid var(--border);border-radius:16px;padding:18px;margin-bottom:12px;}
+.dict-word{font-size:1.4rem;font-weight:900;color:var(--gold);margin-bottom:4px;}
+.dict-roman{font-size:0.9rem;color:var(--accent);font-weight:700;margin-bottom:6px;}
+.dict-meaning{font-size:0.9rem;color:var(--text);margin-bottom:6px;line-height:1.4;}
+.dict-example{font-size:0.78rem;color:var(--text-dim);font-style:italic;padding:8px 10px;background:rgba(255,255,255,0.04);border-radius:8px;margin-top:8px;}
+.dict-listen-btn{margin-top:10px;background:rgba(255,215,0,0.12);border:1px solid var(--border);color:var(--gold);padding:6px 16px;border-radius:20px;font-size:0.78rem;font-weight:800;cursor:pointer;font-family:'Nunito',sans-serif;transition:all 0.2s;}
+.dict-listen-btn:hover{background:rgba(255,215,0,0.25);}
+.dict-history{display:flex;flex-wrap:wrap;gap:8px;padding:0 0 12px;}
+.dict-history-chip{background:rgba(255,255,255,0.06);border:1px solid var(--border);border-radius:20px;padding:5px 12px;font-size:0.75rem;font-weight:700;cursor:pointer;color:var(--text-dim);transition:all 0.2s;}
+.dict-history-chip:hover{border-color:var(--gold);color:var(--gold);}
+.dict-empty{text-align:center;color:var(--text-dim);padding:40px 20px;font-size:0.9rem;}
+.dict-empty .dict-empty-icon{font-size:3rem;margin-bottom:12px;}
+
 /* DIALOGUE */
 .dial-header{background:linear-gradient(180deg,rgba(5,3,15,0.98),rgba(5,3,15,0.8));border-bottom:1px solid var(--border);padding:12px 16px;display:flex;align-items:center;gap:12px;flex-shrink:0;}
 .dial-npc-avatar{width:44px;height:44px;border-radius:50%;background:rgba(255,255,255,0.07);border:2px solid var(--gold);display:flex;align-items:center;justify-content:center;font-size:1.5rem;flex-shrink:0;}
@@ -300,9 +367,47 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--bg-deep);font-
       <div class="loc-subtitle" id="locSubtitle"></div>
     </div>
     <span class="loc-weather-badge" id="locWeatherBadge"></span>
-    <button class="loc-back" onclick="openLearn()" style="margin-left:8px">📚</button>
+    <button class="loc-back" onclick="openDict()" style="margin-left:8px">🔤</button>
   </div>
   <div class="npc-list" id="npcList"></div>
+</div>
+
+<!-- ====== SCREEN 3B : LEARN MODE (lieu) ====== -->
+<div class="screen" id="screen-loclearn">
+  <div class="loc-learn-header">
+    <button class="loc-back" onclick="showScreen('screen-location')">←</button>
+    <div>
+      <div class="loc-learn-title" id="locLearnTitle">📚 Apprendre</div>
+      <div class="loc-learn-subtitle" id="locLearnSubtitle"></div>
+    </div>
+    <button class="loc-back" onclick="openDict()" style="margin-left:auto">🔤</button>
+  </div>
+  <div class="lesson-tabs" id="lessonTabs"></div>
+  <div class="lesson-body" id="lessonBody"></div>
+</div>
+
+<!-- ====== SCREEN DICTIONNAIRE ====== -->
+<div class="screen" id="screen-dict">
+  <div class="dict-header">
+    <button class="loc-back" id="btn-back-dict" onclick="closeDictBack()">←</button>
+    <div class="dict-title" id="dict-title-text">🔤 Dictionnaire</div>
+  </div>
+  <div class="dict-search-area">
+    <div class="dict-search-row">
+      <input class="dict-input" id="dictInput" type="text" placeholder="Chercher un mot ou phrase...">
+      <button class="dict-search-btn" onclick="searchDict()">🔍</button>
+    </div>
+    <div class="dict-mode-row">
+      <button class="dict-mode-btn active" id="dictModeWord" onclick="setDictMode('word',this)">📖 Mot</button>
+      <button class="dict-mode-btn" id="dictModePhrase" onclick="setDictMode('phrase',this)">💬 Phrase</button>
+    </div>
+  </div>
+  <div class="dict-result" id="dictResult">
+    <div class="dict-empty">
+      <div class="dict-empty-icon">🔤</div>
+      <div id="dict-empty-text">Tapez un mot pour le traduire</div>
+    </div>
+  </div>
 </div>
 
 <!-- ====== SCREEN 4 : DIALOGUE ====== -->
@@ -336,9 +441,27 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--bg-deep);font-
   <div class="learn-header">
     <button class="loc-back" onclick="goBackFromLearn()">←</button>
     <div class="learn-title" id="learn-title-text">📚</div>
-    <span id="learnLangBadge" style="font-size:0.75rem;color:var(--gold-dim);font-weight:800;"></span>
+    <button class="loc-back" onclick="openDict()" style="margin-left:auto">🔤 Dict</button>
   </div>
-  <div class="learn-tabs" id="learnTabs"></div>
+  <!-- Onglets toujours visibles en haut -->
+  <div class="learn-tabs-bar">
+    <button class="learn-tab-new active" onclick="showLearnTab('vocab',this)">
+      <span class="tab-icon">📖</span>
+      <span id="tab-vocab-label">Vocab</span>
+    </button>
+    <button class="learn-tab-new" onclick="showLearnTab('grammar',this)">
+      <span class="tab-icon">✏️</span>
+      <span id="tab-grammar-label">Grammaire</span>
+    </button>
+    <button class="learn-tab-new" onclick="showLearnTab('phrases',this)">
+      <span class="tab-icon">💬</span>
+      <span id="tab-phrases-label">Phrases</span>
+    </button>
+    <button class="learn-tab-new" onclick="showLearnTab('context',this)">
+      <span class="tab-icon">🏘️</span>
+      <span id="tab-context-label">Par lieu</span>
+    </button>
+  </div>
   <div class="learn-body" id="learnBody"></div>
 </div>
 
@@ -689,7 +812,22 @@ function applyUILanguage(lang){
   document.getElementById('lbl-target').textContent=ui.lbl_target;
   document.getElementById('lbl-script').textContent=ui.lbl_script;
   document.getElementById('playBtn').textContent=ui.play_btn;
-  buildLearnTabs();
+  // Update learn tab labels
+  const tabLabels={
+    fr:['Vocabulaire','Grammaire','Phrases','Par lieu'],
+    en:['Vocabulary','Grammar','Phrases','By place'],
+    es:['Vocabulario','Gramática','Frases','Por lugar'],
+    ht:['Vokabilè','Gramè','Fraz','Pa kote'],
+    de:['Wortschatz','Grammatik','Sätze','Nach Ort'],
+    ru:['Словарь','Грамматика','Фразы','По месту'],
+    zh:['词汇','语法','短语','按地点'],
+    ja:['語彙','文法','フレーズ','場所別'],
+  };
+  const labels=tabLabels[lang]||tabLabels['fr'];
+  ['vocab','grammar','phrases','context'].forEach((t,i)=>{
+    const el=document.getElementById(`tab-${t}-label`);
+    if(el) el.textContent=labels[i];
+  });
 }
 
 function buildLearnTabs(){
@@ -877,7 +1015,146 @@ function onVillageClick(e){const r=canvas.getBoundingClientRect(),l=getLocAt(e.c
 function onVillageTouch(e){const r=canvas.getBoundingClientRect(),t=e.touches[0],l=getLocAt(t.clientX-r.left,t.clientY-r.top);if(l)openLocation(l);}
 
 // =================================================================
-// LOCATION SCREEN
+// LOCATION DATA — lessons per location
+// =================================================================
+const LOC_LESSONS = {
+  church:{
+    vocab:[
+      {native:'Bonjour / Bonsoir',target:{en:'Hello / Good evening',fr:'Bonjour / Bonsoir',es:'Hola / Buenas noches',zh:'你好 (Nǐ hǎo)',ja:'こんにちは (Konnichiwa)',ru:'Привет (Privyet)',ht:'Bonjou / Bonswa',de:'Hallo / Guten Abend'}},
+      {native:'Merci beaucoup',target:{en:'Thank you very much',fr:'Merci beaucoup',es:'Muchas gracias',zh:'非常感谢 (Fēicháng gǎnxiè)',ja:'ありがとうございます (Arigatō gozaimasu)',ru:'Большое спасибо (Bolshoye spasibo)',ht:'Mèsi anpil',de:'Vielen Dank'}},
+      {native:'S\'il vous plaît',target:{en:'Please',fr:'S\'il vous plaît',es:'Por favor',zh:'请 (Qǐng)',ja:'お願いします (Onegaishimasu)',ru:'Пожалуйста (Pozhaluysta)',ht:'Tanpri',de:'Bitte'}},
+      {native:'Pardon / Excusez-moi',target:{en:'Sorry / Excuse me',fr:'Pardon / Excusez-moi',es:'Perdón / Disculpe',zh:'对不起 (Duìbuqǐ)',ja:'すみません (Sumimasen)',ru:'Извините (Izvinite)',ht:'Eskize m',de:'Entschuldigung'}},
+      {native:'La paix',target:{en:'Peace',fr:'La paix',es:'La paz',zh:'和平 (Hépíng)',ja:'平和 (Heiwa)',ru:'Мир (Mir)',ht:'Lapè',de:'Der Frieden'}},
+    ],
+    phrases:[
+      {native:'Comment puis-je vous aider ?',target:{en:'How can I help you?',fr:'Comment puis-je vous aider ?',es:'¿Cómo puedo ayudarle?',zh:'我能帮你什么？',ja:'何かお手伝いできますか？',ru:'Чем могу помочь?',ht:'Kijan mwen ka ede ou?',de:'Wie kann ich Ihnen helfen?'}},
+      {native:'Dieu vous bénisse',target:{en:'God bless you',fr:'Dieu vous bénisse',es:'Dios le bendiga',zh:'上帝保佑你',ja:'神のご加護を',ru:'Да благословит вас Бог',ht:'Bondye beni ou',de:'Gott segne Sie'}},
+    ]
+  },
+  school:{
+    vocab:[
+      {native:'Le livre',target:{en:'The book',fr:'Le livre',es:'El libro',zh:'书 (Shū)',ja:'本 (Hon)',ru:'Книга (Kniga)',ht:'Liv la',de:'Das Buch'}},
+      {native:'Apprendre',target:{en:'To learn',fr:'Apprendre',es:'Aprender',zh:'学习 (Xuéxí)',ja:'勉強する (Benkyō suru)',ru:'Учиться (Uchitsya)',ht:'Aprann',de:'Lernen'}},
+      {native:'La question',target:{en:'The question',fr:'La question',es:'La pregunta',zh:'问题 (Wèntí)',ja:'質問 (Shitsumon)',ru:'Вопрос (Vopros)',ht:'Kesyon an',de:'Die Frage'}},
+      {native:'La réponse',target:{en:'The answer',fr:'La réponse',es:'La respuesta',zh:'答案 (Dá\'àn)',ja:'答え (Kotae)',ru:'Ответ (Otvet)',ht:'Repons lan',de:'Die Antwort'}},
+      {native:'Comprendre',target:{en:'To understand',fr:'Comprendre',es:'Entender',zh:'理解 (Lǐjiě)',ja:'分かる (Wakaru)',ru:'Понимать (Ponimat)',ht:'Konprann',de:'Verstehen'}},
+    ],
+    phrases:[
+      {native:'Je ne comprends pas',target:{en:'I don\'t understand',fr:'Je ne comprends pas',es:'No entiendo',zh:'我不明白 (Wǒ bù míngbái)',ja:'わかりません (Wakarimasen)',ru:'Я не понимаю (Ya ne ponimayu)',ht:'Mwen pa konprann',de:'Ich verstehe nicht'}},
+      {native:'Pouvez-vous répéter ?',target:{en:'Can you repeat?',fr:'Pouvez-vous répéter ?',es:'¿Puede repetir?',zh:'请再说一遍 (Qǐng zài shuō yī biàn)',ja:'もう一度言ってください',ru:'Повторите, пожалуйста',ht:'Repete tanpri',de:'Können Sie wiederholen?'}},
+    ]
+  },
+  market:{
+    vocab:[
+      {native:'Combien ça coûte ?',target:{en:'How much is it?',fr:'Combien ça coûte ?',es:'¿Cuánto cuesta?',zh:'多少钱？(Duōshǎo qián?)',ja:'いくらですか？(Ikura desu ka?)',ru:'Сколько стоит? (Skol\'ko stoit?)',ht:'Konbyen sa koute?',de:'Wie viel kostet das?'}},
+      {native:'Un / Deux / Trois',target:{en:'One / Two / Three',fr:'Un / Deux / Trois',es:'Uno / Dos / Tres',zh:'一/二/三 (Yī/Èr/Sān)',ja:'一/二/三 (Ichi/Ni/San)',ru:'Один/Два/Три',ht:'Youn/De/Twa',de:'Eins/Zwei/Drei'}},
+      {native:'Cher / Pas cher',target:{en:'Expensive / Cheap',fr:'Cher / Pas cher',es:'Caro / Barato',zh:'贵/便宜 (Guì/Piányí)',ja:'高い/安い (Takai/Yasui)',ru:'Дорого/Дёшево',ht:'Chè / Pa chè',de:'Teuer / Billig'}},
+      {native:'Je voudrais...',target:{en:'I would like...',fr:'Je voudrais...',es:'Quisiera...',zh:'我想要... (Wǒ xiǎng yào...)',ja:'...が欲しいです',ru:'Я хотел бы...',ht:'Mwen ta renmen...',de:'Ich möchte...'}},
+      {native:'Les couleurs',target:{en:'Colors: red, blue, green',fr:'Couleurs: rouge, bleu, vert',es:'Colores: rojo, azul, verde',zh:'颜色：红、蓝、绿',ja:'色：赤、青、緑',ru:'Цвета: красный, синий, зелёный',ht:'Koulè: wouj, bleu, vèt',de:'Farben: rot, blau, grün'}},
+    ],
+    phrases:[
+      {native:'C\'est trop cher',target:{en:'It\'s too expensive',fr:'C\'est trop cher',es:'Es muy caro',zh:'太贵了 (Tài guì le)',ja:'高すぎます (Takasugi masu)',ru:'Это слишком дорого',ht:'Sa twò chè',de:'Das ist zu teuer'}},
+      {native:'Je prends celui-ci',target:{en:'I\'ll take this one',fr:'Je prends celui-ci',es:'Me llevo este',zh:'我要这个 (Wǒ yào zhège)',ja:'これにします (Kore ni shimasu)',ru:'Я возьму это',ht:'Mwen pran sa a',de:'Ich nehme dieses'}},
+    ]
+  },
+  hospital:{
+    vocab:[
+      {native:'La tête',target:{en:'The head',fr:'La tête',es:'La cabeza',zh:'头 (Tóu)',ja:'頭 (Atama)',ru:'Голова (Golova)',ht:'Tèt la',de:'Der Kopf'}},
+      {native:'J\'ai mal',target:{en:'I\'m in pain / It hurts',fr:'J\'ai mal',es:'Me duele',zh:'我疼 (Wǒ téng)',ja:'痛いです (Itai desu)',ru:'У меня болит',ht:'Mwen fè mal',de:'Es tut weh'}},
+      {native:'La fièvre',target:{en:'Fever',fr:'La fièvre',es:'La fiebre',zh:'发烧 (Fāshāo)',ja:'熱 (Netsu)',ru:'Жар (Zhar)',ht:'Lafyèv',de:'Das Fieber'}},
+      {native:'Le médecin',target:{en:'The doctor',fr:'Le médecin',es:'El médico',zh:'医生 (Yīshēng)',ja:'医者 (Isha)',ru:'Врач (Vrach)',ht:'Doktè a',de:'Der Arzt'}},
+      {native:'Le médicament',target:{en:'The medicine',fr:'Le médicament',es:'El medicamento',zh:'药 (Yào)',ja:'薬 (Kusuri)',ru:'Лекарство (Lekarstvo)',ht:'Medikaman an',de:'Das Medikament'}},
+    ],
+    phrases:[
+      {native:'Appelez un médecin !',target:{en:'Call a doctor!',fr:'Appelez un médecin !',es:'¡Llame a un médico!',zh:'叫医生！(Jiào yīshēng!)',ja:'医者を呼んでください！',ru:'Вызовите врача!',ht:'Rele yon doktè!',de:'Rufen Sie einen Arzt!'}},
+    ]
+  },
+  tavern:{
+    vocab:[
+      {native:'Une boisson',target:{en:'A drink',fr:'Une boisson',es:'Una bebida',zh:'饮料 (Yǐnliào)',ja:'飲み物 (Nomimono)',ru:'Напиток (Napitok)',ht:'Yon bwason',de:'Ein Getränk'}},
+      {native:'À votre santé !',target:{en:'Cheers!',fr:'À votre santé !',es:'¡Salud!',zh:'干杯！(Gānbēi!)',ja:'乾杯！(Kanpai!)',ru:'За здоровье! (Za zdorovye!)',ht:'Santé!',de:'Prost!'}},
+      {native:'Raconter une histoire',target:{en:'To tell a story',fr:'Raconter une histoire',es:'Contar una historia',zh:'讲故事 (Jiǎng gùshì)',ja:'話を語る (Hanashi wo kataru)',ru:'Рассказывать историю',ht:'Rakonte yon istwa',de:'Eine Geschichte erzählen'}},
+    ],
+    phrases:[
+      {native:'Qu\'est-ce que vous recommandez ?',target:{en:'What do you recommend?',fr:'Qu\'est-ce que vous recommandez ?',es:'¿Qué recomienda?',zh:'你推荐什么？',ja:'何がお勧めですか？',ru:'Что вы рекомендуете?',ht:'Kisa ou rekòmande?',de:'Was empfehlen Sie?'}},
+    ]
+  },
+  friends:{
+    vocab:[
+      {native:'L\'amitié',target:{en:'Friendship',fr:'L\'amitié',es:'La amistad',zh:'友谊 (Yǒuyì)',ja:'友情 (Yūjō)',ru:'Дружба (Druzhba)',ht:'Amitye',de:'Die Freundschaft'}},
+      {native:'Heureux / Triste',target:{en:'Happy / Sad',fr:'Heureux / Triste',es:'Feliz / Triste',zh:'快乐/悲伤 (Kuàilè/Bēishāng)',ja:'嬉しい/悲しい (Ureshii/Kanashii)',ru:'Счастливый/Грустный',ht:'Kontan / Tris',de:'Glücklich / Traurig'}},
+      {native:'Partager',target:{en:'To share',fr:'Partager',es:'Compartir',zh:'分享 (Fēnxiǎng)',ja:'共有する (Kyōyū suru)',ru:'Делиться (Delitsya)',ht:'Pataje',de:'Teilen'}},
+    ],
+    phrases:[
+      {native:'Comment vas-tu ?',target:{en:'How are you?',fr:'Comment vas-tu ?',es:'¿Cómo estás?',zh:'你好吗？(Nǐ hǎo ma?)',ja:'元気ですか？(Genki desu ka?)',ru:'Как дела? (Kak dela?)',ht:'Kijan ou ye?',de:'Wie geht es dir?'}},
+      {native:'Tu me manques',target:{en:'I miss you',fr:'Tu me manques',es:'Te echo de menos',zh:'我想你 (Wǒ xiǎng nǐ)',ja:'あなたが恋しいです',ru:'Я скучаю по тебе',ht:'Ou manke m',de:'Ich vermisse dich'}},
+    ]
+  },
+  park:{
+    vocab:[
+      {native:'L\'amour',target:{en:'Love',fr:'L\'amour',es:'El amor',zh:'爱 (Ài)',ja:'愛 (Ai)',ru:'Любовь (Lyubov)',ht:'Lanmou',de:'Die Liebe'}},
+      {native:'Beau / Belle',target:{en:'Beautiful',fr:'Beau / Belle',es:'Hermoso/a',zh:'美丽 (Měilì)',ja:'美しい (Utsukushii)',ru:'Красивый/ая (Krasivyy)',ht:'Bèl',de:'Schön'}},
+      {native:'Le cœur',target:{en:'The heart',fr:'Le cœur',es:'El corazón',zh:'心 (Xīn)',ja:'心 (Kokoro)',ru:'Сердце (Serdtse)',ht:'Kè a',de:'Das Herz'}},
+    ],
+    phrases:[
+      {native:'Je t\'apprécie beaucoup',target:{en:'I appreciate you a lot',fr:'Je t\'apprécie beaucoup',es:'Te aprecio mucho',zh:'我很欣赏你 (Wǒ hěn xīnshǎng nǐ)',ja:'あなたのことがとても好きです',ru:'Ты мне очень нравишься',ht:'Mwen apresye ou anpil',de:'Ich schätze dich sehr'}},
+    ]
+  },
+  police:{
+    vocab:[
+      {native:'Au secours !',target:{en:'Help!',fr:'Au secours !',es:'¡Ayuda!',zh:'救命！(Jiùmìng!)',ja:'助けて！(Tasukete!)',ru:'Помогите! (Pomogite!)',ht:'Ede m!',de:'Hilfe!'}},
+      {native:'Tournez à gauche/droite',target:{en:'Turn left/right',fr:'Tournez à gauche/droite',es:'Gire a la izquierda/derecha',zh:'左转/右转 (Zuǒ zhuǎn/Yòu zhuǎn)',ja:'左/右に曲がってください',ru:'Поверните налево/направо',ht:'Vire agòch/adwat',de:'Links/rechts abbiegen'}},
+      {native:'Où est... ?',target:{en:'Where is...?',fr:'Où est... ?',es:'¿Dónde está...?',zh:'...在哪里？(...zài nǎlǐ?)',ja:'...はどこですか？',ru:'Где находится...?',ht:'Ki kote... ye?',de:'Wo ist...?'}},
+    ],
+    phrases:[
+      {native:'J\'ai besoin d\'aide',target:{en:'I need help',fr:'J\'ai besoin d\'aide',es:'Necesito ayuda',zh:'我需要帮助 (Wǒ xūyào bāngzhù)',ja:'助けが必要です (Tasuke ga hitsuyō desu)',ru:'Мне нужна помощь',ht:'Mwen bezwen èd',de:'Ich brauche Hilfe'}},
+    ]
+  },
+  bank:{
+    vocab:[
+      {native:'L\'argent',target:{en:'Money',fr:'L\'argent',es:'El dinero',zh:'钱 (Qián)',ja:'お金 (Okane)',ru:'Деньги (Dengi)',ht:'Lajan',de:'Das Geld'}},
+      {native:'Payer',target:{en:'To pay',fr:'Payer',es:'Pagar',zh:'付款 (Fùkuǎn)',ja:'払う (Harau)',ru:'Платить (Platit)',ht:'Peye',de:'Bezahlen'}},
+      {native:'Le compte bancaire',target:{en:'Bank account',fr:'Le compte bancaire',es:'La cuenta bancaria',zh:'银行账户 (Yínháng zhànghù)',ja:'銀行口座 (Ginkō kōza)',ru:'Банковский счёт',ht:'Kont bank',de:'Das Bankkonto'}},
+    ],
+    phrases:[
+      {native:'Je voudrais changer de l\'argent',target:{en:'I would like to exchange money',fr:'Je voudrais changer de l\'argent',es:'Quisiera cambiar dinero',zh:'我想换钱 (Wǒ xiǎng huàn qián)',ja:'お金を換えたいです',ru:'Я хочу обменять деньги',ht:'Mwen ta renmen chanje lajan',de:'Ich möchte Geld wechseln'}},
+    ]
+  },
+  station:{
+    vocab:[
+      {native:'Le billet',target:{en:'The ticket',fr:'Le billet',es:'El billete',zh:'票 (Piào)',ja:'チケット (Chiketto)',ru:'Билет (Bilet)',ht:'Biyè a',de:'Die Fahrkarte'}},
+      {native:'L\'horaire',target:{en:'The schedule',fr:'L\'horaire',es:'El horario',zh:'时刻表 (Shíkèbiǎo)',ja:'時刻表 (Jikokuhyō)',ru:'Расписание (Raspisaniye)',ht:'Orè a',de:'Der Fahrplan'}},
+      {native:'Le prochain train',target:{en:'The next train',fr:'Le prochain train',es:'El próximo tren',zh:'下一班火车 (Xià yī bān huǒchē)',ja:'次の電車 (Tsugi no densha)',ru:'Следующий поезд',ht:'Pwochen tren an',de:'Der nächste Zug'}},
+    ],
+    phrases:[
+      {native:'À quelle heure part le train ?',target:{en:'What time does the train leave?',fr:'À quelle heure part le train ?',es:'¿A qué hora sale el tren?',zh:'火车几点出发？',ja:'電車は何時に出発しますか？',ru:'Когда отправляется поезд?',ht:'A ki lè tren an pati?',de:'Wann fährt der Zug ab?'}},
+    ]
+  },
+  farm:{
+    vocab:[
+      {native:'Les animaux',target:{en:'Animals',fr:'Les animaux',es:'Los animales',zh:'动物 (Dòngwù)',ja:'動物 (Dōbutsu)',ru:'Животные (Zhivotnyye)',ht:'Bèt yo',de:'Die Tiere'}},
+      {native:'Les saisons',target:{en:'Seasons',fr:'Les saisons',es:'Las estaciones',zh:'季节 (Jìjié)',ja:'季節 (Kisetsu)',ru:'Сезоны (Sezony)',ht:'Sezon yo',de:'Die Jahreszeiten'}},
+      {native:'La récolte',target:{en:'The harvest',fr:'La récolte',es:'La cosecha',zh:'收获 (Shōuhuò)',ja:'収穫 (Shūkaku)',ru:'Урожай (Urozhai)',ht:'Rekòlt la',de:'Die Ernte'}},
+      {native:'La pluie / Le soleil',target:{en:'Rain / Sun',fr:'La pluie / Le soleil',es:'La lluvia / El sol',zh:'雨/太阳 (Yǔ/Tàiyáng)',ja:'雨/太陽 (Ame/Taiyō)',ru:'Дождь/Солнце',ht:'Lapli / Solèy',de:'Regen / Sonne'}},
+    ],
+    phrases:[
+      {native:'Il fait beau aujourd\'hui',target:{en:'The weather is nice today',fr:'Il fait beau aujourd\'hui',es:'Hace buen tiempo hoy',zh:'今天天气很好 (Jīntiān tiānqì hěn hǎo)',ja:'今日は良い天気です (Kyō wa yoi tenki desu)',ru:'Сегодня хорошая погода',ht:'Tan an bèl jodi a',de:'Das Wetter ist schön heute'}},
+    ]
+  },
+  factory:{
+    vocab:[
+      {native:'Le travail',target:{en:'Work',fr:'Le travail',es:'El trabajo',zh:'工作 (Gōngzuò)',ja:'仕事 (Shigoto)',ru:'Работа (Rabota)',ht:'Travay la',de:'Die Arbeit'}},
+      {native:'L\'outil',target:{en:'The tool',fr:'L\'outil',es:'La herramienta',zh:'工具 (Gōngjù)',ja:'道具 (Dōgu)',ru:'Инструмент (Instrument)',ht:'Zouti a',de:'Das Werkzeug'}},
+      {native:'Construire',target:{en:'To build',fr:'Construire',es:'Construir',zh:'建造 (Jiànzào)',ja:'建てる (Tateru)',ru:'Строить (Stroit)',ht:'Konstwi',de:'Bauen'}},
+    ],
+    phrases:[
+      {native:'Faites attention !',target:{en:'Be careful!',fr:'Faites attention !',es:'¡Tenga cuidado!',zh:'小心！(Xiǎoxīn!)',ja:'気をつけて！(Ki wo tsukete!)',ru:'Осторожно! (Ostorozhno!)',ht:'Fè atansyon!',de:'Vorsicht!'}},
+    ]
+  },
+};
+
+// =================================================================
+// LOCATION SCREEN — with Learn/Discuss per NPC
 // =================================================================
 function openLocation(loc){
   S.currentLocation=loc;
@@ -888,18 +1165,197 @@ function openLocation(loc){
   const list=document.getElementById('npcList');
   list.innerHTML=loc.npcs.map(npc=>{
     const role=typeof npc.role==='object'?(npc.role[S.nativeLang]||npc.role.en||''):npc.role;
-    return `<div class="npc-card" onclick="openDialogue('${loc.id}','${npc.id}')">
+    const learnLabel = ui.learn_here||'📚 Apprendre';
+    const discussLabel = ui.discuss_here||'💬 Discuter';
+    return `<div class="npc-card">
       <div class="npc-avatar-big">${npc.emoji}</div>
       <div class="npc-info">
         <div class="npc-card-name">${npc.name}</div>
         <div class="npc-card-role">${role}</div>
-        <div class="npc-card-preview">${ui.click_to_talk||'Tap to start →'}</div>
+        <div class="npc-actions">
+          <button class="npc-action-btn learn" onclick="openLocLearn('${loc.id}')">
+            <span class="btn-icon">📚</span>
+            <span>${learnLabel}</span>
+          </button>
+          <button class="npc-action-btn discuss" onclick="openDialogue('${loc.id}','${npc.id}')">
+            <span class="btn-icon">💬</span>
+            <span>${discussLabel}</span>
+          </button>
+        </div>
       </div>
-      <div class="npc-arrow">›</div>
     </div>`;
   }).join('');
   showScreen('screen-location');
 }
+
+// =================================================================
+// LOCATION LEARN MODE
+// =================================================================
+function openLocLearn(locId){
+  const loc = LOCATIONS.find(l=>l.id===locId);
+  S.currentLocation = loc;
+  const locName = LOC_NAMES[locId]?.[S.nativeLang]||locId;
+  document.getElementById('locLearnTitle').textContent = '📚 '+locName;
+  document.getElementById('locLearnSubtitle').textContent = LOC_DESC[locId]?.[S.nativeLang]||'';
+  const tabs = document.getElementById('lessonTabs');
+  tabs.innerHTML = `
+    <button class="lesson-tab active" onclick="showLocLearnTab('vocab',this)">📖 Vocab</button>
+    <button class="lesson-tab" onclick="showLocLearnTab('phrases',this)">💬 Phrases</button>
+    <button class="lesson-tab" onclick="showLocLearnTab('quiz',this)">🎯 Quiz</button>`;
+  showLocLearnTab('vocab', tabs.querySelector('.lesson-tab'));
+  showScreen('screen-loclearn');
+}
+
+function showLocLearnTab(tab, btn){
+  document.querySelectorAll('.lesson-tab').forEach(b=>b.classList.remove('active'));
+  if(btn) btn.classList.add('active');
+  const loc = S.currentLocation;
+  const lessons = LOC_LESSONS[loc?.id];
+  const body = document.getElementById('lessonBody');
+  const tl = S.targetLang;
+  const isCJK = ['zh','ja','ru'].includes(tl);
+  const showNative = !isCJK || S.scriptPref !== 'roman';
+  const showRoman = isCJK && S.scriptPref !== 'native';
+
+  if(tab==='vocab'){
+    const items = lessons?.vocab||[];
+    body.innerHTML = `<div class="lesson-card">
+      <h3>📖 Vocabulaire — ${LOC_NAMES[loc.id]?.[S.nativeLang]||loc.id}</h3>
+      ${items.map(item=>{
+        const targetText = item.target?.[tl]||item.target?.en||'';
+        const match = targetText.match(/^(.*?)\s*\(([^)]+)\)\s*$/);
+        const chars = match?match[1]:targetText;
+        const roman = match?match[2]:'';
+        return `<div class="lesson-word">
+          <span class="lesson-native">${item.native}</span>
+          <span class="lesson-target">
+            ${showNative?chars:''}
+            ${showRoman&&roman?`<span class="roman">${roman}</span>`:''}
+            ${!showNative&&!roman?targetText:''}
+            <span style="margin-left:4px;cursor:pointer" onclick="speakWord('${chars.replace(/'/g,"\\'")}')">🔊</span>
+          </span>
+        </div>`;
+      }).join('')}
+    </div>
+    <div style="text-align:center;margin-top:8px">
+      <button class="dict-listen-btn" onclick="showLocLearnTab('quiz',document.querySelectorAll('.lesson-tab')[2])">🎯 Tester mes connaissances</button>
+    </div>`;
+  } else if(tab==='phrases'){
+    const items = lessons?.phrases||[];
+    body.innerHTML = `<div class="lesson-card">
+      <h3>💬 Phrases utiles</h3>
+      ${items.map(item=>{
+        const targetText = item.target?.[tl]||item.target?.en||'';
+        const match = targetText.match(/^(.*?)\s*\(([^)]+)\)\s*$/);
+        const chars = match?match[1]:targetText;
+        const roman = match?match[2]:'';
+        return `<div class="lesson-word">
+          <span class="lesson-native" style="flex:1.2">${item.native}</span>
+          <span class="lesson-target" style="flex:1.2">
+            ${showNative?chars:''}
+            ${showRoman&&roman?`<span class="roman">${roman}</span>`:''}
+            ${!showNative&&!roman?targetText:''}
+            <span style="margin-left:4px;cursor:pointer" onclick="speakWord('${chars.replace(/'/g,"\\'")}')">🔊</span>
+          </span>
+        </div>`;
+      }).join('')}
+    </div>`;
+  } else if(tab==='quiz'){
+    const vocab = lessons?.vocab||[];
+    if(vocab.length < 2){ body.innerHTML='<div style="text-align:center;padding:30px;color:var(--text-dim)">Pas assez de mots pour le quiz</div>'; return; }
+    const idx = Math.floor(Math.random()*vocab.length);
+    const correct = vocab[idx];
+    const correctTarget = correct.target?.[tl]||correct.target?.en||'';
+    const match = correctTarget.match(/^(.*?)\s*\(([^)]+)\)\s*$/);
+    const correctDisplay = match?match[1]:correctTarget;
+    const others = vocab.filter((_,i)=>i!==idx);
+    const shuffled = others.sort(()=>Math.random()-0.5).slice(0,3);
+    const options = [...shuffled.map(o=>{
+      const t=o.target?.[tl]||o.target?.en||'';
+      const m=t.match(/^(.*?)\s*\(([^)]+)\)\s*$/);
+      return m?m[1]:t;
+    }), correctDisplay].sort(()=>Math.random()-0.5);
+    body.innerHTML = `<div class="quiz-question">
+      <div class="quiz-q">${correct.native}</div>
+      <div style="font-size:0.72rem;color:var(--text-dim);text-align:center;margin-bottom:10px">Traduction en ${S.targetLang} ?</div>
+      <div class="quiz-options">
+        ${options.map(opt=>`<button class="quiz-opt" onclick="checkQuiz(this,'${opt.replace(/'/g,"\\'")}','${correctDisplay.replace(/'/g,"\\'")}')">
+          ${opt}</button>`).join('')}
+      </div>
+    </div>
+    <div style="text-align:center;margin-top:12px">
+      <button class="dict-listen-btn" onclick="showLocLearnTab('quiz',document.querySelectorAll('.lesson-tab')[2])">↻ Nouvelle question</button>
+    </div>`;
+  }
+}
+
+function checkQuiz(btn, chosen, correct){
+  document.querySelectorAll('.quiz-opt').forEach(b=>b.disabled=true);
+  if(chosen===correct){
+    btn.classList.add('correct');gainXP(15);showNotif('✅ Correct ! +15 XP');
+  } else {
+    btn.classList.add('wrong');
+    document.querySelectorAll('.quiz-opt').forEach(b=>{ if(b.textContent.trim()===correct) b.classList.add('correct'); });
+    showNotif('❌ Incorrect');
+  }
+}
+
+// =================================================================
+// DICTIONARY
+// =================================================================
+let dictMode='word';
+let dictHistory=[];
+let dictFromScreen='screen-village';
+
+function openDict(){
+  dictFromScreen=document.querySelector('.screen.active')?.id||'screen-village';
+  document.getElementById('dictInput').value='';
+  document.getElementById('dictResult').innerHTML=`<div class="dict-empty"><div class="dict-empty-icon">🔤</div><div>Tapez un mot ou une phrase à traduire</div></div>`;
+  showScreen('screen-dict');
+  setTimeout(()=>document.getElementById('dictInput').focus(),300);
+}
+function closeDictBack(){ showScreen(dictFromScreen); }
+
+function setDictMode(mode,btn){
+  dictMode=mode;
+  document.querySelectorAll('.dict-mode-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('dictInput').placeholder=mode==='word'?'Chercher un mot...':'Tapez une phrase entière...';
+}
+
+function searchDictWord(word){ document.getElementById('dictInput').value=word; searchDict(); }
+
+async function searchDict(){
+  const query=document.getElementById('dictInput').value.trim();
+  if(!query)return;
+  if(!dictHistory.includes(query)) dictHistory.unshift(query);
+  if(dictHistory.length>20) dictHistory.pop();
+  const result=document.getElementById('dictResult');
+  result.innerHTML=`<div style="text-align:center;padding:30px;color:var(--text-dim)">⟳ Traduction...</div>`;
+  const nativeLangName={fr:'français',en:'anglais',es:'espagnol',ht:'créole haïtien',de:'allemand',ru:'russe',zh:'mandarin',ja:'japonais'};
+  const isCJK=['zh','ja','ru'].includes(S.targetLang);
+  const showRoman=isCJK&&S.scriptPref!=='native';
+  const promptMode=dictMode==='phrase'?
+    `Traduis cette phrase du ${nativeLangName[S.nativeLang]||'français'} vers le ${nativeLangName[S.targetLang]||'anglais'}: "${query}". JSON: {"translation":"...","roman":"romanisation si applicable","grammar":"structure","example":"exemple"}`:
+    `Traduis le mot "${query}" du ${nativeLangName[S.nativeLang]||'français'} vers le ${nativeLangName[S.targetLang]||'anglais'}. JSON: {"translation":"...","roman":"romanisation si applicable","grammar":"catégorie (nom/verbe/adj...)","example":"exemple simple"}`;
+  try{
+    const r=await fetch(`${API_BASE}/api/dialogue`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({npcName:'',npcRole:'',location:'',language:nativeLangName[S.nativeLang]||'français',playerName:S.playerName,playerMessage:promptMode,history:[]})});
+    const d=await r.json();
+    let parsed;
+    try{parsed=JSON.parse((d.reply||'{}').replace(/```json|```/g,'').trim());}
+    catch{parsed={translation:d.reply||query,roman:'',grammar:'',example:''};}
+    result.innerHTML=`<div class="dict-result-card">
+      <div style="font-size:0.7rem;color:var(--text-dim);margin-bottom:6px">"${query}"</div>
+      <div class="dict-word">${parsed.translation||''}</div>
+      ${parsed.roman&&showRoman?`<div class="dict-roman">${parsed.roman}</div>`:''}
+      ${parsed.grammar?`<div style="font-size:0.72rem;color:var(--accent);font-weight:700;margin:6px 0">${parsed.grammar}</div>`:''}
+      ${parsed.example?`<div class="dict-example">💡 ${parsed.example}</div>`:''}
+      <button class="dict-listen-btn" onclick="speakWord('${(parsed.translation||'').replace(/'/g,"\\'")}')">🔊 Écouter</button>
+    </div>
+    ${dictHistory.length>1?`<div class="learn-section-title" style="margin-top:14px">Recherches récentes</div><div class="dict-history">${dictHistory.slice(1,9).map(h=>`<span class="dict-history-chip" onclick="searchDictWord('${h.replace(/'/g,"\\'")}')"> ${h}</span>`).join('')}</div>`:''}`;
+  }catch(e){result.innerHTML=`<div class="dict-empty"><div class="dict-empty-icon">❌</div><div>Indisponible pour le moment</div></div>`;}
+}
+document.getElementById('dictInput').addEventListener('keydown',e=>{if(e.key==='Enter')searchDict();});
 
 // =================================================================
 // DIALOGUE
