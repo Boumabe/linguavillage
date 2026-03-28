@@ -831,13 +831,8 @@ function applyUILanguage(lang){
 }
 
 function buildLearnTabs(){
-  const tabs=document.getElementById('learnTabs');
-  if(!ui.tab_vocab)return;
-  tabs.innerHTML=`
-    <button class="learn-tab active" onclick="showLearnTab('vocab',this)">${ui.tab_vocab}</button>
-    <button class="learn-tab" onclick="showLearnTab('grammar',this)">${ui.tab_grammar}</button>
-    <button class="learn-tab" onclick="showLearnTab('phrases',this)">${ui.tab_phrases}</button>
-    <button class="learn-tab" onclick="showLearnTab('context',this)">${ui.tab_context}</button>`;
+  // Les onglets sont maintenant fixes dans le HTML — pas besoin de les reconstruire
+  return;
 }
 
 // =================================================================
@@ -850,7 +845,8 @@ function startVillage(){
   const names={en:'English',fr:'Français',es:'Español',ht:'Kreyòl',de:'Deutsch',ru:'Русский',zh:'中文',ja:'日本語'};
   document.getElementById('hudPlayer').textContent='👤 '+S.playerName;
   document.getElementById('hudLang').textContent=(flags[S.targetLang]||'🌐')+' '+(names[S.targetLang]||S.targetLang);
-  document.getElementById('learnLangBadge').textContent=(flags[S.targetLang]||'🌐')+' '+(names[S.targetLang]||S.targetLang);
+  const badge=document.getElementById('learnLangBadge');
+  if(badge) badge.textContent=(flags[S.targetLang]||'🌐')+' '+(names[S.targetLang]||S.targetLang);
   document.getElementById('hudXP').textContent='0 '+(ui.xp_label||'XP');
   showScreen('screen-village');
   // Init weather
@@ -1647,15 +1643,17 @@ document.getElementById('dialInput').addEventListener('keydown',e=>{if(e.key==='
 let learnFrom='screen-village';
 function openLearn(){
   learnFrom=document.querySelector('.screen.active')?.id||'screen-village';
-  document.getElementById('learn-title-text').textContent=ui.learn_title||'📚';
-  buildLearnTabs();
-  showLearnTab('vocab',document.querySelector('.learn-tab'));
+  const title=document.getElementById('learn-title-text');
+  if(title) title.textContent=ui.learn_title||'📚';
+  // Activate first tab
+  const firstTab=document.querySelector('.learn-tab-new');
+  if(firstTab) showLearnTab('vocab',firstTab);
   showScreen('screen-learn');
 }
 function goBackFromLearn(){showScreen(learnFrom);}
 
 function showLearnTab(tab,btn){
-  document.querySelectorAll('.learn-tab').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.learn-tab-new').forEach(b=>b.classList.remove('active'));
   if(btn)btn.classList.add('active');
   const body=document.getElementById('learnBody');
   const tl=S.targetLang,nl=S.nativeLang;
