@@ -4538,7 +4538,7 @@ function loadVocab(catKey){
   const showNative=!isCJK||S.scriptPref!=='roman';
   // Filter by search
   const search=document.getElementById('vocabSearch').value.toLowerCase();
-  const words=cat.words.filter(w=>!search||w.n.toLowerCase().includes(search)||(w.t[S.targetLang]||'').toLowerCase().includes(search));
+  const words=cat.words.filter(w=>!search||(w.t[S.nativeLang]||w.n).toLowerCase().includes(search)||(w.t[S.targetLang]||'').toLowerCase().includes(search));
   document.getElementById('vocabCount').textContent=words.length+' mots';
   document.getElementById('vocabList').innerHTML=`
     <div class="cat-header">${cat[S.nativeLang]||cat.fr} — ${words.length} mots</div>
@@ -4548,7 +4548,7 @@ function loadVocab(catKey){
       const chars=match?match[1]:target;
       const roman=match?match[2]:'';
       return`<div class="vocab-item">
-        <span class="vi-native">${w.n}</span>
+        <span class="vi-native">${w.t[S.nativeLang]||w.t.en||w.n}</span>
         <span class="vi-target">
           <span class="vi-word">${showNative?chars:''}</span>
           ${showRoman&&roman?`<span class="vi-roman">${roman}</span>`:''}
