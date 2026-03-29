@@ -4582,7 +4582,7 @@ function loadPhrases(catKey){
     const roman=match?match[2]:'';
     const struct=p.struct?p.struct.t?.[S.targetLang]||p.struct.t?.en||p.struct.n:'';
     return`<div class="phrase-item">
-      <div class="pi-native">${p.n}</div>
+      <div class="pi-native">${p.t[S.nativeLang]||p.t.en||p.n}</div>
       <div class="pi-target">${showNative?chars:target}</div>
       ${showRoman&&roman?`<div class="pi-roman">${roman}</div>`:''}
       ${struct?`<div style="font-size:0.65rem;color:var(--purple);margin-top:4px">📐 ${struct}</div>`:''}
@@ -4620,7 +4620,7 @@ function loadGrammar(catKey){
           const chars=match?match[1]:target;
           const roman=match?match[2]:'';
           return`<div class="gram-ex">
-            <span class="gram-ex-native">${ex.n}</span>
+            <span class="gram-ex-native">${ex.t[S.nativeLang]||ex.t.en||ex.n}</span>
             <span class="gram-ex-target">
               ${showNative?chars:target}
               ${showRoman&&roman?`<span class="roman">${roman}</span>`:''}
