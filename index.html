@@ -4613,6 +4613,7 @@ function openLoc(loc){
   S.currentLoc=loc;
   document.getElementById('locTitle').textContent=loc.emoji+' '+(LOC_NAMES[loc.id]?.[S.nativeLang]||loc.id);
   document.getElementById('locWeather').textContent=WEATHER_ICONS[currentWeather];
+  if(loc.id==='cinema'){openCinema();return;}
   const list=document.getElementById('npcList');
   list.innerHTML=loc.npcs.map(npc=>{
     const role=typeof npc.role==='object'?(npc.role[S.nativeLang]||npc.role.en):npc.role;
@@ -4627,6 +4628,7 @@ function openLoc(loc){
       <span style="color:var(--dim);font-size:1.2rem">›</span>
     </div>`;
   }).join('');
+  }
   if(loc.id==='cinema'){openCinema();return;}
   showScreen('screen-location');
 }
