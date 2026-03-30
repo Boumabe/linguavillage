@@ -280,6 +280,254 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);font-famil
 </div>
 <div id="weatherOverlay"></div>
 
+<script>
+  // =================================================================
+// CINEMA DATA — YouTube IDs par langue
+// ================================================================= 
+const CINEMA_DATA = {
+  en:{
+    label:'English',
+    cats:[
+      {key:'conversation',label:'Conversations',icon:'💬'},
+      {key:'news',label:'Actualités',icon:'📰'},
+      {key:'culture',label:'Culture',icon:'🎭'},
+    ],
+    videos:{
+      conversation:[
+        {id:'rg0013JbDRY',title:'Easy English Conversations — Daily Life',desc:'Dialogues simples du quotidien avec sous-titres',diff:'🟢 Débutant'},
+        {id:'6A1hwGPGe7Q',title:'Real English Conversations — At the café',desc:'Commandes au café, expressions naturelles',diff:'🟢 Débutant'},
+        {id:'V1dMqkuJaoo',title:'American English — Meeting people',desc:'Se présenter, faire connaissance',diff:'🟢 Débutant'},
+        {id:'2V0mOVMXsEE',title:'English Conversation Practice — Shopping',desc:'Au supermarché, demander de l\'aide',diff:'🟡 Intermédiaire'},
+        {id:'x0rJVQfTwJ8',title:'Everyday English — At the doctor',desc:'Décrire ses symptômes chez le médecin',diff:'🟡 Intermédiaire'},
+        {id:'GbQDEMNeXXk',title:'Business English — Job Interview',desc:'Entretien d\'embauche en anglais',diff:'🔴 Avancé'},
+        {id:'HE5SPetCyKE',title:'TED-Ed — How language shapes thought',desc:'Conférence sur le langage et la pensée',diff:'🔴 Avancé'},
+        {id:'cg6vzxJxDGU',title:'English with Lucy — British pronunciation',desc:'Prononciation britannique expliquée',diff:'🟡 Intermédiaire'},
+      ],
+      news:[
+        {id:'y4OmFRm8tMM',title:'BBC Learning English — 6 Minute English',desc:'Discussion en anglais sur l\'actualité en 6 minutes',diff:'🟡 Intermédiaire'},
+        {id:'hy9PZ1pnx9E',title:'VOA Learning English — Weekly News',desc:'Actualités mondiales en anglais simplifié',diff:'🟢 Débutant'},
+        {id:'Qf2Hpjhsv6A',title:'CNN10 — Daily News Summary',desc:'Résumé des nouvelles du monde',diff:'🔴 Avancé'},
+      ],
+      culture:[
+        {id:'WXuK6gekU1Y',title:'British Culture — Tea traditions',desc:'Traditions britanniques autour du thé',diff:'🟢 Débutant'},
+        {id:'g11ZnAHNM-Y',title:'American Holidays explained',desc:'Les fêtes américaines expliquées simplement',diff:'🟢 Débutant'},
+        {id:'K4TS0EGcEr4',title:'English Humor — Understanding British jokes',desc:'Comprendre l\'humour britannique',diff:'🔴 Avancé'},
+      ],
+    }
+  },
+  fr:{
+    label:'Français',
+    cats:[
+      {key:'conversation',label:'Conversations',icon:'💬'},
+      {key:'rue',label:'Dans la rue',icon:'🚶'},
+      {key:'culture',label:'Culture',icon:'🎭'},
+    ],
+    videos:{
+      conversation:[
+        {id:'Ah2MSoVVCc4',title:'Easy French — Conversations quotidiennes',desc:'Français naturel avec sous-titres bilingues',diff:'🟢 Débutant'},
+        {id:'pKQkxrYBBrc',title:'Français avec Pierre — Au restaurant',desc:'Commander au restaurant, expressions utiles',diff:'🟢 Débutant'},
+        {id:'X7CUKNNEzHI',title:'Learn French — Se présenter',desc:'Comment se présenter en français',diff:'🟢 Débutant'},
+        {id:'DxBp-MJoFkw',title:'French Conversations — Family & friends',desc:'Parler de sa famille et ses amis',diff:'🟡 Intermédiaire'},
+        {id:'RVvTQCB5k7o',title:'Français authentique — Exprimer ses émotions',desc:'Vocabulaire des émotions en contexte',diff:'🟡 Intermédiaire'},
+        {id:'lMmJsdXqMWc',title:'Français avancé — Débat politique',desc:'Discussion politique authentique',diff:'🔴 Avancé'},
+      ],
+      rue:[
+        {id:'TG7lcGFB6rE',title:'Easy French — Dans les rues de Paris',desc:'Interviews de passants à Paris',diff:'🟢 Débutant'},
+        {id:'TYYB3EFGleA',title:'Français dans la rue — Qu\'est-ce que vous mangez ?',desc:'Habitudes alimentaires des Français',diff:'🟡 Intermédiaire'},
+        {id:'0dKaZYoHxMI',title:'Easy French — Vos rêves',desc:'Les Français parlent de leurs rêves',diff:'🟡 Intermédiaire'},
+      ],
+      culture:[
+        {id:'JczChMHdjS0',title:'Histoire de France résumée',desc:'Points clés de l\'histoire française',diff:'🔴 Avancé'},
+        {id:'RZpXcBRfr0I',title:'La gastronomie française',desc:'Les plats emblématiques de la France',diff:'🟢 Débutant'},
+      ],
+    }
+  },
+  es:{
+    label:'Español',
+    cats:[
+      {key:'conversation',label:'Conversaciones',icon:'💬'},
+      {key:'cultura',label:'Cultura',icon:'🎭'},
+    ],
+    videos:{
+      conversation:[
+        {id:'HVVKm7_GXNM',title:'Easy Spanish — Conversaciones básicas',desc:'Español natural dans la rue avec sous-titres',diff:'🟢 Débutant'},
+        {id:'oijF6uKxlDc',title:'Español con Juan — En el mercado',desc:'Acheter au marché en espagnol',diff:'🟢 Débutant'},
+        {id:'EAkYfLmEzaU',title:'SpanishPod101 — Presentaciones',desc:'Se présenter en espagnol',diff:'🟢 Débutant'},
+        {id:'8RKXL2FKa3Y',title:'Easy Spanish — ¿Cuál es tu trabajo?',desc:'Parler de son travail',diff:'🟡 Intermédiaire'},
+        {id:'qHQjMFI8RVE',title:'Español avanzado — Noticias',desc:'Actualités en espagnol courant',diff:'🔴 Avancé'},
+      ],
+      cultura:[
+        {id:'KYmSnp1bK5g',title:'Cultura española — Tapas y flamenco',desc:'Traditions espagnoles expliquées',diff:'🟢 Débutant'},
+        {id:'VUVXBOmqUW8',title:'América Latina — Diferencias culturales',desc:'Différences culturelles latino-américaines',diff:'🟡 Intermédiaire'},
+      ],
+    }
+  },
+  ht:{
+    label:'Kreyòl',
+    cats:[
+      {key:'conversation',label:'Konvèsasyon',icon:'💬'},
+      {key:'kilti',label:'Kilti',icon:'🎭'},
+    ],
+    videos:{
+      conversation:[
+        {id:'mGpbpECCsTY',title:'Pale Kreyòl — Konvèsasyon chak jou',desc:'Dyalòg pratik an kreyòl ayisyen',diff:'🟢 Debutan'},
+        {id:'Hs5rFUzL0P0',title:'Kreyòl fasil — Salitasyon',desc:'Kijan pou salye moun an kreyòl',diff:'🟢 Debutan'},
+        {id:'Io09EVhyb74',title:'Aprann Kreyòl — Nan restoran',desc:'Kijan pou kòmande nan yon restoran',diff:'🟡 Entèmedyè'},
+      ],
+      kilti:[
+        {id:'Q6nV7j6Z7mU',title:'Kilti Ayisyen — Tradisyon ak fèt',desc:'Tradisyon ak fèt ann Ayiti',diff:'🟢 Debutan'},
+        {id:'J9y3AkMi3mA',title:'Mizik Ayisyen — Kompa ak rasin',desc:'Mizik tradisyonèl Ayiti',diff:'🟡 Entèmedyè'},
+      ],
+    }
+  },
+  de:{
+    label:'Deutsch',
+    cats:[
+      {key:'conversation',label:'Gespräche',icon:'💬'},
+      {key:'kultur',label:'Kultur',icon:'🎭'},
+    ],
+    videos:{
+      conversation:[
+        {id:'X2g1sGbh3jA',title:'Easy German — Alltag in Deutschland',desc:'Conversations quotidiennes en allemand',diff:'🟢 Anfänger'},
+        {id:'V7bxMDpd-Q4',title:'Deutsch lernen — Im Supermarkt',desc:'Au supermarché en allemand',diff:'🟢 Anfänger'},
+        {id:'EeRpT2Xf9oQ',title:'German Conversations — Arbeit und Beruf',desc:'Parler de son travail en allemand',diff:'🟡 Mittel'},
+        {id:'waBTW-OcWsU',title:'Deutschlandfunk — Nachrichten leicht',desc:'Actualités en allemand simplifié',diff:'🔴 Fortgeschritten'},
+      ],
+      kultur:[
+        {id:'s7i6sJgwvHg',title:'Deutsche Kultur — Oktoberfest erklärt',desc:'L\'Oktoberfest expliqué simplement',diff:'🟢 Anfänger'},
+        {id:'1DeSH9BsCKI',title:'Geschichte Deutschlands — Kurzfassung',desc:'Histoire de l\'Allemagne résumée',diff:'🔴 Fortgeschritten'},
+      ],
+    }
+  },
+  ru:{
+    label:'Русский',
+    cats:[
+      {key:'conversation',label:'Разговоры',icon:'💬'},
+      {key:'kultura',label:'Культура',icon:'🎭'},
+    ],
+    videos:{
+      conversation:[
+        {id:'1xKR4ZXSzPc',title:'Русский язык — Простые диалоги',desc:'Dialogues simples en russe avec sous-titres',diff:'🟢 Начинающий'},
+        {id:'uKyoNYSiCDY',title:'Russian with Max — В магазине',desc:'Au magasin en russe',diff:'🟢 Начинающий'},
+        {id:'bfJtXGVSbAc',title:'Slow Russian — О погоде',desc:'Parler de la météo en russe lentement',diff:'🟡 Средний'},
+        {id:'VIfXMIGbslQ',title:'Russian news — Упрощённые новости',desc:'Actualités en russe simplifié',diff:'🔴 Продвинутый'},
+      ],
+      kultura:[
+        {id:'MLzIJqZIMVg',title:'Русская культура — Традиции',desc:'Traditions russes expliquées',diff:'🟢 Начинающий'},
+        {id:'s8R3FDpXFd4',title:'Россия — Достопримечательности',desc:'Les incontournables de Russie',diff:'🟡 Средний'},
+      ],
+    }
+  },
+  zh:{
+    label:'中文',
+    cats:[
+      {key:'conversation',label:'对话',icon:'💬'},
+      {key:'wenhua',label:'文化',icon:'🎭'},
+    ],
+    videos:{
+      conversation:[
+        {id:'5Td3PGT0_4I',title:'Mandarin Corner — 日常对话',desc:'Dialogues quotidiens en mandarin avec sous-titres',diff:'🟢 初级'},
+        {id:'rg1FdDyAv7o',title:'Chinese with Yoyo — 在餐厅',desc:'Commander au restaurant en chinois',diff:'🟢 初级'},
+        {id:'pFLzDnouvak',title:'HSK 1 对话 — 问路',desc:'Demander son chemin en chinois',diff:'🟢 初级'},
+        {id:'I4h-aEY1cAk',title:'中级中文 — 工作面试',desc:'Entretien d\'embauche en chinois',diff:'🟡 中级'},
+        {id:'zIG_YioKRkY',title:'汉语口语 — 谈论爱好',desc:'Parler de ses loisirs en chinois',diff:'🟡 中级'},
+      ],
+      wenhua:[
+        {id:'KeL4d22wMXk',title:'中国文化 — 春节传统',desc:'Traditions du Nouvel An chinois',diff:'🟢 初级'},
+        {id:'uFzMhEFbH2o',title:'中国历史 — 概述',desc:'Histoire de la Chine résumée',diff:'🔴 高级'},
+      ],
+    }
+  },
+  ja:{
+    label:'日本語',
+    cats:[
+      {key:'conversation',label:'会話',icon:'💬'},
+      {key:'bunka',label:'文化',icon:'🎭'},
+    ],
+    videos:{
+      conversation:[
+        {id:'Xt7YHFJ_8RU',title:'JapanesePod101 — 日常会話',desc:'Conversations quotidiennes en japonais',diff:'🟢 初心者'},
+        {id:'fEiJppBr1As',title:'日本語の森 — 挨拶と自己紹介',desc:'Salutations et présentations en japonais',diff:'🟢 初心者'},
+        {id:'UEkEaT7DLNU',title:'Comprehensible Japanese — お買い物',desc:'Faire ses courses en japonais',diff:'🟡 中級'},
+        {id:'SXNRiIVGZhA',title:'JLPT N4 会話 — 予定を話す',desc:'Parler de ses projets en japonais',diff:'🟡 中級'},
+      ],
+      bunka:[
+        {id:'HYKJvkxzm1g',title:'日本の文化 — 茶道と礼儀',desc:'La cérémonie du thé et les traditions',diff:'🟢 初心者'},
+        {id:'TdpTlUzDHNM',title:'アニメで学ぶ日本語 — 基礎',desc:'Apprendre le japonais avec l\'anime',diff:'🟡 中級'},
+      ],
+    }
+  },
+};
+
+// =================================================================
+// CINEMA FUNCTIONS
+// =================================================================
+let currentCinemaVideos = [];
+let currentVideoIndex = 0;
+
+function openCinema(){
+  const lang = S.targetLang;
+  const data = CINEMA_DATA[lang];
+  document.getElementById('cinema-title').textContent = '🎬 ' + (data?.label||'Cinéma');
+  document.getElementById('cinema-lang-badge').textContent = (FLAGS[lang]||'');
+  // Build category tabs
+  const cats = data?.cats||[];
+  document.getElementById('cinemaCats').innerHTML = cats.map((c,i)=>
+    `<button onclick="loadCinemaCategory('${c.key}')" style="flex:0 0 auto;background:transparent;border:none;border-bottom:2px solid ${i===0?'#e040fb':'transparent'};color:${i===0?'#e040fb':'var(--dim)'};padding:10px 14px 8px;font-size:0.72rem;font-weight:800;cursor:pointer;font-family:'Nunito',sans-serif;white-space:nowrap;transition:all 0.2s" id="ccat-${c.key}">
+      ${c.icon} ${c.label}
+    </button>`
+  ).join('');
+  // Load first category
+  if(cats.length) loadCinemaCategory(cats[0].key);
+  showScreen('screen-cinema');
+}
+
+function loadCinemaCategory(catKey){
+  const lang = S.targetLang;
+  const data = CINEMA_DATA[lang];
+  const videos = data?.videos?.[catKey]||[];
+  currentCinemaVideos = videos;
+  // Update tab styles
+  data?.cats?.forEach(c=>{
+    const el = document.getElementById('ccat-'+c.key);
+    if(el){
+      el.style.borderBottomColor = c.key===catKey?'#e040fb':'transparent';
+      el.style.color = c.key===catKey?'#e040fb':'var(--dim)';
+    }
+  });
+  // Load first video
+  if(videos.length){
+    loadVideo(0);
+    buildVideoList(videos);
+  }
+}
+
+function loadVideo(index){
+  currentVideoIndex = index;
+  const v = currentCinemaVideos[index];
+  if(!v) return;
+  // Load in iframe
+  document.getElementById('cinemaPlayer').src =
+    `https://www.youtube.com/embed/${v.id}?autoplay=0&cc_load_policy=1&rel=0`;
+  document.getElementById('videoTitle').textContent = v.title;
+  document.getElementById('videoDesc').textContent = v.desc;
+  document.getElementById('videoDiff').innerHTML =
+    `<span style="font-size:0.72rem;font-weight:800">${v.diff||''}</span>`;
+  gainXP(5);
+}
+
+function buildVideoList(videos){
+  document.getElementById('videoList').innerHTML = videos.map((v,i)=>
+    `<div onclick="loadVideo(${i})" style="background:var(--bg-card);border:1px solid ${i===currentVideoIndex?'#e040fb':'var(--border)'};border-radius:12px;padding:10px 12px;cursor:pointer;transition:all 0.2s;display:flex;gap:10px;align-items:center">
+      <div style="width:50px;height:35px;background:#000;border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:1.2rem">▶️</div>
+      <div style="flex:1">
+        <div style="font-size:0.8rem;font-weight:800;color:${i===currentVideoIndex?'#e040fb':'var(--text)'};margin-bottom:2px">${v.title}</div>
+        <div style="font-size:0.65rem;color:var(--dim)">${v.diff||''}</div>
+      </div>
+    </div>`
+  ).join('');
+},
+</script>
 <!-- ====== S1: WELCOME ====== -->
 <div class="screen active" id="screen-welcome">
   <div class="w-stars" id="wStars"></div>
@@ -489,7 +737,30 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);font-famil
     <div class="dict-empty"><div class="dict-empty-icon">🔤</div><div id="dict-empty-txt">Tapez un mot pour le traduire</div></div>
   </div>
 </div>
-
+  
+<!-- ====== S10: CINEMA ====== -->
+<div class="screen" id="screen-cinema">
+  <div class="u-header">
+    <button class="back-btn" onclick="showScreen('screen-village')">← Village</button>
+    <div class="u-title" style="color:#e040fb" id="cinema-title">🎬 Cinéma</div>
+    <span id="cinema-lang-badge" style="font-size:0.75rem;font-weight:800;color:#e040fb"></span>
+  </div>
+  <!-- Filtre par niveau -->
+  <div style="display:flex;gap:0;background:rgba(10,8,20,0.9);border-bottom:1px solid var(--border);overflow-x:auto;flex-shrink:0;" id="cinemaCats"></div>
+  <!-- Lecteur vidéo -->
+  <div style="background:#000;flex-shrink:0;position:relative;padding-bottom:56.25%;height:0;" id="videoWrapper">
+    <iframe id="cinemaPlayer" style="position:absolute;top:0;left:0;width:100%;height:100%;border:none;" allowfullscreen allow="accelerometer;autoplay;clipboard-write;encrypted-media;gyroscope;picture-in-picture"></iframe>
+  </div>
+  <!-- Info vidéo + sous-titres -->
+  <div style="flex:1;overflow-y:auto;padding:12px 14px;" id="cinemaInfo">
+    <div id="videoTitle" style="font-family:'Cinzel',serif;font-size:0.9rem;color:#e040fb;margin-bottom:4px;"></div>
+    <div id="videoDesc" style="font-size:0.75rem;color:var(--dim);margin-bottom:10px;line-height:1.4;"></div>
+    <div id="videoDiff" style="margin-bottom:12px;"></div>
+    <!-- Liste des vidéos -->
+    <div id="videoList" style="display:flex;flex-direction:column;gap:8px;"></div>
+  </div>
+</div>
+  
 <script>
 // =================================================================
 const API = 'https://linguavillage-api--marckensbou2.replit.app';
@@ -4141,7 +4412,7 @@ const LOCATIONS = [
     {id:'foreman',emoji:'👷',name:'Casey',role:{fr:'Contremaître·sse',en:'Foreman',ht:'Chèf travay',es:'Capataz',de:'Vorarbeiter/in',ru:'Прораб',zh:'工头',ja:'現場監督'},ctx:'Tu es Casey, contremaître direct.'},
     {id:'craftsperson',emoji:'🔨',name:'Blake',role:{fr:'Artisan·e',en:'Craftsperson',ht:'Atizan',es:'Artesano/a',de:'Handwerker/in',ru:'Мастер',zh:'工匠',ja:'職人'},ctx:'Tu es Blake, artisan fier.'}]},
   {id:'cinema',emoji:'🎬',color:'#8a2080',x:0.42,y:0.28,w:0.13,h:0.15,npcs:[
-  {id:'projectionist',emoji:'🎥',name:'Maya',
+  {id:'projectionist',emoji:'🎥',name:'Milly',
    role:{fr:'Projectionniste',en:'Projectionist',ht:'Pwojeksyonis',es:'Proyeccionista',de:'Vorführerin',ru:'Киномеханик',zh:'放映员',ja:'映写技師'},
    ctx:'Tu es Milly, projectionniste passionnée. Tu présentes des vidéos authentiques pour aider à apprendre la langue.'}
 ]},
@@ -4356,6 +4627,7 @@ function openLoc(loc){
       <span style="color:var(--dim);font-size:1.2rem">›</span>
     </div>`;
   }).join('');
+  if(loc.id==='cinema'){openCinema();return;}
   showScreen('screen-location');
 }
 
