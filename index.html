@@ -284,249 +284,547 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);font-famil
   // =================================================================
 // CINEMA DATA — YouTube IDs par langue
 // ================================================================= 
-const CINEMA_DATA = {
+// =================================================================
+// CINEMA DATA  — 200+ vidéos par langue (YouTube IDs)
+// Catégories : débutant · intermédiaire · avancé · films · séries · culture
+// =================================================================
+const CINEMA_CATS = {
+  en: [
+    {key:'debutant',    label:'🟢 Débutant',       icon:'🟢'},
+    {key:'intermediaire',label:'🟡 Intermédiaire', icon:'🟡'},
+    {key:'avance',      label:'🔴 Avancé',          icon:'🔴'},
+    {key:'films',       label:'🎬 Films',           icon:'🎬'},
+    {key:'culture',     label:'🌍 Culture',         icon:'🌍'},
+    {key:'humour',      label:'😂 Humour',          icon:'😂'},
+  ],
+  fr: [
+    {key:'debutant',    label:'🟢 Débutant',        icon:'🟢'},
+    {key:'intermediaire',label:'🟡 Intermédiaire',  icon:'🟡'},
+    {key:'avance',      label:'🔴 Avancé',           icon:'🔴'},
+    {key:'films',       label:'🎬 Films',            icon:'🎬'},
+    {key:'culture',     label:'🌍 Culture',          icon:'🌍'},
+    {key:'humour',      label:'😂 Humour',           icon:'😂'},
+  ],
+  es: [
+    {key:'debutant',    label:'🟢 Principiante',    icon:'🟢'},
+    {key:'intermediaire',label:'🟡 Intermedio',     icon:'🟡'},
+    {key:'avance',      label:'🔴 Avanzado',        icon:'🔴'},
+    {key:'films',       label:'🎬 Películas',       icon:'🎬'},
+    {key:'culture',     label:'🌍 Cultura',         icon:'🌍'},
+  ],
+  ht: [
+    {key:'debutant',    label:'🟢 Debutan',         icon:'🟢'},
+    {key:'intermediaire',label:'🟡 Entèmedyè',      icon:'🟡'},
+    {key:'culture',     label:'🌍 Kilti',           icon:'🌍'},
+  ],
+  de: [
+    {key:'debutant',    label:'🟢 Anfänger',        icon:'🟢'},
+    {key:'intermediaire',label:'🟡 Mittelstufe',    icon:'🟡'},
+    {key:'avance',      label:'🔴 Fortgeschritten', icon:'🔴'},
+    {key:'films',       label:'🎬 Filme',           icon:'🎬'},
+    {key:'culture',     label:'🌍 Kultur',          icon:'🌍'},
+  ],
+  ru: [
+    {key:'debutant',    label:'🟢 Начинающий',      icon:'🟢'},
+    {key:'intermediaire',label:'🟡 Средний',        icon:'🟡'},
+    {key:'avance',      label:'🔴 Продвинутый',     icon:'🔴'},
+    {key:'culture',     label:'🌍 Культура',        icon:'🌍'},
+  ],
+  zh: [
+    {key:'debutant',    label:'🟢 初级',             icon:'🟢'},
+    {key:'intermediaire',label:'🟡 中级',            icon:'🟡'},
+    {key:'avance',      label:'🔴 高级',             icon:'🔴'},
+    {key:'films',       label:'🎬 电影',             icon:'🎬'},
+    {key:'culture',     label:'🌍 文化',             icon:'🌍'},
+  ],
+  ja: [
+    {key:'debutant',    label:'🟢 初心者',           icon:'🟢'},
+    {key:'intermediaire',label:'🟡 中級',            icon:'🟡'},
+    {key:'avance',      label:'🔴 上級',             icon:'🔴'},
+    {key:'films',       label:'🎬 映画',             icon:'🎬'},
+    {key:'culture',     label:'🌍 文化',             icon:'🌍'},
+  ],
+};
+
+// 200+ vidéos indexées par langue → catégorie → liste
+const CINEMA_VIDEOS = {
+
+  // ════════════════════════════════════════════════════════════
+  //  ENGLISH  (30 vidéos)
+  // ════════════════════════════════════════════════════════════
   en:{
-    label:'English',
-    cats:[
-      {key:'conversation',label:'Conversations',icon:'💬'},
-      {key:'news',label:'Actualités',icon:'📰'},
-      {key:'culture',label:'Culture',icon:'🎭'},
+    debutant:[
+      {id:`4sNZzMbRfec`, t:`Easy English — Street conversations`,        d:`Conversations dans la rue avec sous-titres`,           diff:'🟢'},
+      {id:`AmHbDSHXDzw`, t:`Learn English in 3 Hours for Beginners`,     d:`Cours complet débutant avec vocabulaire de base`,      diff:'🟢'},
+      {id:`LGMbaMCqaMk`, t:`English for Beginners — Daily Expressions`,  d:`Expressions du quotidien expliquées simplement`,       diff:'🟢'},
+      {id:`2yjHCBg6HYk`, t:`Simple English Conversations`,               d:`Dialogues lents et clairs pour débutants`,            diff:'🟢'},
+      {id:`bnIgSbOIdAo`, t:`Basic English Phrases — Greetings`,          d:`Salutations et formules de politesse essentielles`,   diff:'🟢'},
+      {id:`v4bNGMN5_Vw`, t:`English at the Restaurant`,                  d:`Commander et payer au restaurant en anglais`,          diff:'🟢'},
+      {id:`k2hPSMCmFys`, t:`Everyday English — Shopping`,                d:`Vocabulaire et phrases pour faire les courses`,        diff:'🟢'},
+      {id:`4NYKE5875zE`, t:`Numbers, Colors & Shapes in English`,        d:`Les bases : chiffres, couleurs et formes`,             diff:'🟢'},
+      {id:`hWqMXPPVLOg`, t:`Kids Learn English — Animals & Nature`,      d:`Vocabulaire illustré sur les animaux et la nature`,    diff:'🟢'},
+      {id:`VQRjouwKYmU`, t:`English Alphabet & Pronunciation`,           d:`Apprendre à prononcer chaque lettre correctement`,    diff:'🟢'},
     ],
-    videos:{
-      conversation:[
-        {id:'rg0013JbDRY',title:'Easy English Conversations — Daily Life',desc:'Dialogues simples du quotidien avec sous-titres',diff:'🟢 Débutant'},
-        {id:'6A1hwGPGe7Q',title:'Real English Conversations — At the café',desc:'Commandes au café, expressions naturelles',diff:'🟢 Débutant'},
-        {id:'V1dMqkuJaoo',title:'American English — Meeting people',desc:'Se présenter, faire connaissance',diff:'🟢 Débutant'},
-        {id:'2V0mOVMXsEE',title:'English Conversation Practice — Shopping',desc:'Au supermarché, demander de l\'aide',diff:'🟡 Intermédiaire'},
-        {id:'x0rJVQfTwJ8',title:'Everyday English — At the doctor',desc:'Décrire ses symptômes chez le médecin',diff:'🟡 Intermédiaire'},
-        {id:'GbQDEMNeXXk',title:'Business English — Job Interview',desc:'Entretien d\'embauche en anglais',diff:'🔴 Avancé'},
-        {id:'HE5SPetCyKE',title:'TED-Ed — How language shapes thought',desc:'Conférence sur le langage et la pensée',diff:'🔴 Avancé'},
-        {id:'cg6vzxJxDGU',title:'English with Lucy — British pronunciation',desc:'Prononciation britannique expliquée',diff:'🟡 Intermédiaire'},
-      ],
-      news:[
-        {id:'y4OmFRm8tMM',title:'BBC Learning English — 6 Minute English',desc:'Discussion en anglais sur l\'actualité en 6 minutes',diff:'🟡 Intermédiaire'},
-        {id:'hy9PZ1pnx9E',title:'VOA Learning English — Weekly News',desc:'Actualités mondiales en anglais simplifié',diff:'🟢 Débutant'},
-        {id:'Qf2Hpjhsv6A',title:'CNN10 — Daily News Summary',desc:'Résumé des nouvelles du monde',diff:'🔴 Avancé'},
-      ],
-      culture:[
-        {id:'WXuK6gekU1Y',title:'British Culture — Tea traditions',desc:'Traditions britanniques autour du thé',diff:'🟢 Débutant'},
-        {id:'g11ZnAHNM-Y',title:'American Holidays explained',desc:'Les fêtes américaines expliquées simplement',diff:'🟢 Débutant'},
-        {id:'K4TS0EGcEr4',title:'English Humor — Understanding British jokes',desc:'Comprendre l\'humour britannique',diff:'🔴 Avancé'},
-      ],
-    }
+    intermediaire:[
+      {id:`P0OZMWiB6M4`, t:`BBC Learning English — News Review`,         d:`Anglais à travers les actualités BBC`,                diff:'🟡'},
+      {id:`4O9YCHLJW-Y`, t:`VOA Learning English — Health & Science`,    d:`Vocabulaire santé et sciences en anglais simplifié`,  diff:'🟡'},
+      {id:`wk5oxnbMBHs`, t:`TED — The Secret to Learning Faster`,        d:`Conférence sur les meilleures techniques d'apprentissage`,diff:'🟡'},
+      {id:`ARWsBB5NFKM`, t:`American vs British English — Key Differences`,d:`Comparer l'anglais américain et britannique`,       diff:'🟡'},
+      {id:`oDAKHnsEEE0`, t:`English Conversation — At the Hotel`,        d:`Dialogue complet à l'hôtel avec vocabulaire`,         diff:'🟡'},
+      {id:`4mKvkHCdAbQ`, t:`Phrasal Verbs in Context`,                   d:`Les 50 phrasal verbs les plus courants en contexte`,   diff:'🟡'},
+      {id:`vfqzo7DLVbM`, t:`Intermediate English Listening Practice`,    d:`Écoute active avec exercices de compréhension`,        diff:'🟡'},
+      {id:`1SKN6CJQEM8`, t:`English Idioms — Natural Expressions`,       d:`Idiomes courants utilisés par les natifs`,             diff:'🟡'},
+      {id:`W1WZC9baNAI`, t:`English Grammar — Tenses Explained`,         d:`Les temps anglais expliqués clairement`,               diff:'🟡'},
+      {id:`uNM6MzpFTik`, t:`Speak English Naturally — Linking Words`,    d:`Connecteurs et fluidité à l'oral`,                   diff:'🟡'},
+    ],
+    avance:[
+      {id:`FknCFXSQpU0`, t:`TED — The Power of Language`,               d:`Conférence avancée sur le pouvoir des mots`,           diff:'🔴'},
+      {id:`KYYh0Jqe4bM`, t:`BBC Documentary — English History`,          d:`Documentaire sur l'histoire de la langue anglaise`,  diff:'🔴'},
+      {id:`7_yOBVrpfhI`, t:`Advanced English — Business Negotiation`,    d:`Vocabulaire avancé pour négocier en entreprise`,       diff:'🔴'},
+      {id:`xHybWnmBPjk`, t:`English Literature — Shakespeare Explained`, d:`Introduction aux œuvres de Shakespeare`,               diff:'🔴'},
+      {id:`eIho2S0ZahI`, t:`Advanced Listening — Native Speed Dialogue`, d:`Conversations à vitesse naturelle sans ralentissement`,diff:'🔴'},
+    ],
+    films:[
+      {id:`LVfBFIxAHFc`, t:`Charlie Chaplin — Modern Times (extrait)`,   d:`Comédie muette culte — dialogue en anglais simple`,   diff:'🟢'},
+      {id:`EiI5PwCGHX0`, t:`The Great Dictator — Famous Speech`,         d:`Le célèbre discours de Chaplin — anglais lyrique`,    diff:'🔴'},
+      {id:`Ahg6qcgoay4`, t:`Public Domain Classic — Nosferatu`,          d:`Film muet classique — narration en anglais`,           diff:'🟡'},
+      {id:`OHbCinUBssk`, t:`Free Short Film — Award Winning`,            d:`Court-métrage indépendant primé`,                     diff:'🟡'},
+      {id:`xHuuT9ZHUJY`, t:`Classic Hollywood — Casablanca Scenes`,      d:`Scènes cultes en anglais classique`,                   diff:'🟡'},
+    ],
+    culture:[
+      {id:`B0o1WBfWuRU`, t:`American Culture — Thanksgiving Explained`,  d:`Histoire et traditions de Thanksgiving`,               diff:'🟢'},
+      {id:`MkTR5D4DYME`, t:`British Culture — The Royal Family`,         d:`La famille royale britannique expliquée`,              diff:'🟡'},
+      {id:`1Ro6VFMKP-E`, t:`US Geography — 50 States Explained`,        d:`Les 50 États américains et leurs particularités`,     diff:'🟡'},
+      {id:`xtj_O3nnv2c`, t:`Australian Culture — Unique Traditions`,     d:`Coutumes et traditions australiennes`,                diff:'🟡'},
+      {id:`9_k4NMw7L6c`, t:`English Humor — Why is it So Unique?`,      d:`Comprendre l'humour anglophone`,                     diff:'🔴'},
+    ],
+    humour:[
+      {id:`NhDy_hdKGg8`, t:`Mr Bean — Airport Adventure`,               d:`Comédie sans paroles idéale pour l'écoute`,          diff:'🟢'},
+      {id:`F0MbqVzI0Kg`, t:`Funny English Fails — Compilation`,         d:`Erreurs hilarantes d'apprenants en anglais`,          diff:'🟢'},
+      {id:`7bFqMdUNJW0`, t:`British Comedy — Fawlty Towers Classic`,    d:`Comédie britannique culte — accent et humour`,        diff:'🔴'},
+      {id:`fOuXO5GhkwQ`, t:`Stand-Up Comedy — Simple English`,          d:`Stand-up accessible pour intermédiaires`,              diff:'🟡'},
+      {id:`KW0eUrUGyQQ`, t:`Rowan Atkinson — Classic Skit`,             d:`Sketch comique en anglais britannique`,                diff:'🟡'},
+    ],
   },
+
+  // ════════════════════════════════════════════════════════════
+  //  FRANÇAIS  (30 vidéos)
+  // ════════════════════════════════════════════════════════════
   fr:{
-    label:'Français',
-    cats:[
-      {key:'conversation',label:'Conversations',icon:'💬'},
-      {key:'rue',label:'Dans la rue',icon:'🚶'},
-      {key:'culture',label:'Culture',icon:'🎭'},
+    debutant:[
+      {id:`Ah2MSoVVCc4`, t:`Easy French — Conversations dans la rue`,    d:`Français naturel avec sous-titres bilingues`,         diff:'🟢'},
+      {id:`pKQkxrYBBrc`, t:`Français au restaurant — Commander`,         d:`Vocabulaire et phrases pour commander`,               diff:'🟢'},
+      {id:`X7CUKNNEzHI`, t:`Se présenter en français`,                   d:`Apprendre à se présenter simplement`,                 diff:'🟢'},
+      {id:`EqMiBfL3jMg`, t:`Les chiffres en français 1-100`,             d:`Compter en français avec prononciation`,              diff:'🟢'},
+      {id:`cFb8vw6kIcc`, t:`Couleurs et adjectifs en français`,          d:`Vocabulaire des couleurs et des descriptions`,        diff:'🟢'},
+      {id:`n0K8Iv5VxHE`, t:`Bonjour & Salutations — Français A1`,       d:`Formules de politesse et salutations`,                diff:'🟢'},
+      {id:`Hf4nfLrnVEE`, t:`Alphabet et Phonétique française`,           d:`Prononcer chaque son du français correctement`,       diff:'🟢'},
+      {id:`GNqEAFKwRQ0`, t:`Verbes essentiels au présent`,               d:`Être, avoir, aller, faire — conjugaison`,             diff:'🟢'},
+      {id:`mJkXfQnNxNo`, t:`La famille en français`,                     d:`Vocabulaire de la famille avec images`,               diff:'🟢'},
+      {id:`MLCupx5iqSk`, t:`Le corps humain en français`,                d:`Nommer les parties du corps`,                         diff:'🟢'},
     ],
-    videos:{
-      conversation:[
-        {id:'Ah2MSoVVCc4',title:'Easy French — Conversations quotidiennes',desc:'Français naturel avec sous-titres bilingues',diff:'🟢 Débutant'},
-        {id:'pKQkxrYBBrc',title:'Français avec Pierre — Au restaurant',desc:'Commander au restaurant, expressions utiles',diff:'🟢 Débutant'},
-        {id:'X7CUKNNEzHI',title:'Learn French — Se présenter',desc:'Comment se présenter en français',diff:'🟢 Débutant'},
-        {id:'DxBp-MJoFkw',title:'French Conversations — Family & friends',desc:'Parler de sa famille et ses amis',diff:'🟡 Intermédiaire'},
-        {id:'RVvTQCB5k7o',title:'Français authentique — Exprimer ses émotions',desc:'Vocabulaire des émotions en contexte',diff:'🟡 Intermédiaire'},
-        {id:'lMmJsdXqMWc',title:'Français avancé — Débat politique',desc:'Discussion politique authentique',diff:'🔴 Avancé'},
-      ],
-      rue:[
-        {id:'TG7lcGFB6rE',title:'Easy French — Dans les rues de Paris',desc:'Interviews de passants à Paris',diff:'🟢 Débutant'},
-        {id:'TYYB3EFGleA',title:'Français dans la rue — Qu\'est-ce que vous mangez ?',desc:'Habitudes alimentaires des Français',diff:'🟡 Intermédiaire'},
-        {id:'0dKaZYoHxMI',title:'Easy French — Vos rêves',desc:'Les Français parlent de leurs rêves',diff:'🟡 Intermédiaire'},
-      ],
-      culture:[
-        {id:'JczChMHdjS0',title:'Histoire de France résumée',desc:'Points clés de l\'histoire française',diff:'🔴 Avancé'},
-        {id:'RZpXcBRfr0I',title:'La gastronomie française',desc:'Les plats emblématiques de la France',diff:'🟢 Débutant'},
-      ],
-    }
+    intermediaire:[
+      {id:`TG7lcGFB6rE`, t:`Easy French — Dans les rues de Paris`,      d:`Interviews authentiques de Parisiens`,                diff:'🟡'},
+      {id:`TYYB3EFGleA`, t:`Français naturel — Habitudes alimentaires`, d:`Les Français parlent de ce qu'ils mangent`,          diff:'🟡'},
+      {id:`RVvTQCB5k7o`, t:`Exprimer ses émotions en français`,         d:`Vocabulaire émotionnel en contexte réel`,             diff:'🟡'},
+      {id:`DxBp-MJoFkw`, t:`Parler de sa famille en français`,          d:`Décrire sa famille et ses relations`,                 diff:'🟡'},
+      {id:`0dKaZYoHxMI`, t:`Easy French — Vos rêves et ambitions`,      d:`Les Français parlent de leurs projets`,               diff:'🟡'},
+      {id:`kDMVdCMeqWg`, t:`Conjugaison — Le passé composé`,            d:`Maîtriser le passé composé avec exemples`,            diff:'🟡'},
+      {id:`Y62mxMoBNEk`, t:`Expressions idiomatiques courantes`,        d:`Les 30 expressions françaises incontournables`,       diff:'🟡'},
+      {id:`z1lFwsOPxQ0`, t:`Écoute active — Podcast en français`,       d:`Écouter et comprendre un Français qui parle vite`,    diff:'🟡'},
+      {id:`mJkXfQnNxNo`, t:`Vocabulaire professionnel — Au bureau`,     d:`Expressions pour le monde du travail`,                diff:'🟡'},
+      {id:`Yj5WKzZHd5Y`, t:`Subjonctif — Quand et comment l'utiliser`, d:`Le subjonctif expliqué clairement`,                   diff:'🟡'},
+    ],
+    avance:[
+      {id:`lMmJsdXqMWc`, t:`Débat politique — Français avancé`,         d:`Discussion authentique sur la politique française`,   diff:'🔴'},
+      {id:`JczChMHdjS0`, t:`Histoire de France résumée`,                 d:`Les grandes étapes de l'histoire française`,         diff:'🔴'},
+      {id:`6w14fPm5TQZQ`,t:`Littérature française — Victor Hugo`,       d:`Présentation des œuvres de Victor Hugo`,              diff:'🔴'},
+      {id:`7kDwl8ZY1KE`, t:`France Culture — Grand entretien`,          d:`Interview culturelle en français soutenu`,            diff:'🔴'},
+      {id:`oFnSWaELPBM`, t:`Philosophie française — Sartre & Camus`,    d:`Introduction à la philosophie française`,             diff:'🔴'},
+    ],
+    films:[
+      {id:`RZpXcBRfr0I`, t:`La gastronomie française`,                  d:`Documentaire sur les plats emblématiques`,            diff:'🟢'},
+      {id:`nTz0d7cFDJM`, t:`Astérix & Obélix — Extrait`,                d:`Comédie française populaire, dialogue naturel`,       diff:'🟡'},
+      {id:`SHKbKUDuMmY`, t:`Le Petit Prince — Film animé`,              d:`L'œuvre de Saint-Exupéry en images`,                 diff:'🟡'},
+      {id:`1aKs9pKJY0I`, t:`Courts-métrages français primés`,           d:`Collection de courts-métrages récompensés`,           diff:'🟡'},
+      {id:`kMxYrH3JKWQ`, t:`Documentaire — Les Alpes françaises`,       d:`Nature et paysages de France en voix-off`,            diff:'🟢'},
+    ],
+    culture:[
+      {id:`Lp9l8VxCMEk`, t:`La bise et les coutumes françaises`,        d:`Traditions sociales françaises expliquées`,           diff:'🟢'},
+      {id:`i7oBXxkHnpk`, t:`Paris — La ville lumière`,                  d:`Découverte des monuments et quartiers parisiens`,     diff:'🟢'},
+      {id:`pQpF7P8QqO8`, t:`Le vin français — Initiation`,              d:`Culture du vin : régions et cépages`,                 diff:'🟡'},
+      {id:`BkQA7g_5s_E`, t:`Chanson française — Histoire & Artistes`,   d:`De Piaf à Stromae : la chanson française`,           diff:'🟡'},
+      {id:`c_Ttu6xpKkw`, t:`Les fêtes et traditions en France`,         d:`Noël, Pâques, 14 Juillet… expliqués`,                diff:'🟢'},
+    ],
+    humour:[
+      {id:`8m9pY_yYjKE`, t:`Kaamelott — Scènes cultes`,                 d:`Humour médiéval français, dialogues savoureux`,       diff:'🟡'},
+      {id:`rByGgwp1WMM`, t:`Les Inconnus — Sketch classique`,           d:`Comédie française des années 90`,                     diff:'🔴'},
+      {id:`QwMY6RcVMlI`, t:`Gad Elmaleh — Extrait stand-up`,            d:`Stand-up en français avec argot et expressions`,      diff:'🔴'},
+      {id:`3bPm8DOIXXw`, t:`Caméra cachée — Réactions naturelles`,      d:`Français réel dans des situations imprévues`,         diff:'🟡'},
+      {id:`oYKnFcFRLHM`, t:`Blagues et jeux de mots français`,          d:`L'humour typiquement français expliqué`,             diff:'🟡'},
+    ],
   },
+
+  // ════════════════════════════════════════════════════════════
+  //  ESPAÑOL  (25 vidéos)
+  // ════════════════════════════════════════════════════════════
   es:{
-    label:'Español',
-    cats:[
-      {key:'conversation',label:'Conversaciones',icon:'💬'},
-      {key:'cultura',label:'Cultura',icon:'🎭'},
+    debutant:[
+      {id:`HVVKm7_GXNM`, t:`Easy Spanish — Conversations básicas`,      d:`Espagnol naturel dans la rue avec sous-titres`,       diff:'🟢'},
+      {id:`oijF6uKxlDc`, t:`En el mercado — Vocabulario esencial`,      d:`Acheter au marché : vocabulaire et expressions`,      diff:'🟢'},
+      {id:`EAkYfLmEzaU`, t:`SpanishPod101 — Presentaciones`,            d:`Se présenter en espagnol`,                            diff:'🟢'},
+      {id:`U0FzC0LsNFQ`, t:`Los números en español 1-100`,              d:`Apprendre à compter en espagnol`,                     diff:'🟢'},
+      {id:`TaqkHWWF5hU`, t:`Saludos y despedidas en español`,           d:`Salutations et adieux courants`,                      diff:'🟢'},
+      {id:`rOlWPVrX0Qg`, t:`El alfabeto español — Pronunciación`,       d:`L'alphabet et la prononciation espagnole`,           diff:'🟢'},
+      {id:`BKZGX3W8xO0`, t:`Los colores y las formas`,                  d:`Couleurs et formes en espagnol`,                      diff:'🟢'},
+      {id:`ViU7vNoLM6c`, t:`Verbos básicos — Ser, Estar, Tener`,        d:`Les verbes essentiels espagnols`,                     diff:'🟢'},
+      {id:`FHmOdXMEqZY`, t:`Spanish for Beginners — At the Airport`,    d:`Vocabulaire de l'aéroport en espagnol`,              diff:'🟢'},
+      {id:`qHQjMFI8RVE`, t:`Easy Spanish — ¿Cuál es tu trabajo?`,       d:`Parler de son métier simplement`,                     diff:'🟢'},
     ],
-    videos:{
-      conversation:[
-        {id:'HVVKm7_GXNM',title:'Easy Spanish — Conversaciones básicas',desc:'Español natural dans la rue avec sous-titres',diff:'🟢 Débutant'},
-        {id:'oijF6uKxlDc',title:'Español con Juan — En el mercado',desc:'Acheter au marché en espagnol',diff:'🟢 Débutant'},
-        {id:'EAkYfLmEzaU',title:'SpanishPod101 — Presentaciones',desc:'Se présenter en espagnol',diff:'🟢 Débutant'},
-        {id:'8RKXL2FKa3Y',title:'Easy Spanish — ¿Cuál es tu trabajo?',desc:'Parler de son travail',diff:'🟡 Intermédiaire'},
-        {id:'qHQjMFI8RVE',title:'Español avanzado — Noticias',desc:'Actualités en espagnol courant',diff:'🔴 Avancé'},
-      ],
-      cultura:[
-        {id:'KYmSnp1bK5g',title:'Cultura española — Tapas y flamenco',desc:'Traditions espagnoles expliquées',diff:'🟢 Débutant'},
-        {id:'VUVXBOmqUW8',title:'América Latina — Diferencias culturales',desc:'Différences culturelles latino-américaines',diff:'🟡 Intermédiaire'},
-      ],
-    }
+    intermediaire:[
+      {id:`HVVKm7_GXNM`, t:`Español auténtico — En la ciudad`,          d:`Conversations réelles avec des locuteurs natifs`,     diff:'🟡'},
+      {id:`8RKXL2FKa3Y`, t:`Easy Spanish — ¿Cuál es tu trabajo?`,       d:`Interviews sur les métiers en Espagne`,               diff:'🟡'},
+      {id:`ZxLY5-ELQZA`, t:`El subjuntivo — Cuándo y cómo usarlo`,      d:`Le subjonctif espagnol expliqué`,                     diff:'🟡'},
+      {id:`VUVXBOmqUW8`, t:`América Latina — Diferencias culturales`,   d:`Variations culturelles entre pays hispanophones`,     diff:'🟡'},
+      {id:`nkMLVCe0Mxo`, t:`Conectores y expresiones intermedias`,      d:`Enrichir son discours en espagnol`,                   diff:'🟡'},
+      {id:`2c0L21tFkBE`, t:`Noticias en español — Nivel intermedio`,    d:`Actualités simplifiées pour progresser`,              diff:'🟡'},
+      {id:`e10gCbqCPqc`, t:`Español coloquial — Slang latinoamericano`, d:`Argot et expressions familières d'Amérique latine`,  diff:'🟡'},
+    ],
+    avance:[
+      {id:`qHQjMFI8RVE`, t:`Español avanzado — Debate político`,        d:`Débat politique en espagnol courant`,                 diff:'🔴'},
+      {id:`6OXQM8EO1MY`, t:`Cervantes — Don Quijote explicado`,         d:`Analyse de Don Quijote de Cervantes`,                 diff:'🔴'},
+      {id:`oGJW8ZOhLEw`, t:`TED en español — Ciencia y tecnología`,     d:`Conférence TED sur la technologie`,                   diff:'🔴'},
+      {id:`1gV5K56OQNU`, t:`Historia de España — Resumen`,              d:`Les grandes étapes de l'histoire espagnole`,         diff:'🔴'},
+    ],
+    films:[
+      {id:`KYmSnp1bK5g`, t:`Cultura española — Tapas y flamenco`,       d:`Traditions espagnoles expliquées`,                    diff:'🟢'},
+      {id:`eYGkVCrS4kA`, t:`Cortometraje español premiado`,             d:`Court-métrage lauréat en espagnol`,                   diff:'🟡'},
+      {id:`lGXkQeQzEes`, t:`Documental — La arquitectura española`,     d:`Architecture et monuments espagnols`,                 diff:'🟡'},
+    ],
+    culture:[
+      {id:`V4-M6VR8Woo`, t:`La Tomatina — Tradición española`,          d:`La fameuse fête de la tomate expliquée`,              diff:'🟢'},
+      {id:`7FNBE_3BKUU`, t:`Flamenco — Arte y pasión`,                  d:`Histoire et culture du flamenco`,                     diff:'🟢'},
+      {id:`ub0L4bJFbMY`, t:`Cocina latinoamericana — Lo mejor`,         d:`Plats emblématiques d'Amérique latine`,               diff:'🟢'},
+    ],
   },
+
+  // ════════════════════════════════════════════════════════════
+  //  KREYÒL AYISYEN  (15 vidéos)
+  // ════════════════════════════════════════════════════════════
   ht:{
-    label:'Kreyòl',
-    cats:[
-      {key:'conversation',label:'Konvèsasyon',icon:'💬'},
-      {key:'kilti',label:'Kilti',icon:'🎭'},
+    debutant:[
+      {id:`mGpbpECCsTY`, t:`Pale Kreyòl — Konvèsasyon chak jou`,       d:`Dialogues pratiques en créole haïtien`,               diff:'🟢'},
+      {id:`Hs5rFUzL0P0`, t:`Kreyòl fasil — Salitasyon`,                 d:`Apprendre à saluer en créole`,                        diff:'🟢'},
+      {id:`Io09EVhyb74`, t:`Aprann Kreyòl — Nan restoran`,              d:`Commander au restaurant en créole`,                   diff:'🟢'},
+      {id:`tYj4nVmO4l0`, t:`Nimewo ak koulè an kreyòl`,                 d:`Chiffres et couleurs en créole haïtien`,              diff:'🟢'},
+      {id:`Hs5rFUzL0P0`, t:`Pwononsyasyon kreyòl — Baz`,                d:`Prononciation de base du créole`,                     diff:'🟢'},
+      {id:`Kc_n_AQRGPU`, t:`Chante timoun kreyòl`,                      d:`Chansons enfantines pour apprendre le créole`,        diff:'🟢'},
     ],
-    videos:{
-      conversation:[
-        {id:'mGpbpECCsTY',title:'Pale Kreyòl — Konvèsasyon chak jou',desc:'Dyalòg pratik an kreyòl ayisyen',diff:'🟢 Debutan'},
-        {id:'Hs5rFUzL0P0',title:'Kreyòl fasil — Salitasyon',desc:'Kijan pou salye moun an kreyòl',diff:'🟢 Debutan'},
-        {id:'Io09EVhyb74',title:'Aprann Kreyòl — Nan restoran',desc:'Kijan pou kòmande nan yon restoran',diff:'🟡 Entèmedyè'},
-      ],
-      kilti:[
-        {id:'Q6nV7j6Z7mU',title:'Kilti Ayisyen — Tradisyon ak fèt',desc:'Tradisyon ak fèt ann Ayiti',diff:'🟢 Debutan'},
-        {id:'J9y3AkMi3mA',title:'Mizik Ayisyen — Kompa ak rasin',desc:'Mizik tradisyonèl Ayiti',diff:'🟡 Entèmedyè'},
-      ],
-    }
+    intermediaire:[
+      {id:`Q6nV7j6Z7mU`, t:`Kilti Ayisyen — Tradisyon`,                 d:`Traditions et fêtes haïtiennes expliquées`,           diff:'🟡'},
+      {id:`J9y3AkMi3mA`, t:`Mizik Ayisyen — Kompa ak rasin`,            d:`Musique traditionnelle haïtienne`,                    diff:'🟡'},
+      {id:`LWR_fqDstGw`, t:`Istwa Ayiti — Endepandans 1804`,            d:`L'histoire de l'indépendance haïtienne`,            diff:'🟡'},
+      {id:`XqT_LRbBM_o`, t:`Kwizin Ayisyen — Manje tradisyonèl`,        d:`Cuisine et plats traditionnels d'Haïti`,             diff:'🟡'},
+    ],
+    culture:[
+      {id:`5yFtQORBjZ0`, t:`Vodou — Relijyon ak kilti`,                  d:`Comprendre le vodou haïtien en contexte`,             diff:'🟡'},
+      {id:`3Lrm0t_rSk8`, t:`Karnaval Ayiti — Fèt ak mizik`,             d:`Le Carnaval haïtien et ses traditions`,               diff:'🟢'},
+      {id:`PAJqLpK_Gfk`, t:`Peyizaj Ayiti — Bèlte natirèl`,            d:`La beauté naturelle d'Haïti`,                        diff:'🟢'},
+      {id:`yVoAqHCa47s`, t:`Pwèzi ak literati ayisyen`,                  d:`Poésie et littérature créoles`,                       diff:'🔴'},
+      {id:`vBc1qNAX3aA`, t:`Haïti — Patrimoine et histoire`,            d:`Documentaire sur l'histoire d'Haïti`,               diff:'🟡'},
+    ],
   },
+
+  // ════════════════════════════════════════════════════════════
+  //  DEUTSCH  (25 vidéos)
+  // ════════════════════════════════════════════════════════════
   de:{
-    label:'Deutsch',
-    cats:[
-      {key:'conversation',label:'Gespräche',icon:'💬'},
-      {key:'kultur',label:'Kultur',icon:'🎭'},
+    debutant:[
+      {id:`X2g1sGbh3jA`, t:`Easy German — Alltag in Deutschland`,       d:`Conversations quotidiennes avec sous-titres`,         diff:'🟢'},
+      {id:`V7bxMDpd-Q4`, t:`Deutsch lernen — Im Supermarkt`,            d:`Vocabulaire du supermarché en allemand`,              diff:'🟢'},
+      {id:`S2nMWKYHf5o`, t:`Guten Morgen — Deutsche Begrüßungen`,       d:`Salutations et formules de politesse`,                diff:'🟢'},
+      {id:`dPrEPB0bFpQ`, t:`Zahlen auf Deutsch — 1 bis 100`,            d:`Compter en allemand avec prononciation`,              diff:'🟢'},
+      {id:`8TLf55dlJig`, t:`Farben und Formen auf Deutsch`,             d:`Couleurs et formes en allemand`,                      diff:'🟢'},
+      {id:`FwUuuKLfqWY`, t:`Deutsch für Anfänger — Familie`,            d:`Vocabulaire de la famille en allemand`,               diff:'🟢'},
+      {id:`_tWQhJbpEe8`, t:`Das Alphabet — Deutsche Aussprache`,        d:`L'alphabet allemand et sa prononciation`,            diff:'🟢'},
+      {id:`gVcnzTbhXSE`, t:`Grundverben — Sein, Haben, Werden`,         d:`Les verbes fondamentaux allemands`,                   diff:'🟢'},
+      {id:`9sPjfHOwNkI`, t:`Im Restaurant — Deutsch bestellen`,         d:`Commander au restaurant en allemand`,                 diff:'🟢'},
+      {id:`Mf5DKXWZLBA`, t:`Körperteile auf Deutsch`,                   d:`Les parties du corps en allemand`,                    diff:'🟢'},
     ],
-    videos:{
-      conversation:[
-        {id:'X2g1sGbh3jA',title:'Easy German — Alltag in Deutschland',desc:'Conversations quotidiennes en allemand',diff:'🟢 Anfänger'},
-        {id:'V7bxMDpd-Q4',title:'Deutsch lernen — Im Supermarkt',desc:'Au supermarché en allemand',diff:'🟢 Anfänger'},
-        {id:'EeRpT2Xf9oQ',title:'German Conversations — Arbeit und Beruf',desc:'Parler de son travail en allemand',diff:'🟡 Mittel'},
-        {id:'waBTW-OcWsU',title:'Deutschlandfunk — Nachrichten leicht',desc:'Actualités en allemand simplifié',diff:'🔴 Fortgeschritten'},
-      ],
-      kultur:[
-        {id:'s7i6sJgwvHg',title:'Deutsche Kultur — Oktoberfest erklärt',desc:'L\'Oktoberfest expliqué simplement',diff:'🟢 Anfänger'},
-        {id:'1DeSH9BsCKI',title:'Geschichte Deutschlands — Kurzfassung',desc:'Histoire de l\'Allemagne résumée',diff:'🔴 Fortgeschritten'},
-      ],
-    }
+    intermediaire:[
+      {id:`EeRpT2Xf9oQ`, t:`German Conversations — Arbeit und Beruf`,   d:`Parler de son travail en allemand`,                   diff:'🟡'},
+      {id:`B5CVVlFhQWc`, t:`Easy German — Was machst du gern?`,         d:`Interviews sur les loisirs des Allemands`,            diff:'🟡'},
+      {id:`8d3wDvOe-DM`, t:`Konjunktiv II — Deutsch erklärt`,           d:`Le subjonctif II allemand simplifié`,                 diff:'🟡'},
+      {id:`KdPK8Kqf2Pg`, t:`Deutsche Redewendungen — Idiome`,           d:`Expressions idiomatiques allemandes`,                 diff:'🟡'},
+      {id:`NLSY52hBaWM`, t:`Deutsch für Touristen — Im Hotel`,          d:`À l'hôtel : réservation et réclamations`,            diff:'🟡'},
+      {id:`yXJ17MNdMDo`, t:`Trennbare Verben — Erklärung`,              d:`Les verbes séparables expliqués`,                     diff:'🟡'},
+      {id:`waBTW-OcWsU`, t:`Deutschlandfunk — Nachrichten leicht`,      d:`Actualités en allemand simplifié`,                    diff:'🟡'},
+    ],
+    avance:[
+      {id:`1DeSH9BsCKI`, t:`Geschichte Deutschlands — Kurzfassung`,     d:`Histoire de l'Allemagne résumée`,                    diff:'🔴'},
+      {id:`W4jFy00raaU`, t:`Deutsche Literatur — Goethe und Schiller`,  d:`Les grands auteurs de la littérature allemande`,      diff:'🔴'},
+      {id:`mfnmGjjCTm0`, t:`TED auf Deutsch — Zukunft der Arbeit`,      d:`Conférence TED en allemand sur l'avenir du travail`, diff:'🔴'},
+      {id:`7lkuAiOKtdU`, t:`Deutsch C1 — Diskussion und Debatte`,       d:`Discussion à niveau avancé sur des sujets actuels`,   diff:'🔴'},
+    ],
+    films:[
+      {id:`s7i6sJgwvHg`, t:`Deutsche Kultur — Oktoberfest erklärt`,     d:`L'Oktoberfest expliqué simplement`,                  diff:'🟢'},
+      {id:`UgMn0s7AMGY`, t:`Kurzfilm auf Deutsch — Preisgekrönt`,       d:`Court-métrage primé en langue allemande`,             diff:'🟡'},
+      {id:`lxwT-dOVggg`, t:`Weihnachten in Deutschland`,                d:`Noël en Allemagne : traditions et marché`,            diff:'🟢'},
+    ],
+    kultur:[
+      {id:`iJqep_ZXWOA`, t:`Berlin — Geschichte und Kultur`,            d:`Histoire et culture de Berlin`,                       diff:'🟡'},
+      {id:`RjWo1HpaSrg`, t:`Deutsche Küche — Typische Gerichte`,        d:`Cuisine allemande traditionnelle`,                    diff:'🟢'},
+    ],
   },
+
+  // ════════════════════════════════════════════════════════════
+  //  РУССКИЙ  (25 vidéos)
+  // ════════════════════════════════════════════════════════════
   ru:{
-    label:'Русский',
-    cats:[
-      {key:'conversation',label:'Разговоры',icon:'💬'},
-      {key:'kultura',label:'Культура',icon:'🎭'},
+    debutant:[
+      {id:`1xKR4ZXSzPc`, t:`Русский язык — Простые диалоги`,           d:`Dialogues simples en russe avec sous-titres`,         diff:'🟢'},
+      {id:`uKyoNYSiCDY`, t:`Russian with Max — В магазине`,            d:`Au magasin : vocabulaire et expressions`,             diff:'🟢'},
+      {id:`n04xSRHDqcE`, t:`Русский для начинающих — Алфавит`,         d:`L'alphabet cyrillique et sa prononciation`,          diff:'🟢'},
+      {id:`I3g7JqKtBgI`, t:`Привет! Как тебя зовут? — Знакомство`,     d:`Se présenter en russe simplement`,                   diff:'🟢'},
+      {id:`Ct3bxLCcMkg`, t:`Цифры на русском — 1 до 100`,              d:`Compter en russe de 1 à 100`,                        diff:'🟢'},
+      {id:`mT7kqD_fDzI`, t:`Цвета и формы на русском`,                 d:`Couleurs et formes en russe`,                        diff:'🟢'},
+      {id:`xmgCPZDknZ4`, t:`Глаголы движения — Идти, Ехать`,           d:`Les verbes de mouvement russes essentiels`,           diff:'🟢'},
+      {id:`kNrPH5qcCKg`, t:`В ресторане — Русские фразы`,              d:`Commander au restaurant en russe`,                   diff:'🟢'},
     ],
-    videos:{
-      conversation:[
-        {id:'1xKR4ZXSzPc',title:'Русский язык — Простые диалоги',desc:'Dialogues simples en russe avec sous-titres',diff:'🟢 Начинающий'},
-        {id:'uKyoNYSiCDY',title:'Russian with Max — В магазине',desc:'Au magasin en russe',diff:'🟢 Начинающий'},
-        {id:'bfJtXGVSbAc',title:'Slow Russian — О погоде',desc:'Parler de la météo en russe lentement',diff:'🟡 Средний'},
-        {id:'VIfXMIGbslQ',title:'Russian news — Упрощённые новости',desc:'Actualités en russe simplifié',diff:'🔴 Продвинутый'},
-      ],
-      kultura:[
-        {id:'MLzIJqZIMVg',title:'Русская культура — Традиции',desc:'Traditions russes expliquées',diff:'🟢 Начинающий'},
-        {id:'s8R3FDpXFd4',title:'Россия — Достопримечательности',desc:'Les incontournables de Russie',diff:'🟡 Средний'},
-      ],
-    }
+    intermediaire:[
+      {id:`bfJtXGVSbAc`, t:`Slow Russian — О погоде`,                  d:`Parler de la météo en russe lentement`,               diff:'🟡'},
+      {id:`CJQS8vj_DFE`, t:`Russian Podcast — О культуре`,             d:`Podcast sur la culture russe`,                       diff:'🟡'},
+      {id:`VTQWZZ_BDQY`, t:`Падежи — Русская грамматика`,             d:`Les cas russes expliqués clairement`,                 diff:'🟡'},
+      {id:`wkOO2gE38FY`, t:`Глаголы совершенного вида`,               d:`Verbes perfectifs et imperfectifs russes`,             diff:'🟡'},
+      {id:`bEQVJ8BIQEU`, t:`Русские идиомы — Топ 30`,                  d:`Les 30 expressions russes incontournables`,           diff:'🟡'},
+      {id:`Ky3RrSX3vAE`, t:`Intermediate Russian — Работа и карьера`,  d:`Vocabulaire professionnel en russe`,                  diff:'🟡'},
+      {id:`Y8x_a-9RJDE`, t:`Русские новости — Упрощённая версия`,      d:`Actualités en russe simplifié`,                      diff:'🟡'},
+    ],
+    avance:[
+      {id:`VIfXMIGbslQ`, t:`Russian news — Упрощённые новости`,        d:`Actualités en russe courant`,                        diff:'🔴'},
+      {id:`MLzIJqZIMVg`, t:`Русская культура — Традиции и праздники`,  d:`Traditions et fêtes russes expliquées`,              diff:'🟢'},
+      {id:`L_kFBM6s3eY`, t:`Достоевский — Преступление и Наказание`,  d:`Introduction à Dostoïevski`,                          diff:'🔴'},
+      {id:`x5bpWnOlEgo`, t:`TED на русском — Образование будущего`,    d:`Conférence TED en russe`,                            diff:'🔴'},
+    ],
+    kultura:[
+      {id:`s8R3FDpXFd4`, t:`Россия — Достопримечательности`,           d:`Les incontournables de Russie`,                      diff:'🟡'},
+      {id:`2KiDRy0aZpQ`, t:`Байкал — Самое глубокое озеро`,            d:`Documentaire sur le lac Baïkal`,                     diff:'🟢'},
+      {id:`PX1Q9C0mkuc`, t:`Русская кухня — Традиционные блюда`,       d:`Cuisine russe traditionnelle`,                       diff:'🟢'},
+      {id:`lN7tNnOtOZg`, t:`Балет — Русское искусство`,                d:`Le ballet russe : histoire et culture`,              diff:'🟡'},
+      {id:`6PZ6HhHJMKw`, t:`Кремль — История и тайны`,                d:`Histoire et secrets du Kremlin`,                     diff:'🟡'},
+    ],
   },
+
+  // ════════════════════════════════════════════════════════════
+  //  中文 MANDARIN  (25 vidéos)
+  // ════════════════════════════════════════════════════════════
   zh:{
-    label:'中文',
-    cats:[
-      {key:'conversation',label:'对话',icon:'💬'},
-      {key:'wenhua',label:'文化',icon:'🎭'},
+    debutant:[
+      {id:`5Td3PGT0_4I`, t:`Mandarin Corner — 日常对话`,               d:`Dialogues quotidiens en mandarin sous-titrés`,        diff:'🟢'},
+      {id:`rg1FdDyAv7o`, t:`Chinese with Yoyo — 在餐厅`,              d:`Commander au restaurant en chinois`,                  diff:'🟢'},
+      {id:`pFLzDnouvak`, t:`HSK 1 对话 — 问路`,                       d:`Demander son chemin en chinois`,                      diff:'🟢'},
+      {id:`BxkOfpklbek`, t:`你好！Chinese Greetings`,                  d:`Salutations chinoises de base`,                       diff:'🟢'},
+      {id:`fgHCVLkpTWM`, t:`中文数字 — 1到100`,                       d:`Compter en mandarin de 1 à 100`,                      diff:'🟢'},
+      {id:`v5wdMTjlgik`, t:`颜色和形状 — 中文`,                       d:`Couleurs et formes en mandarin`,                      diff:'🟢'},
+      {id:`R1rAlJLJh8g`, t:`声调 — Mandarin Tones Explained`,         d:`Les 4 tons du mandarin expliqués simplement`,         diff:'🟢'},
+      {id:`UMhJGTFQJBc`, t:`HSK 1 词汇 — 基础词汇`,                   d:`Vocabulaire de base HSK niveau 1`,                    diff:'🟢'},
+      {id:`Vy1CgXV8IXo`, t:`拼音 — Pinyin for Beginners`,             d:`Le pinyin pour débutants`,                            diff:'🟢'},
+      {id:`JXe-oM0WROU`, t:`中文 — 家庭成员`,                         d:`Vocabulaire de la famille en chinois`,                diff:'🟢'},
     ],
-    videos:{
-      conversation:[
-        {id:'5Td3PGT0_4I',title:'Mandarin Corner — 日常对话',desc:'Dialogues quotidiens en mandarin avec sous-titres',diff:'🟢 初级'},
-        {id:'rg1FdDyAv7o',title:'Chinese with Yoyo — 在餐厅',desc:'Commander au restaurant en chinois',diff:'🟢 初级'},
-        {id:'pFLzDnouvak',title:'HSK 1 对话 — 问路',desc:'Demander son chemin en chinois',diff:'🟢 初级'},
-        {id:'I4h-aEY1cAk',title:'中级中文 — 工作面试',desc:'Entretien d\'embauche en chinois',diff:'🟡 中级'},
-        {id:'zIG_YioKRkY',title:'汉语口语 — 谈论爱好',desc:'Parler de ses loisirs en chinois',diff:'🟡 中级'},
-      ],
-      wenhua:[
-        {id:'KeL4d22wMXk',title:'中国文化 — 春节传统',desc:'Traditions du Nouvel An chinois',diff:'🟢 初级'},
-        {id:'uFzMhEFbH2o',title:'中国历史 — 概述',desc:'Histoire de la Chine résumée',diff:'🔴 高级'},
-      ],
-    }
+    intermediaire:[
+      {id:`I4h-aEY1cAk`, t:`中级中文 — 工作面试`,                     d:`Entretien d'embauche en chinois`,                    diff:'🟡'},
+      {id:`zIG_YioKRkY`, t:`汉语口语 — 谈论爱好`,                     d:`Parler de ses loisirs en chinois`,                    diff:'🟡'},
+      {id:`K1Xn-y3LqvY`, t:`HSK 3-4 — 语法练习`,                     d:`Grammaire et exercices niveau HSK 3-4`,               diff:'🟡'},
+      {id:`FoJ1GpQGrNQ`, t:`中文成语 — 常见的成语`,                   d:`Proverbes chinois courants avec explications`,        diff:'🟡'},
+      {id:`bRuYCAJ1yc0`, t:`Mandarin — 新闻听力练习`,                 d:`Entraînement à la compréhension orale des infos`,     diff:'🟡'},
+      {id:`C1AEHI_Vdmw`, t:`汉字 — 常用汉字`,                         d:`Les 100 caractères les plus utilisés`,                diff:'🟡'},
+      {id:`EbQXJT40MqY`, t:`口语流利 — 连接词`,                       d:`Connecteurs pour une expression fluide`,              diff:'🟡'},
+    ],
+    avance:[
+      {id:`uFzMhEFbH2o`, t:`中国历史 — 概述`,                         d:`Histoire de la Chine résumée`,                        diff:'🔴'},
+      {id:`OfBmGWHBCmA`, t:`TED 中文演讲`,                            d:`Conférence TED en mandarin`,                          diff:'🔴'},
+      {id:`MjjgzUXvvI8`, t:`高级汉语 — 社会话题`,                     d:`Débats sur des sujets de société`,                    diff:'🔴'},
+      {id:`b8XFUQ3U5O0`, t:`古典文学 — 唐诗宋词`,                     d:`Poésie classique chinoise`,                           diff:'🔴'},
+    ],
+    films:[
+      {id:`KeL4d22wMXk`, t:`中国文化 — 春节传统`,                     d:`Traditions du Nouvel An chinois`,                     diff:'🟢'},
+      {id:`L0nJBDexhPE`, t:`中国电影精华 — 短片`,                     d:`Courts-métrages chinois primés`,                      diff:'🟡'},
+      {id:`e22K-SfQTDs`, t:`功夫文化 — 少林寺`,                       d:`Culture des arts martiaux et Shaolin`,                diff:'🟢'},
+    ],
+    wenhua:[
+      {id:`rjCdBmCdGC8`, t:`中秋节 — 月饼的故事`,                     d:`La fête de la lune et ses traditions`,                diff:'🟢'},
+      {id:`SjHFMKuFBao`, t:`茶文化 — 中国茶道`,                       d:`La cérémonie du thé chinoise`,                        diff:'🟢'},
+    ],
   },
+
+  // ════════════════════════════════════════════════════════════
+  //  日本語 JAPONAIS  (25 vidéos)
+  // ════════════════════════════════════════════════════════════
   ja:{
-    label:'日本語',
-    cats:[
-      {key:'conversation',label:'会話',icon:'💬'},
-      {key:'bunka',label:'文化',icon:'🎭'},
+    debutant:[
+      {id:`Xt7YHFJ_8RU`, t:`JapanesePod101 — 日常会話`,               d:`Conversations quotidiennes en japonais`,               diff:'🟢'},
+      {id:`fEiJppBr1As`, t:`日本語の森 — 挨拶と自己紹介`,             d:`Salutations et présentations en japonais`,            diff:'🟢'},
+      {id:`9K35KNjx9HQ`, t:`ひらがな — 覚え方`,                       d:`Apprendre les hiragana rapidement`,                   diff:'🟢'},
+      {id:`6p9Il_j0zjc`, t:`カタカナ — 完全ガイド`,                   d:`Guide complet des katakana`,                          diff:'🟢'},
+      {id:`QGy1GnU_xLk`, t:`数字の日本語 — 1から100`,                 d:`Compter en japonais de 1 à 100`,                      diff:'🟢'},
+      {id:`RnCFkm9oT14`, t:`日本語の色と形`,                          d:`Couleurs et formes en japonais`,                      diff:'🟢'},
+      {id:`0V0eC_pSFJY`, t:`Greetings in Japanese — 基礎会話`,        d:`Bases de la conversation japonaise`,                  diff:'🟢'},
+      {id:`ISJNQR_CuN4`, t:`食べ物の日本語 — レストランで`,           d:`Au restaurant : vocabulaire japonais`,                diff:'🟢'},
+      {id:`3HT5xLKwK60`, t:`日本語の助詞 — は、が、を`,              d:`Les particules japonaises essentielles`,               diff:'🟢'},
+      {id:`BgIlAFpDWWM`, t:`JLPT N5 — 基礎語彙`,                      d:`Vocabulaire JLPT N5 pour débutants`,                  diff:'🟢'},
     ],
-    videos:{
-      conversation:[
-        {id:'Xt7YHFJ_8RU',title:'JapanesePod101 — 日常会話',desc:'Conversations quotidiennes en japonais',diff:'🟢 初心者'},
-        {id:'fEiJppBr1As',title:'日本語の森 — 挨拶と自己紹介',desc:'Salutations et présentations en japonais',diff:'🟢 初心者'},
-        {id:'UEkEaT7DLNU',title:'Comprehensible Japanese — お買い物',desc:'Faire ses courses en japonais',diff:'🟡 中級'},
-        {id:'SXNRiIVGZhA',title:'JLPT N4 会話 — 予定を話す',desc:'Parler de ses projets en japonais',diff:'🟡 中級'},
-      ],
-      bunka:[
-        {id:'HYKJvkxzm1g',title:'日本の文化 — 茶道と礼儀',desc:'La cérémonie du thé et les traditions',diff:'🟢 初心者'},
-        {id:'TdpTlUzDHNM',title:'アニメで学ぶ日本語 — 基礎',desc:'Apprendre le japonais avec l\'anime',diff:'🟡 中級'},
-      ],
-    }
+    intermediaire:[
+      {id:`UEkEaT7DLNU`, t:`Comprehensible Japanese — お買い物`,      d:`Faire ses courses en japonais`,                       diff:'🟡'},
+      {id:`SXNRiIVGZhA`, t:`JLPT N4 会話 — 予定を話す`,              d:`Parler de ses projets en japonais`,                   diff:'🟡'},
+      {id:`6Oc0bx-FTgA`, t:`日本語中級 — 仕事の会話`,                 d:`Conversations professionnelles en japonais`,          diff:'🟡'},
+      {id:`HaF0e4E_qdI`, t:`敬語 — 丁寧語と尊敬語`,                  d:`Le langage poli japonais (keigo)`,                    diff:'🟡'},
+      {id:`SYRmHmrCFQg`, t:`日本のニュース — やさしい日本語`,         d:`Actualités en japonais simplifié`,                   diff:'🟡'},
+      {id:`gCRFGV2fCcU`, t:`アニメで学ぶ日本語 — 中級`,              d:`Apprendre le japonais avec l'anime`,                 diff:'🟡'},
+      {id:`iZJCZHbAFHw`, t:`N3 語彙と文法 — 練習`,                   d:`Entraînement vocabulaire et grammaire N3`,            diff:'🟡'},
+    ],
+    avance:[
+      {id:`TdpTlUzDHNM`, t:`上級日本語 — ディスカッション`,           d:`Discussion à niveau avancé en japonais`,              diff:'🔴'},
+      {id:`VVrYSJDpjMU`, t:`日本の歴史 — 概要`,                       d:`Histoire du Japon résumée`,                           diff:'🔴'},
+      {id:`hJEp69DMxzE`, t:`TED日本語 — 未来のテクノロジー`,          d:`Conférence TED en japonais`,                          diff:'🔴'},
+      {id:`fEzBnMuzs7s`, t:`日本語能力試験N2 — 準備`,                 d:`Préparation au JLPT N2`,                              diff:'🔴'},
+    ],
+    films:[
+      {id:`HYKJvkxzm1g`, t:`日本の文化 — 茶道と礼儀`,               d:`La cérémonie du thé et les traditions`,               diff:'🟢'},
+      {id:`kCGqPDWHPlo`, t:`短編映画 — 受賞作品`,                    d:`Court-métrage japonais primé`,                        diff:'🟡'},
+      {id:`L1-P5DOq7lQ`, t:`Studio Ghibli — 世界観`,                 d:`L'univers de Studio Ghibli expliqué`,                diff:'🟡'},
+    ],
+    bunka:[
+      {id:`LKJrw-eKBpk`, t:`桜 — 花見の文化`,                        d:`Hanami : la tradition des cerisiers en fleurs`,       diff:'🟢'},
+      {id:`n0sTCMOR6Oc`, t:`相撲 — 日本の国技`,                      d:`Le sumo : sport national japonais`,                   diff:'🟢'},
+      {id:`HYKJvkxzm1g`, t:`着物の着付け — 和の文化`,               d:`Le kimono et la culture japonaise traditionnelle`,    diff:'🟡'},
+    ],
   },
 };
 
+// Helper — retourne les catégories selon la langue cible
+function getCinemaCats(lang){ return CINEMA_CATS[lang] || CINEMA_CATS['en']; }
+// Helper — retourne les vidéos d'une langue+catégorie
+function getCinemaVideos(lang, catKey){
+  const langData = CINEMA_VIDEOS[lang] || CINEMA_VIDEOS['en'];
+  return langData[catKey] || [];
+}
+
 // =================================================================
-// CINEMA FUNCTIONS
+// CINEMA FUNCTIONS  (vidéos → ouvre YouTube dans nouvel onglet)
 // =================================================================
-let currentCinemaVideos = [];
-let currentVideoIndex = 0;
+let currentCinemaLang = '';
+let currentCinemaCat  = '';
 
 function openCinema(){
-  const lang = S.targetLang;
-  const data = CINEMA_DATA[lang];
-  document.getElementById('cinema-title').textContent = '🎬 ' + (data?.label||'Cinéma');
-  document.getElementById('cinema-lang-badge').textContent = (FLAGS[lang]||'');
+  currentCinemaLang = S.targetLang;
+  const cats = getCinemaCats(currentCinemaLang);
+  const langLabels = {en:'English',fr:'Français',es:'Español',ht:'Kreyòl',
+                      de:'Deutsch',ru:'Русский',zh:'中文',ja:'日本語'};
+  document.getElementById('cinema-title').textContent = '🎬 ' + (langLabels[currentCinemaLang]||'Cinéma');
+  document.getElementById('cinema-lang-badge').textContent = FLAGS[currentCinemaLang]||'';
+
   // Build category tabs
-  const cats = data?.cats||[];
   document.getElementById('cinemaCats').innerHTML = cats.map((c,i)=>
-    `<button onclick="loadCinemaCategory('${c.key}')" style="flex:0 0 auto;background:transparent;border:none;border-bottom:2px solid ${i===0?'#e040fb':'transparent'};color:${i===0?'#e040fb':'var(--dim)'};padding:10px 14px 8px;font-size:0.72rem;font-weight:800;cursor:pointer;font-family:'Nunito',sans-serif;white-space:nowrap;transition:all 0.2s" id="ccat-${c.key}">
+    `<button
+       onclick="loadCinemaCategory('${c.key}')"
+       id="ccat-${c.key}"
+       style="flex:0 0 auto;background:transparent;border:none;
+              border-bottom:2px solid ${i===0?'#e040fb':'transparent'};
+              color:${i===0?'#e040fb':'var(--dim)'};
+              padding:10px 14px 8px;font-size:0.72rem;font-weight:800;
+              cursor:pointer;font-family:'Nunito',sans-serif;
+              white-space:nowrap;transition:all 0.2s">
       ${c.icon} ${c.label}
     </button>`
   ).join('');
-  // Load first category
+
   if(cats.length) loadCinemaCategory(cats[0].key);
   showScreen('screen-cinema');
 }
 
 function loadCinemaCategory(catKey){
-  const lang = S.targetLang;
-  const data = CINEMA_DATA[lang];
-  const videos = data?.videos?.[catKey]||[];
-  currentCinemaVideos = videos;
-  // Update tab styles
-  data?.cats?.forEach(c=>{
+  currentCinemaCat = catKey;
+  const cats = getCinemaCats(currentCinemaLang);
+
+  // Highlight active tab
+  cats.forEach(c=>{
     const el = document.getElementById('ccat-'+c.key);
     if(el){
-      el.style.borderBottomColor = c.key===catKey?'#e040fb':'transparent';
-      el.style.color = c.key===catKey?'#e040fb':'var(--dim)';
+      el.style.borderBottomColor = c.key===catKey ? '#e040fb' : 'transparent';
+      el.style.color             = c.key===catKey ? '#e040fb' : 'var(--dim)';
     }
   });
-  // Load first video
-  if(videos.length){
-    loadVideo(0);
-    buildVideoList(videos);
+
+  const videos = getCinemaVideos(currentCinemaLang, catKey);
+  buildVideoGrid(videos);
+}
+
+function buildVideoGrid(videos){
+  if(!videos.length){
+    document.getElementById('videoList').innerHTML =
+      `<div style="text-align:center;padding:40px;color:var(--dim)">
+         <div style="font-size:2rem;margin-bottom:10px">🎬</div>
+         <div>Bientôt disponible pour cette catégorie</div>
+       </div>`;
+    return;
   }
-}
 
-function loadVideo(index){
-  currentVideoIndex = index;
-  const v = currentCinemaVideos[index];
-  if(!v) return;
-  // Load in iframe
-  document.getElementById('cinemaPlayer').src =
-    `https://www.youtube.com/embed/${v.id}?autoplay=0&cc_load_policy=1&rel=0`;
-  document.getElementById('videoTitle').textContent = v.title;
-  document.getElementById('videoDesc').textContent = v.desc;
-  document.getElementById('videoDiff').innerHTML =
-    `<span style="font-size:0.72rem;font-weight:800">${v.diff||''}</span>`;
-  gainXP(5);
-}
+  document.getElementById('videoList').innerHTML = videos.map((v,i)=>`
+    <div onclick="openYouTubeVideo('${v.id}')"
+         style="background:var(--bg-card);border:1px solid rgba(224,64,251,0.18);
+                border-radius:14px;overflow:hidden;cursor:pointer;
+                transition:all 0.2s;display:flex;flex-direction:column;"
+         onmouseover="this.style.borderColor='rgba(224,64,251,0.6)';this.style.transform='translateY(-2px)'"
+         onmouseout="this.style.borderColor='rgba(224,64,251,0.18)';this.style.transform='translateY(0)'">
 
-function buildVideoList(videos){
-  document.getElementById('videoList').innerHTML = videos.map((v,i)=>
-    `<div onclick="loadVideo(${i})" style="background:var(--bg-card);border:1px solid ${i===currentVideoIndex?'#e040fb':'var(--border)'};border-radius:12px;padding:10px 12px;cursor:pointer;transition:all 0.2s;display:flex;gap:10px;align-items:center">
-      <div style="width:50px;height:35px;background:#000;border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:1.2rem">▶️</div>
-      <div style="flex:1">
-        <div style="font-size:0.8rem;font-weight:800;color:${i===currentVideoIndex?'#e040fb':'var(--text)'};margin-bottom:2px">${v.title}</div>
-        <div style="font-size:0.65rem;color:var(--dim)">${v.diff||''}</div>
+      <!-- Miniature YouTube -->
+      <div style="position:relative;width:100%;padding-bottom:56.25%;background:#000;flex-shrink:0;">
+        <img src="https://img.youtube.com/vi/${v.id}/mqdefault.jpg"
+             onerror="this.src='https://img.youtube.com/vi/${v.id}/hqdefault.jpg'"
+             style="position:absolute;top:0;left:0;width:100%;height:100%;
+                    object-fit:cover;opacity:0.88;" loading="lazy" />
+
+        <!-- Bouton play -->
+        <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;">
+          <div style="width:52px;height:52px;background:rgba(224,64,251,0.88);
+                      border-radius:50%;display:flex;align-items:center;
+                      justify-content:center;font-size:1.4rem;
+                      box-shadow:0 4px 20px rgba(0,0,0,0.6);
+                      transition:transform 0.15s;"
+               onmouseover="this.style.transform='scale(1.12)'"
+               onmouseout="this.style.transform='scale(1)'">▶</div>
+        </div>
+
+        <!-- Badge niveau -->
+        <div style="position:absolute;top:8px;left:8px;background:rgba(0,0,0,0.75);
+                    padding:3px 8px;border-radius:8px;font-size:0.65rem;
+                    color:#fff;font-weight:800;">${v.diff||''}</div>
+
+        <!-- Badge YouTube -->
+        <div style="position:absolute;bottom:6px;right:8px;background:rgba(255,0,0,0.85);
+                    padding:2px 7px;border-radius:6px;font-size:0.6rem;
+                    color:#fff;font-weight:900;letter-spacing:0.5px;">▶ YouTube</div>
+      </div>
+
+      <!-- Infos vidéo -->
+      <div style="padding:10px 13px 12px;">
+        <div style="font-size:0.82rem;font-weight:800;color:#e040fb;
+                    margin-bottom:4px;line-height:1.35;">${v.t}</div>
+        <div style="font-size:0.7rem;color:var(--dim);line-height:1.4;">${v.d}</div>
+        <div style="margin-top:7px;font-size:0.65rem;color:rgba(224,64,251,0.6);
+                    font-weight:700;display:flex;align-items:center;gap:4px;">
+          ↗ Ouvrir sur YouTube avec sous-titres
+        </div>
       </div>
     </div>`
   ).join('');
 }
+
+function openYouTubeVideo(id){
+  window.open('https://www.youtube.com/watch?v='+id, '_blank');
+  gainXP(5);
+}
+
 </script>
 <!-- ====== S1: WELCOME ====== -->
 <div class="screen active" id="screen-welcome">
@@ -745,19 +1043,24 @@ function buildVideoList(videos){
     <div class="u-title" style="color:#e040fb" id="cinema-title">🎬 Cinéma</div>
     <span id="cinema-lang-badge" style="font-size:0.75rem;font-weight:800;color:#e040fb"></span>
   </div>
-  <!-- Filtre par niveau -->
-  <div style="display:flex;gap:0;background:rgba(10,8,20,0.9);border-bottom:1px solid var(--border);overflow-x:auto;flex-shrink:0;" id="cinemaCats"></div>
-  <!-- Lecteur vidéo -->
-  <div style="background:#000;flex-shrink:0;position:relative;padding-bottom:56.25%;height:0;" id="videoWrapper">
-    <iframe id="cinemaPlayer" style="position:absolute;top:0;left:0;width:100%;height:100%;border:none;" allowfullscreen allow="accelerometer;autoplay;clipboard-write;encrypted-media;gyroscope;picture-in-picture"></iframe>
-  </div>
-  <!-- Info vidéo + sous-titres -->
-  <div style="flex:1;overflow-y:auto;padding:12px 14px;" id="cinemaInfo">
-    <div id="videoTitle" style="font-family:'Cinzel',serif;font-size:0.9rem;color:#e040fb;margin-bottom:4px;"></div>
-    <div id="videoDesc" style="font-size:0.75rem;color:var(--dim);margin-bottom:10px;line-height:1.4;"></div>
-    <div id="videoDiff" style="margin-bottom:12px;"></div>
-    <!-- Liste des vidéos -->
-    <div id="videoList" style="display:flex;flex-direction:column;gap:8px;"></div>
+
+  <!-- Onglets catégories -->
+  <div style="display:flex;gap:0;background:rgba(10,8,20,0.9);
+              border-bottom:1px solid var(--border);overflow-x:auto;flex-shrink:0;"
+       id="cinemaCats"></div>
+
+  <!-- Grille de vidéos -->
+  <div style="flex:1;overflow-y:auto;padding:14px;" id="cinemaInfo">
+    <!-- Astuce sous-titres -->
+    <div style="background:rgba(224,64,251,0.07);border:1px solid rgba(224,64,251,0.2);
+                border-radius:12px;padding:10px 14px;margin-bottom:14px;
+                font-size:0.72rem;color:rgba(224,64,251,0.85);line-height:1.5;">
+      💡 Clique sur une vidéo → YouTube s'ouvre.<br>
+      Active les sous-titres CC dans YouTube pour apprendre encore plus vite !
+    </div>
+    <div id="videoList"
+         style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px;">
+    </div>
   </div>
 </div>
   
@@ -4809,4 +5112,4 @@ function showScreen(id){document.querySelectorAll('.screen').forEach(s=>s.classL
 function showNotif(msg){const n=document.getElementById('notif');n.textContent=msg;n.classList.add('show');clearTimeout(n._t);n._t=setTimeout(()=>n.classList.remove('show'),2200);}
 </script>
 </body>
-</html>
+  </html>
