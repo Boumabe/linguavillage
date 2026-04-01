@@ -4511,3 +4511,2079 @@ const VOCAB = {
   },
 };
   
+// =================================================================
+// PHRASES DATA — 1000 everyday phrases
+// =================================================================
+const PHRASES_DATA = {
+  quotidien:{
+    fr:'Vie quotidienne',en:'Daily life',es:'Vida cotidiana',ht:'Lavi chak jou',de:'Alltag',ru:'Повседневная жизнь',zh:'日常生活',ja:'日常生活',icon:'🌅',
+    items:[
+      {n:'Je veux manger maintenant.',t:{en:'I want to eat now.',es:'Quiero comer ahora.',de:'Ich möchte jetzt essen.',ru:'Я хочу есть сейчас. (Ya khochu yest seychas.)',zh:'我现在想吃东西。(Wǒ xiànzài xiǎng chī dōngxi.)',ja:'今、食べたいです。(Ima, tabetai desu.)',ht:'Mwen vle manje kounye a.'},struct:{n:'Sujet + vouloir + verbe inf + adverbe',t:{en:'Subject + want + verb inf + adverb'}}},
+      {n:'Je dois partir maintenant.',t:{en:'I have to leave now.',es:'Tengo que irme ahora.',de:'Ich muss jetzt gehen.',ru:'Мне нужно уйти сейчас.',zh:'我现在必须走了。(Wǒ xiànzài bìxū zǒu le.)',ja:'今、行かなければなりません。',ht:'Mwen dwe pati kounye a.'},struct:{n:'devoir + infinitif',t:{en:'must/have to + infinitive'}}},
+      {n:'Qu\'est-ce que tu fais ce soir ?',t:{en:'What are you doing tonight?',es:'¿Qué haces esta noche?',de:'Was machst du heute Abend?',ru:'Что ты делаешь сегодня вечером?',zh:'你今晚做什么？(Nǐ jīn wǎn zuò shénme?)',ja:'今夜何をしますか？',ht:'Kisa ou fè aswe a?'},struct:{n:'Qu\'est-ce que + sujet + verbe ?',t:{en:'What + subject + verb?'}}},
+      {n:'J\'ai besoin d\'aide.',t:{en:'I need help.',es:'Necesito ayuda.',de:'Ich brauche Hilfe.',ru:'Мне нужна помощь. (Mne nuzhna pomoshch.)',zh:'我需要帮助。(Wǒ xūyào bāngzhù.)',ja:'助けが必要です。(Tasuke ga hitsuyō desu.)',ht:'Mwen bezwen èd.'},struct:{n:'avoir besoin de + nom',t:{en:'need + noun'}}},
+      {n:'C\'est une bonne idée.',t:{en:'That\'s a good idea.',es:'Es una buena idea.',de:'Das ist eine gute Idee.',ru:'Это хорошая идея. (Eto khoroshaya ideya.)',zh:'这是个好主意。(Zhè shì gè hǎo zhǔyì.)',ja:'それはいい考えですね。',ht:'Se yon bon lide.'},struct:{n:'c\'est + article + adj + nom',t:{en:'it\'s + article + adj + noun'}}},
+      {n:'Je ne suis pas d\'accord.',t:{en:'I don\'t agree.',es:'No estoy de acuerdo.',de:'Ich bin nicht einverstanden.',ru:'Я не согласен. (Ya ne soglasyen.)',zh:'我不同意。(Wǒ bù tóngyì.)',ja:'同意できません。(Dōi dekimasen.)',ht:'Mwen pa dakò.'},struct:{n:'ne + être + pas + d\'accord',t:{en:'not + agree'}}},
+      {n:'Qu\'est-ce que ça veut dire ?',t:{en:'What does that mean?',es:'¿Qué quiere decir eso?',de:'Was bedeutet das?',ru:'Что это значит? (Chto eto znachit?)',zh:'这是什么意思？(Zhè shì shénme yìsi?)',ja:'それはどういう意味ですか？',ht:'Kisa sa vle di?'},struct:{n:'Question + vouloir dire',t:{en:'What + mean?'}}},
+      {n:'Il fait beau aujourd\'hui.',t:{en:'The weather is nice today.',es:'Hace buen tiempo hoy.',de:'Das Wetter ist heute schön.',ru:'Сегодня хорошая погода.',zh:'今天天气很好。(Jīntiān tiānqì hěn hǎo.)',ja:'今日はいい天気ですね。',ht:'Tan an bèl jodi a.'},struct:{n:'Il fait + adjectif météo',t:{en:'The weather is + adjective'}}},
+    ]
+  },
+  restaurant:{
+    fr:'Restaurant & café',en:'Restaurant & café',es:'Restaurante y café',ht:'Restoran ak kafè',de:'Restaurant & Café',ru:'Ресторан и кафе',zh:'餐厅与咖啡馆',ja:'レストランとカフェ',icon:'🍽️',
+    items:[
+      {n:'On peut aller au restaurant.',t:{en:'We can go to the restaurant.',es:'Podemos ir al restaurante.',de:'Wir können ins Restaurant gehen.',ru:'Мы можем пойти в ресторан.',zh:'我们可以去餐厅。(Wǒmen kěyǐ qù cāntīng.)',ja:'レストランに行けます。',ht:'Nou ka ale nan restoran.'},struct:{n:'On peut + infinitif',t:{en:'We can + infinitive'}}},
+      {n:'Je voudrais une table pour deux.',t:{en:'I\'d like a table for two.',es:'Quisiera una mesa para dos.',de:'Ich hätte gerne einen Tisch für zwei.',ru:'Я хотел бы столик на двоих.',zh:'我想要一张两人桌。(Wǒ xiǎng yào yī zhāng liǎng rén zhuō.)',ja:'2人用のテーブルをお願いします。',ht:'Mwen ta renmen yon tab pou de moun.'},struct:{n:'je voudrais + article + nom',t:{en:'I\'d like + article + noun'}}},
+      {n:'Qu\'est-ce que vous recommandez ?',t:{en:'What do you recommend?',es:'¿Qué recomienda usted?',de:'Was empfehlen Sie?',ru:'Что вы рекомендуете?',zh:'你推荐什么？(Nǐ tuījiàn shénme?)',ja:'何がお勧めですか？',ht:'Kisa ou rekòmande?'},struct:{n:'Qu\'est-ce que + sujet + verbe ?',t:{en:'What + do/does + subject + recommend?'}}},
+      {n:'L\'addition, s\'il vous plaît.',t:{en:'The bill, please.',es:'La cuenta, por favor.',de:'Die Rechnung, bitte.',ru:'Счёт, пожалуйста. (Schyot, pozhaluysta.)',zh:'买单，请。(Mǎidān, qǐng.)',ja:'お会計をお願いします。',ht:'Adisyon an, tanpri.'},struct:{n:'Article + nom + s\'il vous plaît',t:{en:'The + noun + please'}}},
+      {n:'C\'est délicieux !',t:{en:'It\'s delicious!',es:'¡Está delicioso!',de:'Das ist lecker!',ru:'Это вкусно! (Eto vkusno!)',zh:'太好吃了！(Tài hǎochī le!)',ja:'美味しいです！(Oishii desu!)',ht:'Sa bon anpil!'},struct:{n:'c\'est + adjectif',t:{en:'it\'s + adjective'}}},
+    ]
+  },
+  travail:{
+    fr:'Travail & études',en:'Work & studies',es:'Trabajo y estudios',ht:'Travay ak etid',de:'Arbeit & Studium',ru:'Работа и учёба',zh:'工作与学习',ja:'仕事と勉強',icon:'💼',
+    items:[
+      {n:'Je travaille dans une entreprise.',t:{en:'I work in a company.',es:'Trabajo en una empresa.',de:'Ich arbeite in einem Unternehmen.',ru:'Я работаю в компании.',zh:'我在一家公司工作。(Wǒ zài yījiā gōngsī gōngzuò.)',ja:'会社で働いています。',ht:'Mwen travay nan yon konpayi.'},struct:{n:'sujet + travailler + dans + lieu',t:{en:'subject + work + in + place'}}},
+      {n:'Je dois finir ce projet.',t:{en:'I need to finish this project.',es:'Necesito terminar este proyecto.',de:'Ich muss dieses Projekt beenden.',ru:'Мне нужно закончить этот проект.',zh:'我需要完成这个项目。(Wǒ xūyào wánchéng zhège xiàngmù.)',ja:'このプロジェクトを終わらせる必要があります。',ht:'Mwen dwe fini pwojè sa a.'},struct:{n:'devoir + infinitif + COD',t:{en:'need to + verb + object'}}},
+      {n:'Est-ce que tu peux m\'aider ?',t:{en:'Can you help me?',es:'¿Puedes ayudarme?',de:'Kannst du mir helfen?',ru:'Ты можешь мне помочь?',zh:'你能帮我吗？(Nǐ néng bāng wǒ ma?)',ja:'手伝ってもらえますか？',ht:'Èske ou ka ede m?'},struct:{n:'Est-ce que + sujet + pouvoir + verbe ?',t:{en:'Can + subject + verb?'}}},
+      {n:'J\'ai une réunion à 14h.',t:{en:'I have a meeting at 2pm.',es:'Tengo una reunión a las 14h.',de:'Ich habe ein Meeting um 14 Uhr.',ru:'У меня встреча в 14:00.',zh:'我下午2点有会议。(Wǒ xiàwǔ 2 diǎn yǒu huìyì.)',ja:'14時に会議があります。',ht:'Mwen gen yon reyinyon a 2è.'},struct:{n:'avoir + article + événement + à + heure',t:{en:'have + article + event + at + time'}}},
+    ]
+  },
+    salutations_courtoisie: {
+    fr:'Salutations',en:'Greetings',es:'Saludos',ht:'Salitasyon',de:'Grüße',ru:'Privetstviya',zh:'Wenhou',ja:'Aisatsu',
+    icon:'👋',
+    items:[
+      {n:'Comment allez-vous ?',t:{en:'How are you?',es:'¿Cómo está?',de:'Wie geht es Ihnen?',ru:'Kak dela?',zh:'Nǐ hǎo ma?',ja:'O-genki desu ka?',ht:'Kijan ou ye?'},struct:{n:'Comment + aller + sujet',t:{en:'How + go + subject'}}},
+      {n:'Je vais bien, merci.',t:{en:'I am fine, thank you.',es:'Estoy bien, gracias.',de:'Mir geht es gut, danke.',ru:'Ya v poryadke, spasibo.',zh:'Wǒ hěn hǎo, xièxiè.',ja:'Genki desu, arigato.',ht:'Mwen byen, mèsi.'},struct:{n:'Sujet + aller + adverbe',t:{en:'Subject + go + adverb'}}},
+      {n:'Enchanté de vous rencontrer.',t:{en:'Nice to meet you.',es:'Encantado de conocerle.',de:'Freut mich, Sie kennenzulernen.',ru:'Rad vstreche.',zh:'Hěn gāoxìng rènshí nǐ.',ja:'Hajimemashite.',ht:'Mwen kontan rekonèt ou.'},struct:{n:'Adj + de + infinitif',t:{en:'Adj + to + infinitive'}}},
+      {n:'Excusez-moi du dérangement.',t:{en:'Excuse me for bothering you.',es:'Disculpe la molestia.',de:'Entschuldigen Sie die Störung.',ru:'Izvinitie za bespokoystvo.',zh:'Bù hǎoyìsi dǎrǎo le.',ja:'O-jama shimasu.',ht:'Eskize m si m deranje ou.'},struct:{n:'Impératif + de + nom',t:{en:'Imperative + of + noun'}}},
+      {n:'Bonne journée !',t:{en:'Have a nice day!',es:'¡Buen día!',de:'Schönen Tag noch!',ru:'Horoshego dnya!',zh:'Zhù nǐ yǒu měihǎo de yītiān!',ja:'Yoi ichinichi o!',ht:'Pase yon bon jounen!'}},
+      {n:'À plus tard.',t:{en:'See you later.',es:'Hasta luego.',de:'Bis später.',ru:'Do vstrechi.',zh:'Huítóu jiàn.',ja:'Mata ato de.',ht:'N a wè pita.'}},
+      {n:'Je vous en prie.',t:{en:'You are welcome.',es:'De nada / Por favor.',de:'Bitte sehr.',ru:'Pozhaluysta.',zh:'Bù kèqì.',ja:'Douitashimashite.',ht:'Pa gen pwoblèm.'}},
+      {n:'Comment t\'appelles-tu ?',t:{en:'What is your name?',es:'¿Cómo te llamas?',de:'Wie heißt du?',ru:'Kak tebya zovut?',zh:'Nǐ jiào shénme míngzì?',ja:'Onamae wa nan desu ka?',ht:'Kijan ou rele?'}},
+      {n:'Je m\'appelle...',t:{en:'My name is...',es:'Me llamo...',de:'Ich heiße...',ru:'Menya zovut...',zh:'Wǒ jiào...',ja:'Watashi wa... desu.',ht:'Mwen rele...'}},
+      {n:'D\'où venez-vous ?',t:{en:'Where are you from?',es:'¿De dónde es usted?',de:'Woher kommen Sie?',ru:'Otkuda vy?',zh:'Nǐ lái zì nǎlǐ?',ja:'Doko no shusshen desu ka?',ht:'Moun ki kote ou ye?'}},
+    ]
+  },
+  besoins_urgences: {
+    fr:'Besoins & Urgence',en:'Needs & Urgent',es:'Necesidades',ht:'Bezwen ak Ijansk',de:'Notfälle',ru:'Srochno',zh:'Jinji',ja:'Kinkyu',
+    icon:'🆘',
+    items:[
+      {n:'Où sont les toilettes ?',t:{en:'Where is the bathroom?',es:'¿Dónde está el baño?',de:'Wo ist die Toilette?',ru:'Gde tualet?',zh:'Cèsuǒ zài nǎlǐ?',ja:'Toire wa doko desu ka?',ht:'Kote twalèt yo ye?'}},
+      {n:'Aidez-moi, s\'il vous plaît.',t:{en:'Help me, please.',es:'Ayúdeme, por favor.',de:'Helfen Sie mir bitte.',ru:'Pomogite mne, pozhaluysta.',zh:'Qǐng bāngzhù wǒ.',ja:'Tasukete kudasai.',ht:'Ede m, tanpri.'}},
+      {n:'J\'ai perdu mon sac.',t:{en:'I lost my bag.',es:'He perdido mi bolsa.',de:'Ich habe meine Tasche verloren.',ru:'Ya poteryal sumku.',zh:'Wǒ de bāo diū le.',ja:'Kaban o nakushimashita.',ht:'Mwen pèdi sak mwen.'}},
+      {n:'C\'est urgent.',t:{en:'It is urgent.',es:'Es urgente.',de:'Es ist dringend.',ru:'Eto srochno.',zh:'Zhè hěn jǐnjí.',ja:'Kinkyu desu.',ht:'Se yon ijans.'}},
+      {n:'Appelez une ambulance.',t:{en:'Call an ambulance.',es:'Llame a una ambulancia.',de:'Rufen Sie einen Krankenwagen.',ru:'Vyzovite skoruyu.',zh:'Jiào jiùhùchē.',ja:'Kyūkyūsha o yonde.',ht:'Rele yon anbilans.'}},
+      {n:'Je ne me sens pas bien.',t:{en:'I don\'t feel well.',es:'No me siento bien.',de:'Ich fühle mich nicht gut.',ru:'Ya plokho sebya chuvstvuyu.',zh:'Wǒ bù shūfú.',ja:'Kibun ga warui desu.',ht:'Mwen pa santi m byen.'}},
+      {n:'Où est l\'hôpital ?',t:{en:'Where is the hospital?',es:'¿Dónde está el hospital?',de:'Wo ist das Krankenhaus?',ru:'Gde bolnitsa?',zh:'Yīyuàn zài nǎlǐ?',ja:'Byōin wa doko desu ka?',ht:'Kote lopital la ye?'}},
+      {n:'Y a-t-il une pharmacie ici ?',t:{en:'Is there a pharmacy here?',es:'¿Hay una farmacia aquí?',de:'Gibt es hier eine Apotheke?',ru:'Zdes yest apteka?',zh:'Zhèlǐ yǒu yàodiàn ma?',ja:'Yakkyoku wa arimasu ka?',ht:'Èske gen yon famasi bò isit la?'}},
+    ]
+  },
+  shopping_argent: {
+    fr:'Achats & Argent',en:'Shopping & Money',es:'Compras',ht:'Acha ak Lajan',de:'Einkaufen',ru:'Pokupki',zh:'Gòuwù',ja:'Kaimono',
+    icon:'💰',
+    items:[
+      {n:'Combien ça coûte ?',t:{en:'How much is it?',es:'¿Cuánto cuesta?',de:'Wie viel kostet das?',ru:'Skolko eto stoit?',zh:'Zhège duōshǎo qián?',ja:'Ikura desu ka?',ht:'Konbyen sa koute?'}},
+      {n:'C\'est trop cher.',t:{en:'It is too expensive.',es:'Es demasiado caro.',de:'Das ist zu teuer.',ru:'Eto slishkom dorogo.',zh:'Tài guì le.',ja:'Takasugi masu.',ht:'Li twò chè.'}},
+      {n:'Acceptez-vous la carte ?',t:{en:'Do you accept cards?',es:'¿Acepta tarjeta?',de:'Akzeptieren Sie Karten?',ru:'Vy prinimaete karty?',zh:'Nǐ jiēshòu kǎ ma?',ja:'Kādo wa tsukaemasu ka?',ht:'Èske nou pran kat?'}},
+      {n:'Où est le distributeur ?',t:{en:'Where is the ATM?',es:'¿Dónde está el cajero?',de:'Wo ist der Geldautomat?',ru:'Gde bankomat?',zh:'Quǎkuǎnjī zài nǎlǐ?',ja:'ATM wa doko desu ka?',ht:'Kote bwat kach la ye?'}},
+      {n:'Je voudrais acheter ceci.',t:{en:'I would like to buy this.',es:'Quisiera comprar esto.',de:'Ich möchte das kaufen.',ru:'Ya khochu eto kupit.',zh:'Wǒ xiǎng mǎi zhège.',ja:'Kore o kaitai desu.',ht:'Mwen ta renmen achte sa a.'}},
+      {n:'Avez-vous une taille plus grande ?',t:{en:'Do you have a larger size?',es:'¿Tiene una talla más grande?',de:'Haben Sie eine größere Nummer?',ru:'Yest razmer pobolshe?',zh:'Yǒu gèng dà de chǐmǎ ma?',ja:'Motto ookii saizu wa arimasu ka?',ht:'Èske nou gen yon gwosè ki pi gwo?'}},
+    ]
+  },
+  chemin_directions: {
+    fr:'Chemin',en:'Directions',es:'Direcciones',ht:'Chemen',de:'Wegbeschreibung',ru:'Napravleniya',zh:'Fāngxiàng',ja:'Hōkō',
+    icon:'📍',
+    items:[
+      {n:'Je suis perdu.',t:{en:'I am lost.',es:'Estoy perdido.',de:'Ich habe mich verlaufen.',ru:'Ya zabludilsya.',zh:'Wǒ mílù le.',ja:'Michi ni mayoi mashita.',ht:'Mwen pèdi.'}},
+      {n:'Pouvez-vous me montrer sur la carte ?',t:{en:'Can you show me on the map?',es:'¿Puede mostrármelo en el mapa?',de:'Können Sie mir das auf der Karte zeigen?',ru:'Pokazhite na karte?',zh:'Nǐ néng zài dìtú shàng zhǐ gěi wǒ kàn ma?',ja:'Chizu de oshiete kuremasu ka?',ht:'Èske ou ka montre m sou kat la?'}},
+      {n:'C\'est à quelle distance ?',t:{en:'How far is it?',es:'¿A qué distancia está?',de:'Wie weit ist es?',ru:'Kak daleko eto?',zh:'Duō yuǎn?',ja:'Dono kurai tōi desu ka?',ht:'Ki distans li genyen?'}},
+      {n:'Allez tout droit.',t:{en:'Go straight.',es:'Vaya recto.',de:'Gehen Sie geradeaus.',ru:'Idite pryamo.',zh:'Yizhí zǒu.',ja:'Massugu itte.',ht:'Ale tou dwat.'}},
+      {n:'C\'est à gauche ou à droite ?',t:{en:'Is it on the left or right?',es:'¿Está a la izquierda o a la derecha?',de:'Ist es links oder rechts?',ru:'Eto sleva ili sprava?',zh:'Zài zuǒbiān háishì yòubiān?',ja:'Hidari desu ka, migi desu ka?',ht:'Èske l agòch oswa adwat?'}},
+    ]
+  },
+  hotel_hebergement: {
+    fr:'Hôtel',en:'Hotel',es:'Hotel',ht:'Otèl',de:'Hotel',ru:'Otel',zh:'Jiudian',ja:'Hoteru',
+    icon:'🏨',
+    items:[
+      {n:'J\'ai une réservation.',t:{en:'I have a reservation.',es:'Tengo una reserva.',de:'Ich habe eine Reservierung.',ru:'U menya bron.',zh:'Wǒ yǒu yùdìng.',ja:'Yoyaku ga arimasu.',ht:'Mwen gen yon rezèvasyon.'}},
+      {n:'À quelle heure est le petit-déjeuner ?',t:{en:'What time is breakfast?',es:'¿A qué hora es el desayuno?',de:'Wann gibt es Frühstück?',ru:'Vo skolko zavtrak?',zh:'Zǎocān jǐ diǎn?',ja:'Chōshoku wa nan-ji desu ka?',ht:'Ki lè dejene a ye?'}},
+      {n:'Est-ce que le Wi-Fi est gratuit ?',t:{en:'Is the Wi-Fi free?',es:'¿El Wi-Fi es gratis?',de:'Ist das WLAN kostenlos?',ru:'Wi-Fi besplatnyy?',zh:'Wúxiàn wǎng miǎn fèi ma?',ja:'Wi-Fi wa muryō desu ka?',ht:'Èske Wi-Fi a gratis?'}},
+      {n:'Je voudrais une chambre calme.',t:{en:'I would like a quiet room.',es:'Quisiera una habitación tranquila.',de:'Ich hätte gerne ein ruhiges Zimmer.',ru:'Ya hochu tikhuyu komnatu.',zh:'Wǒ xiǎng yào yījiān ānjìng de fángjiān.',ja:'Shizuka na heya o onegaishimasu.',ht:'Mwen ta renmen yon chanm ki pa gen bri.'}},
+      {n:'Où sont les serviettes ?',t:{en:'Where are the towels?',es:'¿Dónde están las toallas?',de:'Wo sind die Handtücher?',ru:'Gde polotentsa?',zh:'Mǎojīn zài nǎlǐ?',ja:'Taoru wa doko desu ka?',ht:'Kote sèvyèt yo ye?'}},
+      {n:'Pouvez-vous me réveiller à 7h ?',t:{en:'Can you wake me up at 7?',es:'¿Puede despertarme a las 7?',de:'Können Sie mich um 7 Uhr wecken?',ru:'Razbudite menya v sem?',zh:'Nǐ néng zài qī diǎn jiào xǐng wǒ ma?',ja:'Shichi-ji ni okoshite kuremasu ka?',ht:'Èske ou ka reveye m a 7è?'}},
+    ]
+  },
+  conversation_social: {
+    fr:'Social',en:'Social',es:'Social',ht:'Sosyal',de:'Sozial',ru:'Obshenie',zh:'Shejiao',ja:'Shakaiteki',
+    icon:'📱',
+    items:[
+      {n:'Quel est ton compte Instagram ?',t:{en:'What is your Instagram?',es:'¿Cuál es tu Instagram?',de:'Wie ist dein Instagram?',ru:'Kakoy tvoy Instagram?',zh:'Nǐ de Instagram shì shénme?',ja:'Anata no Insutaguramu wa?',ht:'Kisa ki kont Instagram ou?'}},
+      {n:'Envoie-moi un message.',t:{en:'Send me a message.',es:'Envíame un mensaje.',de:'Schick mir eine Nachricht.',ru:'Napishi mne.',zh:'Gěi wǒ fā xiāoxī.',ja:'Messēji o okutte.',ht:'Voye yon mesaj pou mwen.'}},
+      {n:'Je vais te suivre.',t:{en:'I will follow you.',es:'Te voy a seguir.',de:'Ich werde dir folgen.',ru:'Ya podpishus na tebya.',zh:'Wǒ huì guānzhù nǐ.',ja:'Forō shimasu.',ht:'M pral swiv ou.'}},
+      {n:'Est-ce que tu as WhatsApp ?',t:{en:'Do you have WhatsApp?',es:'¿Tienes WhatsApp?',de:'Hast du WhatsApp?',ru:'U tebya yest WhatsApp?',zh:'Nǐ yǒu WhatsApp ma?',ja:'Watsuappu o motte imasu ka?',ht:'Èske ou gen WhatsApp?'}},
+      {n:'Prendre une photo ensemble.',t:{en:'Take a photo together.',es:'Tomar una foto juntos.',de:'Ein Foto zusammen machen.',ru:'Sdelat foto vmeste.',zh:'Yīqǐ pāizhào.',ja:'Issho ni shashin o torou.',ht:'Ann pran yon foto ansanm.'}},
+      {n:'Je rigole !',t:{en:'I am joking!',es:'¡Estoy bromeando!',de:'Ich mache nur Spaß!',ru:'Ya shuchu!',zh:'Wǒ zài kāi wánxiào!',ja:'Jōdan desu!',ht:'M ap bay blag!'}},
+    ]
+  },
+  meteo_expression: {
+    fr:'Météo',en:'Weather',es:'Clima',ht:'Tan an',de:'Wetter',ru:'Pogoda',zh:'Tianqi',ja:'Tenki',
+    icon:'☁️',
+    items:[
+      {n:'Il va pleuvoir aujourd\'hui.',t:{en:'It is going to rain today.',es:'Va a llover hoy.',de:'Es wird heute regnen.',ru:'Segodnya budet dozhd.',zh:'Jīntiān huì xià yǔ.',ja:'Kyō wa ame ga furu deshō.',ht:'Li pral fè lapli jodi a.'}},
+      {n:'Il fait très chaud dehors.',t:{en:'It is very hot outside.',es:'Hace mucho calor fuera.',de:'Es ist sehr heiß draußen.',ru:'Na ulitse ochen zharko.',zh:'Wàimiàn hěn rè.',ja:'Soto wa totemo atsui desu.',ht:'Li fè cho anpil deyò a.'}},
+      {n:'Le ciel est dégagé.',t:{en:'The sky is clear.',es:'El cielo está despejado.',de:'Der Himmel ist klar.',ru:'Nebo chistoe.',zh:'Qiántīan qínglǎng.',ja:'Sora wa harete imasu.',ht:'Syèl la klè.'}},
+      {n:'J\'adore la neige.',t:{en:'I love snow.',es:'Me encanta la nieve.',de:'Ich liebe Schnee.',ru:'Ya lyublyu sneg.',zh:'Wǒ xǐhuān xuě.',ja:'Yuki ga daisuki desu.',ht:'Mwen renmen lanèj.'}},
+      {n:'Il y a beaucoup de vent.',t:{en:'It is very windy.',es:'Hace mucho viento.',de:'Es ist sehr windig.',ru:'Ochen vetreno.',zh:'Fēng hěn dà.',ja:'Kaze ga tsuyoi desu.',ht:'Gen anpil van.'}},
+      {n:'Demain sera ensoleillé.',t:{en:'Tomorrow will be sunny.',es:'Mañana estará soleado.',de:'Morgen wird es sonnig sein.',ru:'Zavtra budet solnechno.',zh:'Míngtiān huì shì qíngtiān.',ja:'Ashita wa hare deshō.',ht:'Demen pral gen solèy.'}},
+    ]
+  },
+  sentiments_opinions: {
+    fr:'Sentiments',en:'Feelings',es:'Sentimientos',ht:'Santiman',de:'Gefühle',ru:'Chuvstva',zh:'Ganjiue',ja:'Kanjō',
+    icon:'❤️',
+    items:[
+      {n:'Je suis très content.',t:{en:'I am very happy.',es:'Estoy muy feliz.',de:'Ich bin sehr glücklich.',ru:'Ya ochen schastliv.',zh:'Wǒ hěn gāoxìng.',ja:'Totemo ureshii desu.',ht:'Mwen kontan anpil.'}},
+      {n:'Je suis fatigué.',t:{en:'I am tired.',es:'Estoy cansado.',de:'Ich bin müde.',ru:'Ya ustal.',zh:'Wǒ lèi le.',ja:'Tsukaremashita.',ht:'Mwen fatige.'}},
+      {n:'C\'est incroyable !',t:{en:'It is incredible!',es:'¡Es increíble!',de:'Das ist unglaublich!',ru:'Eto neveroyatno!',zh:'Zhè tài bùkěsīyì le!',ja:'Shinjirarenai!',ht:'Se etonan!'}},
+      {n:'Je m\'ennuie un peu.',t:{en:'I am a bit bored.',es:'Estoy un poco aburrido.',de:'Ich langweile mich ein bisschen.',ru:'Mne skuchno.',zh:'Wǒ yǒu diǎn wúliáo.',ja:'Sukoshi taikutsu desu.',ht:'Mwen annuye m yon ti jan.'}},
+      {n:'Ne t\'inquiète pas.',t:{en:'Don\'t worry.',es:'No te preocupes.',de:'Mach dir keine Sorgen.',ru:'Ne perezhivay.',zh:'Bié dānxīn.',ja:'Shinpai shinaide.',ht:'Pa bay kò ou pwoblèm.'}},
+      {n:'C\'est dommage.',t:{en:'It is a pity.',es:'Es una lástima.',de:'Das ist schade.',ru:'Zhal.',zh:'Tài yíhàn le.',ja:'Zannen desu ne.',ht:'Sa rèd.'}},
+    ]
+  },
+  travail_etudes_phrases: {
+    fr:'Travail/Études',en:'Work/Studies',es:'Trabajo',ht:'Travay/Etid',de:'Arbeit',ru:'Rabota',zh:'Gongzuo',ja:'Shigoto',
+    icon:'📝',
+    items:[
+      {n:'Je vais être en retard.',t:{en:'I am going to be late.',es:'Voy a llegar tarde.',de:'Ich werde zu spät kommen.',ru:'Ya opozdayu.',zh:'Wǒ yào chídào le.',ja:'Okore sō desu.',ht:'M pral anreta.'}},
+      {n:'On se voit en réunion.',t:{en:'See you in the meeting.',es:'Nos vemos en la reunión.',de:'Wir sehen uns im Meeting.',ru:'Uvidimsya na sobranii.',zh:'Huìyì shàng jiàn.',ja:'Kaigi de aimashō.',ht:'N a wè nan reyinyon an.'}},
+      {n:'Où est mon ordinateur ?',t:{en:'Where is my computer?',es:'¿Dónde está mi ordenador?',de:'Wo ist mein Computer?',ru:'Gde moy kompyuter?',zh:'Wǒ de diànnǎo zài nǎlǐ?',ja:'Konpyūta wa doko desu ka?',ht:'Kote òdinatè m nan ye?'}},
+      {n:'J\'ai fini mon travail.',t:{en:'I finished my work.',es:'He terminado mi trabajo.',de:'Ich habe meine Arbeit beendet.',ru:'Ya zakonchil rabotu.',zh:'Wǒ zuò wán le.',ja:'Shigoto ga owarimashita.',ht:'Mwen fini travay mwen.'}},
+      {n:'Tu peux répéter ?',t:{en:'Can you repeat?',es:'¿Puedes repetir?',de:'Kannst du das wiederholen?',ru:'Mozhesh povtorit?',zh:'Nǐ néng zàishuō yībiàn ma?',ja:'Mou ichido itte kuremasu ka?',ht:'Èske ou ka repete?'}},
+      {n:'C\'est difficile à comprendre.',t:{en:'It is hard to understand.',es:'Es difícil de entender.',de:'Das ist schwer zu verstehen.',ru:'Eto trudno ponyat.',zh:'Zhè hěn nán lǐjiě.',ja:'Rikaiするのがmuzukashii desu.',ht:'Li difisil pou m konprann.'}},
+    ]
+  },
+  corps_humain: {
+    fr:'Corps Humain',en:'Human Body',es:'Cuerpo Humano',ht:'Kò moun',de:'Menschlicher Körper',ru:'Telo',zh:'Shenti',ja:'Karada',
+    icon:'👤',
+    items:[
+      {n:'tête',t:{en:'head',es:'cabeza',de:'Kopf',ru:'golova',zh:'tou',ja:'atama',ht:'tèt'}},
+      {n:'visage',t:{en:'face',es:'cara',de:'Gesicht',ru:'litso',zh:'lian',ja:'kao',ht:'figi'}},
+      {n:'œil',t:{en:'eye',es:'ojo',de:'Auge',ru:'glaz',zh:'yanjing',ja:'me',ht:'je'}},
+      {n:'bouche',t:{en:'mouth',es:'boca',de:'Mund',ru:'rot',zh:'zui',ja:'kuchi',ht:'bouch'}},
+      {n:'nez',t:{en:'nose',es:'nariz',de:'Nase',ru:'nos',zh:'bizi',ja:'hana',ht:'nen'}},
+      {n:'oreille',t:{en:'ear',es:'oreja',de:'Ohr',ru:'ukho',zh:'erduo',ja:'mimi',ht:'zòrèy'}},
+      {n:'cheveux',t:{en:'hair',es:'pelo',de:'Haar',ru:'volosy',zh:'toufa',ja:'kami',ht:'cheve'}},
+      {n:'bras',t:{en:'arm',es:'brazo',de:'Arm',ru:'ruka',zh:'gebi',ja:'ude',ht:'bra'}},
+      {n:'main',t:{en:'hand',es:'mano',de:'Hand',ru:'ruka',zh:'shou',ja:'te',ht:'men'}},
+      {n:'doigt',t:{en:'finger',es:'dedo',de:'Finger',ru:'palets',zh:'shouzhi',ja:'yubi',ht:'dwèt'}},
+      {n:'jambe',t:{en:'leg',es:'pierna',de:'Bein',ru:'noga',zh:'tui',ja:'ashi',ht:'janm'}},
+      {n:'pied',t:{en:'foot',es:'pie',de:'Fuß',ru:'stupa',zh:'jiao',ja:'ashi',ht:'pye'}},
+      {n:'cœur',t:{en:'heart',es:'corazón',de:'Herz',ru:'serdtse',zh:'xin',ja:'shinko',ht:'kè'}},
+      {n:'sang',t:{en:'blood',es:'sangre',de:'Blut',ru:'krov',zh:'xue',ja:'chi',ht:'san'}},
+      {n:'dos',t:{en:'back',es:'espalda',de:'Rücken',ru:'spina',zh:'bei',ja:'senaka',ht:'do'}},
+      {n:'épaule',t:{en:'shoulder',es:'hombro',de:'Schulter',ru:'plecho',zh:'jiabang',ja:'kata',ht:'zepòl'}},
+      {n:'genou',t:{en:'knee',es:'rodilla',de:'Knie',ru:'koleno',zh:'xigai',ja:'hiza',ht:'jenou'}},
+      {n:'ventre',t:{en:'stomach',es:'estómago',de:'Bauch',ru:'zhivot',zh:'duzi',ja:'onaka',ht:'vant'}},
+      {n:'dent',t:{en:'tooth',es:'diente',de:'Zahn',ru:'zub',zh:'yachi',ja:'ha',ht:'dan'}},
+      {n:'langue',t:{en:'tongue',es:'lengua',de:'Zunge',ru:'yazyk',zh:'she',ja:'shita',ht:'lang'}},
+    ]
+  },
+  animaux_monde: {
+    fr:'Animaux',en:'Animals',es:'Animales',ht:'Zannimo',de:'Tiere',ru:'Zhivotnye',zh:'Dongwu',ja:'Dobutsu',
+    icon:'🦁',
+    items:[
+      {n:'chien',t:{en:'dog',es:'perro',de:'Hund',ru:'sobaka',zh:'gou',ja:'inu',ht:'chyen'}},
+      {n:'chat',t:{en:'cat',es:'gato',de:'Katze',ru:'koshka',zh:'mao',ja:'neko',ht:'chat'}},
+      {n:'cheval',t:{en:'horse',es:'caballo',de:'Pferd',ru:'loshad',zh:'ma',ja:'uma',ht:'chwal'}},
+      {n:'oiseau',t:{en:'bird',es:'pájaro',de:'Vogel',ru:'ptitsa',zh:'niao',ja:'tori',ht:'zwazo'}},
+      {n:'lion',t:{en:'lion',es:'león',de:'Löwe',ru:'lev',zh:'shizi',ja:'raion',ht:'lyon'}},
+      {n:'éléphant',t:{en:'elephant',es:'elefante',de:'Elefant',ru:'slon',zh:'xiang',ja:'zo',ht:'elefan'}},
+      {n:'singe',t:{en:'monkey',es:'mono',de:'Affe',ru:'obezyana',zh:'houzi',ja:'saru',ht:'makak'}},
+      {n:'vache',t:{en:'cow',es:'vaca',de:'Kuh',ru:'korova',zh:'niū',ja:'ushi',ht:'vach'}},
+      {n:'cochon',t:{en:'pig',es:'cerdo',de:'Schwein',ru:'svinya',zh:'zhu',ja:'buta',ht:'kochon'}},
+      {n:'mouton',t:{en:'sheep',es:'oveja',de:'Schaf',ru:'ovtsa',zh:'yang',ja:'hitsuji',ht:'mouton'}},
+      {n:'lapin',t:{en:'rabbit',es:'conejo',de:'Hase',ru:'krolik',zh:'tuzi',ja:'usagi',ht:'lapen'}},
+      {n:'serpent',t:{en:'snake',es:'serpiente',de:'Schlange',ru:'zmeya',zh:'she',ja:'hebi',ht:'koulèv'}},
+      {n:'poisson',t:{en:'fish',es:'pez',de:'Fisch',ru:'ryba',zh:'yu',ja:'sakana',ht:'pwason'}},
+      {n:'tortue',t:{en:'turtle',es:'tortuga',de:'Schildkröte',ru:'cherepakha',zh:'gui',ja:'kame',ht:'tòti'}},
+      {n:'souris',t:{en:'mouse',es:'ratón',de:'Maus',ru:'mysh',zh:'laoshu',ja:'nezumi',ht:'sourit'}},
+      {n:'ours',t:{en:'bear',es:'oso',de:'Bär',ru:'medved',zh:'xiong',ja:'kuma',ht:'ous'}},
+      {n:'tigre',t:{en:'tiger',es:'tigre',de:'Tiger',ru:'tigr',zh:'laohu',ja:'tora',ht:'tig'}},
+      {n:'canard',t:{en:'duck',es:'pato',de:'Ente',ru:'utka',zh:'yazi',ja:'ahiru',ht:'kanna'}},
+      {n:'abeille',t:{en:'bee',es:'abeja',de:'Biene',ru:'pchela',zh:'mifeng',ja:'hachi',ht:'mouch a myel'}},
+      {n:'papillon',t:{en:'butterfly',es:'mariposa',de:'Schmetterling',ru:'babochka',zh:'hudie',ja:'chocho',ht:'parpapiyon'}},
+    ]
+  },
+  technologie_internet: {
+    fr:'Technologie',en:'Technology',es:'Tecnología',ht:'Teknoloji',de:'Technologie',ru:'Tekhnologiya',zh:'Keji',ja:'Gijutsu',
+    icon:'💻',
+    items:[
+      {n:'Quel est le mot de passe du Wi-Fi ?',t:{en:'What is the Wi-Fi password?',es:'¿Cuál es la contraseña del Wi-Fi?',de:'Wie lautet das WLAN-Passwort?',ru:'Kakoy parol ot Wi-Fi?',zh:'Wi-Fi mìmǎ shì shénme?',ja:'Wi-Fi no pasuwādo wa?',ht:'Kisa modpas Wi-Fi a ye?'}},
+      {n:'Ma batterie est faible.',t:{en:'My battery is low.',es:'Mi batería está baja.',de:'Mein Akku ist leer.',ru:'Moy akkumulyator razryazhen.',zh:'Wǒ de diànchí mèiyǒu diàn le.',ja:'Batterī ga sukunai desu.',ht:'Batri m ap fini.'}},
+      {n:'Où puis-je charger mon téléphone ?',t:{en:'Where can I charge my phone?',es:'¿Dónde puedo cargar mi teléfono?',de:'Wo kann ich mein Handy aufladen?',ru:'Gde ya mogu zaryadit telefon?',zh:'Wǒ kěyǐ zài nǎlǐ chōngdiàn?',ja:'Doko de jūden dekimasu ka?',ht:'Kote m ka chaje telefòn mwen?'}},
+      {n:'Le lien ne fonctionne pas.',t:{en:'The link does not work.',es:'El enlace no funciona.',de:'Der Link funktioniert nicht.',ru:'Ssilka ne rabotaet.',zh:'Liánjiē bù xíng.',ja:'Rinku ga kinō shimasen.',ht:'Link lan pa mache.'}},
+      {n:'Je t\'envoie un e-mail.',t:{en:'I am sending you an email.',es:'Te envío un correo.',de:'Ich schicke dir eine E-Mail.',ru:'Ya otpravlyayu tebe e-mail.',zh:'Wǒ gěi nǐ fā yóujiàn.',ja:'Mēru o okurimasu.',ht:'M ap voye yon imèl ba ou.'}},
+      {n:'L\'écran est cassé.',t:{en:'The screen is broken.',es:'La pantalla está rota.',de:'Der Bildschirm ist kaputt.',ru:'Ekran sloman.',zh:'Píngmù huài le.',ja:'Gamen ga warete imasu.',ht:'Ekran an kase.'}},
+    ]
+  },
+  maison_taches: {
+    fr:'À la Maison',en:'At Home',es:'En Casa',ht:'Nan Kay la',de:'Zu Hause',ru:'Doma',zh:'Zai jia',ja:'Ie de',
+    icon:'🏠',
+    items:[
+      {n:'Peux-tu fermer la porte ?',t:{en:'Can you close the door?',es:'¿Puedes cerrar la puerta?',de:'Kannst du die Tür schließen?',ru:'Mozhesh zakryt dver?',zh:'Nǐ néng guān mén ma?',ja:'Doa o shimete kuremasu ka?',ht:'Èske ou ka fèmen pòt la?'}},
+      {n:'Je vais faire la cuisine.',t:{en:'I am going to cook.',es:'Voy a cocinar.',de:'Ich werde kochen.',ru:'Ya budu gotovit.',zh:'Wǒ yào zuò fàn.',ja:'Ryōri o shimasu.',ht:'M pral fè manje.'}},
+      {n:'Où sont mes clés ?',t:{en:'Where are my keys?',es:'¿Dónde están mis llaves?',de:'Wo sind meine Schlüssel?',ru:'Gde moi klyuchi?',zh:'Wǒ de yàoshi zài nǎlǐ?',ja:'Kagi wa doko desu ka?',ht:'Kote kle m yo ye?'}},
+      {n:'Il faut nettoyer la chambre.',t:{en:'We must clean the room.',es:'Hay que limpiar el cuarto.',de:'Wir müssen das Zimmer putzen.',ru:'Nuzhno ubrat komnatu.',zh:'Wǒmen děi dǎsǎo fángjiān.',ja:'Heya o sōji shinakereba narimasen.',ht:'Fòk nou netwaye chanm nan.'}},
+      {n:'La lumière est allumée.',t:{en:'The light is on.',es:'La luz está encendida.',de:'Das Licht ist an.',ru:'Svet gorit.',zh:'Dēng liàng zhuo.',ja:'Denki ga tsuite imasu.',ht:'Limyè a limen.'}},
+      {n:'Je vais me coucher.',t:{en:'I am going to bed.',es:'Me voy a la cama.',de:'Ich gehe ins Bett.',ru:'Ya idu spat.',zh:'Wǒ yào qù shuìjiào le.',ja:'Neru jikan desu.',ht:'M pral dòmi.'}},
+    ]
+  },
+  sorties_rendezvous: {
+    fr:'Sorties',en:'Going Out',es:'Salidas',ht:'Soti',de:'Ausgehen',ru:'Progulki',zh:'Wanchu',ja:'Goshutsu',
+    icon:'📅',
+    items:[
+      {n:'On se voit à quelle heure ?',t:{en:'What time shall we meet?',es:'¿A qué hora nos vemos?',de:'Wann treffen wir uns?',ru:'Vo skolko vstretimsya?',zh:'Wǒmen jǐ diǎn jiànmiàn?',ja:'Nan-ji ni aimashō ka?',ht:'Ki lè n ap wè?'}},
+      {n:'Je t\'attends devant le cinéma.',t:{en:'I am waiting for you in front of the cinema.',es:'Te espero delante del cine.',de:'Ich warte vor dem Kino auf dich.',ru:'Ya zhdu tebya pered kinoteatrom.',zh:'Wǒ zài diànyǐngyuàn qiánmiàn děng nǐ.',ja:'Eigakan no mae de matte imasu.',ht:'M ap tann ou devan sinema a.'}},
+      {n:'C\'est l\'heure d\'y aller.',t:{en:'It is time to go.',es:'Es hora de irse.',de:'Es ist Zeit zu gehen.',ru:'Pora idti.',zh:'Gāi zǒu le.',ja:'Iku jikan desu.',ht:'Lè a rive pou n ale.'}},
+      {n:'Tu es prêt(e) ?',t:{en:'Are you ready?',es:'¿Estás listo/a?',de:'Bist du bereit?',ru:'Ty gotov(a)?',zh:'Nǐ zhǔnbèi hǎole ma?',ja:'Junbi wa ii desu ka?',ht:'Èske ou pare?'}},
+      {n:'Je suis en chemin.',t:{en:'I am on my way.',es:'Estoy en camino.',de:'Ich bin auf dem Weg.',ru:'Ya v puti.',zh:'Wǒ zài lùshàng.',ja:'Mukatte imasu.',ht:'Mwen sou wout.'}},
+      {n:'Voulez-vous sortir ce soir ?',t:{en:'Do you want to go out tonight?',es:'¿Quiere salir esta noche?',de:'Wollen Sie heute Abend ausgehen?',ru:'Hochesh poyti kuda-nibud vecherom?',zh:'Nǐ jīnwǎn xiǎng chūqù ma?',ja:'Konban dekakemasen ka?',ht:'Èske ou vle soti aswè a?'}},
+    ]
+  },
+  temps_duree: {
+    fr:'Durée',en:'Duration',es:'Duración',ht:'Dire',de:'Dauer',ru:'Dlitelnost',zh:'Shijian',ja:'Kikan',
+    icon:'⏳',
+    items:[
+      {n:'Combien de temps ça prend ?',t:{en:'How long does it take?',es:'¿Cuánto tiempo se tarda?',de:'Wie lange dauert das?',ru:'Skolko vremeni eto zaymet?',zh:'Zhège yào duō jiǔ?',ja:'Dono kurai kakarimasu ka?',ht:'Konbyen tan sa ap pran?'}},
+      {n:'Attends une minute.',t:{en:'Wait a minute.',es:'Espera un minuto.',de:'Warte eine Minute.',ru:'Podozhdi minutu.',zh:'Děng yīxià.',ja:'Chotto matte.',ht:'Tann yon minit.'}},
+      {n:'Il est trop tard.',t:{en:'It is too late.',es:'Es demasiado tarde.',de:'Es ist zu spät.',ru:'Slishkom pozdno.',zh:'Tài wǎn le.',ja:'Ososugi masu.',ht:'Li twò ta.'}},
+      {n:'C\'est pour bientôt.',t:{en:'It is coming soon.',es:'Es para pronto.',de:'Es ist bald soweit.',ru:'Eto skoro budet.',zh:'Kuài le.',ja:'Mōsugu desu.',ht:'Se pou talè.'}},
+      {n:'Je n\'ai pas le temps.',t:{en:'I don\'t have time.',es:'No tengo tiempo.',de:'Ich habe keine Zeit.',ru:'U menya net vremeni.',zh:'Wǒ méiyǒu shíjiān.',ja:'Jikan ga arimasen.',ht:'M pa gen tan.'}},
+      {n:'Depuis quand es-tu ici ?',t:{en:'Since when have you been here?',es:'¿Desde cuándo estás aquí?',de:'Seit wann bist du hier?',ru:'Kak dolgo ty zdes?',zh:'Nǐ lái zhèlǐ duōjiǔ le?',ja:'Itsu kara koko ni imasu ka?',ht:'Depi ki lè ou la?'}},
+    ]
+  },
+  sport_sante_vie: {
+    fr:'Sport & Santé',en:'Sport & Health',es:'Deporte',ht:'Spò ak Sante',de:'Sport',ru:'Sport',zh:'Yundong',ja:'Supōtsu',
+    icon:'🏃',
+    items:[
+      {n:'Je vais à la salle de sport.',t:{en:'I am going to the gym.',es:'Voy al gimnasio.',de:'Ich gehe ins Fitnessstudio.',ru:'Ya idu v sportzal.',zh:'Wǒ qù jiànshēnfáng.',ja:'Jimu ni ikimasu.',ht:'M pral nan jim.'}},
+      {n:'Je dois boire plus d\'eau.',t:{en:'I need to drink more water.',es:'Tengo que beber más agua.',de:'Ich muss mehr Wasser trinken.',ru:'Mne nuzhno pit bolshe vody.',zh:'Wǒ děi duō hē shuǐ.',ja:'Motto mizu o nomanaito.',ht:'Mwen dwe bwè plis dlo.'}},
+      {n:'Est-ce que tu fais du sport ?',t:{en:'Do you play sports?',es:'¿Haces deporte?',de:'Treibst du Sport?',ru:'Ty zanimaeshsya sportom?',zh:'Nǐ yùndòng ma?',ja:'Supōtsu o shimasu ka?',ht:'Èske ou fè spò?'}},
+      {n:'Je suis en pleine forme.',t:{en:'I am in great shape.',es:'Estoy en plena forma.',de:'Ich bin topfit.',ru:'Ya v horoshey forme.',zh:'Wǒ jīngshén hěn hǎo.',ja:'Totemo genki desu.',ht:'Mwen anfòm anpil.'}},
+      {n:'J\'ai besoin de dormir.',t:{en:'I need to sleep.',es:'Necesito dormir.',de:'Ich muss schlafen.',ru:'Mne nuzhno pospat.',zh:'Wǒ xūyào shuìjiào.',ja:'Neru hitsuyō ga arimasu.',ht:'Mwen bezwen dòmi.'}},
+      {n:'Quel est ton sport préféré ?',t:{en:'What is your favorite sport?',es:'¿Cuál es tu deporte favorito?',de:'Was ist dein Lieblingssport?',ru:'Kakoy tvoy lyubimiy sport?',zh:'Nǐ zuì xǐhuān shénme yùndòng?',ja:'Suki na supōtsu wa nani?',ht:'Ki spò ou pi renmen?'}},
+    ]
+  },
+  expressions_familieres: {
+    fr:'Argot & Familier',en:'Slang & Casual',es:'Jerga',ht:'Palanperen',de:'Umgangssprache',ru:'Sleng',zh:'Kouyu',ja:'Zokugo',
+    icon:'😎',
+    items:[
+      {n:'Ça roule ?',t:{en:'How’s it going?',es:'¿Todo bien?',de:'Läuft’s?',ru:'Kak ono?',zh:'Hái hǎo ma?',ja:'Chōshi dō?',ht:'Sa k ap fèt?'},struct:{n:'Expression pour demander si ça va',t:{en:'Casual way to ask how it is going'}}},
+      {n:'Laisse tomber.',t:{en:'Drop it / Forget it.',es:'Déjalo.',de:'Vergiss es.',ru:'Zabey.',zh:'Suàn le.',ja:'Mou ii yo.',ht:'Kite sa.'},struct:{n:'Laissez + tomber (impératif)',t:{en:'Let + fall'}}},
+      {n:'Je suis mort de rire.',t:{en:'I am dying of laughter.',es:'Me muero de risa.',de:'Ich lach mich tot.',ru:'Ya umirayu ot smeha.',zh:'Xiào sǐ wǒ le.',ja:'Ukeru!',ht:'M mouri ak ri.'}},
+      {n:'C\'est ouf !',t:{en:'That\'s crazy!',es:'¡Es una locura!',de:'Krass!',ru:'Eto kruto!',zh:'Tài fēngkuáng le!',ja:'Yabai!',ht:'Se bagay de fou!'},struct:{n:'Verlan de "fou"',t:{en:'Slang for crazy'}}},
+      {n:'T\'inquiète !',t:{en:'Don\'t worry!',es:'¡No te rayes!',de:'Keine Sorge!',ru:'Ne par’sya!',zh:'Bié dānxīn!',ja:'Donmai!',ht:'Pa okipe w!'},struct:{n:'Abréviation de "ne t\'inquiète pas"',t:{en:'Short for don\'t worry'}}},
+      {n:'Ça te dit ?',t:{en:'Are you up for it?',es:'¿Te apetece?',de:'Hast du Lust?',ru:'Kak tebe ideya?',zh:'Nǐ xiǎng qù ma?',ja:'Dō kana?',ht:'Sa di ou?'}},
+      {n:'C\'est nickel.',t:{en:'It\'s perfect / spotless.',es:'Está niquelado.',de:'Alles bestens.',ru:'Vse chotko.',zh:'Tài bàng le.',ja:'Batchiri.',ht:'Li nikèl.'}},
+      {n:'Je me casse.',t:{en:'I’m out / I’m leaving.',es:'Me piro.',de:'Ich verpiss mich.',ru:'Ya svalivayu.',zh:'Wǒ zǒu le.',ja:'Kaeru wa.',ht:'M ale.'}},
+    ]
+  },
+   reactions_spontanees: {
+    fr:'Réactions',en:'Reactions',es:'Reacciones',ht:'Reyaksyon',de:'Reaktionen',ru:'Reaktsii',zh:'Fǎnyìng',ja:'Hannō',
+    icon:'😲',
+    items:[
+      {n:'Pas de soucis.',t:{en:'No worries.',es:'Sin problema.',de:'Kein Ding.',ru:'Bez problem.',zh:'Méi wèntí.',ja:'Mondai nai.',ht:'Pa gen pwoblèm.'}},
+      {n:'Tu rigoles ou quoi ?',t:{en:'Are you kidding me?',es:'¿Estás de broma?',de:'Machst du Witze?',ru:'Ty shutish?',zh:'Nǐ zài kāi wánxiào ma?',ja:'Jōdan desho?',ht:'W ap bay blag oswa kisa?'}},
+      {n:'J\'en ai marre.',t:{en:'I\'m fed up.',es:'Estoy harto/a.',de:'Ich habe die Nase voll.',ru:'S menya hvatit.',zh:'Wǒ shòu bùliǎo le.',ja:'Mou iya da.',ht:'M bouke.'}},
+      {n:'On fait quoi ?',t:{en:'What are we doing?',es:'¿Qué hacemos?',de:'Was machen wir?',ru:'Chto delaem?',zh:'Wǒmen zuò shénme?',ja:'Nani suru?',ht:'Sa n ap fè?'}},
+      {n:'C\'est pas grave.',t:{en:'It\'s no big deal.',es:'No pasa nada.',de:'Nicht so schlimm.',ru:'Nichego strashnogo.',zh:'Méiguānxì.',ja:'Daijōbu.',ht:'Sa pa anyen.'}},
+      {n:'Carrément !',t:{en:'Totally!',es:'¡Totalmente!',de:'Auf jeden Fall!',ru:'Tochno!',zh:'Dāngrán!',ja:'Sono tōri!',ht:'Kareman!'}},
+      {n:'N\'importe quoi !',t:{en:'Nonsense!',es:'¡Cualquier cosa!',de:'Quatsch!',ru:'Chto za bred!',zh:'Húshuō bàdào!',ja:'Detarame!',ht:'Nenpòt kisa!'}},
+    ]
+  },
+  sortir_amis: {
+    fr:'Entre Amis',en:'With Friends',es:'Con Amigos',ht:'Ak Zanmi',de:'Mit Freunden',ru:'S druzyami',zh:'Pengyou',ja:'Tomodachi',
+    icon:'🍻',
+    items:[
+      {n:'On se capte plus tard ?',t:{en:'Shall we catch up later?',es:'¿Hablamos luego?',de:'Wollen wir uns später treffen?',ru:'Perekishemsya pozzhe?',zh:'Wǒmen děng xià jiàn?',ja:'Ato de aō ka?',ht:'N a wè pita?'}},
+      {n:'Je suis chaud !',t:{en:'I\'m down / I\'m up for it!',es:'¡Me apunto!',de:'Ich bin dabei!',ru:'Ya v dele!',zh:'Wǒ hěn xiǎng qù!',ja:'Yaruki manman!',ht:'Mwen cho!'},struct:{n:'Être chaud = être motivé',t:{en:'To be hot = to be motivated'}}},
+      {n:'Viens, on bouge.',t:{en:'Come on, let\'s move.',es:'Venga, vámonos.',de:'Komm, wir gehen.',ru:'Davay, poyhali.',zh:'Zǒu ba.',ja:'Ikō ze.',ht:'Vini, ann bouje.'}},
+      {n:'Il y a trop de monde ici.',t:{en:'There are too many people here.',es:'Hay demasiada gente.',de:'Hier ist zu viel los.',ru:'Zdes slishkom mnogo naroda.',zh:'Zhèlǐ rén tài duō le.',ja:'Hito ga oosugiru.',ht:'Gen twòp moun isit la.'}},
+      {n:'C\'est ma tournée !',t:{en:'This round is on me!',es:'¡Esta ronda la pago yo!',de:'Ich geb eine Runde aus!',ru:'Ya prostavlyayus!',zh:'Zhè dùn wǒ qǐng kè!',ja:'Ogoi da yo!',ht:'Se tou pa m!'}},
+      {n:'Tu fais quoi de beau ?',t:{en:'What are you up to?',es:'¿Qué cuentas?',de:'Was treibst du so?',ru:'Chto horoshego?',zh:'Nǐ zài máng shénme?',ja:'Nani shiteru no?',ht:'Sa w ap fè ki bon?'}},
+    ]
+  },
+  boulot_familier: {
+    fr:'Le Boulot',en:'The Job',es:'El Curro',ht:'Boulot',de:'Der Job',ru:'Rabota',zh:'Gongzuo',ja:'Shigoto',
+    icon:'👨‍💻',
+    items:[
+      {n:'J\'ai trop de boulot.',t:{en:'I have too much work.',es:'Tengo mucho curro.',de:'Ich habe zu viel zu tun.',ru:'U menya zaval na rabote.',zh:'Wǒ gōngzuò tài duō le.',ja:'Shigoto ga oosugiru.',ht:'M gen twòp travay.'}},
+      {n:'On fait une pause ?',t:{en:'Shall we take a break?',es:'¿Hacemos un descanso?',de:'Machen wir eine Pause?',ru:'Sdelaem pereryv?',zh:'Wǒmen xiūxi yīxià ba?',ja:'Kyūkei shiyō ka?',ht:'Ann fè yon pòz?'}},
+      {n:'Je suis en réunion, je te rappelle.',t:{en:'I\'m in a meeting, I\'ll call you back.',es:'Estoy en una reunión, te llamo luego.',de:'Ich bin im Meeting, ich ruf dich zurück.',ru:'Ya na soveshanii, perezvonyu.',zh:'Wǒ zài kāihuì, hòulái dǎ gěi nǐ.',ja:'Kaigichū dakara, ato de kakeru ne.',ht:'M nan reyinyon, m ap rele w ankò.'}},
+      {n:'C\'est pas mon truc.',t:{en:'It\'s not my thing.',es:'No es lo mío.',de:'Das ist nicht mein Ding.',ru:'Eto ne moe.',zh:'Wǒ bù xǐhuān zhège.',ja:'Nigate da na.',ht:'Se pa bagay mwen.'}},
+      {n:'Bon courage !',t:{en:'Good luck / Hang in there!',es:'¡Ánimo!',de:'Viel Erfolg!',ru:'Udachi!',zh:'Jiāyóu!',ja:'Ganbatte!',ht:'Bon kouraj!'}},
+    ]
+  },
+  voyage_aeroport: {
+    fr:'Voyage',en:'Travel',es:'Viaje',ht:'Vwayaj',de:'Reisen',ru:'Puteshestvie',zh:'Lvxing',ja:'Ryoko',
+    icon:'✈️',
+    items:[
+      {n:'À quelle heure est l\'embarquement ?',t:{en:'What time is boarding?',es:'¿A qué hora es el embarque?',de:'Wann ist das Boarding?',ru:'Vo skolko posadka?',zh:'Ji diǎn dēngjī?',ja:'Tojo wa nan-ji desu ka?',ht:'Ki lè anbakman an ye?'}},
+      {n:'Voici mon passeport.',t:{en:'Here is my passport.',es:'Aquí está mi pasaporte.',de:'Hier ist mein Reisepass.',ru:'Vot moy pasport.',zh:'Zhè shì wǒ de hùzhào.',ja:'Pasupōto desu.',ht:'Men paspò mwen.'}},
+      {n:'Où sont les bagages ?',t:{en:'Where is the luggage?',es:'¿Dónde estã el equipaje?',de:'Wo ist das Gepäck?',ru:'Gde bagazh?',zh:'Xínglǐ zài nǎlǐ?',ja:'Nimotsu wa doko desu ka?',ht:'Kote valiz yo ye?'}},
+      {n:'Le vol est annulé.',t:{en:'The flight is cancelled.',es:'El vuelo está cancelado.',de:'Der Flug ist gestrichen.',ru:'Reys otmenen.',zh:'Hángbān qǔxiāo le.',ja:'Fuiraito wa kyanseru desu.',ht:'Vòl la anile.'}},
+      {n:'Avez-vous quelque chose à déclarer ?',t:{en:'Do you have anything to declare?',es:'¿Tiene algo que declarar?',de:'Haben Sie etwas zu verzollen?',ru:'Yest chto deklarirovat?',zh:'Nǐ yǒu shénme yào shēnbiào ma?',ja:'Shinkoku suru mono wa?',ht:'Èske ou gen kichòy pou deklare?'}},
+    ]
+  },
+  shopping_details: {
+    fr:'En magasin',en:'In store',es:'En la tienda',ht:'Nan magazen',de:'Im Geschäft',ru:'V magazine',zh:'Zai shangdian',ja:'Mise de',
+    icon:'🛍️',
+    items:[
+      {n:'Je regarde seulement, merci.',t:{en:'I am just looking, thank you.',es:'Solo estoy mirando, gracias.',de:'Ich schaue nur, danke.',ru:'Ya prosto smotryu.',zh:'Wǒ zhǐshì kàn kàn.',ja:'Miteru dake desu.',ht:'M ap gade sèlman, mèsi.'}},
+      {n:'Puis-je l\'essayer ?',t:{en:'Can I try it on?',es:'¿Puedo probármelo?',de:'Kann ich das anprobieren?',ru:'Mogu ya eto primerit?',zh:'Wǒ kěyǐ shì chuān ma?',ja:'Shichaku dekimasu ka?',ht:'Èske m ka eseye l?'}},
+      {n:'Où sont les cabines d\'essayage ?',t:{en:'Where are the fitting rooms?',es:'¿Dónde están los probadores?',de:'Wo sind die Umkleidekabinen?',ru:'Gde primerochnye?',zh:'Shìyījiàn zài nǎlǐ?',ja:'Shichakushitsu wa doko?',ht:'Kote chanm eseye yo ye?'}},
+      {n:'Je vais prendre celui-ci.',t:{en:'I will take this one.',es:'Me llevo este.',de:'Ich nehme dieses ici.',ru:'Ya vozmu eto.',zh:'Wǒ yào zhège.',ja:'Kore o kaimasu.',ht:'M ap pran sa a.'}},
+      {n:'Avez-vous un sac ?',t:{en:'Do you have a bag?',es:'¿Tiene una bolsa?',de:'Haben Sie eine Tüte?',ru:'U vas yest paket?',zh:'Nǐ yǒu dǎbāo dài ma?',ja:'Fukuro wa arimasu ka?',ht:'Èske ou gen yon sak?'}},
+    ]
+  },
+  sante_pharmacie: {
+    fr:'Pharmacie',en:'Pharmacy',es:'Farmacia',ht:'Famasi',de:'Apotheke',ru:'Apteka',zh:'Yaodian',ja:'Yakkyoku',
+    icon:'💊',
+    items:[
+      {n:'J\'ai besoin d\'un médicament pour la fièvre.',t:{en:'I need medicine for fever.',es:'Necesito algo para la fiebre.',de:'Ich brauche Fiebermittel.',ru:'Mne nuzhno lekarstvo ot zhara.',zh:'Wǒ xūyào tuìshāo yào.',ja:'Ketsu-yaku ga hitsuyo desu.',ht:'M bezwen yon medikaman pou lafyèv.'}},
+      {n:'Je suis allergique aux noix.',t:{en:'I am allergic to nuts.',es:'Soy alérgico a las nueces.',de:'Ich bin allergisch gegen Nüsse.',ru:'U menya allergiya na orekhi.',zh:'Wǒ duì jiānguǒ guòmǐn.',ja:'Nattsu arerugī desu.',ht:'Mwen gen alèji ak nwa.'}},
+      {n:'C\'est avec ou sans ordonnance ?',t:{en:'Is it with or without prescription?',es:'¿Es con o sin receta?',de:'Ist es mit oder ohne Rezept?',ru:'Eto po retseptu?',zh:'Yào chǔfāng ma?',ja:'Shohosen wa hitsuyo?',ht:'Èske se avèk oswa san òdonans?'}},
+      {n:'J\'ai un rhume.',t:{en:'I have a cold.',es:'Tengo un resfriado.',de:'Ich habe eine Erkältung.',ru:'Ya prostudilsya.',zh:'Wǒ gǎnmào le.',ja:'Kaze o hikimashita.',ht:'Mwen gripé.'}},
+      {n:'Où se trouve la pharmacie de garde ?',t:{en:'Where is the 24-hour pharmacy?',es:'¿Dónde estã la farmacia de guardia?',de:'Wo ist die Notapotheke?',ru:'Gde dezhurnaya apteka?',zh:'Nǎlǐ yǒu zhíbān yàodiàn?',ja:'Kyukan yakkyoku wa?',ht:'Kote famasi de gad la ye?'}},
+    ]
+  },
+  opinions_accord: {
+    fr:'Accord',en:'Agreement',es:'Acuerdo',ht:'Dakò',de:'Zustimmung',ru:'Soglasie',zh:'Tongyi',ja:'Doi',
+    icon:'👍',
+    items:[
+      {n:'Tu as raison.',t:{en:'You are right.',es:'Tienes razón.',de:'Du hast recht.',ru:'Ty prav(a).',zh:'Nǐ shuō de duì.',ja:'Sono tōri desu.',ht:'Ou gen rezon.'}},
+      {n:'Je ne pense pas.',t:{en:'I don\'t think so.',es:'No lo creo.',de:'Das glaube ich nicht.',ru:'Ya tak ne dumayu.',zh:'Wǒ bù zhème rènwéi.',ja:'Sō wa omoimasen.',ht:'M pa panse sa.'}},
+      {n:'Bien sûr !',t:{en:'Of course!',es:'¡Claro que sí!',de:'Natürlich!',ru:'Konechno!',zh:'Dāngrán!',ja:'Mochiron!',ht:'Byen sir!'}},
+      {n:'Peut-être.',t:{en:'Maybe.',es:'Tal vez.',de:'Vielleicht.',ru:'Mozhet byt.',zh:'Yěxǔ.',ja:'Tabun.',ht:'Petèt.'}},
+      {n:'C\'est vrai.',t:{en:'It is true.',es:'Es verdad.',de:'Das ist wahr.',ru:'Eto pravda.',zh:'Zhè shì zhēn de.',ja:'Honto desu.',ht:'Se vre.'}},
+    ]
+  },
+salutations_courantes: {
+  fr:'Salutations',
+  en:'Greetings',
+  es:'Saludos',
+  ht:'Bonjou / Salitasyon',
+  de:'Begrüßungen',
+  ru:'Privetstviya',
+  zh:'Wenhou',
+  ja:'Aisatsu',
+  icon:'👋',
+  items:[
+    {n:'Salut !',t:{en:'Hi!',es:'¡Hola!',de:'Hallo!',ru:'Privet!',zh:'Nǐ hǎo!',ja:'Yā!',ht:'Bonjou!'}},
+    {n:'Ça va ?',t:{en:'How are you?',es:'¿Cómo estás?',de:'Wie geht’s?',ru:'Kak dela?',zh:'Nǐ hǎo ma?',ja:'Genki?',ht:'Kijan ou ye?'}},
+    {n:'Quoi de neuf ?',t:{en:'What’s new?',es:'¿Qué hay de nuevo?',de:'Was gibt’s Neues?',ru:'Chto novogo?',zh:'Yǒu shénme xīn de?',ja:'Nani ga atarashii?',ht:'Ki nouvèl?'}},
+    {n:'Ça fait longtemps !',t:{en:'Long time no see!',es:'¡Cuánto tiempo!',de:'Lange nicht gesehen!',ru:'Davnenko ne videlis!',zh:'Hǎojiǔ bù jiàn!',ja:'Hisashiburi!',ht:'Sa fè lontan!'}},
+    {n:'Content de te voir.',t:{en:'Nice to see you.',es:'Me alegra verte.',de:'Freut mich dich zu sehen.',ru:'Rad tebya videt.',zh:'Hěn gāoxìng jiàn dào nǐ.',ja:'Aete ureshii.',ht:'M kontan wè ou.'}},
+  ]
+},
+  conversation_simple: {
+  fr:'Conversation simple',
+  en:'Basic conversation',
+  es:'Conversación básica',
+  ht:'Konvèsasyon senp',
+  de:'Einfache Gespräche',
+  ru:'Prostoy razgovor',
+  zh:'Jiandan duihua',
+  ja:'Kantan na kaiwa',
+  icon:'💬',
+  items:[
+    {n:'Attends une seconde.',t:{en:'Wait a second.',es:'Espera un segundo.',de:'Warte eine Sekunde.',ru:'Podozhdi sekundu.',zh:'Děng yíxià.',ja:'Chotto matte.',ht:'Tann yon segond.'}},
+    {n:'Je reviens.',t:{en:'I’ll be back.',es:'Ya vuelvo.',de:'Ich komme zurück.',ru:'Ya vernus.',zh:'Wǒ huí lái.',ja:'Sugu modoru.',ht:'M ap tounen.'}},
+    {n:'Pas de problème.',t:{en:'No problem.',es:'No hay problema.',de:'Kein Problem.',ru:'Bez problem.',zh:'Méi wèntí.',ja:'Mondai nai.',ht:'Pa gen pwoblèm.'}},
+    {n:'Je comprends.',t:{en:'I understand.',es:'Entiendo.',de:'Ich verstehe.',ru:'Ya ponimayu.',zh:'Wǒ míngbai.',ja:'Wakarimasu.',ht:'M konprann.'}},
+    {n:'Je ne comprends pas.',t:{en:'I don’t understand.',es:'No entiendo.',de:'Ich verstehe nicht.',ru:'Ya ne ponimayu.',zh:'Wǒ bù míngbai.',ja:'Wakarimasen.',ht:'M pa konprann.'}},
+  ]
+},
+    reactions: {
+  fr:'Réactions',
+  en:'Reactions',
+  es:'Reacciones',
+  ht:'Reyaksyon',
+  de:'Reaktionen',
+  ru:'Reaktsii',
+  zh:'Fanying',
+  ja:'Hannō',
+  icon:'😮',
+  items:[
+    {n:'Sérieux ?',t:{en:'Seriously?',es:'¿En serio?',de:'Ernsthaft?',ru:'Pravda?',zh:'Zhēn de?',ja:'Hontō?',ht:'Vrèman?'}},
+    {n:'Incroyable !',t:{en:'Unbelievable!',es:'¡Increíble!',de:'Unglaublich!',ru:'Neveroyatno!',zh:'Bùkěsīyì!',ja:'Shinjirarenai!',ht:'Enkwayab!'}},
+    {n:'C’est génial !',t:{en:'That’s awesome!',es:'¡Genial!',de:'Das ist super!',ru:'Eto zdorovo!',zh:'Tài bàng le!',ja:'Sugoi!',ht:'Sa bon anpil!'}},
+    {n:'Quel dommage.',t:{en:'What a pity.',es:'Qué lástima.',de:'Schade.',ru:'Zhal.',zh:'Zhēn kěxī.',ja:'Zannen.',ht:'Ala domaj.'}},
+    {n:'Pas possible.',t:{en:'No way.',es:'No puede ser.',de:'Unmöglich.',ru:'Ne mozhet byt.',zh:'Bù kěnéng.',ja:'Arienai.',ht:'Sa pa posib.'}},
+  ]
+},
+ questions_quotidiennes:{
+  fr:'Questions quotidiennes',
+  en:'Daily questions',
+  es:'Preguntas diarias',
+  ht:'Kesyon chak jou',
+  de:'Alltägliche Fragen',
+  ru:'Povsednevnye voprosy',
+  zh:'Rìcháng wèntí',
+  ja:'Nichijō no shitsumon',
+  icon:'❓',
+  items:[
+    {n:'Comment ça va ?',t:{en:'How are you?',es:'¿Cómo estás?',de:'Wie geht es dir?',ru:'Kak dela?',zh:'Nǐ hǎo ma?',ja:'Genki desu ka?',ht:'Kijan ou ye?'}},
+    {n:'Que fais-tu ?',t:{en:'What are you doing?',es:'¿Qué haces?',de:'Was machst du?',ru:'Chto ty delayesh?',zh:'Nǐ zài zuò shénme?',ja:'Nani shiteru?',ht:'Kisa w ap fè?'}},
+    {n:'Où es-tu ?',t:{en:'Where are you?',es:'¿Dónde estás?',de:'Wo bist du?',ru:'Gde ty?',zh:'Nǐ zài nǎlǐ?',ja:'Doko ni iru?',ht:'Ki kote ou ye?'}},
+    {n:'Tu viens ?',t:{en:'Are you coming?',es:'¿Vienes?',de:'Kommst du?',ru:'Ty pridyosh?',zh:'Nǐ lái ma?',ja:'Kuru no?',ht:'Ou ap vini?'}},
+    {n:'Tu es occupé ?',t:{en:'Are you busy?',es:'¿Estás ocupado?',de:'Bist du beschäftigt?',ru:'Ty zanyat?',zh:'Nǐ máng ma?',ja:'Isogashii?',ht:'Ou okipe?'}},
+    {n:'Tu peux m’aider ?',t:{en:'Can you help me?',es:'¿Puedes ayudarme?',de:'Kannst du mir helfen?',ru:'Ty mozhesh pomoch?',zh:'Nǐ néng bāng wǒ ma?',ja:'Tetsudatte?',ht:'Ou ka ede m?'}},
+    {n:'C’est combien ?',t:{en:'How much is it?',es:'¿Cuánto cuesta?',de:'Wie viel kostet es?',ru:'Skolko eto stoit?',zh:'Duōshao qián?',ja:'Ikura?',ht:'Konbyen sa koute?'}},
+    {n:'Tu habites où ?',t:{en:'Where do you live?',es:'¿Dónde vives?',de:'Wo wohnst du?',ru:'Gde ty zhivyosh?',zh:'Nǐ zhù zài nǎlǐ?',ja:'Doko ni sunderu?',ht:'Ki kote w ap viv?'}},
+    {n:'Tu travailles ?',t:{en:'Do you work?',es:'¿Trabajas?',de:'Arbeitest du?',ru:'Ty rabotayesh?',zh:'Nǐ gōngzuò ma?',ja:'Hataraiteru?',ht:'Ou travay?'}},
+    {n:'Tu as faim ?',t:{en:'Are you hungry?',es:'¿Tienes hambre?',de:'Hast du Hunger?',ru:'Ty goloden?',zh:'Nǐ è ma?',ja:'Onaka suita?',ht:'Ou grangou?'}},
+
+    {n:'Tu as soif ?',t:{en:'Are you thirsty?',es:'¿Tienes sed?',de:'Hast du Durst?',ru:'Ty khochesh pit?',zh:'Nǐ kě ma?',ja:'Nodo kawa ita?',ht:'Ou swaf?'}},
+    {n:'Tu viens d’où ?',t:{en:'Where are you from?',es:'¿De dónde eres?',de:'Woher kommst du?',ru:'Otkuda ty?',zh:'Nǐ cóng nǎlǐ lái?',ja:'Doko kara kita?',ht:'Ki kote ou soti?'}},
+    {n:'Quel âge as-tu ?',t:{en:'How old are you?',es:'¿Cuántos años tienes?',de:'Wie alt bist du?',ru:'Skolko tebe let?',zh:'Nǐ duō dà?',ja:'Nansai?',ht:'Ki laj ou?'}},
+    {n:'Tu comprends ?',t:{en:'Do you understand?',es:'¿Entiendes?',de:'Verstehst du?',ru:'Ty ponimayesh?',zh:'Nǐ dǒng ma?',ja:'Wakarimasu ka?',ht:'Ou konprann?'}},
+    {n:'Tu peux répéter ?',t:{en:'Can you repeat?',es:'¿Puedes repetir?',de:'Kannst du wiederholen?',ru:'Povtori.',zh:'Nǐ néng zài shuō yí cì ma?',ja:'Mō ichido?',ht:'Ou ka repete?'}},
+    {n:'Pourquoi ?',t:{en:'Why?',es:'¿Por qué?',de:'Warum?',ru:'Pochemu?',zh:'Wèishéme?',ja:'Naze?',ht:'Poukisa?'}},
+    {n:'Quand ?',t:{en:'When?',es:'¿Cuándo?',de:'Wann?',ru:'Kogda?',zh:'Shénme shíhou?',ja:'Itsu?',ht:'Kilè?'}},
+    {n:'Avec qui ?',t:{en:'With who?',es:'¿Con quién?',de:'Mit wem?',ru:'S kem?',zh:'Gēn shéi?',ja:'Dare to?',ht:'Ak kiyès?'}},
+    {n:'Tu es prêt ?',t:{en:'Are you ready?',es:'¿Estás listo?',de:'Bist du bereit?',ru:'Ty gotov?',zh:'Nǐ zhǔnbèi hǎo le ma?',ja:'Junbi ii?',ht:'Ou pare?'}},
+    {n:'On y va ?',t:{en:'Shall we go?',es:'¿Vamos?',de:'Gehen wir?',ru:'Poydyom?',zh:'Wǒmen zǒu ma?',ja:'Ikō?',ht:'Ann ale?'}},
+
+    {n:'Tu es sûr ?',t:{en:'Are you sure?',es:'¿Estás seguro?',de:'Bist du sicher?',ru:'Ty uveren?',zh:'Nǐ quèdìng ma?',ja:'Hontō?',ht:'Ou sèten?'}},
+    {n:'Ça marche ?',t:{en:'Does it work?',es:'¿Funciona?',de:'Funktioniert es?',ru:'Rabotaet?',zh:'Kěyǐ ma?',ja:'Daijōbu?',ht:'Sa mache?'}},
+    {n:'Tu veux venir ?',t:{en:'Do you want to come?',es:'¿Quieres venir?',de:'Willst du kommen?',ru:'Khochesh priyti?',zh:'Nǐ xiǎng lái ma?',ja:'Kuru?',ht:'Ou vle vini?'}},
+    {n:'Tu as du temps ?',t:{en:'Do you have time?',es:'¿Tienes tiempo?',de:'Hast du Zeit?',ru:'U tebya est vremya?',zh:'Nǐ yǒu shíjiān ma?',ja:'Jikan aru?',ht:'Ou gen tan?'}},
+    {n:'On se voit quand ?',t:{en:'When do we meet?',es:'¿Cuándo nos vemos?',de:'Wann sehen wir uns?',ru:'Kogda vstretimsya?',zh:'Wǒmen shénme shíhou jiàn?',ja:'Itsu au?',ht:'Kilè n ap wè?'}},
+  ]
+  },
+  reponses_rapides:{
+  fr:'Réponses rapides',
+  en:'Quick answers',
+  es:'Respuestas rápidas',
+  ht:'Repons rapid',
+  de:'Schnelle Antworten',
+  ru:'Bystrye otvety',
+  zh:'Kuai su huida',
+  ja:'Sugu no kotae',
+  icon:'⚡',
+  items:[
+    {n:'Oui.',t:{en:'Yes.',es:'Sí.',de:'Ja.',ru:'Da.',zh:'Shì.',ja:'Hai.',ht:'Wi.'}},
+    {n:'Non.',t:{en:'No.',es:'No.',de:'Nein.',ru:'Net.',zh:'Bù.',ja:'Iie.',ht:'Non.'}},
+    {n:'Peut-être.',t:{en:'Maybe.',es:'Tal vez.',de:'Vielleicht.',ru:'Mozhet byt.',zh:'Yexu.',ja:'Tabun.',ht:'Petèt.'}},
+    {n:'Bien sûr.',t:{en:'Of course.',es:'Claro.',de:'Natürlich.',ru:'Konechno.',zh:'Dangran.',ja:'Mochiron.',ht:'Byen sir.'}},
+    {n:'Pourquoi pas ?',t:{en:'Why not?',es:'¿Por qué no?',de:'Warum nicht?',ru:'Pochemu net?',zh:'Weishenme bu?',ja:'Naze dame?',ht:'Poukisa pa?'}},
+    {n:'Exact.',t:{en:'Exactly.',es:'Exacto.',de:'Genau.',ru:'Tochno.',zh:'Zhengque.',ja:'Seikaku.',ht:'Egzak.'}},
+    {n:'Pas vraiment.',t:{en:'Not really.',es:'No realmente.',de:'Nicht wirklich.',ru:'Ne sovsem.',zh:'Bu tai.',ja:'Amari.',ht:'Pa twòp.'}},
+    {n:'Je crois.',t:{en:'I think so.',es:'Creo que sí.',de:'Ich denke schon.',ru:'Dumayu da.',zh:'Wo xiang shi.',ja:'Sō omou.',ht:'M panse wi.'}},
+    {n:'Je ne crois pas.',t:{en:'I don’t think so.',es:'No lo creo.',de:'Ich glaube nicht.',ru:'Ne dumayu.',zh:'Wo bu renwei.',ja:'Sō wa omowanai.',ht:'M pa panse sa.'}},
+    {n:'D’accord.',t:{en:'Okay.',es:'De acuerdo.',de:'Okay.',ru:'Ladno.',zh:'Hao ba.',ja:'Ōkē.',ht:'Dakò.'}},
+    {n:'Pas de souci.',t:{en:'No worries.',es:'No hay problema.',de:'Kein Problem.',ru:'Bez problem.',zh:'Mei wenti.',ja:'Mondai nai.',ht:'Pa gen pwoblèm.'}},
+    {n:'Aucun problème.',t:{en:'No problem.',es:'Sin problema.',de:'Kein Problem.',ru:'Bez problem.',zh:'Mei wenti.',ja:'Daijobu.',ht:'Pa gen pwoblèm.'}},
+    {n:'Ça dépend.',t:{en:'It depends.',es:'Depende.',de:'Kommt darauf an.',ru:'Zavisit.',zh:'Kan qingkuang.',ja:'Baai ni yoru.',ht:'Sa depan.'}},
+    {n:'Bonne idée.',t:{en:'Good idea.',es:'Buena idea.',de:'Gute Idee.',ru:'Khoroshaya ideya.',zh:'Hao zhuyi.',ja:'Ii kangae.',ht:'Bon lide.'}},
+    {n:'Mauvaise idée.',t:{en:'Bad idea.',es:'Mala idea.',de:'Schlechte Idee.',ru:'Plokhaya ideya.',zh:'Huai zhuyi.',ja:'Yoku nai.',ht:'Move lide.'}},
+  ]
+  },
+conversation_amis:{
+  fr:'Entre amis',
+  en:'Friends conversation',
+  es:'Conversación entre amigos',
+  ht:'Pale ant zanmi',
+  de:'Freundesgespräch',
+  ru:'Razgovor druzey',
+  zh:'Pengyou duihua',
+  ja:'Tomodachi kaiwa',
+  icon:'🧑‍🤝‍🧑',
+  items:[
+    {n:'Quoi de neuf ?',t:{en:'What’s new?',es:'¿Qué hay de nuevo?',de:'Was gibt’s Neues?',ru:'Chto novogo?',zh:'You shenme xin de?',ja:'Nani ga atarashii?',ht:'Ki nouvèl?'}},
+    {n:'Tu fais quoi ?',t:{en:'What are you doing?',es:'¿Qué haces?',de:'Was machst du?',ru:'Chto delayesh?',zh:'Ni zai zuo shenme?',ja:'Nani shiteru?',ht:'Kisa w ap fè?'}},
+    {n:'Je m’ennuie.',t:{en:'I’m bored.',es:'Estoy aburrido.',de:'Mir ist langweilig.',ru:'Mne skuchno.',zh:'Wo hen wuliao.',ja:'Taikutsu.',ht:'M anwiye.'}},
+    {n:'On sort ?',t:{en:'Shall we go out?',es:'¿Salimos?',de:'Gehen wir raus?',ru:'Poydyom?',zh:'Chuqu ma?',ja:'Deru?',ht:'Ann soti?'}},
+    {n:'Allons manger.',t:{en:'Let’s eat.',es:'Vamos a comer.',de:'Lass uns essen.',ru:'Poydyom kushat.',zh:'Women chi fan ba.',ja:'Tabeyou.',ht:'Ann manje.'}},
+    {n:'Je suis fatigué.',t:{en:'I’m tired.',es:'Estoy cansado.',de:'Ich bin müde.',ru:'Ya ustal.',zh:'Wo lei le.',ja:'Tsukareta.',ht:'M bouke.'}},
+    {n:'Je suis prêt.',t:{en:'I’m ready.',es:'Estoy listo.',de:'Ich bin bereit.',ru:'Ya gotov.',zh:'Wo zhunbei hao le.',ja:'Junbi ok.',ht:'M pare.'}},
+    {n:'Attends-moi.',t:{en:'Wait for me.',es:'Espérame.',de:'Warte auf mich.',ru:'Podozhdi menya.',zh:'Deng wo.',ja:'Matte.',ht:'Tann mwen.'}},
+    {n:'Je viens.',t:{en:'I’m coming.',es:'Ya voy.',de:'Ich komme.',ru:'Ya idu.',zh:'Wo lai le.',ja:'Ima iku.',ht:'M ap vini.'}},
+    {n:'On se voit plus tard.',t:{en:'See you later.',es:'Nos vemos.',de:'Bis später.',ru:'Uvidimsya.',zh:'Dai hui jian.',ja:'Mata ato de.',ht:'N ap wè pita.'}},
+    {n:'Ça me va.',t:{en:'Works for me.',es:'Me parece bien.',de:'Passt mir.',ru:'Mne podkhodit.',zh:'Keyi.',ja:'Ii yo.',ht:'Sa bon pou mwen.'}},
+    {n:'Je passe te voir.',t:{en:'I’ll come see you.',es:'Paso a verte.',de:'Ich komme vorbei.',ru:'Ya zaydu.',zh:'Wo qu kan ni.',ja:'Yoru yo.',ht:'M ap pase wè ou.'}},
+    {n:'Bonne chance.',t:{en:'Good luck.',es:'Buena suerte.',de:'Viel Glück.',ru:'Udachi.',zh:'Zhuyun.',ja:'Ganbatte.',ht:'Bon chans.'}},
+    {n:'Prends soin de toi.',t:{en:'Take care.',es:'Cuídate.',de:'Pass auf dich auf.',ru:'Beregi sebya.',zh:'Zhaogu hao ziji.',ja:'Ki o tsukete.',ht:'Pran swen tèt ou.'}},
+    {n:'À demain.',t:{en:'See you tomorrow.',es:'Hasta mañana.',de:'Bis morgen.',ru:'Do zavtra.',zh:'Mingtian jian.',ja:'Mata ashita.',ht:'N a wè demen.'}},
+  ]
+      },
+  reactions_opinions:{
+  fr:'Réactions et opinions',
+  en:'Reactions and opinions',
+  es:'Reacciones y opiniones',
+  ht:'Reyaksyon ak opinyon',
+  de:'Reaktionen und Meinungen',
+  ru:'Reaktsii i mneniya',
+  zh:'Fanying he yijian',
+  ja:'Hannō to iken',
+  icon:'💭',
+  items:[
+
+    {n:'Je pense que oui.',t:{en:'I think so.',es:'Creo que sí.',de:'Ich denke schon.',ru:'Ya dumayu da.',zh:'Wo juede shi.',ja:'Sō omou.',ht:'M panse wi.'}},
+    {n:'Je ne pense pas.',t:{en:'I don’t think so.',es:'No lo creo.',de:'Ich glaube nicht.',ru:'Ya tak ne dumayu.',zh:'Wo bu renwei.',ja:'Sō wa omoimasen.',ht:'M pa panse sa.'}},
+    {n:'Je suis d’accord.',t:{en:'I agree.',es:'Estoy de acuerdo.',de:'Ich stimme zu.',ru:'Ya soglasen.',zh:'Wo tongyi.',ja:'Sansei.',ht:'M dakò.'}},
+    {n:'Je ne suis pas d’accord.',t:{en:'I disagree.',es:'No estoy de acuerdo.',de:'Ich stimme nicht zu.',ru:'Ya ne soglasen.',zh:'Wo bu tongyi.',ja:'Han tai.',ht:'M pa dakò.'}},
+    {n:'C’est possible.',t:{en:'It’s possible.',es:'Es posible.',de:'Es ist möglich.',ru:'Eto vozmozhno.',zh:'You keneng.',ja:'Areru.',ht:'Sa posib.'}},
+    {n:'C’est impossible.',t:{en:'It’s impossible.',es:'Es imposible.',de:'Es ist unmöglich.',ru:'Eto nevozmozhno.',zh:'Bu keneng.',ja:'Fukanō.',ht:'Sa pa posib.'}},
+    {n:'C’est vrai.',t:{en:'It’s true.',es:'Es verdad.',de:'Das ist wahr.',ru:'Eto pravda.',zh:'Zhe shi zhen de.',ja:'Hontō.',ht:'Se vre.'}},
+    {n:'C’est faux.',t:{en:'It’s false.',es:'Es falso.',de:'Das ist falsch.',ru:'Eto lozh.',zh:'Zhe shi jia de.',ja:'Uso.',ht:'Sa fo.'}},
+    {n:'Je suis sûr.',t:{en:'I’m sure.',es:'Estoy seguro.',de:'Ich bin sicher.',ru:'Ya uveren.',zh:'Wo queding.',ja:'Kakushin shiteru.',ht:'M sèten.'}},
+    {n:'Je ne suis pas sûr.',t:{en:'I’m not sure.',es:'No estoy seguro.',de:'Ich bin nicht sicher.',ru:'Ya ne uveren.',zh:'Wo bu queding.',ja:'Wakaranai.',ht:'M pa sèten.'}},
+
+    {n:'Bonne idée.',t:{en:'Good idea.',es:'Buena idea.',de:'Gute Idee.',ru:'Khoroshaya ideya.',zh:'Hao zhuyi.',ja:'Ii kangae.',ht:'Bon lide.'}},
+    {n:'Mauvaise idée.',t:{en:'Bad idea.',es:'Mala idea.',de:'Schlechte Idee.',ru:'Plokhaya ideya.',zh:'Huai zhuyi.',ja:'Yoku nai.',ht:'Move lide.'}},
+    {n:'Ça marche.',t:{en:'That works.',es:'Funciona.',de:'Das funktioniert.',ru:'Eto rabotaet.',zh:'Keyi.',ja:'Daijobu.',ht:'Sa mache.'}},
+    {n:'Ça ne marche pas.',t:{en:'That doesn’t work.',es:'No funciona.',de:'Das funktioniert nicht.',ru:'Eto ne rabotaet.',zh:'Bu xing.',ja:'Dame.',ht:'Sa pa mache.'}},
+    {n:'Exactement.',t:{en:'Exactly.',es:'Exactamente.',de:'Genau.',ru:'Tochno.',zh:'Zhengque.',ja:'Sono tōri.',ht:'Egzakteman.'}},
+    {n:'Pas vraiment.',t:{en:'Not really.',es:'No realmente.',de:'Nicht wirklich.',ru:'Ne sovsem.',zh:'Bu tai.',ja:'Amari.',ht:'Pa vrèman.'}},
+    {n:'Peut-être.',t:{en:'Maybe.',es:'Tal vez.',de:'Vielleicht.',ru:'Mozhet byt.',zh:'Yexu.',ja:'Tabun.',ht:'Petèt.'}},
+    {n:'Bien sûr.',t:{en:'Of course.',es:'Claro.',de:'Natürlich.',ru:'Konechno.',zh:'Dangran.',ja:'Mochiron.',ht:'Byen sir.'}},
+    {n:'Pourquoi pas ?',t:{en:'Why not?',es:'¿Por qué no?',de:'Warum nicht?',ru:'Pochemu net?',zh:'Weishenme bu?',ja:'Naze dame?',ht:'Poukisa pa?'}},
+    {n:'Je suppose.',t:{en:'I suppose.',es:'Supongo.',de:'Ich nehme an.',ru:'Ya polagayu.',zh:'Wo cai.',ja:'Tabun ne.',ht:'M sipoze.'}},
+
+    {n:'C’est logique.',t:{en:'It’s logical.',es:'Es lógico.',de:'Das ist logisch.',ru:'Eto logichno.',zh:'He li.',ja:'Gōriteki.',ht:'Sa lojik.'}},
+    {n:'Ça n’a pas de sens.',t:{en:'It makes no sense.',es:'No tiene sentido.',de:'Das ergibt keinen Sinn.',ru:'Net smysla.',zh:'Mei daoli.',ja:'Imi ga nai.',ht:'Sa pa gen sans.'}},
+    {n:'Je comprends.',t:{en:'I understand.',es:'Entiendo.',de:'Ich verstehe.',ru:'Ya ponimayu.',zh:'Wo mingbai.',ja:'Wakarimasu.',ht:'M konprann.'}},
+    {n:'Je ne comprends pas.',t:{en:'I don’t understand.',es:'No entiendo.',de:'Ich verstehe nicht.',ru:'Ya ne ponimayu.',zh:'Wo bu mingbai.',ja:'Wakarimasen.',ht:'M pa konprann.'}},
+    {n:'C’est intéressant.',t:{en:'It’s interesting.',es:'Es interesante.',de:'Das ist interessant.',ru:'Eto interesno.',zh:'You yisi.',ja:'Omoshiroi.',ht:'Sa enteresan.'}},
+    {n:'C’est bizarre.',t:{en:'That’s strange.',es:'Es extraño.',de:'Das ist seltsam.',ru:'Stranno.',zh:'Hen qiguai.',ja:'Hen da ne.',ht:'Sa dwòl.'}},
+    {n:'C’est incroyable.',t:{en:'That’s incredible.',es:'Increíble.',de:'Unglaublich.',ru:'Neveroyatno.',zh:'Buke siyi.',ja:'Shinjirarenai.',ht:'Sa enkwayab.'}},
+    {n:'C’est évident.',t:{en:'It’s obvious.',es:'Es obvio.',de:'Das ist offensichtlich.',ru:'Ochevidno.',zh:'Hen mingxian.',ja:'Akiraka.',ht:'Sa klè.'}},
+    {n:'Je suis surpris.',t:{en:'I’m surprised.',es:'Estoy sorprendido.',de:'Ich bin überrascht.',ru:'Ya udivlen.',zh:'Wo hen jingya.',ja:'Odorokita.',ht:'M sezi.'}},
+    {n:'Je suis impressionné.',t:{en:'I’m impressed.',es:'Estoy impresionado.',de:'Ich bin beeindruckt.',ru:'Ya vpechatlen.',zh:'Wo yinxiang shenke.',ja:'Kandō shita.',ht:'M enpresyone.'}},
+
+    {n:'Ça me plaît.',t:{en:'I like it.',es:'Me gusta.',de:'Es gefällt mir.',ru:'Mne nravitsya.',zh:'Wo xihuan.',ja:'Suki.',ht:'M renmen sa.'}},
+    {n:'Je déteste ça.',t:{en:'I hate it.',es:'Lo odio.',de:'Ich hasse es.',ru:'Ya nenavizhu eto.',zh:'Wo taoyan.',ja:'Kirai.',ht:'M rayi sa.'}},
+    {n:'C’est génial.',t:{en:'That’s awesome.',es:'Genial.',de:'Das ist super.',ru:'Eto zdorovo.',zh:'Tai bang le.',ja:'Sugoi.',ht:'Sa bon anpil.'}},
+    {n:'C’est nul.',t:{en:'That sucks.',es:'Es malo.',de:'Das ist schlecht.',ru:'Plokho.',zh:'Hen cha.',ja:'Yoku nai.',ht:'Sa pa bon.'}},
+    {n:'Je préfère ça.',t:{en:'I prefer this.',es:'Prefiero esto.',de:'Ich bevorzuge das.',ru:'Ya predpochitayu eto.',zh:'Wo geng xihuan zhe.',ja:'Kore ga ii.',ht:'M prefere sa.'}},
+    {n:'Ça va.',t:{en:'It’s okay.',es:'Está bien.',de:'Es geht.',ru:'Normalno.',zh:'Hai keyi.',ja:'Maa maa.',ht:'Sa pase.'}},
+    {n:'Pas mal.',t:{en:'Not bad.',es:'No está mal.',de:'Nicht schlecht.',ru:'Neplokho.',zh:'Bu cuo.',ja:'Warukunai.',ht:'Pa mal.'}},
+    {n:'Très bien.',t:{en:'Very good.',es:'Muy bien.',de:'Sehr gut.',ru:'Ochen khorosho.',zh:'Hen hao.',ja:'Totemo ii.',ht:'Trè byen.'}},
+    {n:'Ça suffit.',t:{en:'That’s enough.',es:'Es suficiente.',de:'Genug.',ru:'Khvatit.',zh:'Gou le.',ja:'Mō ii.',ht:'Sa sifi.'}},
+    {n:'C’est trop.',t:{en:'That’s too much.',es:'Es demasiado.',de:'Das ist zu viel.',ru:'Slishkom mnogo.',zh:'Tai duo.',ja:'Ōsugiru.',ht:'Sa tròp.'}}
+
+  ]
+  },
+questions_conversation:{
+  fr:'Questions de conversation',
+  en:'Conversation questions',
+  es:'Preguntas de conversación',
+  ht:'Kesyon konvèsasyon',
+  de:'Gesprächsfragen',
+  ru:'Voprosy dlya razgovora',
+  zh:'Duìhuà wèntí',
+  ja:'Kaiwa no shitsumon',
+  icon:'❓',
+  items:[
+
+    {n:'Comment tu t’appelles ?',t:{en:'What is your name?',es:'¿Cómo te llamas?',de:'Wie heißt du?',ru:'Kak tebya zovut?',zh:'Nǐ jiào shénme?',ja:'Namae wa?',ht:'Kijan ou rele?'}},
+    {n:'Tu viens d’où ?',t:{en:'Where are you from?',es:'¿De dónde eres?',de:'Woher kommst du?',ru:'Otkuda ty?',zh:'Nǐ cóng nǎlǐ lái?',ja:'Doko kara kita?',ht:'Ki kote ou soti?'}},
+    {n:'Quel âge as-tu ?',t:{en:'How old are you?',es:'¿Cuántos años tienes?',de:'Wie alt bist du?',ru:'Skolko tebe let?',zh:'Nǐ duō dà?',ja:'Nansai?',ht:'Ki laj ou?'}},
+    {n:'Où habites-tu ?',t:{en:'Where do you live?',es:'¿Dónde vives?',de:'Wo wohnst du?',ru:'Gde ty zhivyosh?',zh:'Nǐ zhù zài nǎlǐ?',ja:'Doko ni sunderu?',ht:'Ki kote w ap viv?'}},
+    {n:'Que fais-tu ?',t:{en:'What do you do?',es:'¿Qué haces?',de:'Was machst du?',ru:'Chto ty delayesh?',zh:'Nǐ zuò shénme?',ja:'Nani shiteru?',ht:'Kisa w ap fè?'}},
+
+    {n:'Tu travailles ?',t:{en:'Do you work?',es:'¿Trabajas?',de:'Arbeitest du?',ru:'Ty rabotayesh?',zh:'Nǐ gōngzuò ma?',ja:'Hataraiteru?',ht:'Ou travay?'}},
+    {n:'Tu étudies ?',t:{en:'Do you study?',es:'¿Estudias?',de:'Studierst du?',ru:'Ty uchishsya?',zh:'Nǐ xuéxí ma?',ja:'Benkyō shiteru?',ht:'Ou etidye?'}},
+    {n:'Tu es occupé ?',t:{en:'Are you busy?',es:'¿Estás ocupado?',de:'Bist du beschäftigt?',ru:'Ty zanyat?',zh:'Nǐ máng ma?',ja:'Isogashii?',ht:'Ou okipe?'}},
+    {n:'Tu as du temps ?',t:{en:'Do you have time?',es:'¿Tienes tiempo?',de:'Hast du Zeit?',ru:'U tebya est vremya?',zh:'Nǐ yǒu shíjiān ma?',ja:'Jikan aru?',ht:'Ou gen tan?'}},
+    {n:'Tu peux parler ?',t:{en:'Can you talk?',es:'¿Puedes hablar?',de:'Kannst du sprechen?',ru:'Mozhesh govorit?',zh:'Nǐ néng shuōhuà ma?',ja:'Hanseru?',ht:'Ou ka pale?'}},
+
+    {n:'Tu es libre ?',t:{en:'Are you free?',es:'¿Estás libre?',de:'Bist du frei?',ru:'Ty svoboden?',zh:'Nǐ yǒu kōng ma?',ja:'Hima?',ht:'Ou lib?'}},
+    {n:'Tu viens ?',t:{en:'Are you coming?',es:'¿Vienes?',de:'Kommst du?',ru:'Ty pridyosh?',zh:'Nǐ lái ma?',ja:'Kuru?',ht:'Ou ap vini?'}},
+    {n:'On se voit ?',t:{en:'Shall we meet?',es:'¿Nos vemos?',de:'Sehen wir uns?',ru:'Vstretimsya?',zh:'Jiàn miàn ma?',ja:'Au?',ht:'N ap wè?'}},
+    {n:'Quand ?',t:{en:'When?',es:'¿Cuándo?',de:'Wann?',ru:'Kogda?',zh:'Shénme shíhou?',ja:'Itsu?',ht:'Kilè?'}},
+    {n:'Où ?',t:{en:'Where?',es:'¿Dónde?',de:'Wo?',ru:'Gde?',zh:'Nǎlǐ?',ja:'Doko?',ht:'Ki kote?'}},
+
+    {n:'Pourquoi ?',t:{en:'Why?',es:'¿Por qué?',de:'Warum?',ru:'Pochemu?',zh:'Wèishéme?',ja:'Naze?',ht:'Poukisa?'}},
+    {n:'Avec qui ?',t:{en:'With who?',es:'¿Con quién?',de:'Mit wem?',ru:'S kem?',zh:'Gēn shéi?',ja:'Dare to?',ht:'Ak kiyès?'}},
+    {n:'Combien ?',t:{en:'How many?',es:'¿Cuántos?',de:'Wie viele?',ru:'Skolko?',zh:'Duōshao?',ja:'Ikutsu?',ht:'Konbyen?'}},
+    {n:'Combien ça coûte ?',t:{en:'How much is it?',es:'¿Cuánto cuesta?',de:'Wie viel kostet das?',ru:'Skolko eto stoit?',zh:'Duōshao qián?',ja:'Ikura?',ht:'Konbyen sa koute?'}},
+    {n:'C’est loin ?',t:{en:'Is it far?',es:'¿Está lejos?',de:'Ist es weit?',ru:'Eto daleko?',zh:'Yuǎn ma?',ja:'Tōi?',ht:'Li lwen?'}},
+
+    {n:'C’est près ?',t:{en:'Is it near?',es:'¿Está cerca?',de:'Ist es nah?',ru:'Blizko?',zh:'Jìn ma?',ja:'Chikai?',ht:'Li pre?'}},
+    {n:'Tu comprends ?',t:{en:'Do you understand?',es:'¿Entiendes?',de:'Verstehst du?',ru:'Ty ponimayesh?',zh:'Nǐ dǒng ma?',ja:'Wakarimasu ka?',ht:'Ou konprann?'}},
+    {n:'Tu peux répéter ?',t:{en:'Can you repeat?',es:'¿Puedes repetir?',de:'Kannst du wiederholen?',ru:'Povtori.',zh:'Nǐ néng zài shuō yí cì ma?',ja:'Mō ichido?',ht:'Ou ka repete?'}},
+    {n:'Tu peux expliquer ?',t:{en:'Can you explain?',es:'¿Puedes explicar?',de:'Kannst du erklären?',ru:'Mozhesh obyasnit?',zh:'Nǐ néng jiěshì ma?',ja:'Setsumei dekiru?',ht:'Ou ka eksplike?'}},
+    {n:'Tu sais ?',t:{en:'Do you know?',es:'¿Sabes?',de:'Weißt du?',ru:'Ty znayesh?',zh:'Nǐ zhīdào ma?',ja:'Shitteru?',ht:'Ou konnen?'}},
+
+    {n:'Tu te souviens ?',t:{en:'Do you remember?',es:'¿Recuerdas?',de:'Erinnerst du dich?',ru:'Ty pomnish?',zh:'Nǐ jìde ma?',ja:'Oboeteru?',ht:'Ou sonje?'}},
+    {n:'Tu es prêt ?',t:{en:'Are you ready?',es:'¿Estás listo?',de:'Bist du bereit?',ru:'Ty gotov?',zh:'Nǐ zhǔnbèi hǎo le ma?',ja:'Junbi ii?',ht:'Ou pare?'}},
+    {n:'On commence ?',t:{en:'Shall we start?',es:'¿Empezamos?',de:'Fangen wir an?',ru:'Nachnyom?',zh:'Kāishǐ ma?',ja:'Hajimeru?',ht:'Ann kòmanse?'}},
+    {n:'On y va ?',t:{en:'Shall we go?',es:'¿Vamos?',de:'Gehen wir?',ru:'Poydyom?',zh:'Zǒu ma?',ja:'Ikō?',ht:'Ann ale?'}},
+    {n:'Tu veux venir ?',t:{en:'Do you want to come?',es:'¿Quieres venir?',de:'Willst du kommen?',ru:'Khochesh priyti?',zh:'Nǐ xiǎng lái ma?',ja:'Kuru?',ht:'Ou vle vini?'}},
+
+    {n:'Tu veux manger ?',t:{en:'Do you want to eat?',es:'¿Quieres comer?',de:'Willst du essen?',ru:'Khochesh est?',zh:'Nǐ xiǎng chī ma?',ja:'Taberu?',ht:'Ou vle manje?'}},
+    {n:'Tu veux boire ?',t:{en:'Do you want to drink?',es:'¿Quieres beber?',de:'Willst du trinken?',ru:'Khochesh pit?',zh:'Nǐ xiǎng hē ma?',ja:'Nomu?',ht:'Ou vle bwè?'}},
+    {n:'Tu as faim ?',t:{en:'Are you hungry?',es:'¿Tienes hambre?',de:'Hast du Hunger?',ru:'Ty goloden?',zh:'Nǐ è ma?',ja:'Onaka suita?',ht:'Ou grangou?'}},
+    {n:'Tu as soif ?',t:{en:'Are you thirsty?',es:'¿Tienes sed?',de:'Hast du Durst?',ru:'Ty khochesh pit?',zh:'Nǐ kě ma?',ja:'Nodo kawa ita?',ht:'Ou swaf?'}},
+    {n:'Tu es fatigué ?',t:{en:'Are you tired?',es:'¿Estás cansado?',de:'Bist du müde?',ru:'Ty ustal?',zh:'Nǐ lèi ma?',ja:'Tsukareta?',ht:'Ou bouke?'}},
+
+    {n:'Tu es malade ?',t:{en:'Are you sick?',es:'¿Estás enfermo?',de:'Bist du krank?',ru:'Ty bolen?',zh:'Nǐ shēngbìng ma?',ja:'Byōki?',ht:'Ou malad?'}},
+    {n:'Tu veux partir ?',t:{en:'Do you want to leave?',es:'¿Quieres irte?',de:'Willst du gehen?',ru:'Khochesh uyti?',zh:'Nǐ xiǎng zǒu ma?',ja:'Kaeru?',ht:'Ou vle ale?'}},
+    {n:'Tu restes ?',t:{en:'Are you staying?',es:'¿Te quedas?',de:'Bleibst du?',ru:'Ty ostaneshsya?',zh:'Nǐ liú xià ma?',ja:'Iru?',ht:'Ou rete?'}},
+    {n:'On attend ?',t:{en:'Shall we wait?',es:'¿Esperamos?',de:'Warten wir?',ru:'Podozhdyom?',zh:'Děng ma?',ja:'Matsu?',ht:'Ann tann?'}},
+    {n:'On part ?',t:{en:'Shall we leave?',es:'¿Nos vamos?',de:'Gehen wir?',ru:'Poydyom?',zh:'Zǒu ba?',ja:'Iku?',ht:'Ann pati?'}},
+
+    {n:'Tu es sûr ?',t:{en:'Are you sure?',es:'¿Estás seguro?',de:'Bist du sicher?',ru:'Ty uveren?',zh:'Nǐ quèdìng ma?',ja:'Hontō?',ht:'Ou sèten?'}},
+    {n:'Tu es sérieux ?',t:{en:'Are you serious?',es:'¿En serio?',de:'Ernsthaft?',ru:'Ty seryozno?',zh:'Zhēn de ma?',ja:'Majide?',ht:'Ou serye?'}},
+    {n:'Tu plaisantes ?',t:{en:'Are you joking?',es:'¿Estás bromeando?',de:'Machst du Witze?',ru:'Ty shutish?',zh:'Nǐ kāiwánxiào ma?',ja:'Jōdan?',ht:'Ou ap jwe?'}},
+    {n:'Tu es content ?',t:{en:'Are you happy?',es:'¿Estás feliz?',de:'Bist du glücklich?',ru:'Ty schastliv?',zh:'Nǐ kāixīn ma?',ja:'Ureshii?',ht:'Ou kontan?'}},
+    {n:'Tu es triste ?',t:{en:'Are you sad?',es:'¿Estás triste?',de:'Bist du traurig?',ru:'Ty grusten?',zh:'Nǐ shāngxīn ma?',ja:'Kanashii?',ht:'Ou tris?'}},
+
+    {n:'Tu as peur ?',t:{en:'Are you scared?',es:'¿Tienes miedo?',de:'Hast du Angst?',ru:'Ty boishsya?',zh:'Nǐ pà ma?',ja:'Kowai?',ht:'Ou pè?'}},
+    {n:'Tu as compris ?',t:{en:'Did you understand?',es:'¿Entendiste?',de:'Hast du verstanden?',ru:'Ty ponyal?',zh:'Nǐ míngbai le ma?',ja:'Wakatta?',ht:'Ou konprann?'}},
+    {n:'Tu as fini ?',t:{en:'Did you finish?',es:'¿Terminaste?',de:'Bist du fertig?',ru:'Ty zakonchil?',zh:'Nǐ wánchéng le ma?',ja:'Owari?',ht:'Ou fini?'}},
+    {n:'Tu es là ?',t:{en:'Are you there?',es:'¿Estás ahí?',de:'Bist du da?',ru:'Ty tam?',zh:'Nǐ zài ma?',ja:'Iru?',ht:'Ou la?'}},
+    {n:'Tu m’entends ?',t:{en:'Can you hear me?',es:'¿Me oyes?',de:'Hörst du mich?',ru:'Ty menya slyshish?',zh:'Nǐ tīng dào ma?',ja:'Kikoeru?',ht:'Ou tande mwen?'}}
+
+  ]
+  },
+  voyage_deplacement:{
+  fr:'Voyage et déplacement',
+  en:'Travel and transport',
+  es:'Viaje y transporte',
+  ht:'Vwayaj ak deplasman',
+  de:'Reise und Transport',
+  ru:'Puteshestvie i transport',
+  zh:'Lǚxíng hé jiāotōng',
+  ja:'Ryokō to kōtsū',
+  icon:'✈️',
+  items:[
+
+    {n:'Je voyage.',t:{en:'I travel.',es:'Viajo.',de:'Ich reise.',ru:'Ya puteshestvuyu.',zh:'Wǒ lǚxíng.',ja:'Ryokō suru.',ht:'M ap vwayaje.'}},
+    {n:'Je pars.',t:{en:'I leave.',es:'Me voy.',de:'Ich gehe.',ru:'Ya ukhodyu.',zh:'Wǒ zǒu.',ja:'Deru.',ht:'M pati.'}},
+    {n:'Je reviens.',t:{en:'I return.',es:'Regreso.',de:'Ich komme zurück.',ru:'Ya vozvrashchayus.',zh:'Wǒ huílái.',ja:'Modoru.',ht:'M tounen.'}},
+    {n:'Où est la gare ?',t:{en:'Where is the station?',es:'¿Dónde está la estación?',de:'Wo ist der Bahnhof?',ru:'Gde vokzal?',zh:'Chēzhàn zài nǎlǐ?',ja:'Eki wa doko?',ht:'Ki kote estasyon an?'}},
+    {n:'Où est l’aéroport ?',t:{en:'Where is the airport?',es:'¿Dónde está el aeropuerto?',de:'Wo ist der Flughafen?',ru:'Gde aeroport?',zh:'Jīchǎng zài nǎlǐ?',ja:'Kūkō wa doko?',ht:'Ki kote ayewopò a?'}},
+
+    {n:'Je cherche un taxi.',t:{en:'I need a taxi.',es:'Busco taxi.',de:'Ich brauche ein Taxi.',ru:'Mne nuzhen taksi.',zh:'Wǒ yào chūzūchē.',ja:'Takushī hitsuyō.',ht:'M bezwen taksi.'}},
+    {n:'Prenons le bus.',t:{en:'Let’s take the bus.',es:'Tomemos el bus.',de:'Nehmen wir den Bus.',ru:'Poydyom na avtobus.',zh:'Zuò gōngjiāo.',ja:'Bas ni noru.',ht:'Ann pran bis.'}},
+    {n:'Prenons le train.',t:{en:'Let’s take the train.',es:'Tomemos el tren.',de:'Nehmen wir den Zug.',ru:'Poydyom na poyezd.',zh:'Zuò huǒchē.',ja:'Densha.',ht:'Ann pran tren.'}},
+    {n:'Je marche.',t:{en:'I walk.',es:'Camino.',de:'Ich gehe zu Fuß.',ru:'Ya idu.',zh:'Wǒ zǒu lù.',ja:'Aruku.',ht:'M ap mache.'}},
+    {n:'C’est loin.',t:{en:'It’s far.',es:'Está lejos.',de:'Es ist weit.',ru:'Daleko.',zh:'Hěn yuǎn.',ja:'Tōi.',ht:'Li lwen.'}},
+
+    {n:'C’est près.',t:{en:'It’s near.',es:'Está cerca.',de:'Es ist nah.',ru:'Blizko.',zh:'Hěn jìn.',ja:'Chikai.',ht:'Li pre.'}},
+    {n:'Tourne à gauche.',t:{en:'Turn left.',es:'Gira a la izquierda.',de:'Links abbiegen.',ru:'Povernite nalevo.',zh:'Zuǒ zhuǎn.',ja:'Hidari.',ht:'Vire agoch.'}},
+    {n:'Tourne à droite.',t:{en:'Turn right.',es:'Gira a la derecha.',de:'Rechts abbiegen.',ru:'Povernite napravo.',zh:'Yòu zhuǎn.',ja:'Migi.',ht:'Vire adwat.'}},
+    {n:'Continue tout droit.',t:{en:'Go straight.',es:'Sigue recto.',de:'Geradeaus.',ru:'Idite pryamo.',zh:'Yīzhí zǒu.',ja:'Massugu.',ht:'Ale dwat.'}},
+    {n:'Je suis perdu.',t:{en:'I’m lost.',es:'Estoy perdido.',de:'Ich bin verloren.',ru:'Ya poteryalsya.',zh:'Wǒ mílù le.',ja:'Mayotta.',ht:'M pèdi.'}},
+{n:'Aide-moi.',t:{en:'Help me.',es:'Ayúdame.',de:'Hilf mir.',ru:'Pomogi mne.',zh:'Bāng wǒ.',ja:'Tetsudatte.',ht:'Ede m.'}},
+    {n:'Merci.',t:{en:'Thank you.',es:'Gracias.',de:'Danke.',ru:'Spasibo.',zh:'Xièxiè.',ja:'Arigatō.',ht:'Mèsi.'}},
+    {n:'Merci beaucoup.',t:{en:'Thank you very much.',es:'Muchas gracias.',de:'Vielen Dank.',ru:'Bolshoe spasibo.',zh:'Fēicháng gǎnxiè.',ja:'Dōmo arigatō.',ht:'Mèsi anpil.'}},
+    {n:'De rien.',t:{en:'You’re welcome.',es:'De nada.',de:'Bitte.',ru:'Pozhaluysta.',zh:'Bù kèqì.',ja:'Dōitashimashite.',ht:'Pa gen pwoblèm.'}},
+    {n:'Bonne route.',t:{en:'Have a good trip.',es:'Buen viaje.',de:'Gute Reise.',ru:'Schastlivogo puti.',zh:'Lǚtú yúkuài.',ja:'Yoi tabi.',ht:'Bon vwayaj.'}}
+  ]
+  },
+  conversation_sociale:{
+  fr:'Conversation sociale',
+  en:'Social conversation',
+  es:'Conversación social',
+  ht:'Konvèsasyon sosyal',
+  de:'Soziale Unterhaltung',
+  ru:'Sotsialny razgovor',
+  zh:'Shèjiāo duìhuà',
+  ja:'Shakai kaiwa',
+  icon:'💬',
+  items:[
+
+    {n:'Ça fait longtemps.',t:{en:'Long time no see.',es:'Cuánto tiempo.',de:'Lange nicht gesehen.',ru:'Davno ne videlis.',zh:'Hǎojiǔ bú jiàn.',ja:'Hisashiburi.',ht:'Sa fè lontan.'}},
+    {n:'Quoi de neuf ?',t:{en:'What’s new?',es:'¿Qué hay de nuevo?',de:'Was gibt’s Neues?',ru:'Chto novogo?',zh:'Yǒu shénme xīnxiān shì?',ja:'Nani ga atarashii?',ht:'Kisa ki nouvo?'}},
+    {n:'Comment se passe ta journée ?',t:{en:'How is your day going?',es:'¿Cómo va tu día?',de:'Wie läuft dein Tag?',ru:'Kak prokhodit den?',zh:'Nǐ de yītiān zěnme yàng?',ja:'Kyō wa dō?',ht:'Kijan jounen w ye?'}},
+    {n:'Je suis content de te voir.',t:{en:'I am happy to see you.',es:'Me alegra verte.',de:'Ich freue mich dich zu sehen.',ru:'Rad tebya videt.',zh:'Hěn gāoxìng jiàn dào nǐ.',ja:'Aete ureshii.',ht:'M kontan wè w.'}},
+    {n:'Moi aussi.',t:{en:'Me too.',es:'Yo también.',de:'Ich auch.',ru:'Ya tozhe.',zh:'Wǒ yě shì.',ja:'Watashi mo.',ht:'Mwen tou.'}},
+
+    {n:'Je vois.',t:{en:'I see.',es:'Ya veo.',de:'Ich verstehe.',ru:'Ponimayu.',zh:'Wǒ míngbai.',ja:'Sō ka.',ht:'M wè sa.'}},
+    {n:'C’est intéressant.',t:{en:'That’s interesting.',es:'Eso es interesante.',de:'Das ist interessant.',ru:'Eto interesno.',zh:'Hěn yǒu yìsi.',ja:'Omoshiroi.',ht:'Sa enteresan.'}},
+    {n:'Tu plaisantes ?',t:{en:'Are you joking?',es:'¿Estás bromeando?',de:'Machst du Witze?',ru:'Ty shutish?',zh:'Nǐ kāiwánxiào ma?',ja:'Jōdan?',ht:'Ou ap blag?'}},
+    {n:'Je comprends.',t:{en:'I understand.',es:'Entiendo.',de:'Ich verstehe.',ru:'Ya ponimayu.',zh:'Wǒ dǒng.',ja:'Wakarimasu.',ht:'M konprann.'}},
+    {n:'Je ne comprends pas.',t:{en:'I don’t understand.',es:'No entiendo.',de:'Ich verstehe nicht.',ru:'Ya ne ponimayu.',zh:'Wǒ bù dǒng.',ja:'Wakaranai.',ht:'M pa konprann.'}},
+
+    {n:'Explique-moi.',t:{en:'Explain to me.',es:'Explícame.',de:'Erklär mir.',ru:'Obyasni.',zh:'Gěi wǒ jiěshì.',ja:'Setsumei shite.',ht:'Eksplike m.'}},
+    {n:'C’est logique.',t:{en:'That makes sense.',es:'Tiene sentido.',de:'Das ergibt Sinn.',ru:'Eto logichno.',zh:'Hěn hé lǐ.',ja:'Narubodo.',ht:'Sa fè sans.'}},
+    {n:'Je suis d’accord.',t:{en:'I agree.',es:'Estoy de acuerdo.',de:'Ich stimme zu.',ru:'Ya soglasen.',zh:'Wǒ tóngyì.',ja:'Dōi shimasu.',ht:'M dakò.'}},
+    {n:'Pas vraiment.',t:{en:'Not really.',es:'No realmente.',de:'Nicht wirklich.',ru:'Ne sovsem.',zh:'Bù tài shì.',ja:'Amari.',ht:'Pa vrèman.'}},
+    {n:'Ça dépend.',t:{en:'It depends.',es:'Depende.',de:'Es kommt darauf an.',ru:'Zavisit.',zh:'Kàn qíngkuàng.',ja:'Baai ni yoru.',ht:'Sa depan.'}},
+
+    {n:'Je pense pareil.',t:{en:'I think the same.',es:'Pienso igual.',de:'Ich denke genauso.',ru:'Ya dumayu tak zhe.',zh:'Wǒ yě zhème xiǎng.',ja:'Onaji kangae.',ht:'M panse menm jan.'}},
+    {n:'Bonne idée.',t:{en:'Good idea.',es:'Buena idea.',de:'Gute Idee.',ru:'Khoroshaya ideya.',zh:'Hǎo zhǔyi.',ja:'Ii kangae.',ht:'Bon lide.'}},
+    {n:'Mauvaise idée.',t:{en:'Bad idea.',es:'Mala idea.',de:'Schlechte Idee.',ru:'Plokhaya ideya.',zh:'Bù hǎo de zhǔyi.',ja:'Yoku nai.',ht:'Move lide.'}},
+    {n:'On verra.',t:{en:'We will see.',es:'Ya veremos.',de:'Wir werden sehen.',ru:'Posmotrim.',zh:'Wǒmen zài kàn.',ja:'Mite miyō.',ht:'N ap wè.'}},
+    {n:'Pourquoi pas ?',t:{en:'Why not?',es:'¿Por qué no?',de:'Warum nicht?',ru:'Pochemu net?',zh:'Wèishéme bù?',ja:'Ii yo.',ht:'Poukisa pa?'}},
+
+    {n:'Bonne question.',t:{en:'Good question.',es:'Buena pregunta.',de:'Gute Frage.',ru:'Khoroshiy vopros.',zh:'Hǎo wèntí.',ja:'Ii shitsumon.',ht:'Bon kesyon.'}},
+    {n:'Je n’en ai aucune idée.',t:{en:'I have no idea.',es:'No tengo idea.',de:'Keine Ahnung.',ru:'Ne znayu.',zh:'Wǒ bù zhīdào.',ja:'Wakaranai.',ht:'M pa gen ide.'}},
+    {n:'C’est possible.',t:{en:'It’s possible.',es:'Es posible.',de:'Es ist möglich.',ru:'Vozmozhno.',zh:'Kěnéng.',ja:'Kanō.',ht:'Sa posib.'}},
+    {n:'C’est impossible.',t:{en:'It’s impossible.',es:'Es imposible.',de:'Unmöglich.',ru:'Nevozmozhno.',zh:'Bù kěnéng.',ja:'Fukanō.',ht:'Sa enposib.'}},
+    {n:'Je suis surpris.',t:{en:'I am surprised.',es:'Estoy sorprendido.',de:'Ich bin überrascht.',ru:'Ya udivlyon.',zh:'Wǒ hěn jīngyà.',ja:'Odoroki.',ht:'M sezi.'}},
+
+    {n:'Ça me choque.',t:{en:'That shocks me.',es:'Eso me sorprende.',de:'Das schockiert mich.',ru:'Eto menya shokiruet.',zh:'Zhè ràng wǒ jīngyà.',ja:'Odoroki da.',ht:'Sa choke m.'}},
+    {n:'C’est drôle.',t:{en:'That’s funny.',es:'Es gracioso.',de:'Das ist lustig.',ru:'Eto smeshno.',zh:'Hěn hǎoxiào.',ja:'Omoshiroi.',ht:'Sa komik.'}},
+    {n:'C’est sérieux.',t:{en:'It’s serious.',es:'Es serio.',de:'Es ist ernst.',ru:'Eto seryozno.',zh:'Hěn yánzhòng.',ja:'Shinken.',ht:'Sa serye.'}},
+    {n:'Je suis d’accord avec toi.',t:{en:'I agree with you.',es:'Estoy de acuerdo contigo.',de:'Ich stimme dir zu.',ru:'Ya soglasen s toboy.',zh:'Wǒ tóngyì nǐ.',ja:'Anata ni dōi.',ht:'M dakò avè w.'}},
+    {n:'Pas du tout.',t:{en:'Not at all.',es:'Para nada.',de:'Überhaupt nicht.',ru:'Vovse net.',zh:'Yīdiǎn yě bù.',ja:'Mattaku.',ht:'Ditou pa.'}},
+
+    {n:'Je suis curieux.',t:{en:'I am curious.',es:'Tengo curiosidad.',de:'Ich bin neugierig.',ru:'Mne interesno.',zh:'Wǒ hěn hàoqí.',ja:'Kōkishin.',ht:'M kirye.'}},
+    {n:'Je suis fatigué.',t:{en:'I am tired.',es:'Estoy cansado.',de:'Ich bin müde.',ru:'Ya ustal.',zh:'Wǒ lèi le.',ja:'Tsukareta.',ht:'M fatige.'}},
+    {n:'Je suis occupé.',t:{en:'I am busy.',es:'Estoy ocupado.',de:'Ich bin beschäftigt.',ru:'Ya zanyat.',zh:'Wǒ máng.',ja:'Isogashii.',ht:'M okipe.'}},
+    {n:'Je suis libre.',t:{en:'I am free.',es:'Estoy libre.',de:'Ich bin frei.',ru:'Ya svoboden.',zh:'Wǒ yǒu kòng.',ja:'Hima.',ht:'M lib.'}},
+    {n:'Ça me plaît.',t:{en:'I like it.',es:'Me gusta.',de:'Es gefällt mir.',ru:'Mne nravitsya.',zh:'Wǒ xǐhuān.',ja:'Suki.',ht:'M renmen sa.'}},
+
+    {n:'Je n’aime pas.',t:{en:'I don’t like.',es:'No me gusta.',de:'Ich mag nicht.',ru:'Mne ne nravitsya.',zh:'Wǒ bù xǐhuān.',ja:'Suki janai.',ht:'M pa renmen.'}},
+    {n:'Ça m’intéresse.',t:{en:'That interests me.',es:'Me interesa.',de:'Das interessiert mich.',ru:'Mne eto interesno.',zh:'Wǒ gǎn xìngqù.',ja:'Kanshin ga aru.',ht:'Sa enterese m.'}},
+    {n:'Ça ne m’intéresse pas.',t:{en:'That does not interest me.',es:'No me interesa.',de:'Das interessiert mich nicht.',ru:'Mne eto ne interesno.',zh:'Wǒ bù gǎn xìngqù.',ja:'Kanshin nai.',ht:'Sa pa enterese m.'}},
+    {n:'Je suis d’accord avec ça.',t:{en:'I agree with that.',es:'Estoy de acuerdo con eso.',de:'Ich stimme dem zu.',ru:'Ya s etim soglasen.',zh:'Wǒ tóngyì zhè gè.',ja:'Sore ni dōi.',ht:'M dakò ak sa.'}},
+    {n:'Je ne suis pas sûr.',t:{en:'I am not sure.',es:'No estoy seguro.',de:'Ich bin nicht sicher.',ru:'Ya ne uveren.',zh:'Wǒ bù quèdìng.',ja:'Jishin nai.',ht:'M pa sèten.'}},
+
+    {n:'Ça peut arriver.',t:{en:'It can happen.',es:'Puede pasar.',de:'Das kann passieren.',ru:'Takoe byvaet.',zh:'Kěnéng huì fāshēng.',ja:'Ari eru.',ht:'Sa ka rive.'}},
+    {n:'Tu crois ?',t:{en:'Do you think so?',es:'¿Tú crees?',de:'Glaubst du?',ru:'Ty dumayesh?',zh:'Nǐ juéde ma?',ja:'Sō omou?',ht:'Ou kwè sa?'}},
+    {n:'Je pense que oui.',t:{en:'I think yes.',es:'Creo que sí.',de:'Ich denke ja.',ru:'Dumayu da.',zh:'Wǒ juéde shì.',ja:'Hai da to omou.',ht:'M panse wi.'}},
+    {n:'Je pense que non.',t:{en:'I think no.',es:'Creo que no.',de:'Ich denke nein.',ru:'Dumayu net.',zh:'Wǒ juéde bú shì.',ja:'Iya da to omou.',ht:'M panse non.'}},
+    {n:'C’est évident.',t:{en:'It is obvious.',es:'Es obvio.',de:'Es ist offensichtlich.',ru:'Eto ochevidno.',zh:'Hěn míngxiǎn.',ja:'Akiraka.',ht:'Sa evidan.'}}
+
+  ]
+},
+  vie_quotidienne:{
+  fr:'Vie quotidienne',
+  en:'Daily life',
+  es:'Vida diaria',
+  ht:'Lavi chak jou',
+  de:'Alltag',
+  ru:'Povsednevnaya zhizn',
+  zh:'Rìcháng shēnghuó',
+  ja:'Nichijō seikatsu',
+  icon:'🏠',
+  items:[
+
+    {n:'Je me réveille.',t:{en:'I wake up.',es:'Me despierto.',de:'Ich wache auf.',ru:'Ya prosypayus.',zh:'Wǒ qǐchuáng.',ja:'Okiru.',ht:'M leve.'}},
+    {n:'Je me lève.',t:{en:'I get up.',es:'Me levanto.',de:'Ich stehe auf.',ru:'Ya vstayu.',zh:'Wǒ qǐlái.',ja:'Okinaru.',ht:'M leve kanpe.'}},
+    {n:'Je me douche.',t:{en:'I take a shower.',es:'Me ducho.',de:'Ich dusche.',ru:'Ya prinimayu dush.',zh:'Wǒ xǐ zǎo.',ja:'Shawā o abiru.',ht:'M benyen.'}},
+    {n:'Je me brosse les dents.',t:{en:'I brush my teeth.',es:'Me cepillo los dientes.',de:'Ich putze mir die Zähne.',ru:'Ya chishchu zuby.',zh:'Wǒ shuā yá.',ja:'Ha o migaku.',ht:'M bwose dan m.'}},
+    {n:'Je m’habille.',t:{en:'I get dressed.',es:'Me visto.',de:'Ich ziehe mich an.',ru:'Ya odevayus.',zh:'Wǒ chuān yīfu.',ja:'Fuku o kiru.',ht:'M abiye.'}},
+
+    {n:'Je prépare le petit déjeuner.',t:{en:'I prepare breakfast.',es:'Preparo el desayuno.',de:'Ich bereite Frühstück vor.',ru:'Ya gotovlyu zavtrak.',zh:'Wǒ zhǔnbèi zǎocān.',ja:'Chōshoku o junbi.',ht:'M prepare dejene.'}},
+    {n:'Je mange.',t:{en:'I eat.',es:'Como.',de:'Ich esse.',ru:'Ya yem.',zh:'Wǒ chī.',ja:'Taberu.',ht:'M manje.'}},
+    {n:'Je bois de l’eau.',t:{en:'I drink water.',es:'Bebo agua.',de:'Ich trinke Wasser.',ru:'Ya pyu vodu.',zh:'Wǒ hē shuǐ.',ja:'Mizu o nomu.',ht:'M bwè dlo.'}},
+    {n:'Je bois du café.',t:{en:'I drink coffee.',es:'Bebo café.',de:'Ich trinke Kaffee.',ru:'Ya pyu kofe.',zh:'Wǒ hē kāfēi.',ja:'Kōhī o nomu.',ht:'M bwè kafe.'}},
+    {n:'Je pars travailler.',t:{en:'I go to work.',es:'Voy al trabajo.',de:'Ich gehe zur Arbeit.',ru:'Ya idu na rabotu.',zh:'Wǒ qù gōngzuò.',ja:'Shigoto ni iku.',ht:'M ale travay.'}},
+
+    {n:'Je prends le bus.',t:{en:'I take the bus.',es:'Tomo el autobús.',de:'Ich nehme den Bus.',ru:'Ya edu na avtobuse.',zh:'Wǒ zuò gōngjiāo.',ja:'Basu ni noru.',ht:'M pran bis.'}},
+    {n:'Je prends un taxi.',t:{en:'I take a taxi.',es:'Tomo un taxi.',de:'Ich nehme ein Taxi.',ru:'Ya beru taksi.',zh:'Wǒ dǎ chē.',ja:'Takushī o tsukau.',ht:'M pran taksi.'}},
+    {n:'Je conduis.',t:{en:'I drive.',es:'Conduzco.',de:'Ich fahre.',ru:'Ya vozhú.',zh:'Wǒ kāichē.',ja:'Untensuru.',ht:'M kondwi.'}},
+    {n:'Je marche.',t:{en:'I walk.',es:'Camino.',de:'Ich gehe zu Fuß.',ru:'Ya idu peshkom.',zh:'Wǒ zǒu lù.',ja:'Aruiku.',ht:'M mache.'}},
+    {n:'Je travaille.',t:{en:'I work.',es:'Trabajo.',de:'Ich arbeite.',ru:'Ya rabotayu.',zh:'Wǒ gōngzuò.',ja:'Hataraku.',ht:'M travay.'}},
+
+    {n:'Je fais une pause.',t:{en:'I take a break.',es:'Tomo un descanso.',de:'Ich mache eine Pause.',ru:'Ya delayu pereryv.',zh:'Wǒ xiūxi.',ja:'Yasumu.',ht:'M pran poz.'}},
+    {n:'Je mange à midi.',t:{en:'I eat at noon.',es:'Como al mediodía.',de:'Ich esse mittags.',ru:'Ya yem v polden.',zh:'Wǒ zhōngwǔ chīfàn.',ja:'Hiru ni taberu.',ht:'M manje midi.'}},
+    {n:'Je parle avec mes collègues.',t:{en:'I talk with my colleagues.',es:'Hablo con mis colegas.',de:'Ich spreche mit Kollegen.',ru:'Ya razgovarivayu s kollegami.',zh:'Wǒ gēn tóngshì liáotiān.',ja:'Dōryō to hanasu.',ht:'M pale ak kolèg mwen.'}},
+    {n:'Je termine le travail.',t:{en:'I finish work.',es:'Termino el trabajo.',de:'Ich beende die Arbeit.',ru:'Ya zakanchivayu rabotu.',zh:'Wǒ jiéshù gōngzuò.',ja:'Shigoto o oeru.',ht:'M fini travay.'}},
+    {n:'Je rentre chez moi.',t:{en:'I go home.',es:'Regreso a casa.',de:'Ich gehe nach Hause.',ru:'Ya idu domoy.',zh:'Wǒ huí jiā.',ja:'Ie ni kaeru.',ht:'M tounen lakay.'}},
+
+    {n:'Je cuisine.',t:{en:'I cook.',es:'Cocino.',de:'Ich koche.',ru:'Ya gotovlyu.',zh:'Wǒ zuòfàn.',ja:'Ryōri suru.',ht:'M kwit manje.'}},
+    {n:'Je dîne.',t:{en:'I have dinner.',es:'Ceno.',de:'Ich esse zu Abend.',ru:'Ya uzhinayu.',zh:'Wǒ chī wǎnfàn.',ja:'Yūshoku o taberu.',ht:'M dine.'}},
+    {n:'Je regarde la télévision.',t:{en:'I watch TV.',es:'Veo televisión.',de:'Ich sehe fern.',ru:'Ya smotryu televizor.',zh:'Wǒ kàn diànshì.',ja:'Terebi o miru.',ht:'M gade televizyon.'}},
+    {n:'J’écoute de la musique.',t:{en:'I listen to music.',es:'Escucho música.',de:'Ich höre Musik.',ru:'Ya slushayu muzyku.',zh:'Wǒ tīng yīnyuè.',ja:'Ongaku o kiku.',ht:'M koute mizik.'}},
+    {n:'Je lis un livre.',t:{en:'I read a book.',es:'Leo un libro.',de:'Ich lese ein Buch.',ru:'Ya chitayu knigu.',zh:'Wǒ dú shū.',ja:'Hon o yomu.',ht:'M li yon liv.'}},
+
+    {n:'Je parle avec ma famille.',t:{en:'I talk with my family.',es:'Hablo con mi familia.',de:'Ich spreche mit meiner Familie.',ru:'Ya razgovarivayu s semyoy.',zh:'Wǒ gēn jiārén liáotiān.',ja:'Kazoku to hanasu.',ht:'M pale ak fanmi mwen.'}},
+    {n:'Je sors.',t:{en:'I go out.',es:'Salgo.',de:'Ich gehe aus.',ru:'Ya vykhozhu.',zh:'Wǒ chūqù.',ja:'Dekakeru.',ht:'M soti.'}},
+    {n:'Je rencontre des amis.',t:{en:'I meet friends.',es:'Veo a mis amigos.',de:'Ich treffe Freunde.',ru:'Ya vstrechayu druzey.',zh:'Wǒ jiàn péngyǒu.',ja:'Tomodachi ni au.',ht:'M rankontre zanmi.'}},
+    {n:'Je fais du sport.',t:{en:'I exercise.',es:'Hago deporte.',de:'Ich mache Sport.',ru:'Ya zanimayus sportom.',zh:'Wǒ yùndòng.',ja:'Undō suru.',ht:'M fè espò.'}},
+    {n:'Je me repose.',t:{en:'I rest.',es:'Descanso.',de:'Ich ruhe mich aus.',ru:'Ya otdykhayu.',zh:'Wǒ xiūxi.',ja:'Yasumu.',ht:'M repoze.'}},
+
+    {n:'Je prends une douche.',t:{en:'I take a shower.',es:'Tomo una ducha.',de:'Ich dusche.',ru:'Ya prinimayu dush.',zh:'Wǒ xǐzǎo.',ja:'Shawā o abiru.',ht:'M pran douch.'}},
+    {n:'Je prépare mes affaires.',t:{en:'I prepare my things.',es:'Preparo mis cosas.',de:'Ich bereite meine Sachen vor.',ru:'Ya gotovlyu veshchi.',zh:'Wǒ zhǔnbèi dōngxī.',ja:'Mochimono o junbi.',ht:'M prepare bagay mwen.'}},
+    {n:'Je mets mon réveil.',t:{en:'I set my alarm.',es:'Pongo la alarma.',de:'Ich stelle den Wecker.',ru:'Ya stavyu budilnik.',zh:'Wǒ shè zhōng.',ja:'Mezamashi o set.',ht:'M mete alam.'}},
+    {n:'Je vais dormir.',t:{en:'I go to sleep.',es:'Voy a dormir.',de:'Ich gehe schlafen.',ru:'Ya idu spat.',zh:'Wǒ qù shuìjiào.',ja:'Neru.',ht:'M pral dòmi.'}},
+    {n:'Je dors.',t:{en:'I sleep.',es:'Duermo.',de:'Ich schlafe.',ru:'Ya splyu.',zh:'Wǒ shuìjiào.',ja:'Nemuru.',ht:'M dòmi.'}},
+
+    {n:'Je rêve.',t:{en:'I dream.',es:'Sueño.',de:'Ich träume.',ru:'Ya vizhu son.',zh:'Wǒ zuò mèng.',ja:'Yume o miru.',ht:'M reve.'}},
+    {n:'Je me réveille tard.',t:{en:'I wake up late.',es:'Me despierto tarde.',de:'Ich wache spät auf.',ru:'Ya prosypayus pozdno.',zh:'Wǒ wǎn qǐ.',ja:'Okiru osoku.',ht:'M leve ta.'}},
+    {n:'Je suis pressé.',t:{en:'I am in a hurry.',es:'Tengo prisa.',de:'Ich habe es eilig.',ru:'Ya toroplyus.',zh:'Wǒ hěn gǎn.',ja:'Isogu.',ht:'M prese.'}},
+    {n:'Je suis en retard.',t:{en:'I am late.',es:'Estoy tarde.',de:'Ich bin spät.',ru:'Ya opozdal.',zh:'Wǒ chídào.',ja:'Okureta.',ht:'M an reta.'}},
+    {n:'Je suis à l’heure.',t:{en:'I am on time.',es:'Estoy a tiempo.',de:'Ich bin pünktlich.',ru:'Ya vovremya.',zh:'Wǒ zhǔnshí.',ja:'Jikan dōri.',ht:'M alè.'}},
+
+    {n:'Je planifie ma journée.',t:{en:'I plan my day.',es:'Planifico mi día.',de:'Ich plane meinen Tag.',ru:'Ya planiruyu den.',zh:'Wǒ jìhuà wǒ de yītiān.',ja:'Ichinichi o keikaku.',ht:'M planifye jounen m.'}},
+    {n:'Je fais des courses.',t:{en:'I go shopping.',es:'Hago compras.',de:'Ich gehe einkaufen.',ru:'Ya pokupayu produkty.',zh:'Wǒ qù mǎi dōngxī.',ja:'Kaimono suru.',ht:'M al achte.'}},
+    {n:'Je nettoie.',t:{en:'I clean.',es:'Limpio.',de:'Ich putze.',ru:'Ya ubirayus.',zh:'Wǒ qīngjié.',ja:'Sōji suru.',ht:'M netwaye.'}},
+    {n:'Je range la maison.',t:{en:'I tidy the house.',es:'Ordeno la casa.',de:'Ich räume das Haus auf.',ru:'Ya ubirayus doma.',zh:'Wǒ shōushi fángzi.',ja:'Ie o katazukeru.',ht:'M ranje kay la.'}},
+    {n:'Je me détends.',t:{en:'I relax.',es:'Me relajo.',de:'Ich entspanne mich.',ru:'Ya rasslablyayus.',zh:'Wǒ fàngsōng.',ja:'Rirakkusu.',ht:'M detann.'}}
+
+  ]
+  },
+  story_histoire_simple:{
+  fr:'Histoire simple',
+  en:'Simple story',
+  es:'Historia simple',
+  ht:'Ti istwa',
+  de:'Einfache Geschichte',
+  ru:'Prostaya istoriya',
+  zh:'Jiǎndān gùshì',
+  ja:'Kantan na hanashi',
+  icon:'📖',
+  items:[
+
+    {n:'Un jour, je me réveille tôt.',t:{en:'One day, I wake up early.',es:'Un día me despierto temprano.',de:'Eines Tages wache ich früh auf.',ru:'Odnazhdy ya rano prosypayus.',zh:'Yǒu yì tiān wǒ zǎo qǐ.',ja:'Aru hi hayaku okiru.',ht:'Yon jou m leve bonè.'}},
+    {n:'Le soleil brille.',t:{en:'The sun is shining.',es:'El sol brilla.',de:'Die Sonne scheint.',ru:'Solntse svetit.',zh:'Tàiyáng zhào yào.',ja:'Taiyō ga kagayaku.',ht:'Soley la klere.'}},
+    {n:'Je regarde par la fenêtre.',t:{en:'I look through the window.',es:'Miro por la ventana.',de:'Ich schaue aus dem Fenster.',ru:'Ya smotryu v okno.',zh:'Wǒ kàn chuāngwài.',ja:'Mado kara miru.',ht:'M gade nan fenèt la.'}},
+    {n:'La ville est calme.',t:{en:'The city is calm.',es:'La ciudad está tranquila.',de:'Die Stadt ist ruhig.',ru:'Gorod spokoen.',zh:'Chéngshì hěn ānjìng.',ja:'Machi wa shizuka.',ht:'Vil la kalm.'}},
+    {n:'Je décide de sortir.',t:{en:'I decide to go out.',es:'Decido salir.',de:'Ich entscheide mich rauszugehen.',ru:'Ya reshayu vyiti.',zh:'Wǒ juédìng chūqù.',ja:'Soto ni iku koto ni suru.',ht:'M deside soti.'}},
+
+    {n:'Je marche dans la rue.',t:{en:'I walk in the street.',es:'Camino por la calle.',de:'Ich gehe auf der Straße.',ru:'Ya idu po ulitse.',zh:'Wǒ zǒu zài jiē shàng.',ja:'Michi o aruku.',ht:'M mache nan lari a.'}},
+    {n:'Je vois un café.',t:{en:'I see a café.',es:'Veo un café.',de:'Ich sehe ein Café.',ru:'Ya vizhu kafe.',zh:'Wǒ kàn dào kāfēi diàn.',ja:'Kafe o miru.',ht:'M wè yon kafe.'}},
+    {n:'J’entre dans le café.',t:{en:'I enter the café.',es:'Entro en el café.',de:'Ich betrete das Café.',ru:'Ya zakhoju v kafe.',zh:'Wǒ jìn kāfēi diàn.',ja:'Kafe ni hairu.',ht:'M antre nan kafe a.'}},
+    {n:'Je commande un café.',t:{en:'I order a coffee.',es:'Pido un café.',de:'Ich bestelle einen Kaffee.',ru:'Ya zakazyvayu kofe.',zh:'Wǒ diǎn kāfēi.',ja:'Kōhī o chūmon.',ht:'M kòmande kafe.'}},
+    {n:'Le café est chaud.',t:{en:'The coffee is hot.',es:'El café está caliente.',de:'Der Kaffee ist heiß.',ru:'Kofe goryachiy.',zh:'Kāfēi hěn rè.',ja:'Kōhī wa atsui.',ht:'Kafe a cho.'}},
+{n:'Je m’assois.',t:{en:'I sit down.',es:'Me siento.',de:'Ich setze mich.',ru:'Ya sazhuys.',zh:'Wǒ zuò xià.',ja:'Suwaru.',ht:'M chita.'}},
+    {n:'Je regarde les gens.',t:{en:'I watch the people.',es:'Observo a la gente.',de:'Ich beobachte die Leute.',ru:'Ya smotryu na lyudey.',zh:'Wǒ kàn rénmen.',ja:'Hito o miru.',ht:'M gade moun yo.'}},
+    {n:'Un homme entre.',t:{en:'A man enters.',es:'Un hombre entra.',de:'Ein Mann kommt rein.',ru:'Muzhchina vkhodit.',zh:'Yí gè nánrén jìn lái.',ja:'Otoko ga hairu.',ht:'Yon mesye antre.'}},
+    {n:'Il semble pressé.',t:{en:'He seems in a hurry.',es:'Parece apurado.',de:'Er scheint in Eile zu sein.',ru:'On toropitsya.',zh:'Tā hěn gǎn.',ja:'Isogashisō.',ht:'Li sanble prese.'}},
+    {n:'Il parle au serveur.',t:{en:'He talks to the waiter.',es:'Habla con el camarero.',de:'Er spricht mit dem Kellner.',ru:'On razgovarivaet s ofitsiantom.',zh:'Tā gēn fúwùyuán shuōhuà.',ja:'Uētā to hanasu.',ht:'Li pale ak sèvè a.'}},
+
+    {n:'Je bois mon café.',t:{en:'I drink my coffee.',es:'Bebo mi café.',de:'Ich trinke meinen Kaffee.',ru:'Ya pyu kofe.',zh:'Wǒ hē kāfēi.',ja:'Kōhī o nomu.',ht:'M bwè kafe mwen.'}},
+    {n:'Je lis un journal.',t:{en:'I read a newspaper.',es:'Leo un periódico.',de:'Ich lese eine Zeitung.',ru:'Ya chitayu gazetu.',zh:'Wǒ dú bàozhǐ.',ja:'Shinbun o yomu.',ht:'M li jounal.'}},
+    {n:'La musique joue.',t:{en:'Music is playing.',es:'La música suena.',de:'Musik spielt.',ru:'Igrayet muzyka.',zh:'Yīnyuè zài bōfàng.',ja:'Ongaku ga nagareru.',ht:'Mizik ap jwe.'}},
+    {n:'L’ambiance est agréable.',t:{en:'The atmosphere is pleasant.',es:'El ambiente es agradable.',de:'Die Atmosphäre ist angenehm.',ru:'Atmosfera priyatnaya.',zh:'Qìfēn hěn hǎo.',ja:'Funiki ga ii.',ht:'Anbyans lan agreyab.'}},
+    {n:'Je me sens bien.',t:{en:'I feel good.',es:'Me siento bien.',de:'Ich fühle mich gut.',ru:'Ya chuvstvuyu sebya khorosho.',zh:'Wǒ gǎnjué hěn hǎo.',ja:'Kimochi ga ii.',ht:'M santi m byen.'}},
+
+    {n:'Je termine mon café.',t:{en:'I finish my coffee.',es:'Termino mi café.',de:'Ich beende meinen Kaffee.',ru:'Ya zakanchivayu kofe.',zh:'Wǒ hē wán kāfēi.',ja:'Kōhī o nomi owaru.',ht:'M fini kafe mwen.'}},
+    {n:'Je paie.',t:{en:'I pay.',es:'Pago.',de:'Ich bezahle.',ru:'Ya plachu.',zh:'Wǒ fù qián.',ja:'Harau.',ht:'M peye.'}},
+    {n:'Je remercie le serveur.',t:{en:'I thank the waiter.',es:'Agradezco al camarero.',de:'Ich danke dem Kellner.',ru:'Ya blagodaryu ofitsianta.',zh:'Wǒ gǎnxiè fúwùyuán.',ja:'Uētā ni kansha.',ht:'M remèsye sèvè a.'}},
+    {n:'Je sors du café.',t:{en:'I leave the café.',es:'Salgo del café.',de:'Ich verlasse das Café.',ru:'Ya vykhozhu iz kafe.',zh:'Wǒ líkāi kāfēi diàn.',ja:'Kafe o deru.',ht:'M soti nan kafe a.'}},
+    {n:'La rue est animée.',t:{en:'The street is lively.',es:'La calle está animada.',de:'Die Straße ist lebhaft.',ru:'Ulitsa zhivaya.',zh:'Jiē shàng hěn rènao.',ja:'Michi wa nigiyaka.',ht:'Lari a vivan.'}},
+
+    {n:'Les gens marchent vite.',t:{en:'People walk fast.',es:'La gente camina rápido.',de:'Die Leute gehen schnell.',ru:'Lyudi idut bystro.',zh:'Rénmen zǒu de hěn kuài.',ja:'Hito ga hayaku aruku.',ht:'Moun yo mache vit.'}},
+    {n:'Les voitures passent.',t:{en:'Cars pass by.',es:'Los coches pasan.',de:'Autos fahren vorbei.',ru:'Mashiny proezzhayut.',zh:'Qìchē jīngguò.',ja:'Kuruma ga tōru.',ht:'Machin ap pase.'}},
+    {n:'Je continue ma marche.',t:{en:'I continue walking.',es:'Sigo caminando.',de:'Ich gehe weiter.',ru:'Ya prodolzhayu idti.',zh:'Wǒ jìxù zǒu.',ja:'Aruki tsuzukeru.',ht:'M kontinye mache.'}},
+    {n:'Je vois un parc.',t:{en:'I see a park.',es:'Veo un parque.',de:'Ich sehe einen Park.',ru:'Ya vizhu park.',zh:'Wǒ kàn dào gōngyuán.',ja:'Kōen o miru.',ht:'M wè yon pak.'}},
+    {n:'Je décide d’entrer.',t:{en:'I decide to enter.',es:'Decido entrar.',de:'Ich entscheide hineinzugehen.',ru:'Ya reshayu zayti.',zh:'Wǒ juédìng jìn qù.',ja:'Hairu koto ni suru.',ht:'M deside antre.'}},
+
+    {n:'Les enfants jouent.',t:{en:'Children are playing.',es:'Los niños juegan.',de:'Kinder spielen.',ru:'Deti igrayut.',zh:'Háizi men zài wán.',ja:'Kodomo ga asobu.',ht:'Timoun yo ap jwe.'}},
+    {n:'Un chien court.',t:{en:'A dog runs.',es:'Un perro corre.',de:'Ein Hund rennt.',ru:'Sobaka bezhit.',zh:'Yì zhī gǒu zài pǎo.',ja:'Inu ga hashiru.',ht:'Yon chen ap kouri.'}},
+    {n:'Les oiseaux chantent.',t:{en:'Birds sing.',es:'Los pájaros cantan.',de:'Vögel singen.',ru:'Ptitsy poyut.',zh:'Niǎo zài chàng.',ja:'Tori ga naku.',ht:'Zwazo ap chante.'}},
+    {n:'Je m’assois sur un banc.',t:{en:'I sit on a bench.',es:'Me siento en un banco.',de:'Ich setze mich auf eine Bank.',ru:'Ya sazhuys na skameyku.',zh:'Wǒ zuò zài cháng yǐ.',ja:'Benchi ni suwaru.',ht:'M chita sou yon ban.'}},
+    {n:'Je regarde le ciel.',t:{en:'I look at the sky.',es:'Miro el cielo.',de:'Ich schaue den Himmel an.',ru:'Ya smotryu na nebo.',zh:'Wǒ kàn tiān.',ja:'Sora o miru.',ht:'M gade syèl la.'}},
+
+    {n:'Le ciel est bleu.',t:{en:'The sky is blue.',es:'El cielo es azul.',de:'Der Himmel ist blau.',ru:'Nebo sineye.',zh:'Tiān shì lán sè.',ja:'Sora wa aoi.',ht:'Syèl la ble.'}},
+    {n:'Je souris.',t:{en:'I smile.',es:'Sonrío.',de:'Ich lächle.',ru:'Ya ulybayus.',zh:'Wǒ wēixiào.',ja:'Hohoemu.',ht:'M souri.'}},
+    {n:'Je pense à ma journée.',t:{en:'I think about my day.',es:'Pienso en mi día.',de:'Ich denke an meinen Tag.',ru:'Ya dumayu o dne.',zh:'Wǒ xiǎng wǒ de yītiān.',ja:'Ichinichi o kangaeru.',ht:'M panse ak jounen m.'}},
+    {n:'La journée commence bien.',t:{en:'The day starts well.',es:'El día empieza bien.',de:'Der Tag beginnt gut.',ru:'Den nachinaetsya khorosho.',zh:'Yītiān kāishǐ de hěn hǎo.',ja:'Ii ichinichi no hajimari.',ht:'Jounen an kòmanse byen.'}},
+    {n:'Je me sens heureux.',t:{en:'I feel happy.',es:'Me siento feliz.',de:'Ich fühle mich glücklich.',ru:'Ya schastliv.',zh:'Wǒ hěn kāixīn.',ja:'Ureshii.',ht:'M santi m kontan.'}}
+
+  ]
+  },
+  flirt_relations:{
+  fr:'Flirt et relations',
+  en:'Flirting and relationships',
+  es:'Coqueteo y relaciones',
+  ht:'Flirt ak relasyon',
+  de:'Flirten und Beziehungen',
+  ru:'Flirt i otnosheniya',
+  zh:'Liáotiān hé liàn\'ài',
+  ja:'Koi to kankei',
+  icon:'❤️',
+  items:[
+
+{n:'Tu es très belle.',t:{en:'You are very beautiful.',es:'Eres muy hermosa.',de:'Du bist sehr schön.',ru:'Ty ochen krasivaya.',zh:'Nǐ hěn piàoliang.',ja:'Totemo kirei.',ht:'Ou bèl anpil.'}},
+{n:'Tu es très beau.',t:{en:'You are very handsome.',es:'Eres muy guapo.',de:'Du bist sehr gutaussehend.',ru:'Ty ochen krasivyy.',zh:'Nǐ hěn shuài.',ja:'Kakkoii.',ht:'Ou bèl gason anpil.'}},
+{n:'J’aime ton sourire.',t:{en:'I like your smile.',es:'Me gusta tu sonrisa.',de:'Ich mag dein Lächeln.',ru:'Mne nravitsya tvoya ulybka.',zh:'Wǒ xǐhuān nǐ de xiàoróng.',ja:'Anata no egao ga suki.',ht:'M renmen souri ou.'}},
+{n:'Tes yeux sont magnifiques.',t:{en:'Your eyes are beautiful.',es:'Tus ojos son hermosos.',de:'Deine Augen sind wunderschön.',ru:'U tebya krasivye glaza.',zh:'Nǐ de yǎnjing hěn měi.',ja:'Me ga kirei.',ht:'Je ou bèl anpil.'}},
+{n:'Tu es vraiment charmant.',t:{en:'You are really charming.',es:'Eres muy encantador.',de:'Du bist sehr charmant.',ru:'Ty ochen ocharovatelen.',zh:'Nǐ hěn yǒu mèilì.',ja:'Totemo miryokuteki.',ht:'Ou gen anpil cham.'}},
+
+{n:'On peut parler un peu ?',t:{en:'Can we talk a little?',es:'¿Podemos hablar un poco?',de:'Können wir kurz reden?',ru:'Mozhem pogovorit?',zh:'Wǒmen liáo liáo ma?',ja:'Chotto hanasanai?',ht:'Nou ka pale yon ti jan?'}},
+{n:'Je peux m’asseoir avec toi ?',t:{en:'Can I sit with you?',es:'¿Puedo sentarme contigo?',de:'Darf ich mich zu dir setzen?',ru:'Mozhno prisest?',zh:'Wǒ kěyǐ zuò zhèlǐ ma?',ja:'Suwatte mo ii?',ht:'M ka chita bò kote w?'}},
+{n:'Tu viens souvent ici ?',t:{en:'Do you come here often?',es:'¿Vienes aquí a menudo?',de:'Kommst du oft hierher?',ru:'Ty chasto syuda khodish?',zh:'Nǐ cháng lái zhèlǐ ma?',ja:'Yoku kuru?',ht:'Ou vini isit souvan?'}},
+{n:'Tu as un style incroyable.',t:{en:'You have an amazing style.',es:'Tienes un estilo increíble.',de:'Du hast einen tollen Stil.',ru:'U tebya klassny stil.',zh:'Nǐ de fēnggé hěn bàng.',ja:'Sutairu ga ii.',ht:'Ou gen anpil stil.'}},
+{n:'Tu es différente des autres.',t:{en:'You are different from others.',es:'Eres diferente.',de:'Du bist anders.',ru:'Ty drugaya.',zh:'Nǐ hěn tèbié.',ja:'Chotto chigau.',ht:'Ou diferan.'}},
+
+{n:'J’aimerais te connaître.',t:{en:'I would like to know you.',es:'Me gustaría conocerte.',de:'Ich möchte dich kennenlernen.',ru:'Ya khochu tebya uznat.',zh:'Wǒ xiǎng liǎojiě nǐ.',ja:'Anata o shiritai.',ht:'M ta renmen konnen w.'}},
+{n:'Tu es célibataire ?',t:{en:'Are you single?',es:'¿Estás soltero?',de:'Bist du single?',ru:'Ty svoboden?',zh:'Nǐ dānshēn ma?',ja:'Dokushin?',ht:'Ou selibatè?'}},
+{n:'On peut se revoir ?',t:{en:'Can we meet again?',es:'¿Podemos vernos otra vez?',de:'Können wir uns wiedersehen?',ru:'Uvidimsya snova?',zh:'Wǒmen kěyǐ zài jiàn ma?',ja:'Mata au?',ht:'Nou ka wè ankò?'}},
+{n:'Tu veux prendre un café ?',t:{en:'Do you want to get coffee?',es:'¿Quieres tomar un café?',de:'Willst du einen Kaffee trinken?',ru:'Khochesh kofe?',zh:'Yào hē kāfēi ma?',ja:'Kōhī nomu?',ht:'Ou vle bwè kafe?'}},
+{n:'Tu veux sortir avec moi ?',t:{en:'Do you want to go out with me?',es:'¿Quieres salir conmigo?',de:'Willst du mit mir ausgehen?',ru:'Poydyosh so mnoy?',zh:'Nǐ yuànyì hé wǒ chūqù ma?',ja:'Issho ni iku?',ht:'Ou vle soti avè m?'}},
+
+{n:'Tu me plais.',t:{en:'I like you.',es:'Me gustas.',de:'Du gefällst mir.',ru:'Ty mne nravishsya.',zh:'Wǒ xǐhuān nǐ.',ja:'Suki.',ht:'M renmen w.'}},
+{n:'Je pense à toi.',t:{en:'I think about you.',es:'Pienso en ti.',de:'Ich denke an dich.',ru:'Ya dumayu o tebe.',zh:'Wǒ xiǎng nǐ.',ja:'Kimi o omou.',ht:'M ap panse ak ou.'}},
+{n:'Tu me manques.',t:{en:'I miss you.',es:'Te extraño.',de:'Du fehlst mir.',ru:'Ya skuchayu.',zh:'Wǒ xiǎng nǐ.',ja:'Aitai.',ht:'Ou manke m.'}},
+{n:'J’aime passer du temps avec toi.',t:{en:'I like spending time with you.',es:'Me gusta pasar tiempo contigo.',de:'Ich verbringe gern Zeit mit dir.',ru:'Mne nravitsya byt s toboy.',zh:'Wǒ xǐhuān gēn nǐ zài yìqǐ.',ja:'Issho ni iru no ga suki.',ht:'M renmen pase tan avè w.'}},
+{n:'Tu me rends heureux.',t:{en:'You make me happy.',es:'Me haces feliz.',de:'Du machst mich glücklich.',ru:'Ty delaesh menya schastlivym.',zh:'Nǐ ràng wǒ kāixīn.',ja:'Shiawase.',ht:'Ou fè m kontan.'}}
+
+  ]
+},
+  messages_flirt:{
+  fr:'Messages de flirt',
+  en:'Flirting messages',
+  es:'Mensajes de coqueteo',
+  ht:'Mesaj flirt',
+  de:'Flirt Nachrichten',
+  ru:'Flirt soobshcheniya',
+  zh:'Liáotiān duǎnxìn',
+  ja:'Flirt messeji',
+  icon:'💬',
+  items:[
+
+{n:'Salut, comment va ta journée ?',t:{en:'Hi, how is your day going?',es:'Hola, ¿cómo va tu día?',de:'Hallo, wie läuft dein Tag?',ru:'Privet, kak den?',zh:'Nǐ de yītiān zěnmeyàng?',ja:'Kyō wa dō?',ht:'Bonjou, kijan jounen w?'}},
+{n:'Je pensais à toi.',t:{en:'I was thinking about you.',es:'Estaba pensando en ti.',de:'Ich habe an dich gedacht.',ru:'Ya dumal o tebe.',zh:'Wǒ gāng xiǎng dào nǐ.',ja:'Kimi no koto omotteta.',ht:'M t ap panse ak ou.'}},
+{n:'Tu fais quoi ?',t:{en:'What are you doing?',es:'¿Qué haces?',de:'Was machst du?',ru:'Chto delaesh?',zh:'Nǐ zài zuò shénme?',ja:'Nani shiteru?',ht:'Kisa w ap fè?'}},
+{n:'Tu me manques déjà.',t:{en:'I already miss you.',es:'Ya te extraño.',de:'Du fehlst mir schon.',ru:'Ya uzhe skuchayu.',zh:'Wǒ yǐjīng xiǎng nǐ le.',ja:'Mō aitai.',ht:'Ou deja manke m.'}},
+{n:'J’aime parler avec toi.',t:{en:'I like talking with you.',es:'Me gusta hablar contigo.',de:'Ich rede gern mit dir.',ru:'Mne nravitsya govorit s toboy.',zh:'Wǒ xǐhuān gēn nǐ liáotiān.',ja:'Hanashite tanoshii.',ht:'M renmen pale avè w.'}},
+
+{n:'Tu me fais sourire.',t:{en:'You make me smile.',es:'Me haces sonreír.',de:'Du bringst mich zum Lächeln.',ru:'Ty zastavlyaesh menya ulybatsya.',zh:'Nǐ ràng wǒ xiàoróng.',ja:'Egao ni naru.',ht:'Ou fè m souri.'}},
+{n:'Je veux te revoir.',t:{en:'I want to see you again.',es:'Quiero verte otra vez.',de:'Ich will dich wiedersehen.',ru:'Khochu uvidet tebya.',zh:'Wǒ xiǎng zài jiàn nǐ.',ja:'Mata aitai.',ht:'M vle wè w ankò.'}},
+{n:'Tu es spéciale.',t:{en:'You are special.',es:'Eres especial.',de:'Du bist besonders.',ru:'Ty osobennaya.',zh:'Nǐ hěn tèbié.',ja:'Tokubetsu.',ht:'Ou espesyal.'}},
+{n:'Bonne nuit.',t:{en:'Good night.',es:'Buenas noches.',de:'Gute Nacht.',ru:'Spokoynoy nochi.',zh:'Wǎn ān.',ja:'Oyasumi.',ht:'Bòn nwit.'}},
+{n:'Fais de beaux rêves.',t:{en:'Sweet dreams.',es:'Dulces sueños.',de:'Süße Träume.',ru:'Sladkikh snov.',zh:'Zuò gè hǎo mèng.',ja:'Yoi yume.',ht:'Fè bèl rèv.'}},
+
+{n:'Tu dors ?',t:{en:'Are you sleeping?',es:'¿Estás durmiendo?',de:'Schläfst du?',ru:'Ty spish?',zh:'Nǐ shuì le ma?',ja:'Neteru?',ht:'Ou dòmi?'}},
+{n:'Tu me rends curieux.',t:{en:'You make me curious.',es:'Me das curiosidad.',de:'Du machst mich neugierig.',ru:'Ty menya interesuesh.',zh:'Nǐ ràng wǒ hǎoqí.',ja:'Ki ni naru.',ht:'Ou fè m kirye.'}},
+{n:'Je veux apprendre à te connaître.',t:{en:'I want to know you better.',es:'Quiero conocerte mejor.',de:'Ich will dich besser kennenlernen.',ru:'Khochu uznat tebya.',zh:'Wǒ xiǎng gèng liǎojiě nǐ.',ja:'Yoku shiritai.',ht:'M vle konnen w pi byen.'}},
+{n:'Tu es libre ce soir ?',t:{en:'Are you free tonight?',es:'¿Estás libre esta noche?',de:'Hast du heute Abend Zeit?',ru:'Ty svobodna segodnya?',zh:'Jīnwǎn yǒu kòng ma?',ja:'Konya aiteru?',ht:'Ou lib aswè a?'}},
+{n:'On sort ce week-end ?',t:{en:'Shall we go out this weekend?',es:'¿Salimos este fin de semana?',de:'Gehen wir am Wochenende aus?',ru:'Poydyom vykhodnye?',zh:'Zhōumò chūqù ma?',ja:'Shūmatsu iku?',ht:'Nou soti wikenn sa?'}},
+
+{n:'Tu es adorable.',t:{en:'You are adorable.',es:'Eres adorable.',de:'Du bist süß.',ru:'Ty ochen milaya.',zh:'Nǐ hěn kě\'ài.',ja:'Kawaii.',ht:'Ou dous anpil.'}},
+{n:'Tu es drôle.',t:{en:'You are funny.',es:'Eres gracioso.',de:'Du bist lustig.',ru:'Ty smeshnaya.',zh:'Nǐ hěn yǒuqù.',ja:'Omoshiroi.',ht:'Ou komik.'}},
+{n:'Tu es intelligente.',t:{en:'You are smart.',es:'Eres inteligente.',de:'Du bist klug.',ru:'Ty umnaya.',zh:'Nǐ hěn cōngmíng.',ja:'Atama ii.',ht:'Ou entèlijan.'}},
+{n:'Tu es incroyable.',t:{en:'You are amazing.',es:'Eres increíble.',de:'Du bist unglaublich.',ru:'Ty neveroyatnaya.',zh:'Nǐ tài bàng le.',ja:'Sugoi.',ht:'Ou enkwayab.'}},
+{n:'Je suis content de t’avoir rencontré.',t:{en:'I am happy to have met you.',es:'Estoy feliz de conocerte.',de:'Ich bin froh dich getroffen zu haben.',ru:'Rad znakomstvu.',zh:'Hěn gāoxìng rènshi nǐ.',ja:'Aete yokatta.',ht:'M kontan rankontre w.'}}
+
+  ]
+},
+  taquinerie_flirt:{
+  fr:'Humour et taquinerie flirt',
+  en:'Playful teasing',
+  es:'Bromas coquetas',
+  ht:'Blag flirt',
+  de:'Flirt Neckereien',
+  ru:'Flirt podkolki',
+  zh:'Tiáoqíng wánxiào',
+  ja:'Koi no karakai',
+  icon:'😏',
+  items:[
+
+{n:'Tu es toujours comme ça ?',t:{en:'Are you always like this?',es:'¿Siempre eres así?',de:'Bist du immer so?',ru:'Ty vsegda takaya?',zh:'Nǐ yīzhí zhèyàng ma?',ja:'Itsumo konna?',ht:'Ou toujou konsa?'}},
+{n:'Tu essaies de m’impressionner ?',t:{en:'Are you trying to impress me?',es:'¿Intentas impresionarme?',de:'Versuchst du mich zu beeindrucken?',ru:'Ty menya vpechatlit khochesh?',zh:'Nǐ xiǎng ràng wǒ yìnxiàng shēnkè ma?',ja:'Impress shiyō?',ht:'Ou ap eseye enpresyone m?'}},
+{n:'Je crois que tu es dangereuse.',t:{en:'I think you are dangerous.',es:'Creo que eres peligrosa.',de:'Ich glaube du bist gefährlich.',ru:'Dumayu ty opasnaya.',zh:'Wǒ juéde nǐ hěn wéixiǎn.',ja:'Chotto abunai.',ht:'M panse ou danjere.'}},
+{n:'Tu fais ça avec tout le monde ?',t:{en:'Do you do that with everyone?',es:'¿Haces eso con todos?',de:'Machst du das mit jedem?',ru:'Ty tak so vsemi?',zh:'Nǐ duì měi gè rén dōu zhèyàng ma?',ja:'Minna ni?',ht:'Ou fè sa ak tout moun?'}},
+{n:'Tu es un peu folle.',t:{en:'You are a little crazy.',es:'Estás un poco loca.',de:'Du bist ein bisschen verrückt.',ru:'Ty nemnogo sumasshedshaya.',zh:'Nǐ yǒudiǎn fēngkuáng.',ja:'Chotto okashii.',ht:'Ou fou yon ti kras.'}},
+
+{n:'Tu es trop confiante.',t:{en:'You are too confident.',es:'Eres demasiado segura.',de:'Du bist zu selbstsicher.',ru:'Ty slishkom uverennaya.',zh:'Nǐ tài zìxìn.',ja:'Jishin ari sugiru.',ht:'Ou twò konfyans.'}},
+{n:'Je ne te crois pas.',t:{en:'I don’t believe you.',es:'No te creo.',de:'Ich glaube dir nicht.',ru:'Ya tebe ne veryu.',zh:'Wǒ bù xìn.',ja:'Shinjirarenai.',ht:'M pa kwè w.'}},
+{n:'Tu es suspecte.',t:{en:'You are suspicious.',es:'Eres sospechosa.',de:'Du bist verdächtig.',ru:'Ty podozritelnaya.',zh:'Nǐ hěn kěyí.',ja:'Ayashii.',ht:'Ou sispèk.'}},
+{n:'Je pense que tu caches quelque chose.',t:{en:'I think you hide something.',es:'Creo que escondes algo.',de:'Ich glaube du versteckst etwas.',ru:'Ty chto to skryvaesh.',zh:'Wǒ juéde nǐ yǒu mìmì.',ja:'Nanika kakushiteru.',ht:'M panse ou kache yon bagay.'}},
+{n:'Tu es trop gentille.',t:{en:'You are too nice.',es:'Eres demasiado amable.',de:'Du bist zu nett.',ru:'Ty slishkom dobraya.',zh:'Nǐ tài hǎo.',ja:'Yasashisugiru.',ht:'Ou twò janti.'}},
+
+{n:'Tu veux des problèmes ?',t:{en:'Do you want trouble?',es:'¿Quieres problemas?',de:'Willst du Ärger?',ru:'Ty khochesh problem?',zh:'Nǐ xiǎng zhǎo máfan ma?',ja:'Mondai?',ht:'Ou vle pwoblèm?'}},
+{n:'Tu es imprévisible.',t:{en:'You are unpredictable.',es:'Eres impredecible.',de:'Du bist unberechenbar.',ru:'Ty nepredskazuemaya.',zh:'Nǐ bù kě yùcè.',ja:'Yomenai.',ht:'Ou pa previzib.'}},
+{n:'Je dois me méfier de toi.',t:{en:'I must be careful with you.',es:'Debo tener cuidado contigo.',de:'Ich muss vorsichtig mit dir sein.',ru:'Mne nado byt ostorozhnym.',zh:'Wǒ yào xiǎoxīn nǐ.',ja:'Ki o tsukeru.',ht:'M dwe fè atansyon ak ou.'}},
+{n:'Tu es pleine de surprises.',t:{en:'You are full of surprises.',es:'Estás llena de sorpresas.',de:'Du bist voller Überraschungen.',ru:'Ty polna syurprizov.',zh:'Nǐ chōngmǎn jīngxǐ.',ja:'Odoroki ga ōi.',ht:'Ou plen sipriz.'}},
+{n:'Tu essaies de me provoquer.',t:{en:'You try to provoke me.',es:'Intentas provocarme.',de:'Du versuchst mich zu provozieren.',ru:'Ty menya provotsiruesh.',zh:'Nǐ zài tiǎodòu wǒ.',ja:'Chotto chōhatsu.',ht:'Ou ap pwovoke m.'}},
+
+{n:'Tu es trop curieuse.',t:{en:'You are too curious.',es:'Eres muy curiosa.',de:'Du bist zu neugierig.',ru:'Ty slishkom lyubopytnaya.',zh:'Nǐ tài hàoqí.',ja:'Kōkishin tsuyoi.',ht:'Ou twò kirye.'}},
+{n:'Je pense que tu aimes me taquiner.',t:{en:'I think you like teasing me.',es:'Creo que te gusta molestarme.',de:'Ich glaube du neckst mich gern.',ru:'Ty lyubish menya podkolot.',zh:'Nǐ xǐhuān dòu wǒ.',ja:'Karakau no suki.',ht:'M panse ou renmen takine m.'}},
+{n:'Tu joues avec moi.',t:{en:'You are playing with me.',es:'Estás jugando conmigo.',de:'Du spielst mit mir.',ru:'Ty igrayesh so mnoy.',zh:'Nǐ zài gēn wǒ wán.',ja:'Asobun?',ht:'Ou ap jwe avè m.'}},
+{n:'Tu es une énigme.',t:{en:'You are a mystery.',es:'Eres un misterio.',de:'Du bist ein Rätsel.',ru:'Ty zagadka.',zh:'Nǐ shì mí.',ja:'Nazo.',ht:'Ou se yon mistè.'}},
+{n:'Tu me rends fou.',t:{en:'You drive me crazy.',es:'Me vuelves loco.',de:'Du machst mich verrückt.',ru:'Ty svodish menya s uma.',zh:'Nǐ ràng wǒ fēng.',ja:'Kuruwaseru.',ht:'Ou fè m fou.'}}
+
+  ]
+},
+  compliments_naturels:{
+  fr:'Compliments naturels',
+  en:'Natural compliments',
+  es:'Cumplidos naturales',
+  ht:'Konpliman natirèl',
+  de:'Natürliche Komplimente',
+  ru:'Estestvennye komplimenty',
+  zh:'Zìrán zànyáng',
+  ja:'Shizen na homeru',
+  icon:'✨',
+  items:[
+
+{n:'Tu es magnifique.',t:{en:'You are gorgeous.',es:'Eres hermosa.',de:'Du bist wunderschön.',ru:'Ty prekrasna.',zh:'Nǐ hěn měi.',ja:'Totemo kirei.',ht:'Ou bèl anpil.'}},
+{n:'Tu es très élégant.',t:{en:'You are very elegant.',es:'Eres muy elegante.',de:'Du bist sehr elegant.',ru:'Ty ochen elegantnyy.',zh:'Nǐ hěn yōuyǎ.',ja:'Ereganto.',ht:'Ou trè elegant.'}},
+{n:'J’aime ton style.',t:{en:'I like your style.',es:'Me gusta tu estilo.',de:'Ich mag deinen Stil.',ru:'Mne nravitsya tvoy stil.',zh:'Wǒ xǐhuān nǐ de fēnggé.',ja:'Sutairu ga suki.',ht:'M renmen stil ou.'}},
+{n:'Tu as une belle énergie.',t:{en:'You have great energy.',es:'Tienes buena energía.',de:'Du hast tolle Energie.',ru:'U tebya khoroshaya energiya.',zh:'Nǐ de néngliàng hěn hǎo.',ja:'Ii enerugī.',ht:'Ou gen bon enèji.'}},
+{n:'Ton sourire est incroyable.',t:{en:'Your smile is amazing.',es:'Tu sonrisa es increíble.',de:'Dein Lächeln ist unglaublich.',ru:'Tvoya ulybka neveroyatnaya.',zh:'Nǐ de xiàoróng hěn bàng.',ja:'Egao ga suteki.',ht:'Souri ou bèl anpil.'}},
+
+{n:'Tes yeux sont magnifiques.',t:{en:'Your eyes are beautiful.',es:'Tus ojos son hermosos.',de:'Deine Augen sind wunderschön.',ru:'U tebya krasivye glaza.',zh:'Nǐ de yǎnjing hěn měi.',ja:'Me ga kirei.',ht:'Je ou bèl anpil.'}},
+{n:'Tu es très charismatique.',t:{en:'You are very charismatic.',es:'Eres muy carismático.',de:'Du bist sehr charismatisch.',ru:'Ty ochen kharizmatichen.',zh:'Nǐ hěn yǒu mèilì.',ja:'Karizuma aru.',ht:'Ou gen anpil karis.'}},
+{n:'Tu es drôle.',t:{en:'You are funny.',es:'Eres gracioso.',de:'Du bist lustig.',ru:'Ty smeshnoy.',zh:'Nǐ hěn yǒuqù.',ja:'Omoshiroi.',ht:'Ou komik.'}},
+{n:'Tu es très intelligent.',t:{en:'You are very smart.',es:'Eres muy inteligente.',de:'Du bist sehr klug.',ru:'Ty ochen umnyy.',zh:'Nǐ hěn cōngmíng.',ja:'Atama ii.',ht:'Ou entèlijan anpil.'}},
+{n:'Tu es inspirant.',t:{en:'You are inspiring.',es:'Eres inspirador.',de:'Du bist inspirierend.',ru:'Ty vdokhnovlyaesh.',zh:'Nǐ hěn gǔwǔ rén.',ja:'Inspire suru.',ht:'Ou enspire.'}},
+
+{n:'Tu as bon goût.',t:{en:'You have good taste.',es:'Tienes buen gusto.',de:'Du hast guten Geschmack.',ru:'U tebya khoroshiy vkus.',zh:'Nǐ yǒu hǎo pǐnwèi.',ja:'Sense ga ii.',ht:'Ou gen bon gou.'}},
+{n:'Tu es très sympathique.',t:{en:'You are very nice.',es:'Eres muy simpático.',de:'Du bist sehr nett.',ru:'Ty ochen milyy.',zh:'Nǐ hěn qīqiè.',ja:'Shinsetsu.',ht:'Ou trè janti.'}},
+{n:'Tu es impressionnant.',t:{en:'You are impressive.',es:'Eres impresionante.',de:'Du bist beeindruckend.',ru:'Ty vpechatlyaesh.',zh:'Nǐ hěn lìhài.',ja:'Sugoi.',ht:'Ou enpresyonan.'}},
+{n:'Tu es unique.',t:{en:'You are unique.',es:'Eres único.',de:'Du bist einzigartig.',ru:'Ty unikalnyy.',zh:'Nǐ hěn tèbié.',ja:'Yuniiku.',ht:'Ou inik.'}},
+{n:'Tu es adorable.',t:{en:'You are adorable.',es:'Eres adorable.',de:'Du bist süß.',ru:'Ty ochen mil.',zh:'Nǐ hěn kě\'ài.',ja:'Kawaii.',ht:'Ou dous anpil.'}},
+
+{n:'Tu es incroyable.',t:{en:'You are amazing.',es:'Eres increíble.',de:'Du bist unglaublich.',ru:'Ty neveroyatnyy.',zh:'Nǐ tài bàng.',ja:'Sugoi.',ht:'Ou enkwayab.'}},
+{n:'Tu es très intéressant.',t:{en:'You are very interesting.',es:'Eres muy interesante.',de:'Du bist sehr interessant.',ru:'Ty ochen interesnyy.',zh:'Nǐ hěn yǒu yìsi.',ja:'Omoshiroi hito.',ht:'Ou enteresan anpil.'}},
+{n:'Tu as beaucoup de charme.',t:{en:'You have a lot of charm.',es:'Tienes mucho encanto.',de:'Du hast viel Charme.',ru:'U tebya mnogo sharma.',zh:'Nǐ hěn yǒu mèilì.',ja:'Charm ga aru.',ht:'Ou gen anpil cham.'}},
+{n:'Tu es vraiment cool.',t:{en:'You are really cool.',es:'Eres muy genial.',de:'Du bist echt cool.',ru:'Ty ochen krutoy.',zh:'Nǐ hěn kù.',ja:'Kakkoii.',ht:'Ou vrèman cool.'}},
+{n:'Tu es très talentueux.',t:{en:'You are very talented.',es:'Eres muy talentoso.',de:'Du bist sehr talentiert.',ru:'Ty ochen talantliv.',zh:'Nǐ hěn yǒu cáinéng.',ja:'Sainō aru.',ht:'Ou gen anpil talan.'}}
+
+]
+  },
+  storytelling_vie:{
+  fr:'Storytelling vie',
+  en:'Life storytelling',
+  es:'Historia de vida',
+  ht:'Istwa lavi',
+  de:'Lebensgeschichten',
+  ru:'Istorii zhizni',
+  zh:'Shēnghuó gùshì',
+  ja:'Jinsei sutōrī',
+  icon:'📖',
+  items:[
+
+{n:'Je suis né ici.',t:{en:'I was born here.',es:'Nací aquí.',de:'Ich wurde hier geboren.',ru:'Ya rodilsya zdes.',zh:'Wǒ shēng zài zhèlǐ.',ja:'Koko de umareta.',ht:'M fèt isit.'}},
+{n:'J’ai grandi dans cette ville.',t:{en:'I grew up in this city.',es:'Crecí en esta ciudad.',de:'Ich bin in dieser Stadt aufgewachsen.',ru:'Ya vyros v etom gorode.',zh:'Wǒ zài zhège chéngshì zhǎng dà.',ja:'Kono machi de sodatta.',ht:'M grandi nan vil sa.'}},
+{n:'Mon enfance était simple.',t:{en:'My childhood was simple.',es:'Mi infancia fue simple.',de:'Meine Kindheit war einfach.',ru:'Moye detstvo bylo prostym.',zh:'Wǒ de tóngnián hěn jiǎndān.',ja:'Kodomo jidai wa kantan.',ht:'Timounaj mwen te senp.'}},
+{n:'J’ai beaucoup appris.',t:{en:'I learned a lot.',es:'Aprendí mucho.',de:'Ich habe viel gelernt.',ru:'Ya mnogo nauchilsya.',zh:'Wǒ xué dào hěn duō.',ja:'Takusan mananda.',ht:'M aprann anpil.'}},
+{n:'Ma famille est importante pour moi.',t:{en:'My family is important to me.',es:'Mi familia es importante.',de:'Meine Familie ist wichtig.',ru:'Semya vazhna.',zh:'Jiārén hěn zhòngyào.',ja:'Kazoku wa taisetsu.',ht:'Fanmi mwen enpòtan pou mwen.'}},
+
+{n:'J’ai toujours été curieux.',t:{en:'I have always been curious.',es:'Siempre fui curioso.',de:'Ich war immer neugierig.',ru:'Ya vsegda byl lyubopytnym.',zh:'Wǒ yīzhí hěn hàoqí.',ja:'Itsumo kōkishin ga tsuyoi.',ht:'M toujou kirye.'}},
+{n:'J’aime apprendre.',t:{en:'I like learning.',es:'Me gusta aprender.',de:'Ich lerne gern.',ru:'Mne nravitsya uchitsya.',zh:'Wǒ xǐhuān xuéxí.',ja:'Manabu no ga suki.',ht:'M renmen aprann.'}},
+{n:'J’ai vécu des moments difficiles.',t:{en:'I lived difficult moments.',es:'Viví momentos difíciles.',de:'Ich habe schwierige Zeiten erlebt.',ru:'Byli trudnye vremena.',zh:'Wǒ jīnglì guò kùnnán.',ja:'Taihen na toki ga atta.',ht:'M pase moman difisil.'}},
+{n:'Mais j’ai continué.',t:{en:'But I continued.',es:'Pero continué.',de:'Aber ich habe weitergemacht.',ru:'No ya prodolzhal.',zh:'Dàn wǒ jìxù.',ja:'Demo tsuzuketa.',ht:'Men m kontinye.'}},
+{n:'Chaque expérience m’a changé.',t:{en:'Each experience changed me.',es:'Cada experiencia me cambió.',de:'Jede Erfahrung hat mich verändert.',ru:'Kazhdyy opyt menya izmenil.',zh:'Měi cì jīnglì dōu gǎibiàn wǒ.',ja:'Keiken ga watashi o kaeta.',ht:'Chak eksperyans chanje m.'}},
+
+{n:'Je travaille dur.',t:{en:'I work hard.',es:'Trabajo duro.',de:'Ich arbeite hart.',ru:'Ya mnogo rabotayu.',zh:'Wǒ hěn nǔlì gōngzuò.',ja:'Isshōkenmei hataraku.',ht:'M travay di.'}},
+{n:'Je crois en mes rêves.',t:{en:'I believe in my dreams.',es:'Creo en mis sueños.',de:'Ich glaube an meine Träume.',ru:'Ya veryu v mechty.',zh:'Wǒ xiāngxìn mèngxiǎng.',ja:'Yume o shinjiru.',ht:'M kwè nan rèv mwen.'}},
+{n:'Je veux évoluer.',t:{en:'I want to grow.',es:'Quiero crecer.',de:'Ich will wachsen.',ru:'Khochu razvivat’sya.',zh:'Wǒ xiǎng chéngzhǎng.',ja:'Seichō shitai.',ht:'M vle evolye.'}},
+{n:'Je veux une meilleure vie.',t:{en:'I want a better life.',es:'Quiero una mejor vida.',de:'Ich will ein besseres Leben.',ru:'Khochu luchshuyu zhizn.',zh:'Wǒ xiǎng yǒu gèng hǎo shēnghuó.',ja:'Yoi jinsei ga hoshii.',ht:'M vle yon lavi miyò.'}},
+{n:'Je ne regrette rien.',t:{en:'I regret nothing.',es:'No me arrepiento.',de:'Ich bereue nichts.',ru:'Ya ni o chyom ne zhaleyu.',zh:'Wǒ bù hòuhuǐ.',ja:'Kōkai shinai.',ht:'M pa regrèt anyen.'}},
+
+{n:'Chaque jour est une leçon.',t:{en:'Every day is a lesson.',es:'Cada día es una lección.',de:'Jeder Tag ist eine Lektion.',ru:'Kazhdyy den uro k.',zh:'Měi tiān shì yí kè.',ja:'Mainichi ga kyōkun.',ht:'Chak jou se yon leson.'}},
+{n:'J’essaie de rester positif.',t:{en:'I try to stay positive.',es:'Intento ser positivo.',de:'Ich versuche positiv zu bleiben.',ru:'Starayus byt pozitivnym.',zh:'Wǒ shìtú bǎochí jījí.',ja:'Poshitibu ni iru.',ht:'M eseye rete pozitif.'}},
+{n:'Je fais de mon mieux.',t:{en:'I do my best.',es:'Hago lo mejor que puedo.',de:'Ich gebe mein Bestes.',ru:'Delayu vse vozmozhnoye.',zh:'Wǒ jìn lì.',ja:'Ganbaru.',ht:'M fè tout sa m kapab.'}},
+{n:'Je continue d’avancer.',t:{en:'I keep moving forward.',es:'Sigo adelante.',de:'Ich gehe weiter.',ru:'Ya dvigayus vperyod.',zh:'Wǒ jìxù qiánjìn.',ja:'Mae ni susumu.',ht:'M kontinye avanse.'}},
+{n:'Mon histoire continue.',t:{en:'My story continues.',es:'Mi historia continúa.',de:'Meine Geschichte geht weiter.',ru:'Moya istoriya prodolzhayetsya.',zh:'Wǒ de gùshì jìxù.',ja:'Watashi no monogatari wa tsuzuku.',ht:'Istwa mwen kontinye.'}}
+
+]
+  },
+  transport:{
+    fr:'Transport & directions',en:'Transport & directions',es:'Transporte y direcciones',ht:'Transpò ak direksyon',de:'Transport & Wegbeschreibung',ru:'Транспорт и направления',zh:'交通与方向',ja:'交通と方向',icon:'🚗',
+    items:[
+      {n:'Comment aller à... ?',t:{en:'How do I get to...?',es:'¿Cómo llegar a...?',de:'Wie komme ich zu...?',ru:'Как добраться до...?',zh:'怎么去...？(Zěnme qù...?)',ja:'...への行き方は？',ht:'Kijan pou rive nan...?'},struct:{n:'Comment + aller + à + destination ?',t:{en:'How + to get + to + destination?'}}},
+      {n:'Tournez à gauche / à droite.',t:{en:'Turn left / right.',es:'Gire a la izquierda / derecha.',de:'Biegen Sie links / rechts ab.',ru:'Поверните налево / направо.',zh:'左转 / 右转。(Zuǒ zhuǎn / yòu zhuǎn.)',ja:'左 / 右に曲がってください。',ht:'Vire agòch / adwat.'},struct:{n:'Impératif + direction',t:{en:'Imperative + direction'}}},
+      {n:'C\'est loin d\'ici ?',t:{en:'Is it far from here?',es:'¿Está lejos de aquí?',de:'Ist es weit von hier?',ru:'Это далеко отсюда?',zh:'离这里远吗？(Lí zhèlǐ yuǎn ma?)',ja:'ここから遠いですか？',ht:'Èske li lwen isit la?'},struct:{n:'c\'est + adjectif + de + lieu ?',t:{en:'is it + adjective + from + place?'}}},
+      {n:'Je prends le bus / le métro.',t:{en:'I take the bus / the metro.',es:'Tomo el autobús / el metro.',de:'Ich nehme den Bus / die U-Bahn.',ru:'Я еду на автобусе / метро.',zh:'我坐公交车 / 地铁。(Wǒ zuò gōngjiāo chē / dìtiě.)',ja:'バス / 地下鉄に乗ります。',ht:'Mwen pran otobis / métro.'},struct:{n:'prendre + transport',t:{en:'take + transport'}}},
+    ]
+  },
+  famille:{
+    fr:'Famille & relations',en:'Family & relationships',es:'Familia y relaciones',ht:'Fanmi ak relasyon',de:'Familie & Beziehungen',ru:'Семья и отношения',zh:'家庭与关系',ja:'家族と関係',icon:'👨‍👩‍👧',
+    items:[
+      {n:'J\'ai deux frères et une sœur.',t:{en:'I have two brothers and one sister.',es:'Tengo dos hermanos y una hermana.',de:'Ich habe zwei Brüder und eine Schwester.',ru:'У меня два брата и сестра.',zh:'我有两个哥哥和一个妹妹。',ja:'兄が2人と妹が1人います。',ht:'Mwen gen de frè ak yon sè.'},struct:{n:'avoir + nombre + famille',t:{en:'have + number + family member'}}},
+      {n:'Mes parents habitent en ville.',t:{en:'My parents live in the city.',es:'Mis padres viven en la ciudad.',de:'Meine Eltern wohnen in der Stadt.',ru:'Мои родители живут в городе.',zh:'我父母住在城里。',ja:'両親は町に住んでいます。',ht:'Paran m yo rete nan vil la.'},struct:{n:'possessif + sujet + habiter + lieu',t:{en:'possessive + subject + live + place'}}},
+      {n:'Nous nous entendons bien.',t:{en:'We get along well.',es:'Nos llevamos bien.',de:'Wir verstehen uns gut.',ru:'Мы хорошо ладим.',zh:'我们相处很好。(Wǒmen xiāngchǔ hěn hǎo.)',ja:'私たちは仲がいいです。',ht:'Nou antann nou byen.'},struct:{n:'pronom réfléchi + verbe pronominal + adverbe',t:{en:'we + get along + well'}}},
+    ]
+  },
+  sante:{
+    fr:'Santé & corps',en:'Health & body',es:'Salud y cuerpo',ht:'Sante ak kò',de:'Gesundheit & Körper',ru:'Здоровье и тело',zh:'健康与身体',ja:'健康と体',icon:'🏥',
+    items:[
+      {n:'J\'ai mal à la tête.',t:{en:'I have a headache.',es:'Me duele la cabeza.',de:'Ich habe Kopfschmerzen.',ru:'У меня болит голова.',zh:'我头痛。(Wǒ tóutòng.)',ja:'頭が痛いです。(Atama ga itai desu.)',ht:'Tèt mwen fè mal.'},struct:{n:'avoir mal + à + partie du corps',t:{en:'have + body part + ache'}}},
+      {n:'Il faut appeler le médecin.',t:{en:'We need to call the doctor.',es:'Hay que llamar al médico.',de:'Wir müssen den Arzt anrufen.',ru:'Нужно вызвать врача.',zh:'需要打电话给医生。',ja:'医者に電話しなければなりません。',ht:'Fò rele doktè a.'},struct:{n:'il faut + infinitif',t:{en:'we need to + infinitive'}}},
+      {n:'Prenez ce médicament deux fois par jour.',t:{en:'Take this medicine twice a day.',es:'Tome este medicamento dos veces al día.',de:'Nehmen Sie dieses Medikament zweimal täglich.',ru:'Принимайте это лекарство дважды в день.',zh:'每天服用这种药两次。',ja:'この薬を1日2回服用してください。',ht:'Pran medikaman sa de fwa pa jou.'},struct:{n:'Impératif + fréquence',t:{en:'Take + noun + frequency'}}},
+    ]
+  },
+};
+  // =================================================================
+// GRAMMAR DATA
+// =================================================================
+const GRAMMAR_DATA = {
+  present:{
+    fr:'Présent',en:'Present tense',es:'Presente',ht:'Prezan',de:'Präsens',ru:'Настоящее время',zh:'现在时',ja:'現在形',icon:'⏱️',
+    explanation:{
+      fr:'Le présent décrit ce qui se passe <strong>maintenant</strong> ou ce qui est <em>habituel/régulier</em>. Il s\'utilise aussi pour les vérités générales.',
+      en:'The present tense describes what is happening <strong>now</strong> or what is <em>habitual/regular</em>. Also used for general truths.',
+      es:'El presente describe lo que sucede <strong>ahora</strong> o lo que es <em>habitual/regular</em>.',
+      ht:'Prezan an dekri sa k ap pase <strong>kounye a</strong> oswa sa ki <em>abitye pase</em>.',
+      de:'Das Präsens beschreibt was <strong>jetzt</strong> passiert oder was <em>gewöhnlich/regelmäßig</em> passiert.',
+      ru:'Настоящее время описывает то, что происходит <strong>сейчас</strong> или является <em>привычным</em>.',
+      zh:'现在时描述<strong>现在</strong>发生的事情或<em>习惯性/经常性</em>的行为。',
+      ja:'現在形は<strong>今</strong>起きていることや<em>習慣的/定期的な</em>ことを表します。',
+    },
+    formula:{fr:'Sujet + Verbe (conjugué)',en:'Subject + Verb (conjugated)',es:'Sujeto + Verbo (conjugado)',ht:'Sijè + Vèb (konjige)',de:'Subjekt + Verb (konjugiert)',ru:'Подлежащее + Глагол',zh:'主语 + 动词',ja:'主語 + 動詞'},
+    examples:[
+      {n:'Je mange une pomme chaque matin.',t:{en:'I eat an apple every morning.',es:'Como una manzana cada mañana.',de:'Ich esse jeden Morgen einen Apfel.',ru:'Я ем яблоко каждое утро.',zh:'我每天早上吃一个苹果。',ja:'毎朝りんごを食べます。',ht:'Mwen manje yon pòm chak maten.'}},
+      {n:'Il travaille dans un bureau.',t:{en:'He works in an office.',es:'Él trabaja en una oficina.',de:'Er arbeitet in einem Büro.',ru:'Он работает в офисе.',zh:'他在办公室工作。',ja:'彼はオフィスで働いています。',ht:'Li travay nan yon biwo.'}},
+      {n:'Nous parlons français.',t:{en:'We speak French.',es:'Hablamos francés.',de:'Wir sprechen Französisch.',ru:'Мы говорим по-французски.',zh:'我们说法语。',ja:'私たちはフランス語を話します。',ht:'Nou pale fransè.'}},
+      {n:'Est-ce que tu aimes le café ?',t:{en:'Do you like coffee?',es:'¿Te gusta el café?',de:'Magst du Kaffee?',ru:'Ты любишь кофе?',zh:'你喜欢咖啡吗？',ja:'コーヒーが好きですか？',ht:'Èske ou renmen kafe?'}},
+      {n:'Elle ne mange pas de viande.',t:{en:'She doesn\'t eat meat.',es:'Ella no come carne.',de:'Sie isst kein Fleisch.',ru:'Она не ест мясо.',zh:'她不吃肉。',ja:'彼女は肉を食べません。',ht:'Li pa manje vyann.'}},
+      {n:'Vous avez des enfants ?',t:{en:'Do you have children?',es:'¿Tienen hijos?',de:'Haben Sie Kinder?',ru:'У вас есть дети?',zh:'你有孩子吗？',ja:'お子さんはいますか？',ht:'Èske ou gen pitit?'}},
+    ]
+  },
+  passe_compose:{
+    fr:'Passé composé',en:'Past tense (Passé composé)',es:'Pretérito perfecto',ht:'Tan pase konpoze',de:'Perfekt (Passé composé)',ru:'Сложное прошедшее',zh:'复合过去时',ja:'複合過去',icon:'⏮️',
+    explanation:{
+      fr:'Le passé composé décrit des actions <strong>terminées dans le passé</strong>. Il se forme avec <em>avoir</em> ou <em>être</em> + participe passé.',
+      en:'The passé composé describes actions <strong>completed in the past</strong>. It is formed with <em>avoir/être</em> + past participle.',
+      es:'El pretérito perfecto describe acciones <strong>completadas en el pasado</strong>. Se forma con <em>avoir/être</em> + participio.',
+      ht:'Tan pase konpoze a dekri aksyon <strong>ki te fini nan tan pase</strong>. Li fòme ak <em>avoir/être</em> + patisip pase.',
+      de:'Das Perfekt beschreibt <strong>abgeschlossene Handlungen in der Vergangenheit</strong>. Gebildet mit <em>avoir/être</em> + Partizip.',
+      ru:'Обозначает <strong>завершённые действия в прошлом</strong>. Образуется: <em>avoir/être</em> + причастие прошедшего времени.',
+      zh:'描述<strong>过去完成的动作</strong>。由<em>avoir/être</em> + 过去分词构成。',
+      ja:'<strong>過去に完了した行為</strong>を表します。<em>avoir/être</em> + 過去分詞で作ります。',
+    },
+    formula:{fr:'avoir/être + Participe passé',en:'avoir/être + Past participle',es:'avoir/être + Participio pasado',ht:'avoir/être + Patisip pase',de:'haben/sein + Partizip II',ru:'avoir/être + причастие',zh:'avoir/être + 过去分词',ja:'avoir/être + 過去分詞'},
+    examples:[
+      {n:'J\'ai mangé au restaurant hier.',t:{en:'I ate at the restaurant yesterday.',es:'Comí en el restaurante ayer.',de:'Ich habe gestern im Restaurant gegessen.',ru:'Вчера я поел в ресторане.',zh:'昨天我在餐厅吃饭了。',ja:'昨日レストランで食べました。',ht:'Yè mwen manje nan restoran.'}},
+      {n:'Elle est partie à 8 heures.',t:{en:'She left at 8 o\'clock.',es:'Ella salió a las 8.',de:'Sie ist um 8 Uhr abgefahren.',ru:'Она ушла в 8 часов.',zh:'她8点离开了。',ja:'彼女は8時に出発しました。',ht:'Li pati a 8è.'}},
+      {n:'Nous avons fini le projet.',t:{en:'We finished the project.',es:'Terminamos el proyecto.',de:'Wir haben das Projekt beendet.',ru:'Мы закончили проект.',zh:'我们完成了项目。',ja:'プロジェクトを終わらせました。',ht:'Nou fini pwojè a.'}},
+      {n:'As-tu vu ce film ?',t:{en:'Did you see that film?',es:'¿Viste esa película?',de:'Hast du diesen Film gesehen?',ru:'Ты видел этот фильм?',zh:'你看过那部电影吗？',ja:'その映画を見ましたか？',ht:'Èske ou te wè fim sa a?'}},
+      {n:'Il n\'a pas répondu.',t:{en:'He didn\'t answer.',es:'Él no respondió.',de:'Er hat nicht geantwortet.',ru:'Он не ответил.',zh:'他没有回答。',ja:'彼は答えませんでした。',ht:'Li pa reponn.'}},
+    ]
+  },
+  futur:{
+    fr:'Futur',en:'Future tense',es:'Futuro',ht:'Tan kap vini',de:'Futur',ru:'Будущее время',zh:'将来时',ja:'未来形',icon:'⏭️',
+    explanation:{
+      fr:'Le futur décrit des actions <strong>qui vont se passer</strong>. Le futur proche se forme avec <em>aller + infinitif</em>.',
+      en:'The future describes actions <strong>that will happen</strong>. The near future is formed with <em>aller + infinitive</em>.',
+      es:'El futuro describe acciones <strong>que van a suceder</strong>. El futuro cercano se forma con <em>ir + infinitivo</em>.',
+      ht:'Tan kap vini an dekri aksyon <strong>ki pral pase</strong>. Futur pwòch fòme ak <em>aller + infinitif</em>.',
+      de:'Das Futur beschreibt Handlungen, <strong>die stattfinden werden</strong>. Nahe Zukunft: <em>aller + Infinitiv</em>.',
+      ru:'Обозначает действия, <strong>которые произойдут</strong>. Ближайшее будущее: <em>aller + инфинитив</em>.',
+      zh:'描述<strong>将要发生</strong>的行为。近将来时：<em>aller + 不定式</em>。',
+      ja:'<strong>これから起こる</strong>行為を表します。近い将来：<em>aller + 不定詞</em>。',
+    },
+    formula:{fr:'aller + Infinitif / Verbe + -rai/-ras/-ra',en:'going to + Infinitive / Verb + will',es:'ir a + Infinitivo / Verbo + futuro',ht:'pral + Infinitif',de:'werden + Infinitiv',ru:'буду + инфинитив',zh:'将 / 要 + 动词',ja:'〜するつもり / 〜でしょう'},
+    examples:[
+      {n:'Je vais manger dans une heure.',t:{en:'I\'m going to eat in an hour.',es:'Voy a comer en una hora.',de:'Ich werde in einer Stunde essen.',ru:'Я собираюсь поесть через час.',zh:'我一个小时后要吃东西。',ja:'1時間後に食べるつもりです。',ht:'Mwen pral manje nan yon èdtan.'}},
+      {n:'Il fera beau demain.',t:{en:'It will be nice tomorrow.',es:'Mañana hará buen tiempo.',de:'Morgen wird das Wetter schön sein.',ru:'Завтра будет хорошая погода.',zh:'明天天气会很好。',ja:'明日は良い天気でしょう。',ht:'Tan an ap bèl demen.'}},
+      {n:'Nous allons partir en vacances.',t:{en:'We\'re going to go on vacation.',es:'Vamos a irnos de vacaciones.',de:'Wir werden in den Urlaub fahren.',ru:'Мы собираемся поехать в отпуск.',zh:'我们要去度假。',ja:'休暇に行くつもりです。',ht:'Nou pral pati nan vakans.'}},
+      {n:'Est-ce que tu vas venir ?',t:{en:'Are you going to come?',es:'¿Vas a venir?',de:'Wirst du kommen?',ru:'Ты придёшь?',zh:'你要来吗？',ja:'来るつもりですか？',ht:'Èske ou pral vini?'}},
+      {n:'Elle ne va pas sortir ce soir.',t:{en:'She\'s not going to go out tonight.',es:'Ella no va a salir esta noche.',de:'Sie wird heute Abend nicht ausgehen.',ru:'Она не выйдет сегодня вечером.',zh:'她今晚不会出去。',ja:'彼女は今夜外出しないつもりです。',ht:'Li pa pral soti aswe a.'}},
+    ]
+  },
+  questions:{
+    fr:'Questions',en:'Questions',es:'Preguntas',ht:'Kesyon',de:'Fragen',ru:'Вопросы',zh:'疑问句',ja:'疑問文',icon:'❓',
+    explanation:{
+      fr:'Il y a 3 façons de former une question : <strong>intonation montante</strong>, <em>Est-ce que</em> + phrase, ou <em>inversion</em> sujet-verbe.',
+      en:'There are 3 ways to form a question: <strong>rising intonation</strong>, <em>Est-ce que</em> + sentence, or subject-verb <em>inversion</em>.',
+      es:'Hay 3 formas de hacer preguntas: <strong>entonación ascendente</strong>, <em>Est-ce que</em> + frase, o <em>inversión</em> sujeto-verbo.',
+      ht:'Gen 3 fason pou fòme kesyon: <strong>entonasyon monte</strong>, <em>Est-ce que</em> + fraz, oswa <em>envèsyon</em>.',
+      de:'Es gibt 3 Arten, Fragen zu bilden: <strong>steigende Intonation</strong>, <em>Est-ce que</em> + Satz, oder <em>Inversion</em>.',
+      ru:'3 способа задать вопрос: <strong>восходящая интонация</strong>, <em>Est-ce que</em> + предложение, или <em>инверсия</em>.',
+      zh:'有3种提问方式：<strong>升调</strong>、<em>Est-ce que</em> + 句子，或<em>倒装</em>主谓。',
+      ja:'疑問文の3つの作り方：<strong>上昇イントネーション</strong>、<em>Est-ce que</em> + 文、または主語動詞の<em>倒置</em>。',
+    },
+    formula:{fr:'Est-ce que + sujet + verbe ? / Mot interrogatif + verbe ?',en:'Do/Does + subject + verb? / Wh- word + verb?',es:'¿ ... ? / Palabra interrogativa + verbo?',ht:'Èske + sijè + vèb ? / Mo kesyon + vèb ?',de:'Verb + Subjekt? / W-Wort + Verb?',ru:'Вопросительное слово + глагол? / Verb + подлежащее?',zh:'疑问词 + 主语 + 动词？/ 主语 + 动词 + 吗？',ja:'疑問詞 + 主語 + 動詞 + か？'},
+    examples:[
+      {n:'Est-ce que tu parles anglais ?',t:{en:'Do you speak English?',es:'¿Hablas inglés?',de:'Sprichst du Englisch?',ru:'Ты говоришь по-английски?',zh:'你说英语吗？',ja:'英語を話しますか？',ht:'Èske ou pale anglè?'}},
+      {n:'Où habites-tu ?',t:{en:'Where do you live?',es:'¿Dónde vives?',de:'Wo wohnst du?',ru:'Где ты живёшь?',zh:'你住在哪里？',ja:'どこに住んでいますか？',ht:'Ki kote ou rete?'}},
+      {n:'Pourquoi est-ce que tu pleures ?',t:{en:'Why are you crying?',es:'¿Por qué lloras?',de:'Warum weinst du?',ru:'Почему ты плачешь?',zh:'你为什么哭？',ja:'なぜ泣いているのですか？',ht:'Poukisa ou ap kriye?'}},
+      {n:'Quand arrive-t-il ?',t:{en:'When does he arrive?',es:'¿Cuándo llega?',de:'Wann kommt er an?',ru:'Когда он приезжает?',zh:'他什么时候到达？',ja:'彼はいつ到着しますか？',ht:'Kilè li ap rive?'}},
+      {n:'Comment est-ce que tu t\'appelles ?',t:{en:'What is your name?',es:'¿Cómo te llamas?',de:'Wie heißt du?',ru:'Как тебя зовут?',zh:'你叫什么名字？',ja:'お名前は何ですか？',ht:'Kijan ou rele?'}},
+      {n:'Combien de langues parles-tu ?',t:{en:'How many languages do you speak?',es:'¿Cuántos idiomas hablas?',de:'Wie viele Sprachen sprichst du?',ru:'На скольких языках ты говоришь?',zh:'你会说几种语言？',ja:'何ヵ国語話せますか？',ht:'Konbyen lang ou pale?'}},
+    ]
+  },
+  negation:{
+    fr:'Négation',en:'Negation',es:'Negación',ht:'Negasyon',de:'Verneinung',ru:'Отрицание',zh:'否定句',ja:'否定文',icon:'🚫',
+    explanation:{
+      fr:'La négation en français se forme avec <strong>ne... pas</strong> autour du verbe. À l\'oral, le <em>ne</em> est souvent omis.',
+      en:'In French, negation is formed with <strong>ne... pas</strong> around the verb. In spoken French, <em>ne</em> is often dropped.',
+      es:'La negación en francés se forma con <strong>ne... pas</strong> alrededor del verbo.',
+      ht:'Negasyon nan fransè fòme ak <strong>ne... pas</strong> ozalantou vèb la.',
+      de:'Die Verneinung im Französischen wird mit <strong>ne... pas</strong> um das Verb gebildet.',
+      ru:'Отрицание во французском языке образуется с помощью <strong>ne... pas</strong> вокруг глагола.',
+      zh:'法语否定句用<strong>ne... pas</strong>围绕动词构成。',
+      ja:'フランス語の否定は動詞の周りに<strong>ne... pas</strong>を置いて作ります。',
+    },
+    formula:{fr:'ne + Verbe + pas',en:'ne + Verb + pas (French) / do not + Verb (English)',es:'no + Verbo',ht:'pa + Vèb',de:'nicht / kein',ru:'не + Глагол',zh:'不 / 没有 + 动词',ja:'〜ません / 〜ないです'},
+    examples:[
+      {n:'Je ne parle pas japonais.',t:{en:'I don\'t speak Japanese.',es:'No hablo japonés.',de:'Ich spreche kein Japanisch.',ru:'Я не говорю по-японски.',zh:'我不说日语。',ja:'日本語を話しません。',ht:'Mwen pa pale japonè.'}},
+      {n:'Il n\'est pas là.',t:{en:'He is not here.',es:'Él no está aquí.',de:'Er ist nicht da.',ru:'Его здесь нет.',zh:'他不在这里。',ja:'彼はここにいません。',ht:'Li pa la.'}},
+      {n:'Nous n\'avons pas faim.',t:{en:'We are not hungry.',es:'No tenemos hambre.',de:'Wir haben keinen Hunger.',ru:'Мы не голодны.',zh:'我们不饿。',ja:'お腹が空いていません。',ht:'Nou pa grangou.'}},
+      {n:'Elle ne veut rien manger.',t:{en:'She doesn\'t want to eat anything.',es:'Ella no quiere comer nada.',de:'Sie will nichts essen.',ru:'Она не хочет ничего есть.',zh:'她什么都不想吃。',ja:'彼女は何も食べたくありません。',ht:'Li pa vle manje anyen.'}},
+      {n:'Je n\'ai jamais vu ça.',t:{en:'I have never seen that.',es:'Nunca he visto eso.',de:'Das habe ich noch nie gesehen.',ru:'Я никогда этого не видел.',zh:'我从来没见过那个。',ja:'そんなの見たことありません。',ht:'Mwen pa janm wè sa.'}},
+      {n:'Ce n\'est pas grave.',t:{en:'It\'s not a big deal.',es:'No es grave.',de:'Das ist nicht schlimm.',ru:'Это не страшно.',zh:'没关系。',ja:'大したことではありません。',ht:'Sa pa grave.'}},
+    ]
+  },
+  imparfait:{
+    fr:'Imparfait / Passé simple',en:'Imperfect / Simple past',es:'Imperfecto / Pretérito',ht:'Imparfè / Tan pase senp',de:'Imperfekt',ru:'Прошедшее несовершенное',zh:'未完成过去时',ja:'半過去',icon:'📖',
+    explanation:{
+      fr:'L\'imparfait décrit des <strong>habitudes passées</strong> ou des situations <em>continues/descriptives</em> dans le passé. Il s\'oppose au passé composé qui décrit une action ponctuelle.',
+      en:'The imperfect describes <strong>past habits</strong> or <em>continuous/descriptive</em> situations in the past. It contrasts with the passé composé which describes a one-time action.',
+      es:'El imperfecto describe <strong>hábitos pasados</strong> o situaciones <em>continuas/descriptivas</em> en el pasado.',
+      ht:'Imparfè a dekri <strong>abitid nan tan pase</strong> oswa sitiyasyon <em>kontinyèl/deskriptif</em>.',
+      de:'Das Imperfekt beschreibt <strong>vergangene Gewohnheiten</strong> oder <em>kontinuierliche/beschreibende</em> Situationen.',
+      ru:'Несовершенное прошедшее описывает <strong>прошлые привычки</strong> или <em>длительные/описательные</em> ситуации.',
+      zh:'未完成过去时描述<strong>过去的习惯</strong>或<em>持续/描述性</em>的过去情况。',
+      ja:'半過去は<strong>過去の習慣</strong>や<em>継続的/描写的</em>な過去の状況を表します。',
+    },
+    formula:{fr:'Radical de nous au présent + -ais/-ais/-ait/-ions/-iez/-aient',en:'Was/were + -ing / Used to + verb',es:'Terminaciones -aba/-ía',ht:'Vèb + te',de:'Verb + -te/-ten',ru:'Глагол + -л/-ла/-ли',zh:'(过去) + 动词',ja:'〜ていました / 〜でした'},
+    examples:[
+      {n:'Quand j\'étais enfant, je jouais au foot.',t:{en:'When I was a child, I used to play football.',es:'Cuando era niño, jugaba al fútbol.',de:'Als ich Kind war, spielte ich Fußball.',ru:'Когда я был ребёнком, я играл в футбол.',zh:'当我是孩子时，我打足球。',ja:'子供の頃、サッカーをしていました。',ht:'Lè mwen te timoun, mwen te jwe foutbòl.'}},
+      {n:'Il pleuvait quand nous sommes sortis.',t:{en:'It was raining when we went out.',es:'Llovía cuando salimos.',de:'Es regnete, als wir weggingen.',ru:'Когда мы вышли, шёл дождь.',zh:'当我们出去时，正在下雨。',ja:'私たちが出かけた時、雨が降っていました。',ht:'Lapli t ap tonbe lè nou soti.'}},
+      {n:'Elle travaillait tous les jours.',t:{en:'She worked every day.',es:'Ella trabajaba todos los días.',de:'Sie arbeitete jeden Tag.',ru:'Она работала каждый день.',zh:'她每天都工作。',ja:'彼女は毎日働いていました。',ht:'Li t ap travay chak jou.'}},
+    ]
+  },
+};
+  // =================================================================
+// LOCATIONS DATA
+// =================================================================
+const LOC_NAMES = {
+  church:{fr:'Église',ht:'Legliz',en:'Church',es:'Iglesia',de:'Kirche',ru:'Церковь',zh:'教堂',ja:'教会'},
+  school:{fr:'École',ht:'Lekòl',en:'School',es:'Escuela',de:'Schule',ru:'Школа',zh:'学校',ja:'学校'},
+  factory:{fr:'Atelier',ht:'Atelye',en:'Workshop',es:'Taller',de:'Werkstatt',ru:'Мастерская',zh:'工坊',ja:'工房'},
+  market:{fr:'Marché',ht:'Mache',en:'Market',es:'Mercado',de:'Markt',ru:'Рынок',zh:'市场',ja:'市場'},
+  hospital:{fr:'Hôpital',ht:'Lopital',en:'Hospital',es:'Hospital',de:'Krankenhaus',ru:'Больница',zh:'医院',ja:'病院'},
+  tavern:{fr:'Taverne',ht:'Tàvèn',en:'Tavern',es:'Taberna',de:'Taverne',ru:'Таверна',zh:'酒馆',ja:'酒場'},
+  friends:{fr:'Maison des amis',ht:'Kay zanmi',en:'Friends\' House',es:'Casa amigos',de:'Freundeshaus',ru:'Дом друзей',zh:'友谊之家',ja:'友達の家'},
+  park:{fr:'Parc',ht:'Pak',en:'Park',es:'Parque',de:'Park',ru:'Парк',zh:'公园',ja:'公園'},
+  police:{fr:'Police',ht:'Lapolis',en:'Police',es:'Policía',de:'Polizei',ru:'Полиция',zh:'警察',ja:'警察'},
+  bank:{fr:'Banque',ht:'Bank',en:'Bank',es:'Banco',de:'Bank',ru:'Банк',zh:'银行',ja:'銀行'},
+  station:{fr:'Gare',ht:'Estasyon',en:'Station',es:'Estación',de:'Bahnhof',ru:'Вокзал',zh:'车站',ja:'駅'},
+  farm:{fr:'Ferme',ht:'Fèm',en:'Farm',es:'Granja',de:'Bauernhof',ru:'Ферма',zh:'农场',ja:'農場'},
+};
+const LOC_DESC = {
+  church:{fr:'Politesse formelle',en:'Formal politeness',ht:'Politès fòmèl',es:'Educación formal',de:'Formelle Höflichkeit',ru:'Вежливость',zh:'正式礼节',ja:'礼儀'},
+  school:{fr:'Grammaire et conjugaison',en:'Grammar & conjugation',ht:'Gramè',es:'Gramática',de:'Grammatik',ru:'Грамматика',zh:'语法',ja:'文法'},
+  factory:{fr:'Vocabulaire du travail',en:'Work vocabulary',ht:'Vokabilè travay',es:'Vocabulario trabajo',de:'Arbeit',ru:'Работа',zh:'工作',ja:'仕事'},
+  market:{fr:'Chiffres et achats',en:'Numbers & shopping',ht:'Chif ak acha',es:'Compras',de:'Einkaufen',ru:'Покупки',zh:'购物',ja:'買い物'},
+  hospital:{fr:'Corps et santé',en:'Body & health',ht:'Kò ak sante',es:'Salud',de:'Gesundheit',ru:'Здоровье',zh:'健康',ja:'健康'},
+  tavern:{fr:'Expressions familières',en:'Casual talk',ht:'Ekspresyon familyè',es:'Informal',de:'Umgangssprache',ru:'Разговорный',zh:'日常用语',ja:'くだけた表現'},
+  friends:{fr:'Émotions et amitié',en:'Emotions & friendship',ht:'Emosyon',es:'Emociones',de:'Emotionen',ru:'Эмоции',zh:'情感',ja:'感情'},
+  park:{fr:'Vocabulaire affectif',en:'Affectionate vocab',ht:'Vokabilè afektif',es:'Afectivo',de:'Liebevoll',ru:'Ласковые слова',zh:'感情词汇',ja:'愛情表現'},
+  police:{fr:'Directions et urgences',en:'Directions & emergencies',ht:'Direksyon',es:'Emergencias',de:'Notfälle',ru:'Направления',zh:'方向与紧急',ja:'方向と緊急'},
+  bank:{fr:'Argent et transactions',en:'Money & transactions',ht:'Lajan',es:'Dinero',de:'Geld',ru:'Деньги',zh:'金钱',ja:'お金'},
+  station:{fr:'Voyages et horaires',en:'Travel & schedules',ht:'Vwayaj',es:'Viajes',de:'Reisen',ru:'Путешествия',zh:'旅行',ja:'旅行'},
+  farm:{fr:'Nature et animaux',en:'Nature & animals',ht:'Nati ak bèt',es:'Naturaleza',de:'Natur',ru:'Природа',zh:'自然',ja:'自然'},
+};
+const LOCATIONS = [
+  {id:'church',emoji:'⛪',color:'#6a50a8',x:0.05,y:0.25,w:0.14,h:0.18,npcs:[
+    {id:'pastor',emoji:'🧑‍⚖️',name:'Morgan',role:{fr:'Pasteur·e',en:'Pastor',ht:'Pastè',es:'Pastor/a',de:'Pastor/in',ru:'Пастор',zh:'牧师',ja:'牧師'},ctx:'Tu es Morgan, pasteur bienveillant. Tu parles avec respect et solennité. Tu enseignes la politesse formelle.'},
+    {id:'choir',emoji:'🎵',name:'River',role:{fr:'Choriste',en:'Choir',ht:'Chantè',es:'Corista',de:'Chor',ru:'Хорист',zh:'合唱',ja:'聖歌隊'},ctx:'Tu es River, choriste. Tu enseignes la prononciation par la musique.'}]},
+  {id:'school',emoji:'🏫',color:'#3a7aaa',x:0.30,y:0.15,w:0.14,h:0.18,npcs:[
+    {id:'teacher',emoji:'🧑‍🏫',name:'Robin',role:{fr:'Professeur·e',en:'Teacher',ht:'Pwofesè',es:'Profesor/a',de:'Lehrer/in',ru:'Учитель',zh:'老师',ja:'先生'},ctx:'Tu es Robin, professeur patient. Tu corriges doucement et expliques simplement.'},
+    {id:'student',emoji:'🧒',name:'Charlie',role:{fr:'Élève',en:'Student',ht:'Elèv',es:'Estudiante',de:'Schüler/in',ru:'Ученик',zh:'学生',ja:'生徒'},ctx:'Tu es Charlie, élève curieux. Tu apprends avec le joueur.'}]},
+  {id:'market',emoji:'🛒',color:'#2a8a50',x:0.52,y:0.52,w:0.14,h:0.16,npcs:[
+    {id:'vendor',emoji:'🧑‍🍳',name:'Sage',role:{fr:'Vendeur·se',en:'Vendor',ht:'Machann',es:'Vendedor/a',de:'Verkäufer/in',ru:'Продавец',zh:'商贩',ja:'売り手'},ctx:'Tu es Sage, vendeur souriant. Tu parles de prix et quantités.'},
+    {id:'cashier',emoji:'💰',name:'Quinn',role:{fr:'Caissier·ère',en:'Cashier',ht:'Kesye',es:'Cajero/a',de:'Kassierer/in',ru:'Кассир',zh:'收银员',ja:'レジ係'},ctx:'Tu es Quinn, caissier méthodique. Tu comptes à voix haute.'}]},
+  {id:'hospital',emoji:'🏥',color:'#aa3a3a',x:0.82,y:0.50,w:0.12,h:0.16,npcs:[
+    {id:'doctor',emoji:'🧑‍⚕️',name:'Drew',role:{fr:'Médecin',en:'Doctor',ht:'Doktè',es:'Médico/a',de:'Arzt/in',ru:'Врач',zh:'医生',ja:'医師'},ctx:'Tu es Drew, médecin calme. Tu parles du corps humain.'},
+    {id:'nurse',emoji:'💊',name:'Avery',role:{fr:'Infirmier·ère',en:'Nurse',ht:'Enfimyè',es:'Enfermero/a',de:'Pfleger/in',ru:'Медсестра',zh:'护士',ja:'看護師'},ctx:'Tu es Avery, infirmier attentionné.'}]},
+  {id:'tavern',emoji:'🍺',color:'#8a4a10',x:0.06,y:0.56,w:0.13,h:0.16,npcs:[
+    {id:'bartender',emoji:'🧑‍🍽️',name:'Lane',role:{fr:'Barman·aid',en:'Bartender',ht:'Bòkay',es:'Bartender',de:'Barkeeper/in',ru:'Бармен',zh:'酒保',ja:'バーテンダー'},ctx:'Tu es Lane, barman jovial. Tu utilises des expressions populaires.'},
+    {id:'regular',emoji:'🎲',name:'Sky',role:{fr:'Client·e',en:'Regular',ht:'Kliyan',es:'Cliente',de:'Stammgast',ru:'Завсегдатай',zh:'常客',ja:'常連'},ctx:'Tu es Sky, habitué décontracté. Tu parles de ta journée.'}]},
+  {id:'friends',emoji:'🏠',color:'#3a6aaa',x:0.26,y:0.58,w:0.13,h:0.15,npcs:[
+    {id:'friend',emoji:'🤝',name:'Alex',role:{fr:'Ami·e',en:'Friend',ht:'Zanmi',es:'Amigo/a',de:'Freund/in',ru:'Друг',zh:'朋友',ja:'友達'},ctx:'Tu es Alex, le meilleur ami. Tu parles avec affection.'},
+    {id:'neighbor',emoji:'😊',name:'Jamie',role:{fr:'Voisin·e',en:'Neighbor',ht:'Vwazen',es:'Vecino/a',de:'Nachbar/in',ru:'Сосед',zh:'邻居',ja:'隣人'},ctx:'Tu es Jamie, voisin agréable.'}]},
+  {id:'park',emoji:'🌳',color:'#6a9a30',x:0.60,y:0.18,w:0.12,h:0.14,npcs:[
+    {id:'partner',emoji:'💝',name:'Sam',role:{fr:'Partenaire',en:'Partner',ht:'Patnè',es:'Pareja',de:'Partner/in',ru:'Партнёр',zh:'伴侣',ja:'パートナー'},ctx:'Tu es Sam, partenaire romantique. Tu parles avec douceur et respect.'}]},
+  {id:'police',emoji:'👮',color:'#2a4a8a',x:0.18,y:0.42,w:0.12,h:0.14,npcs:[
+    {id:'officer',emoji:'🧑‍✈️',name:'Remy',role:{fr:'Agent·e',en:'Officer',ht:'Ofisye',es:'Agente',de:'Beamter/in',ru:'Офицер',zh:'警察',ja:'警察官'},ctx:'Tu es Remy, agent professionnel. Tu donnes des directions.'}]},
+  {id:'bank',emoji:'🏦',color:'#5a7a30',x:0.67,y:0.36,w:0.12,h:0.14,npcs:[
+    {id:'banker',emoji:'💼',name:'Reese',role:{fr:'Banquier·ère',en:'Banker',ht:'Bankye',es:'Banquero/a',de:'Banker/in',ru:'Банкир',zh:'银行家',ja:'銀行員'},ctx:'Tu es Reese, banquier formel.'}]},
+  {id:'station',emoji:'🚉',color:'#4a4a8a',x:0.40,y:0.68,w:0.15,h:0.13,npcs:[
+    {id:'stationmaster',emoji:'🚂',name:'Pax',role:{fr:'Chef de gare',en:'Stationmaster',ht:'Chèf estasyon',es:'Jefe de estación',de:'Bahnhofsvorsteher/in',ru:'Начальник вокзала',zh:'站长',ja:'駅長'},ctx:'Tu es Pax, chef de gare précis.'},
+    {id:'traveler',emoji:'🧳',name:'Wren',role:{fr:'Voyageur·se',en:'Traveler',ht:'Vwayajè',es:'Viajero/a',de:'Reisende/r',ru:'Путешественник',zh:'旅行者',ja:'旅行者'},ctx:'Tu es Wren, voyageur curieux.'}]},
+  {id:'farm',emoji:'🌾',color:'#7a6a20',x:0.84,y:0.30,w:0.12,h:0.15,npcs:[
+    {id:'farmer',emoji:'🧑‍🌾',name:'Dale',role:{fr:'Fermier·ère',en:'Farmer',ht:'Kiltivatè',es:'Granjero/a',de:'Bauer/in',ru:'Фермер',zh:'农民',ja:'農家'},ctx:'Tu es Dale, fermier proche de la nature.'}]},
+  {id:'factory',emoji:'🏭',color:'#8a6a30',x:0.72,y:0.18,w:0.14,h:0.18,npcs:[
+    {id:'foreman',emoji:'👷',name:'Casey',role:{fr:'Contremaître·sse',en:'Foreman',ht:'Chèf travay',es:'Capataz',de:'Vorarbeiter/in',ru:'Прораб',zh:'工头',ja:'現場監督'},ctx:'Tu es Casey, contremaître direct.'},
+    {id:'craftsperson',emoji:'🔨',name:'Blake',role:{fr:'Artisan·e',en:'Craftsperson',ht:'Atizan',es:'Artesano/a',de:'Handwerker/in',ru:'Мастер',zh:'工匠',ja:'職人'},ctx:'Tu es Blake, artisan fier.'}]},
+  {id:'cinema',emoji:'🎬',color:'#8a2080',x:0.42,y:0.28,w:0.13,h:0.15,npcs:[
+  {id:'projectionist',emoji:'🎥',name:'Milly',
+   role:{fr:'Projectionniste',en:'Projectionist',ht:'Pwojeksyonis',es:'Proyeccionista',de:'Vorführerin',ru:'Киномеханик',zh:'放映员',ja:'映写技師'},
+   ctx:'Tu es Milly, projectionniste passionnée. Tu présentes des vidéos authentiques pour aider à apprendre la langue.'}
+]},
+];
+
+// =================================================================
+// STATE
+// =================================================================
+let S={playerName:'',nativeLang:'',targetLang:'',scriptPref:'both',xp:0,level:1,
+  currentLoc:null,currentNPC:null,chatHistory:[]};
+let ui={};
+let currentWeather='sun';
+let canvas,ctx,tick=0,hoveredLoc=null;
+let popupWord='';
+let dictMode='word';
+let dictHistory=[];
+let dictFromScreen='screen-menu';
+let isRecording=false;
+let recognition=null;
+const WEATHER_ICONS={sun:'☀️',rain:'🌧️',wind:'💨',night:'🌙',snow:'❄️'};
+const LANG_NAMES={en:'anglais',fr:'français',es:'espagnol',ht:'créole haïtien',de:'allemand',ru:'russe',zh:'mandarin',ja:'japonais'};
+const FLAGS={en:'🇬🇧',fr:'🇫🇷',es:'🇪🇸',ht:'🇭🇹',de:'🇩🇪',ru:'🇷🇺',zh:'🇨🇳',ja:'🇯🇵'};
+
+// =================================================================
+// INIT STARS
+// =================================================================
+(()=>{const c=document.getElementById('wStars');for(let i=0;i<100;i++){const s=document.createElement('div');s.className='w-star';const z=Math.random()*2+0.5;s.style.cssText=`width:${z}px;height:${z}px;left:${Math.random()*100}%;top:${Math.random()*100}%;animation-delay:${Math.random()*5}s;animation-duration:${2+Math.random()*4}s`;c.appendChild(s);}})();
+
+// =================================================================
+// WELCOME FLOW
+// =================================================================
+document.querySelectorAll('[data-native]').forEach(t=>t.addEventListener('click',()=>{
+  document.querySelectorAll('[data-native]').forEach(x=>x.classList.remove('sel'));
+  t.classList.add('sel');S.nativeLang=t.dataset.native;
+  applyUI(S.nativeLang);
+  document.getElementById('step2').style.display='block';
+  document.getElementById('step3').style.display='none';
+  document.getElementById('step4').style.display='none';
+  document.getElementById('playBtn').style.display='none';
+  document.getElementById('playBtn').disabled=true;
+  document.querySelectorAll('[data-lang]').forEach(o=>o.classList.toggle('disabled',o.dataset.lang===S.nativeLang));
+}));
+
+document.getElementById('inputName').addEventListener('input',function(){
+  document.getElementById('step3').style.display=this.value.trim()?'block':'none';
+  document.getElementById('step4').style.display='none';
+  document.getElementById('playBtn').style.display='none';
+});
+
+document.querySelectorAll('[data-lang]').forEach(o=>o.addEventListener('click',()=>{
+  if(o.classList.contains('disabled'))return;
+  document.querySelectorAll('[data-lang]').forEach(x=>x.classList.remove('sel'));
+  o.classList.add('sel');S.targetLang=o.dataset.lang;
+  const cjk=['zh','ja','ru'].includes(S.targetLang);
+  if(cjk){
+    document.getElementById('step4').style.display='block';
+    const lb={zh:{n:'你好',r:'Nǐ hǎo'},ja:{n:'こんにちは',r:'Konnichiwa'},ru:{n:'Привет',r:'Privyet'}};
+    document.getElementById('sc-n').textContent=lb[S.targetLang].n;
+    document.getElementById('sc-r').textContent=lb[S.targetLang].r;
+    document.getElementById('playBtn').style.display='none';
+    document.getElementById('playBtn').disabled=true;
+  }else{S.scriptPref='both';document.getElementById('step4').style.display='none';document.getElementById('playBtn').style.display='block';document.getElementById('playBtn').disabled=false;}
+}));
+
+function selScript(p,btn){document.querySelectorAll('.sc-btn').forEach(b=>b.classList.remove('sel'));btn.classList.add('sel');S.scriptPref=p;document.getElementById('playBtn').style.display='block';document.getElementById('playBtn').disabled=false;}
+
+document.getElementById('playBtn').addEventListener('click',()=>{
+  S.playerName=document.getElementById('inputName').value.trim();
+  if(!S.playerName||!S.nativeLang||!S.targetLang)return;
+  startMenu();
+});
+  // =================================================================
+// APPLY UI
+// =================================================================
+function applyUI(lang){
+  ui=UI_TEXT[lang]||UI_TEXT['fr'];
+  document.getElementById('ws-sub').textContent=ui.sub;
+  document.getElementById('lbl-native').textContent=ui.lbl_native;
+  document.getElementById('lbl-name').textContent=ui.lbl_name;
+  document.getElementById('lbl-target').textContent=ui.lbl_target;
+  document.getElementById('lbl-script').textContent=ui.lbl_script;
+  document.getElementById('playBtn').textContent=ui.play;
+}
+
+function applyMenuUI(){
+  document.getElementById('menu-title-text').textContent=ui.menu_title||'Que voulez-vous faire ?';
+  document.getElementById('menu-sub-text').textContent=ui.menu_sub||'';
+  document.getElementById('mb-village').textContent=ui.mb_village||'Village';
+  document.getElementById('mb-village-d').textContent=ui.mb_village_d||'';
+  document.getElementById('mb-vocab').textContent=ui.mb_vocab||'Vocabulaire';
+  document.getElementById('mb-vocab-d').textContent=ui.mb_vocab_d||'';
+  document.getElementById('mb-phrases').textContent=ui.mb_phrases||'Phrases';
+  document.getElementById('mb-phrases-d').textContent=ui.mb_phrases_d||'';
+  document.getElementById('mb-grammar').textContent=ui.mb_grammar||'Grammaire';
+  document.getElementById('mb-grammar-d').textContent=ui.mb_grammar_d||'';
+  document.getElementById('mb-dict').textContent=ui.mb_dict||'Dictionnaire';
+  document.getElementById('mb-dict-d').textContent=ui.mb_dict_d||'';
+}
+
+// =================================================================
+// MENU
+// =================================================================
+function startMenu(){
+  document.getElementById('menuPlayer').textContent='👤 '+S.playerName;
+  document.getElementById('menuLang').textContent=(FLAGS[S.targetLang]||'')+(LANG_NAMES[S.targetLang]||S.targetLang);
+  document.getElementById('menuXP').textContent='0 XP';
+  applyMenuUI();
+  showScreen('screen-menu');
+}
+
+function goVillage(){
+  document.getElementById('hudPlayer').textContent='👤 '+S.playerName;
+  document.getElementById('hudLang').textContent=(FLAGS[S.targetLang]||'')+' '+(LANG_NAMES[S.targetLang]||'');
+  document.getElementById('hudXP').textContent=S.xp+' XP';
+  showScreen('screen-village');
+  initCanvas();
+  setWeather(getWeatherForTime());
+  setInterval(updateTime,30000);updateTime();
+}
+
+// =================================================================
+// WEATHER
+// =================================================================
+function getWeatherForTime(){const h=new Date().getHours();if(h>=21||h<6)return'night';return['sun','sun','rain','wind','snow'][Math.floor(Math.random()*5)];}
+function setWeather(w){currentWeather=w;document.getElementById('hudWeather').textContent=WEATHER_ICONS[w]||'☀️';buildWeatherFX(w);}
+function buildWeatherFX(w){
+  const o=document.getElementById('weatherOverlay');o.innerHTML='';
+  if(w==='rain'){for(let i=0;i<60;i++){const d=document.createElement('div');d.className='rain-drop';const h=60+Math.random()*80;d.style.cssText=`left:${Math.random()*110-5}%;height:${h}px;top:-${h}px;animation-duration:${0.4+Math.random()*0.4}s;animation-delay:${Math.random()*2}s;opacity:${0.3+Math.random()*0.4}`;o.appendChild(d);}}
+  else if(w==='snow'){for(let i=0;i<40;i++){const d=document.createElement('div');d.className='snow-flake';d.textContent='❄';d.style.cssText=`left:${Math.random()*100}%;font-size:${8+Math.random()*10}px;animation-duration:${3+Math.random()*4}s;animation-delay:${Math.random()*5}s;opacity:${0.5+Math.random()*0.4}`;o.appendChild(d);}}
+}
+function updateTime(){const n=new Date();document.getElementById('hudTime').textContent=`${n.getHours().toString().padStart(2,'0')}:${n.getMinutes().toString().padStart(2,'0')}`;}
+
+// =================================================================
+// VILLAGE CANVAS
+// =================================================================
+function initCanvas(){
+  if(canvas)return;
+  canvas=document.getElementById('villageCanvas');
+  canvas.width=canvas.offsetWidth;canvas.height=canvas.offsetHeight;
+  ctx=canvas.getContext('2d');
+  window.addEventListener('resize',()=>{canvas.width=canvas.offsetWidth;canvas.height=canvas.offsetHeight;});
+  canvas.addEventListener('click',onVillageClick);
+  canvas.addEventListener('mousemove',onVillageHover);
+  canvas.addEventListener('touchstart',onVillageTouch,{passive:true});
+  requestAnimationFrame(villageLoop);
+}
+function villageLoop(){tick++;drawVillage();requestAnimationFrame(villageLoop);}
+function drawVillage(){
+  if(!canvas||!ctx)return;
+  const W=canvas.width,H=canvas.height,night=currentWeather==='night';
+  const sky=ctx.createLinearGradient(0,0,0,H*0.6);
+  if(night){sky.addColorStop(0,'#01020a');sky.addColorStop(1,'#080e1e');}
+  else if(currentWeather==='rain'){sky.addColorStop(0,'#1a2535');sky.addColorStop(1,'#2a3848');}
+  else{sky.addColorStop(0,'#0a1830');sky.addColorStop(1,'#1a4880');}
+  ctx.fillStyle=sky;ctx.fillRect(0,0,W,H);
+  if(night){
+    ctx.beginPath();ctx.arc(W*0.85,H*0.1,16,0,Math.PI*2);ctx.fillStyle='#f0e0a0';ctx.fill();
+    for(let i=0;i<50;i++){const sx=(Math.sin(i*437)*0.5+0.5)*W,sy=(Math.sin(i*293)*0.5+0.5)*H*0.45;ctx.beginPath();ctx.arc(sx,sy,1,0,Math.PI*2);ctx.fillStyle=`rgba(255,255,200,${0.4+0.6*Math.sin(tick*0.02+i)})`;ctx.fill();}
+  }else{
+    ctx.beginPath();ctx.arc(W*0.85,H*0.1,20,0,Math.PI*2);ctx.fillStyle=currentWeather==='rain'?'#7a8898':'#ffe0a0';ctx.fill();
+    for(let i=0;i<3;i++){const cx=((tick*0.12*(i+1)*0.4+i*200)%(W+200))-100,cy=H*(0.07+i*0.04);drawCloud(cx,cy,35+i*12,currentWeather==='rain'?'rgba(70,80,100,0.65)':'rgba(255,255,255,0.55)');}
+  }
+  const g=ctx.createLinearGradient(0,H*0.5,0,H);
+  if(currentWeather==='snow'){g.addColorStop(0,'#c8d0e0');g.addColorStop(1,'#a8b0c0');}else{g.addColorStop(0,'#1a4a18');g.addColorStop(1,'#0d2a0c');}
+  ctx.fillStyle=g;ctx.fillRect(0,H*0.5,W,H);
+  ctx.fillStyle='rgba(180,140,80,0.18)';ctx.beginPath();ctx.moveTo(W*0.45,H*0.5);ctx.lineTo(W*0.38,H);ctx.lineTo(W*0.62,H);ctx.lineTo(W*0.55,H*0.5);ctx.fill();
+  LOCATIONS.forEach(loc=>{const bob=Math.sin(tick*0.025+loc.x*10)*1.5;drawLoc(loc,loc.x*W,(loc.y*H)+bob,loc.w*W,loc.h*H,hoveredLoc===loc.id);});
+  if(currentWeather==='rain'){ctx.fillStyle='rgba(0,10,30,0.12)';ctx.fillRect(0,0,W,H);}
+}
+function drawCloud(x,y,r,c){ctx.fillStyle=c;ctx.beginPath();ctx.arc(x,y,r,0,Math.PI*2);ctx.fill();ctx.beginPath();ctx.arc(x+r*0.7,y+r*0.15,r*0.7,0,Math.PI*2);ctx.fill();ctx.beginPath();ctx.arc(x-r*0.6,y+r*0.2,r*0.6,0,Math.PI*2);ctx.fill();}
+function drawLoc(loc,x,y,w,h,hov){
+  const a=hov?1:0.88,night=currentWeather==='night';
+  ctx.fillStyle='rgba(0,0,0,0.22)';ctx.fillRect(x+3,y+3,w,h);
+  ctx.fillStyle=hexA(loc.color,a*(night?0.65:1));ctx.fillRect(x,y,w,h);
+  ctx.beginPath();ctx.moveTo(x-4,y);ctx.lineTo(x+w/2,y-h*0.35);ctx.lineTo(x+w+4,y);
+  ctx.fillStyle=hexA(darken(loc.color),a*(night?0.65:1));ctx.fill();
+  ctx.fillStyle='rgba(20,10,3,0.8)';ctx.fillRect(x+w/2-w*0.12,y+h-h*0.3,w*0.24,h*0.3);
+  if(night){ctx.fillStyle='rgba(255,215,100,0.55)';ctx.fillRect(x+w*0.14,y+h*0.14,w*0.28,h*0.22);ctx.fillRect(x+w*0.55,y+h*0.14,w*0.28,h*0.22);}
+  if(hov){ctx.strokeStyle='rgba(255,215,0,0.75)';ctx.lineWidth=2;ctx.strokeRect(x,y,w,h);}
+  ctx.font=`${Math.min(w,h)*0.43}px serif`;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(loc.emoji,x+w/2,y+h*0.35);
+  const nm=LOC_NAMES[loc.id]?.[S.nativeLang]||loc.id;
+  ctx.font=`bold ${Math.max(8,Math.min(w*0.12,11))}px Nunito,sans-serif`;
+  ctx.fillStyle=hov?'#FFD700':'rgba(255,240,200,0.9)';
+  ctx.fillText(nm,x+w/2,y+h+12);
+}
+function hexA(h,a){const r=parseInt(h.slice(1,3),16),g=parseInt(h.slice(3,5),16),b=parseInt(h.slice(5,7),16);return`rgba(${r},${g},${b},${a})`;}
+function darken(h){return`#${[1,3,5].map(i=>Math.max(0,parseInt(h.slice(i,i+2),16)-40).toString(16).padStart(2,'0')).join('')}`;}
+function getLocAt(mx,my){const W=canvas.width,H=canvas.height;return LOCATIONS.find(l=>{const lx=l.x*W,ly=l.y*H,lw=l.w*W,lh=l.h*H;return mx>=lx&&mx<=lx+lw&&my>=ly-lh*0.35&&my<=ly+lh+18;});}
+function onVillageHover(e){const r=canvas.getBoundingClientRect(),l=getLocAt(e.clientX-r.left,e.clientY-r.top);hoveredLoc=l?l.id:null;const tip=document.getElementById('locTooltip');if(l){const nm=LOC_NAMES[l.id]?.[S.nativeLang]||l.id;const ds=LOC_DESC[l.id]?.[S.nativeLang]||'';tip.textContent=WEATHER_ICONS[currentWeather]+' '+nm+' — '+ds;tip.style.left=(l.x*canvas.width+l.w*canvas.width/2)+'px';tip.style.top=(l.y*canvas.height)+'px';tip.classList.add('show');}else tip.classList.remove('show');}
+function onVillageClick(e){const r=canvas.getBoundingClientRect(),l=getLocAt(e.clientX-r.left,e.clientY-r.top);if(l)openLoc(l);}
+function onVillageTouch(e){const r=canvas.getBoundingClientRect(),t=e.touches[0],l=getLocAt(t.clientX-r.left,t.clientY-r.top);if(l)openLoc(l);}
+
+// =================================================================
+// LOCATION
+// =================================================================
+function openLoc(loc){
+  S.currentLoc=loc;
+  document.getElementById('locTitle').textContent=loc.emoji+' '+(LOC_NAMES[loc.id]?.[S.nativeLang]||loc.id);
+  document.getElementById('locWeather').textContent=WEATHER_ICONS[currentWeather];
+  if(loc.id==='cinema'){openCinema();return;}
+  const list=document.getElementById('npcList');
+  list.innerHTML=loc.npcs.map(npc=>{
+    const role=typeof npc.role==='object'?(npc.role[S.nativeLang]||npc.role.en):npc.role;
+    const hint=LOC_DESC[loc.id]?.[S.nativeLang]||'';
+    return`<div class="npc-card" onclick="openDialogue('${loc.id}','${npc.id}')">
+      <div class="npc-av">${npc.emoji}</div>
+      <div class="npc-info">
+        <div class="npc-name">${npc.name}</div>
+        <div class="npc-role">${role}</div>
+        <div class="npc-hint">💬 ${hint}</div>
+      </div>
+      <span style="color:var(--dim);font-size:1.2rem">›</span>
+    </div>`;
+  }).join('');
+  showScreen('screen-location');
+  setTimeout(()=>openMissionsPanel(loc.id), 400);
+  }
+  // =================================================================
+// DIALOGUE — with spell checker
+// =================================================================
+function openDialogue(locId,npcId){
+  const loc=LOCATIONS.find(l=>l.id===locId);
+  const npc=loc.npcs.find(n=>n.id===npcId);
+  S.currentNPC=npc;S.currentLoc=loc;S.chatHistory=[];
+  const role=typeof npc.role==='object'?(npc.role[S.nativeLang]||npc.role.en):npc.role;
+  document.getElementById('dialAv').textContent=npc.emoji;
+  document.getElementById('dialName').textContent=npc.name;
+  document.getElementById('dialRole').textContent=role+' — '+(LOC_NAMES[loc.id]?.[S.nativeLang]||loc.id);
+  document.getElementById('chatMsgs').innerHTML='';
+  document.getElementById('corrPanel').className='correction-panel';
+  document.getElementById('dialInput').value='';
+  showScreen('screen-dialogue');
+  addSysMsg('💡 Touchez un mot pour le traduire');
+  setTimeout(()=>npcOpen(),400);
+}
+
+function getScriptInstr(){
+  if(!['zh','ja','ru'].includes(S.targetLang))return'';
+  if(S.scriptPref==='roman'){if(S.targetLang==='zh')return'\nÉcris UNIQUEMENT en pinyin, PAS de caractères chinois.';if(S.targetLang==='ja')return'\nÉcris UNIQUEMENT en romaji, PAS de japonais.';if(S.targetLang==='ru')return'\nÉcris UNIQUEMENT en translittération latine, PAS de cyrillique.';}
+  if(S.scriptPref==='both'){if(S.targetLang==='zh')return'\nÉcris en chinois ET pinyin entre parenthèses. Ex: 你好 (Nǐ hǎo)';if(S.targetLang==='ja')return'\nÉcris en japonais ET romaji entre parenthèses. Ex: こんにちは (Konnichiwa)';if(S.targetLang==='ru')return'\nÉcris en cyrillique ET translittération entre parenthèses. Ex: Привет (Privyet)';}
+  return'';
+}
+
+async function npcOpen(){
+  const npc=S.currentNPC,loc=S.currentLoc;
+  const si=getScriptInstr();
+  const wctx={sun:'Il fait beau.',rain:'Il pleut.',snow:'Il neige.',wind:'Il fait du vent.',night:'C\'est le soir.'};
+  const prompt=`${npc.ctx}\nLe joueur s'appelle ${S.playerName}. Réponds UNIQUEMENT en ${LANG_NAMES[S.targetLang]}.${si}\nContexte: ${wctx[currentWeather]||''}\nMax 2 phrases. Accueille ${S.playerName} et pose une question liée à ton rôle.`;
+  showTyping();document.getElementById('dialSend').disabled=true;
+  try{
+    const r=await fetch(`${API}/api/dialogue`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({npcName:npc.name,npcRole:typeof npc.role==='object'?npc.role.fr:npc.role,location:LOC_NAMES[loc.id]?.fr||loc.id,language:LANG_NAMES[S.targetLang],playerName:S.playerName,playerMessage:'__OPEN__',history:[],systemContext:prompt})});
+    const d=await r.json();removeTyping();
+    const reply=d.reply||`Hello ${S.playerName}!`;
+    addClickableMsg('npc',npc.emoji,reply);S.chatHistory.push({role:'assistant',content:reply});
+  }catch(e){removeTyping();addClickableMsg('npc',npc.emoji,`Hello ${S.playerName}!`);}
+  document.getElementById('dialSend').disabled=false;
+}
+
+async function sendMsg(){
+  const inp=document.getElementById('dialInput');
+  const text=inp.value.trim();if(!text)return;
+  inp.value='';
+  document.getElementById('corrPanel').className='correction-panel';
+  addClickableMsg('player','😊',text);
+  S.chatHistory.push({role:'user',content:text});
+  gainXP(10);
+  // Check active mission
+  checkMissionInMessage(text);
+  // Auto spell check after send
+  checkSpelling(text);
+  const npc=S.currentNPC,loc=S.currentLoc;
+  const si=getScriptInstr();
+  const prompt=`${npc.ctx}\nLe joueur s'appelle ${S.playerName}. Réponds UNIQUEMENT en ${LANG_NAMES[S.targetLang]}.${si}\nMax 2 phrases. Si faute: reformule naturellement.`;
+  showTyping();document.getElementById('dialSend').disabled=true;
+  try{
+    const r=await fetch(`${API}/api/dialogue`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({npcName:npc.name,npcRole:typeof npc.role==='object'?npc.role.fr:npc.role,location:LOC_NAMES[loc.id]?.fr||loc.id,language:LANG_NAMES[S.targetLang],playerName:S.playerName,playerMessage:text,history:S.chatHistory.slice(-8),systemContext:prompt})});
+    const d=await r.json();removeTyping();
+    const reply=d.reply||'...';addClickableMsg('npc',npc.emoji,reply);S.chatHistory.push({role:'assistant',content:reply});
+  }catch(e){removeTyping();addClickableMsg('npc',npc.emoji,'...');}
+  document.getElementById('dialSend').disabled=false;
+}
+
+// =================================================================
+// SPELL CHECKER
+// =================================================================
+async function checkSpelling(text){
+  const nativeLangName={fr:'français',en:'anglais',es:'espagnol',ht:'créole haïtien',de:'allemand',ru:'russe',zh:'mandarin',ja:'japonais'};
+  try{
+    const r=await fetch(`${API}/api/correct`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text,language:LANG_NAMES[S.targetLang]||'anglais',nativeLanguage:nativeLangName[S.nativeLang]||'français'})});
+    const d=await r.json();
+    const panel=document.getElementById('corrPanel');
+    if(d.correct){
+      panel.className='correction-panel ok show';
+      document.getElementById('corrTitle').textContent='✅ CORRECT';
+      document.getElementById('corrOrig').textContent='';
+      document.getElementById('corrFixed').textContent=d.corrected||text;
+      document.getElementById('corrExplain').textContent='Parfait !';
+    }else{
+      panel.className='correction-panel show';
+      document.getElementById('corrTitle').textContent='✏️ CORRECTION';
+      document.getElementById('corrOrig').textContent=text;
+      document.getElementById('corrFixed').textContent=d.corrected||'';
+      document.getElementById('corrExplain').textContent=d.explanation||'';
+      // Also underline error in the message bubble
+      underlineLastPlayerMsg(text,d.corrected);
+    }
+  }catch(e){}
+}
+
+function underlineLastPlayerMsg(original,corrected){
+  const msgs=document.querySelectorAll('.msg.player .msg-bubble');
+  if(!msgs.length)return;
+  const last=msgs[msgs.length-1];
+  // Simple approach: if different, add wavy underline class to the bubble
+  if(original!==corrected){
+    last.style.borderBottom='2px wavy var(--red)';
+    last.title='Cliquez ✏️ Correction pour voir la correction';
+  }
+}
+
+document.getElementById('dialInput').addEventListener('keydown',e=>{if(e.key==='Enter')sendMsg();});
+
+async function reqHint(){
+  const last=S.chatHistory.filter(m=>m.role==='assistant').slice(-1)[0]?.content;
+  if(!last)return;
+  const nln={fr:'français',en:'anglais',es:'espagnol',ht:'créole haïtien',de:'allemand',ru:'russe',zh:'mandarin',ja:'japonais'};
+  try{const r=await fetch(`${API}/api/dialogue`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({npcName:'',npcRole:'',location:'',language:nln[S.nativeLang]||'français',playerName:S.playerName,playerMessage:`Donne un indice court en ${nln[S.nativeLang]||'français'} pour répondre à: "${last}". Max 1 phrase.`,history:[]})});const d=await r.json();showNotif('💡 '+d.reply);}catch(e){}
+}
+
+async function reqTranslate(){
+  const last=S.chatHistory.filter(m=>m.role==='assistant').slice(-1)[0]?.content;
+  if(!last)return;
+  const nln={fr:'français',en:'anglais',es:'espagnol',ht:'créole haïtien',de:'allemand',ru:'russe',zh:'mandarin',ja:'japonais'};
+  try{const r=await fetch(`${API}/api/translate`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text:last,targetLanguage:nln[S.nativeLang]||'français'})});const d=await r.json();showNotif('🔤 '+(d.translation||last));}catch(e){}
+}
+
+// Voice
+function toggleVoice(){
+  if(!('webkitSpeechRecognition'in window||'SpeechRecognition'in window)){showNotif('🎤 Non supporté sur ce navigateur');return;}
+  if(isRecording){recognition?.stop();isRecording=false;document.getElementById('voiceBtn').classList.remove('rec');document.getElementById('voiceBtn').textContent='🎤 Parler';return;}
+  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  recognition=new SR();
+  const lm={en:'en-US',fr:'fr-FR',es:'es-ES',ht:'fr-HT',de:'de-DE',ru:'ru-RU',zh:'zh-CN',ja:'ja-JP'};
+  recognition.lang=lm[S.targetLang]||'en-US';recognition.interimResults=false;
+  recognition.onstart=()=>{isRecording=true;document.getElementById('voiceBtn').classList.add('rec');document.getElementById('voiceBtn').textContent='⏹️ Stop';showNotif('🎤 Parlez...');};
+  recognition.onresult=e=>{const t=e.results[0][0].transcript;document.getElementById('dialInput').value=t;showNotif('✅ "'+t+'"');};
+  recognition.onerror=()=>{showNotif('❌ Erreur micro');};
+  recognition.onend=()=>{isRecording=false;document.getElementById('voiceBtn').classList.remove('rec');document.getElementById('voiceBtn').textContent='🎤 Parler';};
+  recognition.start();
+}
+
+// Clickable words
+function addClickableMsg(type,avatar,text){
+  const c=document.getElementById('chatMsgs');
+  const d=document.createElement('div');d.className=`msg ${type}`;
+  const content=type==='npc'?makeClickable(text):escHtml(text);
+  d.innerHTML=`<div class="msg-av">${avatar}</div><div class="msg-bubble">${content}</div>`;
+  c.appendChild(d);c.scrollTop=c.scrollHeight;
+}
+function addSysMsg(t){const c=document.getElementById('chatMsgs');const d=document.createElement('div');d.className='msg system';d.innerHTML=`<div class="msg-bubble">${t}</div>`;c.appendChild(d);c.scrollTop=c.scrollHeight;}
+function makeClickable(text){return text.split(/(\s+|[,\.!?;:'"()\[\]{}])/g).map(tok=>{if(tok.trim()&&tok.trim().length>1&&!/^[,\.!?;:'"()\[\]{}]+$/.test(tok.trim())){const s=escHtml(tok);return`<span class="clickable-word" onclick="lookupWord('${s.replace(/'/g,"\\'")}',event)">${s}</span>`;}return escHtml(tok);}).join('');}
+function escHtml(t){return t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+
+async function lookupWord(word,event){
+  popupWord=word;
+  const pop=document.getElementById('wordPopup');
+  document.getElementById('wpWord').textContent=word;
+  document.getElementById('wpRoman').textContent='';
+  document.getElementById('wpTranslation').textContent='...';
+  document.getElementById('wpGrammar').textContent='';
+  const x=Math.min(event.clientX,window.innerWidth-290);
+  const y=Math.max(event.clientY-170,10);
+  pop.style.left=x+'px';pop.style.top=y+'px';
+  pop.classList.add('show');
+  const nln={fr:'français',en:'anglais',es:'espagnol',ht:'créole haïtien',de:'allemand',ru:'russe',zh:'mandarin',ja:'japonais'};
+  try{
+    const r=await fetch(`${API}/api/dialogue`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({npcName:'',npcRole:'',location:'',language:nln[S.nativeLang]||'français',playerName:S.playerName,playerMessage:`Pour le mot "${word}" en ${LANG_NAMES[S.targetLang]}, donne en ${nln[S.nativeLang]||'français'}: 1.Traduction 2.Romanisation si applicable 3.Catégorie grammaticale. JSON: {"translation":"...","roman":"...","grammar":"..."}`,history:[]})});
+    const d=await r.json();
+    try{const p=JSON.parse((d.reply||'{}').replace(/```json|```/g,'').trim());document.getElementById('wpTranslation').textContent=p.translation||word;document.getElementById('wpRoman').textContent=p.roman||'';document.getElementById('wpGrammar').textContent=p.grammar||'';}
+    catch{document.getElementById('wpTranslation').textContent=d.reply||word;}
+  }catch(e){document.getElementById('wpTranslation').textContent='Indisponible';}
+}
+function closeWordPopup(){document.getElementById('wordPopup').classList.remove('show');}
+function speakPopupWord(){if(popupWord&&'speechSynthesis'in window){const u=new SpeechSynthesisUtterance(popupWord);const lm={en:'en-US',fr:'fr-FR',es:'es-ES',ht:'fr-HT',de:'de-DE',ru:'ru-RU',zh:'zh-CN',ja:'ja-JP'};u.lang=lm[S.targetLang]||'en-US';speechSynthesis.speak(u);showNotif('🔊 '+popupWord);}}
+document.addEventListener('click',e=>{const p=document.getElementById('wordPopup');if(p.classList.contains('show')&&!p.contains(e.target)&&!e.target.classList.contains('clickable-word'))closeWordPopup();});
+
+function showTyping(){const c=document.getElementById('chatMsgs');const d=document.createElement('div');d.className='msg npc';d.id='typInd';d.innerHTML=`<div class="msg-av">${S.currentNPC?.emoji||'🧑'}</div><div class="msg-bubble"><div class="typing-ind"><div class="td"></div><div class="td"></div><div class="td"></div></div></div>`;c.appendChild(d);c.scrollTop=c.scrollHeight;}
+function removeTyping(){document.getElementById('typInd')?.remove();}
+
+// =================================================================
+// VOCABULARY
+// =================================================================
+function loadVocab(catKey){
+  const cats=Object.keys(VOCAB);
+  const catsBar=document.getElementById('vocabCats');
+  catsBar.innerHTML=cats.map(k=>`<button class="vcat${k===catKey?' active':''}" onclick="loadVocab('${k}')">${VOCAB[k].icon||'📖'} ${VOCAB[k][S.nativeLang]||VOCAB[k].fr}</button>`).join('');
+  const cat=VOCAB[catKey];
+  if(!cat)return;
+  const isCJK=['zh','ja','ru'].includes(S.targetLang);
+  const showRoman=isCJK&&S.scriptPref!=='native';
+  const showNative=!isCJK||S.scriptPref!=='roman';
+  // Filter by search
+  const search=document.getElementById('vocabSearch').value.toLowerCase();
+  const words=cat.words.filter(w=>!search||(w.t[S.nativeLang]||w.n).toLowerCase().includes(search)||(w.t[S.targetLang]||'').toLowerCase().includes(search));
+  document.getElementById('vocabCount').textContent=words.length+' mots';
+  document.getElementById('vocabList').innerHTML=`
+    <div class="cat-header">${cat[S.nativeLang]||cat.fr} — ${words.length} mots</div>
+    ${words.map(w=>{
+      const target=w.t[S.targetLang]||w.t.en||'';
+      const match=target.match(/^(.*?)\s*\(([^)]+)\)\s*$/);
+      const chars=match?match[1]:target;
+      const roman=match?match[2]:'';
+      return`<div class="vocab-item">
+        <span class="vi-native">${w.t[S.nativeLang]||w.t.en||w.n}</span>
+        <span class="vi-target">
+          <span class="vi-word">${showNative?chars:''}</span>
+          ${showRoman&&roman?`<span class="vi-roman">${roman}</span>`:''}
+          ${!showNative&&!roman?`<span class="vi-word">${target}</span>`:''}
+        </span>
+        <button class="vi-listen" onclick="speakW('${chars.replace(/'/g,"\\'")}')">🔊</button>
+      </div>`;
+    }).join('')}`;
+}
+document.getElementById('vocabSearch').addEventListener('input',()=>{
+  const active=document.querySelector('.vcat.active');
+  if(active)loadVocab(Object.keys(VOCAB)[Array.from(document.querySelectorAll('.vcat')).indexOf(active)]);
+});
+function speakW(w){if('speechSynthesis'in window){const u=new SpeechSynthesisUtterance(w);const lm={en:'en-US',fr:'fr-FR',es:'es-ES',ht:'fr-HT',de:'de-DE',ru:'ru-RU',zh:'zh-CN',ja:'ja-JP'};u.lang=lm[S.targetLang]||'en-US';speechSynthesis.speak(u);}showNotif('🔊 '+w);}
+
+// =================================================================
+// PHRASES
+// =================================================================
+function loadPhrases(catKey){
+  const cats=Object.keys(PHRASES_DATA);
+  document.getElementById('phraseCats').innerHTML=cats.map(k=>`<button class="pcat${k===catKey?' active':''}" onclick="loadPhrases('${k}')">${PHRASES_DATA[k].icon} ${PHRASES_DATA[k][S.nativeLang]||PHRASES_DATA[k].fr}</button>`).join('');
+  const cat=PHRASES_DATA[catKey];if(!cat)return;
+  const isCJK=['zh','ja','ru'].includes(S.targetLang);
+  const showRoman=isCJK&&S.scriptPref!=='native';
+  const showNative=!isCJK||S.scriptPref!=='roman';
+  document.getElementById('phrasesCount').textContent=cat.items.length+' phrases';
+  document.getElementById('phraseList').innerHTML=cat.items.map((p,i)=>{
+    const target=p.t[S.targetLang]||p.t.en||'';
+    const match=target.match(/^(.*?)\s*\(([^)]+)\)\s*$/);
+    const chars=match?match[1]:target;
+    const roman=match?match[2]:'';
+    const struct=p.struct?p.struct.t?.[S.targetLang]||p.struct.t?.en||p.struct.n:'';
+    return`<div class="phrase-item">
+      <div class="pi-native">${p.t[S.nativeLang]||p.t.en||p.n}</div>
+      <div class="pi-target">${showNative?chars:target}</div>
+      ${showRoman&&roman?`<div class="pi-roman">${roman}</div>`:''}
+      ${struct?`<div style="font-size:0.65rem;color:var(--purple);margin-top:4px">📐 ${struct}</div>`:''}
+      <div class="pi-actions">
+        <button class="pi-btn" onclick="speakW('${chars.replace(/'/g,"\\'")}')">🔊</button>
+        <button class="pi-btn" onclick="copyPhrase('${chars.replace(/'/g,"\\'")}')">📋</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+function copyPhrase(t){navigator.clipboard?.writeText(t);showNotif('📋 Copié !');}
+
+// =================================================================
+// GRAMMAR
+// =================================================================
+function loadGrammar(catKey){
+  const cats=Object.keys(GRAMMAR_DATA);
+  document.getElementById('grammarCats').innerHTML=cats.map(k=>`<button class="gcat${k===catKey?' active':''}" onclick="loadGrammar('${k}')">${GRAMMAR_DATA[k].icon} ${GRAMMAR_DATA[k][S.nativeLang]||GRAMMAR_DATA[k].fr}</button>`).join('');
+  const cat=GRAMMAR_DATA[catKey];if(!cat)return;
+  const nl=S.nativeLang;const tl=S.targetLang;
+  const isCJK=['zh','ja','ru'].includes(tl);
+  const showRoman=isCJK&&S.scriptPref!=='native';
+  const showNative=!isCJK||S.scriptPref!=='roman';
+  const expl=cat.explanation?.[nl]||cat.explanation?.fr||'';
+  const formula=cat.formula?.[tl]||cat.formula?.en||cat.formula?.fr||'';
+  document.getElementById('grammarBody').innerHTML=`
+    <div class="gram-section">
+      <div class="gram-title">${cat.icon} ${cat[nl]||cat.fr} <span class="gram-tag">${cat.items?.length||cat.examples?.length||0} exemples</span></div>
+      <div class="gram-explanation">${expl}</div>
+      ${formula?`<div class="gram-formula">${formula}</div>`:''}
+      <div class="gram-examples">
+        ${(cat.examples||[]).map(ex=>{
+          const target=ex.t[tl]||ex.t.en||'';
+          const match=target.match(/^(.*?)\s*\(([^)]+)\)\s*$/);
+          const chars=match?match[1]:target;
+          const roman=match?match[2]:'';
+          return`<div class="gram-ex">
+            <span class="gram-ex-native">${ex.t[S.nativeLang]||ex.t.en||ex.n}</span>
+            <span class="gram-ex-target">
+              ${showNative?chars:target}
+              ${showRoman&&roman?`<span class="roman">${roman}</span>`:''}
+              <button style="background:none;border:none;cursor:pointer;color:var(--dim);margin-left:4px" onclick="speakW('${chars.replace(/'/g,"\\'")}')">🔊</button>
+            </span>
+          </div>`;
+        }).join('')}
+      </div>
+    </div>`;
+  }
+  // =================================================================
+// DICTIONARY
+// =================================================================
+function openDict(){dictFromScreen=document.querySelector('.screen.active')?.id||'screen-menu';document.getElementById('dictInput').value='';document.getElementById('dictResult').innerHTML=`<div class="dict-empty"><div class="dict-empty-icon">🔤</div><div>Tapez un mot ou une phrase</div></div>`;showScreen('screen-dict');setTimeout(()=>document.getElementById('dictInput').focus(),300);}
+function closeDictBack(){showScreen(dictFromScreen);}
+function setDictMode(m,btn){dictMode=m;document.querySelectorAll('.dict-mode').forEach(b=>b.classList.remove('active'));btn.classList.add('active');document.getElementById('dictInput').placeholder=m==='word'?'Mot à traduire...':'Phrase entière à traduire...';}
+async function searchDict(){
+  const q=document.getElementById('dictInput').value.trim();if(!q)return;
+  if(!dictHistory.includes(q))dictHistory.unshift(q);if(dictHistory.length>20)dictHistory.pop();
+  const res=document.getElementById('dictResult');
+  res.innerHTML=`<div class="dict-empty">⟳ Traduction...</div>`;
+  const nln={fr:'français',en:'anglais',es:'espagnol',ht:'créole haïtien',de:'allemand',ru:'russe',zh:'mandarin',ja:'japonais'};
+  const isCJK=['zh','ja','ru'].includes(S.targetLang);const showRoman=isCJK&&S.scriptPref!=='native';
+  const prompt=dictMode==='phrase'?
+    `Traduis cette phrase du ${nln[S.nativeLang]||'français'} vers le ${nln[S.targetLang]||'anglais'}: "${q}". JSON: {"translation":"...","roman":"romanisation si applicable","grammar":"structure","example":"exemple simple"}`:
+    `Traduis le mot "${q}" du ${nln[S.nativeLang]||'français'} vers le ${nln[S.targetLang]||'anglais'}. JSON: {"translation":"...","roman":"romanisation","grammar":"nom/verbe/adj...","example":"phrase exemple"}`;
+  try{
+    const r=await fetch(`${API}/api/dialogue`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({npcName:'',npcRole:'',location:'',language:nln[S.nativeLang]||'français',playerName:S.playerName||'',playerMessage:prompt,history:[]})});
+    const d=await r.json();
+    let p;try{p=JSON.parse((d.reply||'{}').replace(/```json|```/g,'').trim());}catch{p={translation:d.reply||q,roman:'',grammar:'',example:''};}
+    const hist=dictHistory.slice(1,9);
+    res.innerHTML=`<div class="dict-card">
+      <div style="font-size:0.68rem;color:var(--dim);margin-bottom:5px">"${q}"</div>
+      <div class="dict-word">${p.translation||''}</div>
+      ${p.roman&&showRoman?`<div class="dict-roman">${p.roman}</div>`:''}
+      ${p.grammar?`<div style="font-size:0.7rem;color:var(--purple);font-weight:800;margin:5px 0">${p.grammar}</div>`:''}
+      ${p.example?`<div class="dict-example">💡 ${p.example}</div>`:''}
+      <button class="dict-listen-btn" onclick="speakW('${(p.translation||'').replace(/'/g,"\\'")}')">🔊 Écouter</button>
+    </div>
+    ${hist.length?`<div style="font-size:0.65rem;color:var(--dim);letter-spacing:2px;text-transform:uppercase;margin-bottom:8px">Historique</div><div class="dict-chips">${hist.map(h=>`<span class="dict-chip" onclick="searchDictWord('${h.replace(/'/g,"\\'")}')"> ${h}</span>`).join('')}</div>`:''}`;
+  }catch(e){res.innerHTML=`<div class="dict-empty"><div class="dict-empty-icon">❌</div>Indisponible</div>`;}
+}
+function searchDictWord(w){document.getElementById('dictInput').value=w;searchDict();}
+document.getElementById('dictInput').addEventListener('keydown',e=>{if(e.key==='Enter')searchDict();});
+
+// =================================================================
+// XP & UTILS
+// =================================================================
+function gainXP(n){
+  S.xp+=n;
+  const pct=S.xp%100;
+  document.getElementById('hudXP').textContent=S.xp+' XP';
+  document.getElementById('menuXP').textContent=S.xp+' XP';
+  document.getElementById('xpFill').style.width=pct+'%';
+  const lv=Math.floor(S.xp/100)+1;
+  if(lv>S.level){S.level=lv;showNotif('🎉 Niveau '+S.level+' !');}
+  else showNotif('+'+n+' XP ⭐');
+}
+function showScreen(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');closeWordPopup();}
+function showNotif(msg){const n=document.getElementById('notif');n.textContent=msg;n.classList.add('show');clearTimeout(n._t);n._t=setTimeout(()=>n.classList.remove('show'),2200);}
+
+</script>
+
+<!-- ====== S1: WELCOME ====== -->
+<div class="screen active" id="screen-welcome">
+  <div class="w-stars" id="wStars"></div>
+  <div class="logo">🏘️ LinguaVillage</div>
+  <div class="logo-sub" id="ws-sub">Apprendre en vivant</div>
+  <div class="welcome-form">
+    <div>
+      <div class="flabel" id="lbl-native">🌍 Votre langue maternelle</div>
+      <div class="grid4">
+        <div class="tile" data-native="fr"><span class="tf">🇫🇷</span><span class="tn">Français</span></div>
+        <div class="tile" data-native="ht"><span class="tf">🇭🇹</span><span class="tn">Kreyòl</span></div>
+        <div class="tile" data-native="en"><span class="tf">🇬🇧</span><span class="tn">English</span></div>
+        <div class="tile" data-native="es"><span class="tf">🇪🇸</span><span class="tn">Español</span></div>
+        <div class="tile" data-native="de"><span class="tf">🇩🇪</span><span class="tn">Deutsch</span></div>
+        <div class="tile" data-native="ru"><span class="tf">🇷🇺</span><span class="tn">Русский</span></div>
+        <div class="tile" data-native="zh"><span class="tf">🇨🇳</span><span class="tn">中文</span></div>
+        <div class="tile" data-native="ja"><span class="tf">🇯🇵</span><span class="tn">日本語</span></div>
+      </div>
+    </div>
+    <div id="step2" style="display:none">
+      <div class="flabel" id="lbl-name">✏️ Votre prénom</div>
+      <input class="finput" id="inputName" type="text" maxlength="20">
+    </div>
+    <div id="step3" style="display:none">
+      <div class="flabel" id="lbl-target">🎯 Langue à apprendre</div>
+      <div class="grid4" id="langGrid">
+        <div class="tile" data-lang="en"><span class="tf">🇬🇧</span><span class="tn">English</span></div>
+        <div class="tile" data-lang="fr"><span class="tf">🇫🇷</span><span class="tn">Français</span></div>
+        <div class="tile" data-lang="es"><span class="tf">🇪🇸</span><span class="tn">Español</span></div>
+        <div class="tile" data-lang="ht"><span class="tf">🇭🇹</span><span class="tn">Kreyòl</span></div>
+        <div class="tile" data-lang="de"><span class="tf">🇩🇪</span><span class="tn">Deutsch</span></div>
+        <div class="tile" data-lang="ru"><span class="tf">🇷🇺</span><span class="tn">Русский</span></div>
+        <div class="tile" data-lang="zh"><span class="tf">🇨🇳</span><span class="tn">中文</span></div>
+        <div class="tile" data-lang="ja"><span class="tf">🇯🇵</span><span class="tn">日本語</span></div>
+      </div>
+    </div>
+    <div id="step4" style="display:none">
+      <div class="flabel" id="lbl-script">✍️ Mode d'écriture</div>
+      <div class="script-row">
+        <div class="sc-btn" onclick="selScript('native',this)"><span class="sc-main" id="sc-n">你好</span><span class="sc-sub">Caractères</span></div>
+        <div class="sc-btn" onclick="selScript('roman',this)"><span class="sc-main" id="sc-r">Nǐ hǎo</span><span class="sc-sub">Lettres latines</span></div>
+        <div class="sc-btn" onclick="selScript('both',this)"><span class="sc-main">両方</span><span class="sc-sub">Les deux</span></div>
+      </div>
+    </div>
+    <button class="play-btn" id="playBtn" style="display:none" disabled>✨ Commencer</button>
+  </div>
+</div>
+
+<!-- ====== S2: MAIN MENU ====== -->
+<div class="screen" id="screen-menu">
+  <div class="menu-header">
+    <span class="menu-player" id="menuPlayer">👤</span>
+    <span class="menu-lang" id="menuLang"></span>
+    <button onclick="showProgression()" style="background:rgba(255,215,0,0.1);border:1px solid var(--border);color:var(--gold);padding:3px 10px;border-radius:15px;font-size:0.7rem;font-weight:800;cursor:pointer;font-family:Nunito,sans-serif;display:flex;align-items:center;gap:4px;"><span id="gemDisplay">💎 0</span> · 📊</button>
+    <div class="menu-xp">
+      <span class="menu-xp-label" id="menuXP">0 XP</span>
+      <div class="xp-bar-bg"><div class="xp-bar-fill" id="xpFill"></div></div>
+    </div>
+  </div>
+  <div class="menu-content">
+    <div class="menu-title" id="menu-title-text">Que voulez-vous faire ?</div>
+    <div class="menu-subtitle" id="menu-sub-text">Choisissez votre mode d'apprentissage</div>
+    <div class="menu-btns">
+      <button class="menu-btn village" onclick="goVillage()">
+        <span class="btn-badge">LIVE</span>
+        <span class="btn-icon">🏘️</span>
+        <span class="btn-title" id="mb-village">Village</span>
+        <span class="btn-desc" id="mb-village-d">Conversations avec l'IA + correcteur</span>
+      </button>
+      <button class="menu-btn vocab" onclick="showScreen('screen-vocab');loadVocab('verbes')">
+        <span class="btn-badge">1500</span>
+        <span class="btn-icon">📖</span>
+        <span class="btn-title" id="mb-vocab">Vocabulaire</span>
+        <span class="btn-desc" id="mb-vocab-d">1500 mots essentiels par catégories</span>
+      </button>
+      <button class="menu-btn phrases" onclick="showScreen('screen-phrases');loadPhrases('quotidien')">
+        <span class="btn-badge">1000</span>
+        <span class="btn-icon">💬</span>
+        <span class="btn-title" id="mb-phrases">Phrases</span>
+        <span class="btn-desc" id="mb-phrases-d">1000 phrases & structures du quotidien</span>
+      </button>
+      <button class="menu-btn grammar" onclick="showScreen('screen-grammar');loadGrammar('present')">
+        <span class="btn-badge">500+</span>
+        <span class="btn-icon">✏️</span>
+        <span class="btn-title" id="mb-grammar">Grammaire</span>
+        <span class="btn-desc" id="mb-grammar-d">6 temps + 500 exemples expliqués</span>
+      </button>
+    </div>
+    <button class="menu-dict-btn" onclick="openDict()">
+      <span class="menu-dict-icon">🔤</span>
+      <div class="menu-dict-text">
+        <div class="menu-dict-title" id="mb-dict">Dictionnaire</div>
+        <div class="menu-dict-sub" id="mb-dict-d">Traduction mot par mot ou phrase entière</div>
+      </div>
+      <span style="color:var(--dim);margin-left:auto">›</span>
+    </button>
+  </div>
+</div>
+
+<!-- ====== S3: VILLAGE ====== -->
+<div class="screen" id="screen-village">
+  <div class="village-hud">
+    <span class="hud-player" id="hudPlayer">👤</span>
+    <span class="hud-weather" id="hudWeather">☀️</span>
+    <span class="hud-time" id="hudTime"></span>
+    <span class="hud-lang" id="hudLang"></span>
+    <span class="hud-xp" id="hudXP">0 XP</span>
+    <div class="hud-btns">
+      <button class="hud-btn" onclick="showScreen('screen-menu')">← Menu</button>
+      <button class="hud-btn" onclick="showProgression()">📊</button>
+    </div>
+  </div>
+  <canvas id="villageCanvas"></canvas>
+  <div class="loc-tooltip" id="locTooltip"></div>
+</div>
+
+<!-- ====== S4: LOCATION ====== -->
+<div class="screen" id="screen-location">
+  <div class="u-header">
+    <button class="back-btn" onclick="showScreen('screen-village')">← Village</button>
+    <div class="u-title" id="locTitle" style="color:var(--village)"></div>
+    <span id="locWeather" style="font-size:1.1rem"></span>
+  </div>
+  <div id="missionsPanel" style="display:none;border-bottom:1px solid var(--border);"></div>
+  <div class="npc-list" id="npcList"></div>
+</div>
+
+<!-- ====== S5: DIALOGUE ====== -->
+<div class="screen" id="screen-dialogue">
+  <div class="dial-header">
+    <div class="dial-av" id="dialAv">🧑</div>
+    <div>
+      <div class="dial-name" id="dialName"></div>
+      <div class="dial-role" id="dialRole"></div>
+    </div>
+    <button class="back-btn" style="margin-left:auto" onclick="showScreen('screen-location')">←</button>
+  </div>
+  <div class="chat-msgs" id="chatMsgs"></div>
+  <div class="dial-input-area">
+    <div class="dial-input-wrap">
+      <input class="dial-input" id="dialInput" type="text" autocomplete="off" placeholder="Votre réponse...">
+      <button class="dial-send" id="dialSend" onclick="sendMsg()">➤</button>
+    </div>
+    <div class="dial-actions">
+      <button class="d-btn" onclick="reqHint()">💡 Indice</button>
+      <button class="d-btn" onclick="reqTranslate()">🔤 Traduire</button>
+      <button class="d-btn voice" id="voiceBtn" onclick="toggleVoice()">🎤 Parler</button>
+    </div>
+    <div class="correction-panel" id="corrPanel">
+      <div class="corr-title" id="corrTitle">✏️ CORRECTION</div>
+      <div class="corr-original" id="corrOrig"></div>
+      <div class="corr-corrected" id="corrFixed"></div>
+      <div class="corr-explain" id="corrExplain"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ====== S6: VOCABULAIRE ====== -->
+<div class="screen" id="screen-vocab">
+  <div class="u-header">
+    <button class="back-btn" onclick="showScreen('screen-menu')">← Menu</button>
+    <div class="u-title" style="color:var(--vocab)" id="vocab-title">📖 Vocabulaire</div>
+    <span class="u-badge" style="background:rgba(78,207,112,0.15);color:var(--vocab)" id="vocabCount"></span>
+  </div>
+  <div class="vocab-cats" id="vocabCats"></div>
+  <div class="vocab-search">
+    <input class="vsearch" id="vocabSearch" type="text" placeholder="Rechercher un mot...">
+  </div>
+  <div class="vocab-list" id="vocabList"></div>
+</div>
+
+<!-- ====== S7: PHRASES ====== -->
+<div class="screen" id="screen-phrases">
+  <div class="u-header">
+    <button class="back-btn" onclick="showScreen('screen-menu')">← Menu</button>
+    <div class="u-title" style="color:var(--blue)" id="phrases-title">💬 Phrases & Structures</div>
+    <span class="u-badge" style="background:rgba(74,158,255,0.15);color:var(--blue)" id="phrasesCount"></span>
+  </div>
+  <div class="phrase-cats" id="phraseCats"></div>
+  <div class="phrase-list" id="phraseList"></div>
+</div>
+
+<!-- ====== S8: GRAMMAIRE ====== -->
+<div class="screen" id="screen-grammar">
+  <div class="u-header">
+    <button class="back-btn" onclick="showScreen('screen-menu')">← Menu</button>
+    <div class="u-title" style="color:var(--purple)" id="grammar-title">✏️ Grammaire</div>
+  </div>
+  <div class="grammar-cats" id="grammarCats"></div>
+  <div class="grammar-body" id="grammarBody"></div>
+</div>
+
+<!-- ====== S9: DICTIONARY ====== -->
+<div class="screen" id="screen-dict">
+  <div class="u-header">
+    <button class="back-btn" id="dictBackBtn" onclick="closeDictBack()">← Retour</button>
+    <div class="u-title" style="color:var(--gold)">🔤 Dictionnaire</div>
+  </div>
+  <div class="dict-search-area">
+    <div class="dict-row">
+      <input class="dict-input" id="dictInput" type="text" placeholder="Mot ou phrase à traduire...">
+      <button class="dict-search-btn" onclick="searchDict()">🔍</button>
+    </div>
+    <div class="dict-modes">
+      <button class="dict-mode active" onclick="setDictMode('word',this)">📖 Mot</button>
+      <button class="dict-mode" onclick="setDictMode('phrase',this)">💬 Phrase entière</button>
+    </div>
+  </div>
+  <div class="dict-result" id="dictResult">
+    <div class="dict-empty"><div class="dict-empty-icon">🔤</div><div id="dict-empty-txt">Tapez un mot pour le traduire</div></div>
+  </div>
+</div>
+  <!-- ====== S10: CINEMA ====== -->
+<div class="screen" id="screen-cinema">
+  <div class="u-header">
+    <button class="back-btn" onclick="showScreen('screen-village')">← Village</button>
+    <div class="u-title" style="color:#e040fb" id="cinema-title">🎬 Cinéma</div>
+    <span id="cinema-lang-badge" style="font-size:0.75rem;font-weight:800;color:#e040fb"></span>
+  </div>
+
+  <!-- Onglets catégories -->
+  <div style="display:flex;gap:0;background:rgba(10,8,20,0.9);
+              border-bottom:1px solid var(--border);overflow-x:auto;flex-shrink:0;"
+       id="cinemaCats"></div>
+
+  <!-- Grille de vidéos -->
+  <div style="flex:1;overflow-y:auto;padding:14px;" id="cinemaInfo">
+    <!-- Astuce sous-titres -->
+    <div style="background:rgba(224,64,251,0.07);border:1px solid rgba(224,64,251,0.2);
+                border-radius:12px;padding:10px 14px;margin-bottom:14px;
+                font-size:0.72rem;color:rgba(224,64,251,0.85);line-height:1.5;">
+      💡 Clique sur une vidéo → YouTube s'ouvre.<br>
+      Active les sous-titres CC dans YouTube pour apprendre encore plus vite !
+    </div>
+    <div id="videoList"
+         style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px;">
+    </div>
+  </div>
+</div>
+  
+
+</body>
+</html>
