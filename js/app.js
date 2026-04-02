@@ -3607,6 +3607,7 @@ function startMenu(){
   document.getElementById('menuXP').textContent='0 XP';
   applyMenuUI();
   showScreen('screen-menu');
+   saveGame();
 }
 
 function goVillage(){
@@ -4038,6 +4039,7 @@ function gainXP(n){
   const lv=Math.floor(S.xp/100)+1;
   if(lv>S.level){S.level=lv;showNotif('🎉 Niveau '+S.level+' !');}
   else showNotif('+'+n+' XP ⭐');
+   saveGame();
 }
 function showScreen(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');closeWordPopup();}
 function showNotif(msg){const n=document.getElementById('notif');n.textContent=msg;n.classList.add('show');clearTimeout(n._t);n._t=setTimeout(()=>n.classList.remove('show'),2200);}
