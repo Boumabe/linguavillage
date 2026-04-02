@@ -4043,3 +4043,8 @@ function gainXP(n){
 }
 function showScreen(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');closeWordPopup();}
 function showNotif(msg){const n=document.getElementById('notif');n.textContent=msg;n.classList.add('show');clearTimeout(n._t);n._t=setTimeout(()=>n.classList.remove('show'),2200);}
+// Reprendre la sauvegarde si elle existe
+if(window._LINGUA_HAS_SAVE){
+  applyUI(S.nativeLang);
+  startMenu();
+                 }
