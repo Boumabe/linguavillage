@@ -2,16 +2,8 @@
    app.js — LinguaVillage
    Logique principale : UI, Village, Dialogue, Vocabulaire,
    Phrases, Grammaire, Dictionnaire, XP
-   Dépendances : save.js, cinema.js, missions.js (chargés avant)
+   Dépendances: cinema.js, missions.js (chargés avant)
    ================================================================= */
-
-// Reprendre la sauvegarde automatiquement si elle existe
-window.addEventListener('DOMContentLoaded', function(){
-  if(window._LINGUA_HAS_SAVE){
-    applyUI(S.nativeLang);
-    startMenu();
-  }
-});
 
 const API = 'https://linguavillage-api--marckensbou2.replit.app';
 
@@ -3531,6 +3523,11 @@ const LANG_NAMES={en:'anglais',fr:'français',es:'espagnol',ht:'créole haïtien
 const FLAGS={en:'🇬🇧',fr:'🇫🇷',es:'🇪🇸',ht:'🇭🇹',de:'🇩🇪',ru:'🇷🇺',zh:'🇨🇳',ja:'🇯🇵'};
 
 // =================================================================
+// INIT DOM — tout le code qui touche le DOM est ici
+// =================================================================
+window.addEventListener('DOMContentLoaded', function() {
+
+// =================================================================
 // INIT STARS
 // =================================================================
 (()=>{const c=document.getElementById('wStars');for(let i=0;i<100;i++){const s=document.createElement('div');s.className='w-star';const z=Math.random()*2+0.5;s.style.cssText=`width:${z}px;height:${z}px;left:${Math.random()*100}%;top:${Math.random()*100}%;animation-delay:${Math.random()*5}s;animation-duration:${2+Math.random()*4}s`;c.appendChild(s);}})();
@@ -3613,12 +3610,12 @@ function startMenu(){
   document.getElementById('menuPlayer').textContent='👤 '+S.playerName;
   document.getElementById('menuLang').textContent=(FLAGS[S.targetLang]||'')+(LANG_NAMES[S.targetLang]||S.targetLang);
   document.getElementById('menuXP').textContent=S.xp+' XP';
-  const gd=document.getElementById('gemDisplay');
-  if(gd) gd.textContent='💎 '+(typeof S_missions!=='undefined'?S_missions.gems:0);
   applyMenuUI();
+  if(typeof updateStreak==='function') updateStreak();
+  var hg=document.getElementById('hudGems'); if(hg) hg.textContent=(window.S_missions&&S_missions.gems)||0;
+  var mg=document.getElementById('menuGems'); if(mg) mg.textContent=(window.S_missions&&S_missions.gems)||0;
   showScreen('screen-menu');
   if(typeof saveGame==='function') saveGame();
-  if(typeof updateStreak==='function') updateStreak();
 }
 
 function goVillage(){
@@ -3916,23 +3913,23 @@ function loadVocab(catKey){
   const search=document.getElementById('vocabSearch').value.toLowerCase();
   const words=cat.words.filter(w=>!search||(w.t[S.nativeLang]||w.n).toLowerCase().includes(search)||(w.t[S.targetLang]||'').toLowerCase().includes(search));
   document.getElementById('vocabCount').textContent=words.length+' mots';
-  document.getElementById('vocabList').innerHTML=`
   const vocabRowsHTML = words.map(function(w){
     const target = w.t[S.targetLang]||w.t.en||'';
     const match  = target.match(/^(.*)\s*\(([^)]+)\)\s*$/);
-    const chars  = match ? match[1] : target;
-    const roman  = match ? match[2] : '';
-    const romanSpan = (showRoman && roman) ? '<span class="vi-roman">'+roman+'</span>' : '';
-    const altWord   = (!showNative && !roman) ? '<span class="vi-word">'+target+'</span>' : '';
+    const chars  = match?match[1]:target;
+    const roman  = match?match[2]:'';
+    const romanSpan = (showRoman&&roman) ? '<span class="vi-roman">'+roman+'</span>' : '';
+    const altWord   = (!showNative&&!roman) ? '<span class="vi-word">'+target+'</span>' : '';
     return '<div class="vocab-item">'
       +'<span class="vi-native">'+(w.t[S.nativeLang]||w.t.en||w.n)+'</span>'
-      +'<span class="vi-target"><span class="vi-word">'+(showNative ? chars : '')+'</span>'+romanSpan+altWord+'</span>'
-      +'<button class="vi-listen" onclick="speakW(\''+chars.replace(/\'/g,"\\'")+'\')" >🔊</button>'
+      +'<span class="vi-target"><span class="vi-word">'+(showNative?chars:'')+'</span>'+romanSpan+altWord+'</span>'
+      +'<button class="vi-listen" onclick="speakW(\''+chars.replace(/\'/g,"\\'")+'\')">🔊</button>'
       +'</div>';
   }).join('');
   document.getElementById('vocabList').innerHTML =
-    '<div class="cat-header">'+(cat[S.nativeLang]||cat.fr)+' — '+words.length+' mots</div>'
+    '<div class="cat-header">'+(cat[S.nativeLang]||cat.fr)+' \u2014 '+words.length+' mots</div>'
     + vocabRowsHTML;
+}
 document.getElementById('vocabSearch').addEventListener('input',()=>{
   const active=document.querySelector('.vcat.active');
   if(active)loadVocab(Object.keys(VOCAB)[Array.from(document.querySelectorAll('.vcat')).indexOf(active)]);
@@ -3983,18 +3980,17 @@ function loadGrammar(catKey){
   const showNative=!isCJK||S.scriptPref!=='roman';
   const expl=cat.explanation?.[nl]||cat.explanation?.fr||'';
   const formula=cat.formula?.[tl]||cat.formula?.en||cat.formula?.fr||'';
-  document.getElementById('grammarBody').innerHTML=`
   const gramRowsHTML = (cat.examples||[]).map(function(ex){
     const target = ex.t[tl]||ex.t.en||'';
     const match  = target.match(/^(.*)\s*\(([^)]+)\)\s*$/);
-    const chars  = match ? match[1] : target;
-    const roman  = match ? match[2] : '';
-    const romanSpan = (showRoman && roman) ? '<span class="roman">'+roman+'</span>' : '';
+    const chars  = match?match[1]:target;
+    const roman  = match?match[2]:'';
+    const romanSpan = (showRoman&&roman) ? '<span class="roman">'+roman+'</span>' : '';
     return '<div class="gram-ex">'
       +'<span class="gram-ex-native">'+(ex.t[S.nativeLang]||ex.t.en||ex.n)+'</span>'
-      +'<span class="gram-ex-target">'+(showNative ? chars : target)+romanSpan
+      +'<span class="gram-ex-target">'+(showNative?chars:target)+romanSpan
       +'<button style="background:none;border:none;cursor:pointer;color:var(--dim);margin-left:4px"'
-      +' onclick="speakW(\''+chars.replace(/\'/g,"\\'")+'\')" >🔊</button>'
+      +' onclick="speakW(\''+chars.replace(/\'/g,"\\'")+'\')">🔊</button>'
       +'</span></div>';
   }).join('');
   document.getElementById('grammarBody').innerHTML =
@@ -4039,21 +4035,44 @@ async function searchDict(){
 function searchDictWord(w){document.getElementById('dictInput').value=w;searchDict();}
 document.getElementById('dictInput').addEventListener('keydown',e=>{if(e.key==='Enter')searchDict();});
 
+
+
+
 // =================================================================
 // XP & UTILS
 // =================================================================
-function gainXP(n){
-  const boost = (S.xpBoostEnd && Date.now() < S.xpBoostEnd);
-  const actual = boost ? n * 2 : n;
-  S.xp += actual;
+function gainXP(n) {
+  // Application du boost double XP si actif
+  let amount = n;
+  if (S.boostActive) amount *= 2;
+  
+  S.xp += amount;
   const pct = S.xp % 100;
-  document.getElementById('hudXP').textContent = S.xp+' XP';
-  document.getElementById('menuXP').textContent = S.xp+' XP';
-  document.getElementById('xpFill').style.width = pct+'%';
-  const lv = Math.floor(S.xp/100)+1;
-  if(lv>S.level){S.level=lv;showNotif('🎉 Niveau '+S.level+' !');}
-  else showNotif('+'+ actual +' XP ⭐'+(boost?' ⚡×2':''));
-  if(typeof saveGame==='function') saveGame();
+  
+  document.getElementById('hudXP').textContent = S.xp + ' XP';
+  document.getElementById('menuXP').textContent = S.xp + ' XP';
+  document.getElementById('xpFill').style.width = pct + '%';
+  
+  const lv = Math.floor(S.xp / 100) + 1;
+  if (lv > S.level) {
+    S.level = lv;
+    showNotif('🎉 Niveau ' + S.level + ' !');
+  } else {
+    showNotif('+' + amount + ' XP ' + (S.boostActive ? '🔥' : '⭐'));
+  }
+  saveGame();
 }
+
 function showScreen(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');closeWordPopup();}
 function showNotif(msg){const n=document.getElementById('notif');n.textContent=msg;n.classList.add('show');clearTimeout(n._t);n._t=setTimeout(()=>n.classList.remove('show'),2200);}
+// Reprendre la sauvegarde si elle existe
+
+
+
+// Reprendre la sauvegarde si elle existe
+if(window._LINGUA_HAS_SAVE){
+  applyUI(S.nativeLang);
+  startMenu();
+}
+
+}); // fin DOMContentLoaded
