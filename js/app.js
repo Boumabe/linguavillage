@@ -6,7 +6,12 @@
    ================================================================= */
 
 const API = 'https://linguavillage-api--marckensbou2.replit.app';
-
+window.addEventListener('DOMContentLoaded', function() {
+  if (window._LINGUA_HAS_SAVE) {
+    if (typeof applyUI === "function") applyUI(S.nativeLang);
+    startMenu();
+  }
+});
 // =================================================================
 // UI TRANSLATIONS
 // =================================================================
