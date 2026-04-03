@@ -6,7 +6,12 @@
    ================================================================= */
 
 const API = 'https://linguavillage-api--marckensbou2.replit.app';
-
+window.addEventListener('DOMContentLoaded', function() {
+  if (window._LINGUA_HAS_SAVE) {
+    applyUI(S.nativeLang);
+    startMenu();
+  }
+});
 // =================================================================
 // UI TRANSLATIONS
 // =================================================================
@@ -4027,20 +4032,45 @@ async function searchDict(){
 function searchDictWord(w){document.getElementById('dictInput').value=w;searchDict();}
 document.getElementById('dictInput').addEventListener('keydown',e=>{if(e.key==='Enter')searchDict();});
 
+function startMenu() {
+  updateStreak();
+  // Mise à jour de l'affichage des gemmes
+  if (document.getElementById('hudGems')) {
+    document.getElementById('hudGems').textContent = S.gems || 0;
+  }
+  if (document.getElementById('menuGems')) {
+    document.getElementById('menuGems').textContent = S.gems || 0;
+  }
+  saveGame();
+  showScreen('menu');
+}
+
+
 // =================================================================
 // XP & UTILS
 // =================================================================
-function gainXP(n){
-  S.xp+=n;
-  const pct=S.xp%100;
-  document.getElementById('hudXP').textContent=S.xp+' XP';
-  document.getElementById('menuXP').textContent=S.xp+' XP';
-  document.getElementById('xpFill').style.width=pct+'%';
-  const lv=Math.floor(S.xp/100)+1;
-  if(lv>S.level){S.level=lv;showNotif('🎉 Niveau '+S.level+' !');}
-  else showNotif('+'+n+' XP ⭐');
-   saveGame();
+function gainXP(n) {
+  // Application du boost double XP si actif
+  let amount = n;
+  if (S.boostActive) amount *= 2;
+  
+  S.xp += amount;
+  const pct = S.xp % 100;
+  
+  document.getElementById('hudXP').textContent = S.xp + ' XP';
+  document.getElementById('menuXP').textContent = S.xp + ' XP';
+  document.getElementById('xpFill').style.width = pct + '%';
+  
+  const lv = Math.floor(S.xp / 100) + 1;
+  if (lv > S.level) {
+    S.level = lv;
+    showNotif('🎉 Niveau ' + S.level + ' !');
+  } else {
+    showNotif('+' + amount + ' XP ' + (S.boostActive ? '🔥' : '⭐'));
+  }
+  saveGame();
 }
+
 function showScreen(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');closeWordPopup();}
 function showNotif(msg){const n=document.getElementById('notif');n.textContent=msg;n.classList.add('show');clearTimeout(n._t);n._t=setTimeout(()=>n.classList.remove('show'),2200);}
 // Reprendre la sauvegarde si elle existe
