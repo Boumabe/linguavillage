@@ -6,12 +6,7 @@
    ================================================================= */
 
 const API = 'https://linguavillage-api--marckensbou2.replit.app';
-window.addEventListener('DOMContentLoaded', function() {
-  if (window._LINGUA_HAS_SAVE) {
-    applyUI(S.nativeLang);
-    startMenu();
-  }
-});
+
 // =================================================================
 // UI TRANSLATIONS
 // =================================================================
@@ -3609,10 +3604,14 @@ function applyMenuUI(){
 function startMenu(){
   document.getElementById('menuPlayer').textContent='👤 '+S.playerName;
   document.getElementById('menuLang').textContent=(FLAGS[S.targetLang]||'')+(LANG_NAMES[S.targetLang]||S.targetLang);
-  document.getElementById('menuXP').textContent='0 XP';
+  document.getElementById('menuXP').textContent=S.xp+' XP';
   applyMenuUI();
+  // Mise à jour streak et gemmes
+  if(typeof updateStreak==='function') updateStreak();
+  const hg=document.getElementById('hudGems');if(hg) hg.textContent=S_missions?S_missions.gems:0;
+  const mg=document.getElementById('menuGems');if(mg) mg.textContent=S_missions?S_missions.gems:0;
   showScreen('screen-menu');
-   saveGame();
+  if(typeof saveGame==='function') saveGame();
 }
 
 function goVillage(){
@@ -4032,18 +4031,7 @@ async function searchDict(){
 function searchDictWord(w){document.getElementById('dictInput').value=w;searchDict();}
 document.getElementById('dictInput').addEventListener('keydown',e=>{if(e.key==='Enter')searchDict();});
 
-function startMenu() {
-  updateStreak();
-  // Mise à jour de l'affichage des gemmes
-  if (document.getElementById('hudGems')) {
-    document.getElementById('hudGems').textContent = S.gems || 0;
-  }
-  if (document.getElementById('menuGems')) {
-    document.getElementById('menuGems').textContent = S.gems || 0;
-  }
-  saveGame();
-  showScreen('menu');
-}
+
 
 
 // =================================================================
@@ -4077,4 +4065,4 @@ function showNotif(msg){const n=document.getElementById('notif');n.textContent=m
 if(window._LINGUA_HAS_SAVE){
   applyUI(S.nativeLang);
   startMenu();
-                 }
+}
