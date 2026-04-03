@@ -125,17 +125,18 @@
 <!-- ====== S3: VILLAGE ====== -->
 <div class="screen" id="screen-village">
   <div class="village-hud">
-    <span class="hud-player" id="hudPlayer">👤</span>
-    <span class="hud-weather" id="hudWeather">☀️</span>
-    <span class="hud-time" id="hudTime"></span>
-    <span class="hud-lang" id="hudLang"></span>
-    <span id="streakDisplay" style="font-size:.68rem;color:#ff9f43;font-weight:900">🔥 0</span>
-<button class="hud-btn" onclick="launchSurpriseMode()">⚡</button>
-    <span class="hud-xp" id="hudXP">0 XP</span>
-    <div class="hud-btns">
-      <button class="hud-btn" onclick="showScreen('screen-menu')">← Menu</button>
-      <button class="hud-btn" onclick="showProgression()">📊</button>
-    </div>
+  <span class="hud-player" id="hudPlayer">👤</span>
+  <span class="hud-weather" id="hudWeather">☀️</span>
+  <span class="hud-time" id="hudTime"></span>
+  <span class="hud-lang" id="hudLang"></span>
+  <span id="streakDisplay" style="font-size:.68rem;color:#ff9f43;font-weight:900">🔥 0</span>
+  <span class="hud-xp" id="hudXP">0 XP</span>
+  <div class="hud-btns">
+    <button class="hud-btn" onclick="showScreen('screen-menu')">← Menu</button>
+    <button class="hud-btn" onclick="showProgression()">📊</button>
+    <button class="hud-btn" onclick="launchSurpriseMode()">⚡</button>
+    <button class="hud-btn" onclick="openShop()">🏪</button>
+  </div>
   </div>
   <canvas id="villageCanvas"></canvas>
   <div class="loc-tooltip" id="locTooltip"></div>
