@@ -3906,7 +3906,7 @@ function removeTyping(){document.getElementById('typInd')?.remove();}
 function loadVocab(catKey){
   const cats=Object.keys(VOCAB);
   const catsBar=document.getElementById('vocabCats');
-  catsBar.innerHTML=cats.map(k=>`<button class="vcat${k===catKey?' active':''}" onclick="loadVocab('${k}')">${VOCAB[k].icon||'📖'} ${VOCAB[k][S.nativeLang]||VOCAB[k].fr}</button>`).join('');
+  catsBar.innerHTML=cats.map(function(k){var a=k===catKey?' active':'';return'<button class="vcat'+a+'" onclick="loadVocab(\''+k+'\')">'+(VOCAB[k].icon||'📖')+' '+(VOCAB[k][S.nativeLang]||VOCAB[k].fr)+'</button>';}).join('');
   const cat=VOCAB[catKey];
   if(!cat)return;
   const isCJK=['zh','ja','ru'].includes(S.targetLang);
@@ -3944,28 +3944,28 @@ function speakW(w){if('speechSynthesis'in window){const u=new SpeechSynthesisUtt
 // =================================================================
 function loadPhrases(catKey){
   const cats=Object.keys(PHRASES_DATA);
-  document.getElementById('phraseCats').innerHTML=cats.map(k=>`<button class="pcat${k===catKey?' active':''}" onclick="loadPhrases('${k}')">${PHRASES_DATA[k].icon} ${PHRASES_DATA[k][S.nativeLang]||PHRASES_DATA[k].fr}</button>`).join('');
+  document.getElementById('phraseCats').innerHTML=cats.map(function(k){var a=k===catKey?' active':'';return'<button class="pcat'+a+'" onclick="loadPhrases(\''+k+'\')">'+(PHRASES_DATA[k].icon||'')+ ' '+(PHRASES_DATA[k][S.nativeLang]||PHRASES_DATA[k].fr)+'</button>';}).join('');
   const cat=PHRASES_DATA[catKey];if(!cat)return;
   const isCJK=['zh','ja','ru'].includes(S.targetLang);
   const showRoman=isCJK&&S.scriptPref!=='native';
   const showNative=!isCJK||S.scriptPref!=='roman';
   document.getElementById('phrasesCount').textContent=cat.items.length+' phrases';
-  document.getElementById('phraseList').innerHTML=cat.items.map((p,i)=>{
-    const target=p.t[S.targetLang]||p.t.en||'';
-    const match=target.match(/^(.*?)\s*\(([^)]+)\)\s*$/);
-    const chars=match?match[1]:target;
-    const roman=match?match[2]:'';
-    const struct=p.struct?p.struct.t?.[S.targetLang]||p.struct.t?.en||p.struct.n:'';
-    return`<div class="phrase-item">
-      <div class="pi-native">${p.t[S.nativeLang]||p.t.en||p.n}</div>
-      <div class="pi-target">${showNative?chars:target}</div>
-      ${showRoman&&roman?`<div class="pi-roman">${roman}</div>`:''}
-      ${struct?`<div style="font-size:0.65rem;color:var(--purple);margin-top:4px">📐 ${struct}</div>`:''}
-      <div class="pi-actions">
-        <button class="pi-btn" onclick="speakW('${chars.replace(/'/g,"\\'")}')">🔊</button>
-        <button class="pi-btn" onclick="copyPhrase('${chars.replace(/'/g,"\\'")}')">📋</button>
-      </div>
-    </div>`;
+  document.getElementById('phraseList').innerHTML = cat.items.map(function(p) {
+    var target = p.t[S.targetLang]||p.t.en||'';
+    var match  = target.match(/^(.*)\s*\(([^)]+)\)\s*$/);
+    var chars  = match ? match[1] : target;
+    var roman  = match ? match[2] : '';
+    var struct = p.struct ? (p.struct.t ? (p.struct.t[S.targetLang]||p.struct.t.en||p.struct.n||'') : (p.struct.n||'')) : '';
+    var romanHtml  = (showRoman && roman)  ? '<div class="pi-roman">'+roman+'</div>' : '';
+    var structHtml = struct ? '<div style="font-size:0.65rem;color:var(--purple);margin-top:4px">&#128208; '+struct+'</div>' : '';
+    return '<div class="phrase-item">'
+      + '<div class="pi-native">'+(p.t[S.nativeLang]||p.t.en||p.n||'')+'</div>'
+      + '<div class="pi-target">'+(showNative ? chars : target)+'</div>'
+      + romanHtml + structHtml
+      + '<div class="pi-actions">'
+      + '<button class="pi-btn" onclick="speakW(\''+chars.replace(/'/g,"\\'")+'\')" >&#128266;</button>'
+      + '<button class="pi-btn" onclick="copyPhrase(\''+chars.replace(/'/g,"\\'")+'\')" >&#128203;</button>'
+      + '</div></div>';
   }).join('');
 }
 function copyPhrase(t){navigator.clipboard?.writeText(t);showNotif('📋 Copié !');}
@@ -3975,7 +3975,7 @@ function copyPhrase(t){navigator.clipboard?.writeText(t);showNotif('📋 Copié 
 // =================================================================
 function loadGrammar(catKey){
   const cats=Object.keys(GRAMMAR_DATA);
-  document.getElementById('grammarCats').innerHTML=cats.map(k=>`<button class="gcat${k===catKey?' active':''}" onclick="loadGrammar('${k}')">${GRAMMAR_DATA[k].icon} ${GRAMMAR_DATA[k][S.nativeLang]||GRAMMAR_DATA[k].fr}</button>`).join('');
+  document.getElementById('grammarCats').innerHTML=cats.map(function(k){var a=k===catKey?' active':'';return'<button class="gcat'+a+'" onclick="loadGrammar(\''+k+'\')">'+(GRAMMAR_DATA[k].icon||'')+' '+(GRAMMAR_DATA[k][S.nativeLang]||GRAMMAR_DATA[k].fr)+'</button>';}).join('');
   const cat=GRAMMAR_DATA[catKey];if(!cat)return;
   const nl=S.nativeLang;const tl=S.targetLang;
   const isCJK=['zh','ja','ru'].includes(tl);
