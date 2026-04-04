@@ -460,3 +460,42 @@ function buyItem(id, price) {
 
   if (typeof saveGame === 'function') saveGame();
      }
+// Ajouter à la fin de missions.js
+// =================================================================
+// EXTENSION: Mission complétée → vérifier progression CEFR
+// =================================================================
+
+// Sauvegarder la fonction completeMission originale
+const originalCompleteMission = completeMission;
+
+// Remplacer par la version étendue
+completeMission = function(mission) {
+  if (S_missions.completed[mission.id]) return;
+  
+  // Appeler la fonction originale
+  originalCompleteMission(mission);
+  
+  // Vérifier si le niveau est complété (toutes missions du niveau faites)
+  const cefrMission = CEFR_ROADMAP.missions[mission.id];
+  if (cefrMission) {
+    const levelMissions = getAvailableMissionsForLevel(cefrMission.level);
+    const allCompleted = levelMissions.every(m => S_missions.completed[m.id]);
+    
+    if (allCompleted) {
+      showNotif(`🎉 FÉLICITATIONS ! Niveau ${cefrMission.level} complété ! 🎉`);
+      launchConfetti();
+      
+      // Débloquer le niveau suivant
+      const nextLevel = getNextLevelForLevel(cefrMission.level);
+      if (nextLevel) {
+        showNotif(`🔓 Niveau ${nextLevel} débloqué !`);
+      }
+    }
+  }
+};
+
+function getNextLevelForLevel(currentLevel) {
+  const levels = ["A1", "A2", "B1", "B2", "C1"];
+  const currentIndex = levels.indexOf(currentLevel);
+  return levels[currentIndex + 1] || null;
+                                             }
