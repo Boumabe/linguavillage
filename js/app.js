@@ -3715,7 +3715,7 @@ function openLoc(loc){
   list.innerHTML=loc.npcs.map(npc=>{
     const role=typeof npc.role==='object'?(npc.role[S.nativeLang]||npc.role.en):npc.role;
     const hint=LOC_DESC[loc.id]?.[S.nativeLang]||'';
-    return`<div class="npc-card" onclick="openDialogue('${loc.id}','${npc.id}')">
+    return<div class="npc-card" onclick="openDialogue('${loc.id}','${npc.id}')">
       <div class="npc-av">${npc.emoji}</div>
       <div class="npc-info">
         <div class="npc-name">${npc.name}</div>
@@ -3723,7 +3723,7 @@ function openLoc(loc){
         <div class="npc-hint">💬 ${hint}</div>
       </div>
       <span style="color:var(--dim);font-size:1.2rem">›</span>
-    </div>`;
+    </div>;
   }).join('');
   showScreen('screen-location');
   setTimeout(()=>openMissionsPanel(loc.id), 400);
@@ -3903,141 +3903,331 @@ function removeTyping(){document.getElementById('typInd')?.remove();}
 // =================================================================
 // VOCABULARY
 // =================================================================
-function loadVocab(catKey){
-  const cats=Object.keys(VOCAB);
-  const catsBar=document.getElementById('vocabCats');
-  catsBar.innerHTML=cats.map(function(k){var a=k===catKey?' active':'';return'<button class="vcat'+a+'" onclick="loadVocab(\''+k+'\')">'+(VOCAB[k].icon||'📖')+' '+(VOCAB[k][S.nativeLang]||VOCAB[k].fr)+'</button>';}).join('');
-  const cat=VOCAB[catKey];
-  if(!cat)return;
-  const isCJK=['zh','ja','ru'].includes(S.targetLang);
-  const showRoman=isCJK&&S.scriptPref!=='native';
-  const showNative=!isCJK||S.scriptPref!=='roman';
-  // Filter by search
-  const search=document.getElementById('vocabSearch').value.toLowerCase();
-  const words=cat.words.filter(w=>!search||(w.t[S.nativeLang]||w.n).toLowerCase().includes(search)||(w.t[S.targetLang]||'').toLowerCase().includes(search));
-  document.getElementById('vocabCount').textContent=words.length+' mots';
-  document.getElementById('vocabList').innerHTML=`
-  const vocabRowsHTML = words.map(function(w){
-    const target = w.t[S.targetLang]||w.t.en||'';
-    const match  = target.match(/^(.*)\s*\(([^)]+)\)\s*$/);
-    const chars  = match ? match[1] : target;
-    const roman  = match ? match[2] : '';
-    const romanSpan = (showRoman && roman) ? '<span class="vi-roman">'+roman+'</span>' : '';
-    const altWord   = (!showNative && !roman) ? '<span class="vi-word">'+target+'</span>' : '';
-    return '<div class="vocab-item">'
-      +'<span class="vi-native">'+(w.t[S.nativeLang]||w.t.en||w.n)+'</span>'
-      +'<span class="vi-target"><span class="vi-word">'+(showNative ? chars : '')+'</span>'+romanSpan+altWord+'</span>'
-      +'<button class="vi-listen" onclick="speakW(\''+chars.replace(/\'/g,"\\'")+'\')" >🔊</button>'
-      +'</div>';
+function loadVocab(catKey) {
+  const cats = Object.keys(VOCAB);
+  const catsBar = document.getElementById('vocabCats');
+  
+  // 1. Génération des boutons de catégories
+  catsBar.innerHTML = cats.map(function(k) {
+    const a = k === catKey ? ' active' : '';
+    const icon = VOCAB[k].icon || '📖';
+    const label = VOCAB[k][S.nativeLang] || VOCAB[k].fr;
+    return `<button class="vcat${a}" onclick="loadVocab('${k}')">${icon} ${label}</button>`;
   }).join('');
-  document.getElementById('vocabList').innerHTML =
-    '<div class="cat-header">'+(cat[S.nativeLang]||cat.fr)+' — '+words.length+' mots</div>'
-    + vocabRowsHTML;
-document.getElementById('vocabSearch').addEventListener('input',()=>{
-  const active=document.querySelector('.vcat.active');
-  if(active)loadVocab(Object.keys(VOCAB)[Array.from(document.querySelectorAll('.vcat')).indexOf(active)]);
-});
-function speakW(w){if('speechSynthesis'in window){const u=new SpeechSynthesisUtterance(w);const lm={en:'en-US',fr:'fr-FR',es:'es-ES',ht:'fr-HT',de:'de-DE',ru:'ru-RU',zh:'zh-CN',ja:'ja-JP'};u.lang=lm[S.targetLang]||'en-US';speechSynthesis.speak(u);}showNotif('🔊 '+w);}
+
+  const cat = VOCAB[catKey];
+  if (!cat) return;
+
+  const isCJK = ['zh', 'ja', 'ru'].includes(S.targetLang);
+  const showRoman = isCJK && S.scriptPref !== 'native';
+  const showNative = !isCJK || S.scriptPref !== 'roman';
+
+  // 2. Filtrage par recherche
+  const searchInput = document.getElementById('vocabSearch');
+  const search = searchInput.value.toLowerCase();
+  const words = cat.words.filter(w => 
+    !search || 
+    (w.t[S.nativeLang] || w.n || "").toLowerCase().includes(search) || 
+    (w.t[S.targetLang] || "").toLowerCase().includes(search)
+  );
+
+  document.getElementById('vocabCount').textContent = `${words.length} mots`;
+
+  // 3. Génération des lignes de vocabulaire
+  const vocabRowsHTML = words.map(function(w) {
+    const target = w.t[S.targetLang] || w.t.en || '';
+    const match = target.match(/^(.*)\s*\(([^)]+)\)\s*$/);
+    const chars = match ? match[1] : target;
+    const roman = match ? match[2] : '';
+    
+    const romanSpan = (showRoman && roman) ? `<span class="vi-roman">${roman}</span>` : '';
+    const altWord = (!showNative && !roman) ? `<span class="vi-word">${target}</span>` : '';
+    const nativeText = w.t[S.nativeLang] || w.t.en || w.n || '';
+    const escapedChars = chars.replace(/'/g, "\\'");
+
+    return `
+      <div class="vocab-item">
+        <span class="vi-native">${nativeText}</span>
+        <span class="vi-target">
+          <span class="vi-word">${showNative ? chars : ''}</span>
+          ${romanSpan} ${altWord}
+        </span>
+        <button class="vi-listen" onclick="speakW('${escapedChars}')">🔊</button>
+      </div>`;
+  }).join('');
+
+  // 4. Affichage final
+  const catLabel = cat[S.nativeLang] || cat.fr || "";
+  document.getElementById('vocabList').innerHTML = `
+    <div class="cat-header">${catLabel} — ${words.length} mots</div>
+    ${vocabRowsHTML}
+  `;
+}
+
+// 5. Gestionnaire de recherche (à mettre EN DEHORS de loadVocab pour éviter les doublons)
+const vSearch = document.getElementById('vocabSearch');
+if (vSearch) {
+  vSearch.oninput = () => {
+    const activeBtn = document.querySelector('.vcat.active');
+    if (activeBtn) {
+      // On récupère la clé de la catégorie active via son texte ou un attribut
+      const activeIdx = Array.from(document.querySelectorAll('.vcat')).indexOf(activeBtn);
+      const catKey = Object.keys(VOCAB)[activeIdx];
+      loadVocab(catKey);
+    }
+  };
+}
+
+// 6. Fonction de synthèse vocale
+function speakW(w) {
+  if ('speechSynthesis' in window) {
+    const u = new SpeechSynthesisUtterance(w);
+    const lm = { 
+      en: 'en-US', fr: 'fr-FR', es: 'es-ES', 
+      ht: 'fr-HT', de: 'de-DE', ru: 'ru-RU', 
+      zh: 'zh-CN', ja: 'ja-JP' 
+    };
+    u.lang = lm[S.targetLang] || 'en-US';
+    speechSynthesis.speak(u);
+  }
+  showNotif(`🔊 ${w}`);
+}
 
 // =================================================================
 // PHRASES
 // =================================================================
-function loadPhrases(catKey){
-  const cats=Object.keys(PHRASES_DATA);
-  document.getElementById('phraseCats').innerHTML=cats.map(function(k){var a=k===catKey?' active':'';return'<button class="pcat'+a+'" onclick="loadPhrases(\''+k+'\')">'+(PHRASES_DATA[k].icon||'')+ ' '+(PHRASES_DATA[k][S.nativeLang]||PHRASES_DATA[k].fr)+'</button>';}).join('');
-  const cat=PHRASES_DATA[catKey];if(!cat)return;
-  const isCJK=['zh','ja','ru'].includes(S.targetLang);
-  const showRoman=isCJK&&S.scriptPref!=='native';
-  const showNative=!isCJK||S.scriptPref!=='roman';
-  document.getElementById('phrasesCount').textContent=cat.items.length+' phrases';
+function loadPhrases(catKey) {
+  const cats = Object.keys(PHRASES_DATA);
+  
+  // Génération des boutons de catégories
+  document.getElementById('phraseCats').innerHTML = cats.map(function(k) {
+    const a = k === catKey ? ' active' : '';
+    const icon = PHRASES_DATA[k].icon || '';
+    const label = PHRASES_DATA[k][S.nativeLang] || PHRASES_DATA[k].fr;
+    return `<button class="pcat${a}" onclick="loadPhrases('${k}')">${icon} ${label}</button>`;
+  }).join('');
+
+  const cat = PHRASES_DATA[catKey];
+  if (!cat) return;
+
+  const isCJK = ['zh', 'ja', 'ru'].includes(S.targetLang);
+  const showRoman = isCJK && S.scriptPref !== 'native';
+  const showNative = !isCJK || S.scriptPref !== 'roman';
+
+  document.getElementById('phrasesCount').textContent = `${cat.items.length} phrases`;
+
+  // Génération de la liste des phrases
   document.getElementById('phraseList').innerHTML = cat.items.map(function(p) {
-    var target = p.t[S.targetLang]||p.t.en||'';
-    var match  = target.match(/^(.*)\s*\(([^)]+)\)\s*$/);
-    var chars  = match ? match[1] : target;
-    var roman  = match ? match[2] : '';
-    var struct = p.struct ? (p.struct.t ? (p.struct.t[S.targetLang]||p.struct.t.en||p.struct.n||'') : (p.struct.n||'')) : '';
-    var romanHtml  = (showRoman && roman)  ? '<div class="pi-roman">'+roman+'</div>' : '';
-    var structHtml = struct ? '<div style="font-size:0.65rem;color:var(--purple);margin-top:4px">&#128208; '+struct+'</div>' : '';
-    return '<div class="phrase-item">'
-      + '<div class="pi-native">'+(p.t[S.nativeLang]||p.t.en||p.n||'')+'</div>'
-      + '<div class="pi-target">'+(showNative ? chars : target)+'</div>'
-      + romanHtml + structHtml
-      + '<div class="pi-actions">'
-      + '<button class="pi-btn" onclick="speakW(\''+chars.replace(/'/g,"\\'")+'\')" >&#128266;</button>'
-      + '<button class="pi-btn" onclick="copyPhrase(\''+chars.replace(/'/g,"\\'")+'\')" >&#128203;</button>'
-      + '</div></div>';
+    const target = p.t[S.targetLang] || p.t.en || '';
+    const match = target.match(/^(.*)\s*\(([^)]+)\)\s*$/);
+    const chars = match ? match[1] : target;
+    const roman = match ? match[2] : '';
+    
+    const struct = p.struct ? (p.struct.t ? (p.struct.t[S.targetLang] || p.struct.t.en || p.struct.n || '') : (p.struct.n || '')) : '';
+    
+    // Préparation des blocs HTML optionnels
+    const romanHtml = (showRoman && roman) ? `<div class="pi-roman">${roman}</div>` : '';
+    const structHtml = struct ? `<div style="font-size:0.65rem;color:var(--purple);margin-top:4px">&#128208; ${struct}</div>` : '';
+    const nativeText = p.t[S.nativeLang] || p.t.en || p.n || '';
+    const escapedChars = chars.replace(/'/g, "\\'");
+
+    return `
+      <div class="phrase-item">
+        <div class="pi-native">${nativeText}</div>
+        <div class="pi-target">${showNative ? chars : target}</div>
+        ${romanHtml}
+        ${structHtml}
+        <div class="pi-actions">
+          <button class="pi-btn" onclick="speakW('${escapedChars}')">🔊</button>
+          <button class="pi-btn" onclick="copyPhrase('${escapedChars}')">📋</button>
+        </div>
+      </div>`;
   }).join('');
 }
-function copyPhrase(t){navigator.clipboard?.writeText(t);showNotif('📋 Copié !');}
+
+function copyPhrase(t) {
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(t)
+      .then(() => showNotif('📋 Copié !'))
+      .catch(() => showNotif('❌ Erreur de copie'));
+  } else {
+    // Solution de secours si navigator.clipboard n'est pas dispo
+    const textArea = document.createElement("textarea");
+    textArea.value = t;
+    document.body.appendChild(textArea);
+    textArea.select();
+    document.execCommand('copy');
+    document.body.removeChild(textArea);
+    showNotif('📋 Copié !');
+  }
+}
+
 
 // =================================================================
 // GRAMMAR
 // =================================================================
-function loadGrammar(catKey){
-  const cats=Object.keys(GRAMMAR_DATA);
-  document.getElementById('grammarCats').innerHTML=cats.map(function(k){var a=k===catKey?' active':'';return'<button class="gcat'+a+'" onclick="loadGrammar(\''+k+'\')">'+(GRAMMAR_DATA[k].icon||'')+' '+(GRAMMAR_DATA[k][S.nativeLang]||GRAMMAR_DATA[k].fr)+'</button>';}).join('');
-  const cat=GRAMMAR_DATA[catKey];if(!cat)return;
-  const nl=S.nativeLang;const tl=S.targetLang;
-  const isCJK=['zh','ja','ru'].includes(tl);
-  const showRoman=isCJK&&S.scriptPref!=='native';
-  const showNative=!isCJK||S.scriptPref!=='roman';
-  const expl=cat.explanation?.[nl]||cat.explanation?.fr||'';
-  const formula=cat.formula?.[tl]||cat.formula?.en||cat.formula?.fr||'';
-  document.getElementById('grammarBody').innerHTML=`
-  const gramRowsHTML = (cat.examples||[]).map(function(ex){
-    const target = ex.t[tl]||ex.t.en||'';
-    const match  = target.match(/^(.*)\s*\(([^)]+)\)\s*$/);
-    const chars  = match ? match[1] : target;
-    const roman  = match ? match[2] : '';
-    const romanSpan = (showRoman && roman) ? '<span class="roman">'+roman+'</span>' : '';
-    return '<div class="gram-ex">'
-      +'<span class="gram-ex-native">'+(ex.t[S.nativeLang]||ex.t.en||ex.n)+'</span>'
-      +'<span class="gram-ex-target">'+(showNative ? chars : target)+romanSpan
-      +'<button style="background:none;border:none;cursor:pointer;color:var(--dim);margin-left:4px"'
-      +' onclick="speakW(\''+chars.replace(/\'/g,"\\'")+'\')" >🔊</button>'
-      +'</span></div>';
+function loadGrammar(catKey) {
+  const cats = Object.keys(GRAMMAR_DATA);
+  
+  // 1. Génération des boutons de catégories
+  document.getElementById('grammarCats').innerHTML = cats.map(function(k) {
+    const a = k === catKey ? ' active' : '';
+    const icon = GRAMMAR_DATA[k].icon || '';
+    const label = GRAMMAR_DATA[k][S.nativeLang] || GRAMMAR_DATA[k].fr;
+    return `<button class="gcat${a}" onclick="loadGrammar('${k}')">${icon} ${label}</button>`;
   }).join('');
-  document.getElementById('grammarBody').innerHTML =
-    '<div class="gram-section">'
-    +'<div class="gram-title">'+cat.icon+' '+(cat[nl]||cat.fr)+' <span class="gram-tag">'+(cat.items?.length||cat.examples?.length||0)+' exemples</span></div>'
-    +'<div class="gram-explanation">'+expl+'</div>'
-    +(formula ? '<div class="gram-formula">'+formula+'</div>' : '')
-    +'<div class="gram-examples">'+gramRowsHTML+'</div>'
-    +'</div>';
-  }
+
+  const cat = GRAMMAR_DATA[catKey];
+  if (!cat) return;
+
+  const nl = S.nativeLang;
+  const tl = S.targetLang;
+  const isCJK = ['zh', 'ja', 'ru'].includes(tl);
+  const showRoman = isCJK && S.scriptPref !== 'native';
+  const showNative = !isCJK || S.scriptPref !== 'roman';
+
+  const expl = cat.explanation?.[nl] || cat.explanation?.fr || '';
+  const formula = cat.formula?.[tl] || cat.formula?.en || cat.formula?.fr || '';
+
+  // 2. Génération des lignes d'exemples
+  const gramRowsHTML = (cat.examples || []).map(function(ex) {
+    const target = ex.t[tl] || ex.t.en || '';
+    const match = target.match(/^(.*)\s*\(([^)]+)\)\s*$/);
+    const chars = match ? match[1] : target;
+    const roman = match ? match[2] : '';
+    
+    const romanSpan = (showRoman && roman) ? `<span class="roman">${roman}</span>` : '';
+    const nativeText = ex.t[nl] || ex.t.en || ex.n || '';
+    const escapedChars = chars.replace(/'/g, "\\'");
+
+    return `
+      <div class="gram-ex">
+        <span class="gram-ex-native">${nativeText}</span>
+        <span class="gram-ex-target">
+          ${showNative ? chars : target} ${romanSpan}
+          <button style="background:none;border:none;cursor:pointer;color:var(--dim);margin-left:4px" 
+                  onclick="speakW('${escapedChars}')">🔊</button>
+        </span>
+      </div>`;
+  }).join('');
+
+  // 3. Injection finale dans le corps de la grammaire
+  const count = cat.items?.length || cat.examples?.length || 0;
+  const title = cat[nl] || cat.fr || '';
+
+  document.getElementById('grammarBody').innerHTML = `
+    <div class="gram-section">
+      <div class="gram-title">
+        ${cat.icon || ''} ${title} 
+        <span class="gram-tag">${count} exemples</span>
+      </div>
+      <div class="gram-explanation">${expl}</div>
+      ${formula ? `<div class="gram-formula">${formula}</div>` : ''}
+      <div class="gram-examples">${gramRowsHTML}</div>
+    </div>`;
+}
+
 // DICTIONARY
 // =================================================================
-function openDict(){dictFromScreen=document.querySelector('.screen.active')?.id||'screen-menu';document.getElementById('dictInput').value='';document.getElementById('dictResult').innerHTML=`<div class="dict-empty"><div class="dict-empty-icon">🔤</div><div>Tapez un mot ou une phrase</div></div>`;showScreen('screen-dict');setTimeout(()=>document.getElementById('dictInput').focus(),300);}
-function closeDictBack(){showScreen(dictFromScreen);}
-function setDictMode(m,btn){dictMode=m;document.querySelectorAll('.dict-mode').forEach(b=>b.classList.remove('active'));btn.classList.add('active');document.getElementById('dictInput').placeholder=m==='word'?'Mot à traduire...':'Phrase entière à traduire...';}
-async function searchDict(){
-  const q=document.getElementById('dictInput').value.trim();if(!q)return;
-  if(!dictHistory.includes(q))dictHistory.unshift(q);if(dictHistory.length>20)dictHistory.pop();
-  const res=document.getElementById('dictResult');
-  res.innerHTML=`<div class="dict-empty">⟳ Traduction...</div>`;
-  const nln={fr:'français',en:'anglais',es:'espagnol',ht:'créole haïtien',de:'allemand',ru:'russe',zh:'mandarin',ja:'japonais'};
-  const isCJK=['zh','ja','ru'].includes(S.targetLang);const showRoman=isCJK&&S.scriptPref!=='native';
-  const prompt=dictMode==='phrase'?
-    `Traduis cette phrase du ${nln[S.nativeLang]||'français'} vers le ${nln[S.targetLang]||'anglais'}: "${q}". JSON: {"translation":"...","roman":"romanisation si applicable","grammar":"structure","example":"exemple simple"}`:
-    `Traduis le mot "${q}" du ${nln[S.nativeLang]||'français'} vers le ${nln[S.targetLang]||'anglais'}. JSON: {"translation":"...","roman":"romanisation","grammar":"nom/verbe/adj...","example":"phrase exemple"}`;
-  try{
-    const r=await fetch(`${API}/api/dialogue`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({npcName:'',npcRole:'',location:'',language:nln[S.nativeLang]||'français',playerName:S.playerName||'',playerMessage:prompt,history:[]})});
-    const d=await r.json();
-    let p;try{p=JSON.parse((d.reply||'{}').replace(/```json|```/g,'').trim());}catch{p={translation:d.reply||q,roman:'',grammar:'',example:''};}
-    const hist=dictHistory.slice(1,9);
-    res.innerHTML=`<div class="dict-card">
-      <div style="font-size:0.68rem;color:var(--dim);margin-bottom:5px">"${q}"</div>
-      <div class="dict-word">${p.translation||''}</div>
-      ${p.roman&&showRoman?`<div class="dict-roman">${p.roman}</div>`:''}
-      ${p.grammar?`<div style="font-size:0.7rem;color:var(--purple);font-weight:800;margin:5px 0">${p.grammar}</div>`:''}
-      ${p.example?`<div class="dict-example">💡 ${p.example}</div>`:''}
-      <button class="dict-listen-btn" onclick="speakW('${(p.translation||'').replace(/'/g,"\\'")}')">🔊 Écouter</button>
-    </div>
-    ${hist.length?`<div style="font-size:0.65rem;color:var(--dim);letter-spacing:2px;text-transform:uppercase;margin-bottom:8px">Historique</div><div class="dict-chips">${hist.map(h=>`<span class="dict-chip" onclick="searchDictWord('${h.replace(/'/g,"\\'")}')"> ${h}</span>`).join('')}</div>`:''}`;
-  }catch(e){res.innerHTML=`<div class="dict-empty"><div class="dict-empty-icon">❌</div>Indisponible</div>`;}
+function openDict() {
+  dictFromScreen = document.querySelector('.screen.active')?.id || 'screen-menu';
+  document.getElementById('dictInput').value = '';
+  document.getElementById('dictResult').innerHTML = `
+    <div class="dict-empty">
+      <div class="dict-empty-icon">🔤</div>
+      <div>Tapez un mot ou une phrase</div>
+    </div>`;
+  showScreen('screen-dict');
+  setTimeout(() => document.getElementById('dictInput').focus(), 300);
 }
-function searchDictWord(w){document.getElementById('dictInput').value=w;searchDict();}
-document.getElementById('dictInput').addEventListener('keydown',e=>{if(e.key==='Enter')searchDict();});
+
+function closeDictBack() {
+  showScreen(dictFromScreen);
+}
+
+function setDictMode(m, btn) {
+  dictMode = m;
+  document.querySelectorAll('.dict-mode').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('dictInput').placeholder = m === 'word' ? 'Mot à traduire...' : 'Phrase entière à traduire...';
+}
+
+async function searchDict() {
+  const q = document.getElementById('dictInput').value.trim();
+  if (!q) return;
+
+  // Gestion de l'historique
+  if (!dictHistory.includes(q)) dictHistory.unshift(q);
+  if (dictHistory.length > 20) dictHistory.pop();
+
+  const res = document.getElementById('dictResult');
+  res.innerHTML = `<div class="dict-empty">⟳ Traduction...</div>`;
+
+  const nln = { fr: 'français', en: 'anglais', es: 'espagnol', ht: 'créole haïtien', de: 'allemand', ru: 'russe', zh: 'mandarin', ja: 'japonais' };
+  const isCJK = ['zh', 'ja', 'ru'].includes(S.targetLang);
+  const showRoman = isCJK && S.scriptPref !== 'native';
+
+  const prompt = dictMode === 'phrase' ?
+    `Traduis cette phrase du ${nln[S.nativeLang] || 'français'} vers le ${nln[S.targetLang] || 'anglais'}: "${q}". JSON: {"translation":"...","roman":"romanisation si applicable","grammar":"structure","example":"exemple simple"}` :
+    `Traduis le mot "${q}" du ${nln[S.nativeLang] || 'français'} vers le ${nln[S.targetLang] || 'anglais'}. JSON: {"translation":"...","roman":"romanisation","grammar":"nom/verbe/adj...","example":"phrase exemple"}`;
+
+  try {
+    const r = await fetch(`${API}/api/dialogue`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        npcName: '',
+        npcRole: '',
+        location: '',
+        language: nln[S.nativeLang] || 'français',
+        playerName: S.playerName || '',
+        playerMessage: prompt,
+        history: []
+      })
+    });
+
+    const d = await r.json();
+    let p;
+    try {
+      p = JSON.parse((d.reply || '{}').replace(/```json|```/g, '').trim());
+    } catch {
+      p = { translation: d.reply || q, roman: '', grammar: '', example: '' };
+    }
+
+    const hist = dictHistory.slice(1, 9);
+    const escapedTranslation = (p.translation || '').replace(/'/g, "\\'");
+
+    // Correction de l'affichage avec Template Literals
+    res.innerHTML = `
+      <div class="dict-card">
+        <div style="font-size:0.68rem;color:var(--dim);margin-bottom:5px">"${q}"</div>
+        <div class="dict-word">${p.translation || ''}</div>
+        ${p.roman && showRoman ? `<div class="dict-roman">${p.roman}</div>` : ''}
+        ${p.grammar ? `<div style="font-size:0.7rem;color:var(--purple);font-weight:800;margin:5px 0">${p.grammar}</div>` : ''}
+        ${p.example ? `<div class="dict-example">💡 ${p.example}</div>` : ''}
+        <button class="dict-listen-btn" onclick="speakW('${escapedTranslation}')">🔊 Écouter</button>
+      </div>
+
+      ${hist.length ? `
+        <div style="font-size:0.65rem;color:var(--dim);letter-spacing:2px;text-transform:uppercase;margin:15px 0 8px 0">Historique</div>
+        <div class="dict-chips">
+          ${hist.map(h => `<span class="dict-chip" onclick="searchDictWord('${h.replace(/'/g, "\\'")}')">${h}</span>`).join('')}
+        </div>
+      ` : ''}`;
+
+  } catch (e) {
+    res.innerHTML = `<div class="dict-empty"><div class="dict-empty-icon">❌</div>Indisponible</div>`;
+  }
+}
+
+function searchDictWord(w) {
+  document.getElementById('dictInput').value = w;
+  searchDict();
+}
+
+document.getElementById('dictInput').addEventListener('keydown', e => {
+  if (e.key === 'Enter') searchDict();
+});
 
 // =================================================================
 // XP & UTILS
