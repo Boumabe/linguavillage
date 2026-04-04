@@ -3717,8 +3717,7 @@ function buildWeatherFX(w){
 }
 function updateTime(){const n=new Date();document.getElementById('hudTime').textContent=`${n.getHours().toString().padStart(2,'0')}:${n.getMinutes().toString().padStart(2,'0')}`;}
 
-// =================================================================
-// VILLAGE CANVAS
+//// VILLAGE C =================================================================ANVAS
 // =================================================================
 function initCanvas(){
   if(canvas)return;
@@ -3780,28 +3779,55 @@ function onVillageTouch(e){const r=canvas.getBoundingClientRect(),t=e.touches[0]
 // =================================================================
 // LOCATION
 // =================================================================
-function openLoc(loc){
-  S.currentLoc=loc;
-  document.getElementById('locTitle').textContent=loc.emoji+' '+(LOC_NAMES[loc.id]?.[S.nativeLang]||loc.id);
-  document.getElementById('locWeather').textContent=WEATHER_ICONS[currentWeather];
-  if(loc.id==='cinema'){openCinema();return;}
-  const list=document.getElementById('npcList');
-  list.innerHTML=loc.npcs.map(npc=>{
-    const role=typeof npc.role==='object'?(npc.role[S.nativeLang]||npc.role.en):npc.role;
-    const hint=LOC_DESC[loc.id]?.[S.nativeLang]||'';
-    return<div class="npc-card" onclick="openDialogue('${loc.id}','${npc.id}')">
-      <div class="npc-av">${npc.emoji}</div>
-      <div class="npc-info">
-        <div class="npc-name">${npc.name}</div>
-        <div class="npc-role">${role}</div>
-        <div class="npc-hint">💬 ${hint}</div>
-      </div>
-      <span style="color:var(--dim);font-size:1.2rem">›</span>
-    </div>;
-  }).join('');
-  showScreen('screen-location');
-  setTimeout(()=>openMissionsPanel(loc.id), 400);
+function openLoc(loc) {
+  S.currentLoc = loc;
+  
+  // Mise à jour du titre et de la météo
+  const locTitle = LOC_NAMES[loc.id]?.[S.nativeLang] || loc.id;
+  document.getElementById('locTitle').textContent = `${loc.emoji} ${locTitle}`;
+  document.getElementById('locWeather').textContent = WEATHER_ICONS[currentWeather] || '☀️';
+
+  // Cas particulier du cinéma
+  if (loc.id === 'cinema') {
+    if (typeof openCinema === 'function') openCinema();
+    return;
   }
+
+  const listEl = document.getElementById('npcList');
+  if (!listEl) return;
+
+  // Génération de la liste des NPCs avec des Backticks (`)
+  listEl.innerHTML = loc.npcs.map(npc => {
+    const role = typeof npc.role === 'object' 
+      ? (npc.role[S.nativeLang] || npc.role.en) 
+      : npc.role;
+      
+    const hint = LOC_DESC[loc.id]?.[S.nativeLang] || '';
+
+    // Utilisation impérative des backticks pour que le HTML soit une chaîne de caractères
+    return 
+      <div class="npc-card" onclick="openDialogue('${loc.id}', '${npc.id}')">
+        <div class="npc-av">${npc.emoji || '👤'}</div>
+        <div class="npc-info">
+          <div class="npc-name">${npc.name}</div>
+          <div class="npc-role">${role}</div>
+          <div class="npc-hint">💬 ${hint}</div>
+        </div>
+        <span style="color:var(--dim);font-size:1.2rem">›</span>
+      </div>;
+  }).join('');
+
+  showScreen('screen-location');
+
+  // Lancement des missions après un court délai
+  setTimeout(() => {
+    if (typeof openMissionsPanel === 'function') {
+      openMissionsPanel(loc.id);
+    }
+  }, 400);
+}
+
+
   // =================================================================
 // DIALOGUE — with spell checker
 // =================================================================
