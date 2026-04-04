@@ -3538,72 +3538,146 @@ const FLAGS={en:'🇬🇧',fr:'🇫🇷',es:'🇪🇸',ht:'🇭🇹',de:'🇩�
 // =================================================================
 // WELCOME FLOW
 // =================================================================
-document.querySelectorAll('[data-native]').forEach(t=>t.addEventListener('click',()=>{
-  document.querySelectorAll('[data-native]').forEach(x=>x.classList.remove('sel'));
-  t.classList.add('sel');S.nativeLang=t.dataset.native;
-  applyUI(S.nativeLang);
-  document.getElementById('step2').style.display='block';
-  document.getElementById('step3').style.display='none';
-  document.getElementById('step4').style.display='none';
-  document.getElementById('playBtn').style.display='none';
-  document.getElementById('playBtn').disabled=true;
-  document.querySelectorAll('[data-lang]').forEach(o=>o.classList.toggle('disabled',o.dataset.lang===S.nativeLang));
-}));
+// 1. Sélection de la langue maternelle
+document.querySelectorAll('[data-native]').forEach(t => {
+  t.addEventListener('click', () => {
+    document.querySelectorAll('[data-native]').forEach(x => x.classList.remove('sel'));
+    t.classList.add('sel');
+    
+    S.nativeLang = t.dataset.native;
+    applyUI(S.nativeLang);
 
-document.getElementById('inputName').addEventListener('input',function(){
-  document.getElementById('step3').style.display=this.value.trim()?'block':'none';
-  document.getElementById('step4').style.display='none';
-  document.getElementById('playBtn').style.display='none';
+    // Gestion des étapes
+    document.getElementById('step2').style.display = 'block';
+    // On cache les étapes suivantes pour forcer le nouvel ordre
+    ['step3', 'step4', 'playBtn'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) {
+        el.style.display = 'none';
+        if (el.tagName === 'BUTTON') el.disabled = true;
+      }
+    });
+
+    // Désactive la langue cible si elle est identique à la langue maternelle
+    document.querySelectorAll('[data-lang]').forEach(o => {
+      o.classList.toggle('disabled', o.dataset.lang === S.nativeLang);
+      if (o.dataset.lang === S.nativeLang) o.classList.remove('sel');
+    });
+  });
 });
 
-document.querySelectorAll('[data-lang]').forEach(o=>o.addEventListener('click',()=>{
-  if(o.classList.contains('disabled'))return;
-  document.querySelectorAll('[data-lang]').forEach(x=>x.classList.remove('sel'));
-  o.classList.add('sel');S.targetLang=o.dataset.lang;
-  const cjk=['zh','ja','ru'].includes(S.targetLang);
-  if(cjk){
-    document.getElementById('step4').style.display='block';
-    const lb={zh:{n:'你好',r:'Nǐ hǎo'},ja:{n:'こんにちは',r:'Konnichiwa'},ru:{n:'Привет',r:'Privyet'}};
-    document.getElementById('sc-n').textContent=lb[S.targetLang].n;
-    document.getElementById('sc-r').textContent=lb[S.targetLang].r;
-    document.getElementById('playBtn').style.display='none';
-    document.getElementById('playBtn').disabled=true;
-  }else{S.scriptPref='both';document.getElementById('step4').style.display='none';document.getElementById('playBtn').style.display='block';document.getElementById('playBtn').disabled=false;}
-}));
+// 2. Saisie du nom
+document.getElementById('inputName').addEventListener('input', function() {
+  const hasValue = this.value.trim().length > 0;
+  document.getElementById('step3').style.display = hasValue ? 'block' : 'none';
+  
+  // Si on change le nom, on réinitialise la suite pour valider la sélection de langue
+  document.getElementById('step4').style.display = 'none';
+  document.getElementById('playBtn').style.display = 'none';
+});
 
-function selScript(p,btn){document.querySelectorAll('.sc-btn').forEach(b=>b.classList.remove('sel'));btn.classList.add('sel');S.scriptPref=p;document.getElementById('playBtn').style.display='block';document.getElementById('playBtn').disabled=false;}
+// 3. Sélection de la langue cible
+document.querySelectorAll('[data-lang]').forEach(o => {
+  o.addEventListener('click', () => {
+    if (o.classList.contains('disabled')) return;
+    
+    document.querySelectorAll('[data-lang]').forEach(x => x.classList.remove('sel'));
+    o.classList.add('sel');
+    S.targetLang = o.dataset.lang;
 
-document.getElementById('playBtn').addEventListener('click',()=>{
-  S.playerName=document.getElementById('inputName').value.trim();
-  if(!S.playerName||!S.nativeLang||!S.targetLang)return;
+    const cjk = ['zh', 'ja', 'ru'].includes(S.targetLang);
+    const playBtn = document.getElementById('playBtn');
+
+    if (cjk) {
+      document.getElementById('step4').style.display = 'block';
+      const lb = {
+        zh: { n: '你好', r: 'Nǐ hǎo' },
+        ja: { n: 'こんにちは', r: 'Konnichiwa' },
+        ru: { n: 'Привет', r: 'Privyet' }
+      };
+      document.getElementById('sc-n').textContent = lb[S.targetLang].n;
+      document.getElementById('sc-r').textContent = lb[S.targetLang].r;
+      
+      playBtn.style.display = 'none';
+      playBtn.disabled = true;
+    } else {
+      S.scriptPref = 'both';
+      document.getElementById('step4').style.display = 'none';
+      playBtn.style.display = 'block';
+      playBtn.disabled = false;
+    }
+  });
+});
+
+// 4. Sélection du script (pour les langues CJK)
+function selScript(p, btn) {
+  document.querySelectorAll('.sc-btn').forEach(b => b.classList.remove('sel'));
+  btn.classList.add('sel');
+  S.scriptPref = p;
+  
+  const playBtn = document.getElementById('playBtn');
+  playBtn.style.display = 'block';
+  playBtn.disabled = false;
+}
+
+// 5. Lancement du jeu
+document.getElementById('playBtn').addEventListener('click', () => {
+  const name = document.getElementById('inputName').value.trim();
+  S.playerName = name;
+  
+  if (!S.playerName || !S.nativeLang || !S.targetLang) {
+    showNotif("⚠️ Complétez tous les champs !");
+    return;
+  }
+  
   startMenu();
 });
+
+
   // =================================================================
 // APPLY UI
 // =================================================================
-function applyUI(lang){
-  ui=UI_TEXT[lang]||UI_TEXT['fr'];
-  document.getElementById('ws-sub').textContent=ui.sub;
-  document.getElementById('lbl-native').textContent=ui.lbl_native;
-  document.getElementById('lbl-name').textContent=ui.lbl_name;
-  document.getElementById('lbl-target').textContent=ui.lbl_target;
-  document.getElementById('lbl-script').textContent=ui.lbl_script;
-  document.getElementById('playBtn').textContent=ui.play;
+// On passe 'lang' en paramètre pour être sûr de ce qu'on traduit
+function applyUI(lang) {
+  // On définit 'ui' localement avec 'const' pour éviter les conflits globaux
+  const ui = UI_TEXT[lang] || UI_TEXT['fr'];
+  
+  // Mise à jour de l'accueil
+  document.getElementById('ws-sub').textContent = ui.sub;
+  document.getElementById('lbl-native').textContent = ui.lbl_native;
+  document.getElementById('lbl-name').textContent = ui.lbl_name;
+  document.getElementById('lbl-target').textContent = ui.lbl_target;
+  document.getElementById('lbl-script').textContent = ui.lbl_script;
+  document.getElementById('playBtn').textContent = ui.play;
+  
+  // Optionnel : on peut stocker la langue choisie dans S pour la suite
+  S.currentUI = ui; 
 }
 
-function applyMenuUI(){
-  document.getElementById('menu-title-text').textContent=ui.menu_title||'Que voulez-vous faire ?';
-  document.getElementById('menu-sub-text').textContent=ui.menu_sub||'';
-  document.getElementById('mb-village').textContent=ui.mb_village||'Village';
-  document.getElementById('mb-village-d').textContent=ui.mb_village_d||'';
-  document.getElementById('mb-vocab').textContent=ui.mb_vocab||'Vocabulaire';
-  document.getElementById('mb-vocab-d').textContent=ui.mb_vocab_d||'';
-  document.getElementById('mb-phrases').textContent=ui.mb_phrases||'Phrases';
-  document.getElementById('mb-phrases-d').textContent=ui.mb_phrases_d||'';
-  document.getElementById('mb-grammar').textContent=ui.mb_grammar||'Grammaire';
-  document.getElementById('mb-grammar-d').textContent=ui.mb_grammar_d||'';
-  document.getElementById('mb-dict').textContent=ui.mb_dict||'Dictionnaire';
-  document.getElementById('mb-dict-d').textContent=ui.mb_dict_d||'';
+function applyMenuUI() {
+  // On récupère les textes de façon autonome pour éviter les erreurs 'undefined'
+  const menuUi = S.currentUI || UI_TEXT[S.nativeLang] || UI_TEXT['fr'];
+  
+  const mapping = {
+    'menu-title-text': menuUi.menu_title || 'Que voulez-vous faire ?',
+    'menu-sub-text': menuUi.menu_sub || '',
+    'mb-village': menuUi.mb_village || 'Village',
+    'mb-village-d': menuUi.mb_village_d || '',
+    'mb-vocab': menuUi.mb_vocab || 'Vocabulaire',
+    'mb-vocab-d': menuUi.mb_vocab_d || '',
+    'mb-phrases': menuUi.mb_phrases || 'Phrases',
+    'mb-phrases-d': menuUi.mb_phrases_d || '',
+    'mb-grammar': menuUi.mb_grammar || 'Grammaire',
+    'mb-grammar-d': menuUi.mb_grammar_d || '',
+    'mb-dict': menuUi.mb_dict || 'Dictionnaire',
+    'mb-dict-d': menuUi.mb_dict_d || ''
+  };
+
+  // On boucle sur le mapping pour mettre à jour le DOM proprement
+  Object.keys(mapping).forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.textContent = mapping[id];
+  });
 }
 
 // =================================================================
