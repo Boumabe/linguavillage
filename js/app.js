@@ -3805,16 +3805,16 @@ function openLoc(loc) {
     const hint = LOC_DESC[loc.id]?.[S.nativeLang] || '';
 
     // Utilisation impérative des backticks pour que le HTML soit une chaîne de caractères
-    return 
-      <div class="npc-card" onclick="openDialogue('${loc.id}', '${npc.id}')">
-        <div class="npc-av">${npc.emoji || '👤'}</div>
+        return `
+      <div class="npc-card" onclick="openDialogue('${loc.id}','${npc.id}')">
+        <div class="npc-av">${npc.emoji}</div>
         <div class="npc-info">
           <div class="npc-name">${npc.name}</div>
           <div class="npc-role">${role}</div>
           <div class="npc-hint">💬 ${hint}</div>
         </div>
         <span style="color:var(--dim);font-size:1.2rem">›</span>
-      </div>;
+      </div>`;
   }).join('');
 
   showScreen('screen-location');
