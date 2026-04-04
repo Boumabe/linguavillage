@@ -4438,3 +4438,168 @@ window.goVillage = function() {
     addCEFRIndicator();
   }, 100);
 };
+// =================================================================
+// API FALLBACK & MODE HORS-LIGNE (Suggestion #2)
+// =================================================================
+
+// Cache des réponses API
+const apiCache = new Map();
+
+// Limitation du nombre d'appels (anti-spam)
+let lastAPICall = 0;
+const MIN_API_INTERVAL = 1000; // 1 seconde entre chaque appel
+
+// Fonction principale avec fallback
+async function callAPIWithFallback(endpoint, data, options = {}) {
+  const { skipCache = false, timeout = 10000 } = options;
+  
+  // Anti-spam : attendre si on a appelé trop récemment
+  const now = Date.now();
+  const wait = MIN_API_INTERVAL - (now - lastAPICall);
+  if (wait > 0 && !skipCache) {
+    await new Promise(r => setTimeout(r, wait));
+  }
+  lastAPICall = Date.now();
+  
+  // Vérifier le cache
+  const cacheKey = `${endpoint}:${JSON.stringify(data)}`;
+  if (!skipCache && apiCache.has(cacheKey)) {
+    const cached = apiCache.get(cacheKey);
+    // Cache valable 1 heure
+    if (Date.now() - cached.timestamp < 3600000) {
+      console.log('📦 API cache utilisé');
+      return cached.response;
+    }
+  }
+  
+  try {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), timeout);
+    
+    const response = await fetch(`${API}${endpoint}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+      signal: controller.signal
+    });
+    
+    clearTimeout(timeoutId);
+    
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    
+    const result = await response.json();
+    
+    // Sauvegarder dans le cache
+    apiCache.set(cacheKey, {
+      response: result,
+      timestamp: Date.now()
+    });
+    
+    return result;
+    
+  } catch (error) {
+    console.warn(`⚠️ API hors-ligne pour ${endpoint}:`, error.message);
+    
+    // Réponse de secours selon le type d'appel
+    if (endpoint === '/api/dialogue') {
+      const langNames = { fr: 'français', en: 'anglais', es: 'espagnol', ht: 'créole', de: 'allemand', ru: 'russe', zh: 'chinois', ja: 'japonais' };
+      const targetLangName = langNames[S.targetLang] || 'anglais';
+      
+      return {
+        reply: `📡 Connexion perdue. Continuez à pratiquer en ${targetLangName} ! Essayez de dire: "Bonjour" ou "Comment allez-vous ?"`,
+        offline: true
+      };
+    }
+    
+    if (endpoint === '/api/correct') {
+      return {
+        correct: false,
+        corrected: data.text,
+        explanation: "📡 Mode hors-ligne. Vérification automatique désactivée. Continuez à pratiquer !"
+      };
+    }
+    
+    if (endpoint === '/api/translate') {
+      return {
+        translation: `[Traduction hors-ligne] "${data.text.substring(0, 50)}..."`
+      };
+    }
+    
+    return { reply: "Service temporairement indisponible. Réessayez plus tard." };
+  }
+}
+
+// Indicateur de connexion dans le village
+function addConnectionIndicator() {
+  const hud = document.querySelector('.village-hud');
+  if (!hud) return;
+  if (document.getElementById('connIndicator')) return;
+  
+  const indicator = document.createElement('span');
+  indicator.id = 'connIndicator';
+  indicator.style.cssText = 'font-size:0.6rem;background:rgba(0,0,0,0.5);padding:2px 6px;border-radius:10px;margin-left:8px;cursor:default;';
+  indicator.textContent = navigator.onLine ? '🟢' : '🔴';
+  indicator.title = navigator.onLine ? 'Connecté' : 'Mode hors-ligne';
+  hud.appendChild(indicator);
+  
+  window.addEventListener('online', () => {
+    indicator.textContent = '🟢';
+    indicator.title = 'Connecté';
+    indicator.style.background = 'rgba(78,207,112,0.2)';
+    setTimeout(() => indicator.style.background = '', 2000);
+    showNotif('📡 Connexion rétablie !');
+  });
+  
+  window.addEventListener('offline', () => {
+    indicator.textContent = '🔴';
+    indicator.title = 'Mode hors-ligne';
+    indicator.style.background = 'rgba(224,85,85,0.2)';
+    showNotif('📡 Connexion perdue - Mode hors-ligne activé');
+  });
+}
+
+// Remplacer la fonction npcOpen originale
+if (typeof window.npcOpen === 'function') {
+  const originalNPCopen = window.npcOpen;
+  window.npcOpen = async function() {
+    const npc = S.currentNPC;
+    const loc = S.currentLoc;
+    const si = getScriptInstr ? getScriptInstr() : '';
+    const wctx = { sun: 'Il fait beau.', rain: 'Il pleut.', snow: 'Il neige.', wind: 'Il fait du vent.', night: 'C\'est le soir.' };
+    const prompt = `${npc.ctx}\nLe joueur s'appelle ${S.playerName}. Réponds UNIQUEMENT en ${LANG_NAMES[S.targetLang]}.${si}\nContexte: ${wctx[currentWeather] || ''}\nMax 2 phrases. Accueille ${S.playerName} et pose une question liée à ton rôle.`;
+    
+    showTyping();
+    document.getElementById('dialSend').disabled = true;
+    
+    try {
+      const r = await callAPIWithFallback('/api/dialogue', {
+        npcName: npc.name,
+        npcRole: typeof npc.role === 'object' ? npc.role.fr : npc.role,
+        location: LOC_NAMES[loc.id]?.fr || loc.id,
+        language: LANG_NAMES[S.targetLang],
+        playerName: S.playerName,
+        playerMessage: '__OPEN__',
+        history: [],
+        systemContext: prompt
+      });
+      
+      removeTyping();
+      const reply = r.reply || `Bonjour ${S.playerName} !`;
+      addClickableMsg('npc', npc.emoji, reply);
+      S.chatHistory.push({ role: 'assistant', content: reply });
+      
+      if (r.offline) {
+        addSysMsg('📡 Mode hors-ligne - L\'IA utilise des réponses simples');
+      }
+      
+    } catch (e) {
+      removeTyping();
+      addClickableMsg('npc', npc.emoji, `Bonjour ${S.playerName} ! Comment puis-je vous aider aujourd'hui ?`);
+    }
+    
+    document.getElementById('dialSend').disabled = false;
+  };
+}
+
+// Lancer l'indicateur de connexion
+setTimeout(addConnectionIndicator, 500);
