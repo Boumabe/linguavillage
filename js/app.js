@@ -3473,39 +3473,39 @@ const LOC_DESC = {
   farm:{fr:'Nature et animaux',en:'Nature & animals',ht:'Nati ak bèt',es:'Naturaleza',de:'Natur',ru:'Природа',zh:'自然',ja:'自然'},
 };
 const LOCATIONS = [
-  {id:'church',emoji:'⛪',color:'#6a50a8',x:0.05,y:0.25,w:0.14,h:0.18,npcs:[
+  {id:'church',emoji:'⛪',color:'#6a50a8',x:0.42,y:0.38,w:0.10,h:0.12,npcs:[
     {id:'pastor',emoji:'🧑‍⚖️',name:'Morgan',role:{fr:'Pasteur·e',en:'Pastor',ht:'Pastè',es:'Pastor/a',de:'Pastor/in',ru:'Пастор',zh:'牧师',ja:'牧師'},ctx:'Tu es Morgan, pasteur bienveillant. Tu parles avec respect et solennité. Tu enseignes la politesse formelle.'},
     {id:'choir',emoji:'🎵',name:'River',role:{fr:'Choriste',en:'Choir',ht:'Chantè',es:'Corista',de:'Chor',ru:'Хорист',zh:'合唱',ja:'聖歌隊'},ctx:'Tu es River, choriste. Tu enseignes la prononciation par la musique.'}]},
-  {id:'school',emoji:'🏫',color:'#3a7aaa',x:0.30,y:0.15,w:0.14,h:0.18,npcs:[
+  {id:'school',emoji:'🏫',color:'#3a7aaa',x:0.53,y:0.44,w:0.10,h:0.12,npcs:[
     {id:'teacher',emoji:'🧑‍🏫',name:'Robin',role:{fr:'Professeur·e',en:'Teacher',ht:'Pwofesè',es:'Profesor/a',de:'Lehrer/in',ru:'Учитель',zh:'老师',ja:'先生'},ctx:'Tu es Robin, professeur patient. Tu corriges doucement et expliques simplement.'},
     {id:'student',emoji:'🧒',name:'Charlie',role:{fr:'Élève',en:'Student',ht:'Elèv',es:'Estudiante',de:'Schüler/in',ru:'Ученик',zh:'学生',ja:'生徒'},ctx:'Tu es Charlie, élève curieux. Tu apprends avec le joueur.'}]},
-  {id:'market',emoji:'🛒',color:'#2a8a50',x:0.52,y:0.52,w:0.14,h:0.16,npcs:[
+  {id:'market',emoji:'🛒',color:'#2a8a50',x:0.31,y:0.44,w:0.10,h:0.12,npcs:[
     {id:'vendor',emoji:'🧑‍🍳',name:'Sage',role:{fr:'Vendeur·se',en:'Vendor',ht:'Machann',es:'Vendedor/a',de:'Verkäufer/in',ru:'Продавец',zh:'商贩',ja:'売り手'},ctx:'Tu es Sage, vendeur souriant. Tu parles de prix et quantités.'},
     {id:'cashier',emoji:'💰',name:'Quinn',role:{fr:'Caissier·ère',en:'Cashier',ht:'Kesye',es:'Cajero/a',de:'Kassierer/in',ru:'Кассир',zh:'收银员',ja:'レジ係'},ctx:'Tu es Quinn, caissier méthodique. Tu comptes à voix haute.'}]},
-  {id:'hospital',emoji:'🏥',color:'#aa3a3a',x:0.82,y:0.50,w:0.12,h:0.16,npcs:[
+  {id:'hospital',emoji:'🏥',color:'#aa3a3a',x:0.64,y:0.34,w:0.10,h:0.12,npcs:[
     {id:'doctor',emoji:'🧑‍⚕️',name:'Drew',role:{fr:'Médecin',en:'Doctor',ht:'Doktè',es:'Médico/a',de:'Arzt/in',ru:'Врач',zh:'医生',ja:'医師'},ctx:'Tu es Drew, médecin calme. Tu parles du corps humain.'},
     {id:'nurse',emoji:'💊',name:'Avery',role:{fr:'Infirmier·ère',en:'Nurse',ht:'Enfimyè',es:'Enfermero/a',de:'Pfleger/in',ru:'Медсестра',zh:'护士',ja:'看護師'},ctx:'Tu es Avery, infirmier attentionné.'}]},
-  {id:'tavern',emoji:'🍺',color:'#8a4a10',x:0.06,y:0.56,w:0.13,h:0.16,npcs:[
+  {id:'tavern',emoji:'🍺',color:'#8a4a10',x:0.20,y:0.34,w:0.10,h:0.12,npcs:[
     {id:'bartender',emoji:'🧑‍🍽️',name:'Lane',role:{fr:'Barman·aid',en:'Bartender',ht:'Bòkay',es:'Bartender',de:'Barkeeper/in',ru:'Бармен',zh:'酒保',ja:'バーテンダー'},ctx:'Tu es Lane, barman jovial. Tu utilises des expressions populaires.'},
     {id:'regular',emoji:'🎲',name:'Sky',role:{fr:'Client·e',en:'Regular',ht:'Kliyan',es:'Cliente',de:'Stammgast',ru:'Завсегдатай',zh:'常客',ja:'常連'},ctx:'Tu es Sky, habitué décontracté. Tu parles de ta journée.'}]},
-  {id:'friends',emoji:'🏠',color:'#3a6aaa',x:0.26,y:0.58,w:0.13,h:0.15,npcs:[
+  {id:'friends',emoji:'🏠',color:'#3a6aaa',x:0.20,y:0.54,w:0.10,h:0.12,npcs:[
     {id:'friend',emoji:'🤝',name:'Alex',role:{fr:'Ami·e',en:'Friend',ht:'Zanmi',es:'Amigo/a',de:'Freund/in',ru:'Друг',zh:'朋友',ja:'友達'},ctx:'Tu es Alex, le meilleur ami. Tu parles avec affection.'},
     {id:'neighbor',emoji:'😊',name:'Jamie',role:{fr:'Voisin·e',en:'Neighbor',ht:'Vwazen',es:'Vecino/a',de:'Nachbar/in',ru:'Сосед',zh:'邻居',ja:'隣人'},ctx:'Tu es Jamie, voisin agréable.'}]},
-  {id:'park',emoji:'🌳',color:'#6a9a30',x:0.60,y:0.18,w:0.12,h:0.14,npcs:[
+  {id:'park',emoji:'🌳',color:'#6a9a30',x:0.64,y:0.54,w:0.10,h:0.12,npcs:[
     {id:'partner',emoji:'💝',name:'Sam',role:{fr:'Partenaire',en:'Partner',ht:'Patnè',es:'Pareja',de:'Partner/in',ru:'Партнёр',zh:'伴侣',ja:'パートナー'},ctx:'Tu es Sam, partenaire romantique. Tu parles avec douceur et respect.'}]},
-  {id:'police',emoji:'👮',color:'#2a4a8a',x:0.18,y:0.42,w:0.12,h:0.14,npcs:[
+  {id:'police',emoji:'👮',color:'#2a4a8a',x:0.15,y:0.20,w:0.10,h:0.12,npcs:[
     {id:'officer',emoji:'🧑‍✈️',name:'Remy',role:{fr:'Agent·e',en:'Officer',ht:'Ofisye',es:'Agente',de:'Beamter/in',ru:'Офицер',zh:'警察',ja:'警察官'},ctx:'Tu es Remy, agent professionnel. Tu donnes des directions.'}]},
-  {id:'bank',emoji:'🏦',color:'#5a7a30',x:0.67,y:0.36,w:0.12,h:0.14,npcs:[
+  {id:'bank',emoji:'🏦',color:'#5a7a30',x:0.42,y:0.18,w:0.10,h:0.12,npcs:[
     {id:'banker',emoji:'💼',name:'Reese',role:{fr:'Banquier·ère',en:'Banker',ht:'Bankye',es:'Banquero/a',de:'Banker/in',ru:'Банкир',zh:'银行家',ja:'銀行員'},ctx:'Tu es Reese, banquier formel.'}]},
-  {id:'station',emoji:'🚉',color:'#4a4a8a',x:0.40,y:0.68,w:0.15,h:0.13,npcs:[
+  {id:'station',emoji:'🚉',color:'#4a4a8a',x:0.69,y:0.20,w:0.10,h:0.12,npcs:[
     {id:'stationmaster',emoji:'🚂',name:'Pax',role:{fr:'Chef de gare',en:'Stationmaster',ht:'Chèf estasyon',es:'Jefe de estación',de:'Bahnhofsvorsteher/in',ru:'Начальник вокзала',zh:'站长',ja:'駅長'},ctx:'Tu es Pax, chef de gare précis.'},
     {id:'traveler',emoji:'🧳',name:'Wren',role:{fr:'Voyageur·se',en:'Traveler',ht:'Vwayajè',es:'Viajero/a',de:'Reisende/r',ru:'Путешественник',zh:'旅行者',ja:'旅行者'},ctx:'Tu es Wren, voyageur curieux.'}]},
-  {id:'farm',emoji:'🌾',color:'#7a6a20',x:0.84,y:0.30,w:0.12,h:0.15,npcs:[
+  {id:'farm',emoji:'🌾',color:'#7a6a20',x:0.10,y:0.44,w:0.10,h:0.12,npcs:[
     {id:'farmer',emoji:'🧑‍🌾',name:'Dale',role:{fr:'Fermier·ère',en:'Farmer',ht:'Kiltivatè',es:'Granjero/a',de:'Bauer/in',ru:'Фермер',zh:'农民',ja:'農家'},ctx:'Tu es Dale, fermier proche de la nature.'}]},
-  {id:'factory',emoji:'🏭',color:'#8a6a30',x:0.72,y:0.18,w:0.14,h:0.18,npcs:[
+  {id:'factory',emoji:'🏭',color:'#8a6a30',x:0.74,y:0.44,w:0.10,h:0.12,npcs:[
     {id:'foreman',emoji:'👷',name:'Casey',role:{fr:'Contremaître·sse',en:'Foreman',ht:'Chèf travay',es:'Capataz',de:'Vorarbeiter/in',ru:'Прораб',zh:'工头',ja:'現場監督'},ctx:'Tu es Casey, contremaître direct.'},
     {id:'craftsperson',emoji:'🔨',name:'Blake',role:{fr:'Artisan·e',en:'Craftsperson',ht:'Atizan',es:'Artesano/a',de:'Handwerker/in',ru:'Мастер',zh:'工匠',ja:'職人'},ctx:'Tu es Blake, artisan fier.'}]},
-  {id:'cinema',emoji:'🎬',color:'#8a2080',x:0.42,y:0.28,w:0.13,h:0.15,npcs:[
+  {id:'cinema',emoji:'🎬',color:'#8a2080',x:0.42,y:0.60,w:0.10,h:0.12,npcs:[
   {id:'projectionist',emoji:'🎥',name:'Milly',
    role:{fr:'Projectionniste',en:'Projectionist',ht:'Pwojeksyonis',es:'Proyeccionista',de:'Vorführerin',ru:'Киномеханик',zh:'放映员',ja:'映写技師'},
    ctx:'Tu es Milly, projectionniste passionnée. Tu présentes des vidéos authentiques pour aider à apprendre la langue.'}
