@@ -3522,59 +3522,12 @@ const WEATHER_ICONS={sun:'☀️',rain:'🌧️',wind:'💨',night:'🌙',snow:'
 const LANG_NAMES={en:'anglais',fr:'français',es:'espagnol',ht:'créole haïtien',de:'allemand',ru:'russe',zh:'mandarin',ja:'japonais'};
 const FLAGS={en:'🇬🇧',fr:'🇫🇷',es:'🇪🇸',ht:'🇭🇹',de:'🇩🇪',ru:'🇷🇺',zh:'🇨🇳',ja:'🇯🇵'};
 
-// =================================================================
-// INIT DOM — tout le code qui touche le DOM est ici
-// =================================================================
-window.addEventListener('DOMContentLoaded', function() {
 
-// =================================================================
-// INIT STARS
-// =================================================================
-(()=>{const c=document.getElementById('wStars');for(let i=0;i<100;i++){const s=document.createElement('div');s.className='w-star';const z=Math.random()*2+0.5;s.style.cssText=`width:${z}px;height:${z}px;left:${Math.random()*100}%;top:${Math.random()*100}%;animation-delay:${Math.random()*5}s;animation-duration:${2+Math.random()*4}s`;c.appendChild(s);}})();
 
-// =================================================================
-// WELCOME FLOW
-// =================================================================
-document.querySelectorAll('[data-native]').forEach(t=>t.addEventListener('click',()=>{
-  document.querySelectorAll('[data-native]').forEach(x=>x.classList.remove('sel'));
-  t.classList.add('sel');S.nativeLang=t.dataset.native;
-  applyUI(S.nativeLang);
-  document.getElementById('step2').style.display='block';
-  document.getElementById('step3').style.display='none';
-  document.getElementById('step4').style.display='none';
-  document.getElementById('playBtn').style.display='none';
-  document.getElementById('playBtn').disabled=true;
-  document.querySelectorAll('[data-lang]').forEach(o=>o.classList.toggle('disabled',o.dataset.lang===S.nativeLang));
-}));
 
-document.getElementById('inputName').addEventListener('input',function(){
-  document.getElementById('step3').style.display=this.value.trim()?'block':'none';
-  document.getElementById('step4').style.display='none';
-  document.getElementById('playBtn').style.display='none';
-});
-
-document.querySelectorAll('[data-lang]').forEach(o=>o.addEventListener('click',()=>{
-  if(o.classList.contains('disabled'))return;
-  document.querySelectorAll('[data-lang]').forEach(x=>x.classList.remove('sel'));
-  o.classList.add('sel');S.targetLang=o.dataset.lang;
-  const cjk=['zh','ja','ru'].includes(S.targetLang);
-  if(cjk){
-    document.getElementById('step4').style.display='block';
-    const lb={zh:{n:'你好',r:'Nǐ hǎo'},ja:{n:'こんにちは',r:'Konnichiwa'},ru:{n:'Привет',r:'Privyet'}};
-    document.getElementById('sc-n').textContent=lb[S.targetLang].n;
-    document.getElementById('sc-r').textContent=lb[S.targetLang].r;
-    document.getElementById('playBtn').style.display='none';
-    document.getElementById('playBtn').disabled=true;
-  }else{S.scriptPref='both';document.getElementById('step4').style.display='none';document.getElementById('playBtn').style.display='block';document.getElementById('playBtn').disabled=false;}
-}));
 
 function selScript(p,btn){document.querySelectorAll('.sc-btn').forEach(b=>b.classList.remove('sel'));btn.classList.add('sel');S.scriptPref=p;document.getElementById('playBtn').style.display='block';document.getElementById('playBtn').disabled=false;}
 
-document.getElementById('playBtn').addEventListener('click',()=>{
-  S.playerName=document.getElementById('inputName').value.trim();
-  if(!S.playerName||!S.nativeLang||!S.targetLang)return;
-  startMenu();
-});
   // =================================================================
 // APPLY UI
 // =================================================================
@@ -3612,9 +3565,6 @@ function startMenu(){
   document.getElementById('menuXP').textContent=S.xp+' XP';
   applyMenuUI();
   if(typeof updateStreak==='function') updateStreak();
-  var hg=document.getElementById('hudGems'); if(hg) hg.textContent=(window.S_missions&&S_missions.gems)||0;
-  var mg=document.getElementById('menuGems'); if(mg) mg.textContent=(window.S_missions&&S_missions.gems)||0;
-  showScreen('screen-menu');
   if(typeof saveGame==='function') saveGame();
 }
 
@@ -3828,7 +3778,6 @@ function underlineLastPlayerMsg(original,corrected){
   }
 }
 
-document.getElementById('dialInput').addEventListener('keydown',e=>{if(e.key==='Enter')sendMsg();});
 
 async function reqHint(){
   const last=S.chatHistory.filter(m=>m.role==='assistant').slice(-1)[0]?.content;
@@ -3892,49 +3841,7 @@ async function lookupWord(word,event){
 }
 function closeWordPopup(){document.getElementById('wordPopup').classList.remove('show');}
 function speakPopupWord(){if(popupWord&&'speechSynthesis'in window){const u=new SpeechSynthesisUtterance(popupWord);const lm={en:'en-US',fr:'fr-FR',es:'es-ES',ht:'fr-HT',de:'de-DE',ru:'ru-RU',zh:'zh-CN',ja:'ja-JP'};u.lang=lm[S.targetLang]||'en-US';speechSynthesis.speak(u);showNotif('🔊 '+popupWord);}}
-document.addEventListener('click',e=>{const p=document.getElementById('wordPopup');if(p.classList.contains('show')&&!p.contains(e.target)&&!e.target.classList.contains('clickable-word'))closeWordPopup();});
-
-function showTyping(){const c=document.getElementById('chatMsgs');const d=document.createElement('div');d.className='msg npc';d.id='typInd';d.innerHTML=`<div class="msg-av">${S.currentNPC?.emoji||'🧑'}</div><div class="msg-bubble"><div class="typing-ind"><div class="td"></div><div class="td"></div><div class="td"></div></div></div>`;c.appendChild(d);c.scrollTop=c.scrollHeight;}
-function removeTyping(){document.getElementById('typInd')?.remove();}
-
-// =================================================================
-// VOCABULARY
-// =================================================================
-function loadVocab(catKey){
-  const cats=Object.keys(VOCAB);
-  const catsBar=document.getElementById('vocabCats');
-  catsBar.innerHTML=cats.map(k=>`<button class="vcat${k===catKey?' active':''}" onclick="loadVocab('${k}')">${VOCAB[k].icon||'📖'} ${VOCAB[k][S.nativeLang]||VOCAB[k].fr}</button>`).join('');
-  const cat=VOCAB[catKey];
-  if(!cat)return;
-  const isCJK=['zh','ja','ru'].includes(S.targetLang);
-  const showRoman=isCJK&&S.scriptPref!=='native';
-  const showNative=!isCJK||S.scriptPref!=='roman';
-  // Filter by search
-  const search=document.getElementById('vocabSearch').value.toLowerCase();
-  const words=cat.words.filter(w=>!search||(w.t[S.nativeLang]||w.n).toLowerCase().includes(search)||(w.t[S.targetLang]||'').toLowerCase().includes(search));
-  document.getElementById('vocabCount').textContent=words.length+' mots';
-  const vocabRowsHTML = words.map(function(w){
-    const target = w.t[S.targetLang]||w.t.en||'';
-    const match  = target.match(/^(.*)\s*\(([^)]+)\)\s*$/);
-    const chars  = match?match[1]:target;
-    const roman  = match?match[2]:'';
-    const romanSpan = (showRoman&&roman) ? '<span class="vi-roman">'+roman+'</span>' : '';
-    const altWord   = (!showNative&&!roman) ? '<span class="vi-word">'+target+'</span>' : '';
-    return '<div class="vocab-item">'
-      +'<span class="vi-native">'+(w.t[S.nativeLang]||w.t.en||w.n)+'</span>'
-      +'<span class="vi-target"><span class="vi-word">'+(showNative?chars:'')+'</span>'+romanSpan+altWord+'</span>'
-      +'<button class="vi-listen" onclick="speakW(\''+chars.replace(/\'/g,"\\'")+'\')">🔊</button>'
-      +'</div>';
-  }).join('');
-  document.getElementById('vocabList').innerHTML =
-    '<div class="cat-header">'+(cat[S.nativeLang]||cat.fr)+' \u2014 '+words.length+' mots</div>'
-    + vocabRowsHTML;
-}
-document.getElementById('vocabSearch').addEventListener('input',()=>{
-  const active=document.querySelector('.vcat.active');
-  if(active)loadVocab(Object.keys(VOCAB)[Array.from(document.querySelectorAll('.vcat')).indexOf(active)]);
-});
-function speakW(w){if('speechSynthesis'in window){const u=new SpeechSynthesisUtterance(w);const lm={en:'en-US',fr:'fr-FR',es:'es-ES',ht:'fr-HT',de:'de-DE',ru:'ru-RU',zh:'zh-CN',ja:'ja-JP'};u.lang=lm[S.targetLang]||'en-US';speechSynthesis.speak(u);}showNotif('🔊 '+w);}
+s.speak(u);}showNotif('🔊 '+w);}
 
 // =================================================================
 // PHRASES
@@ -4033,7 +3940,6 @@ async function searchDict(){
   }catch(e){res.innerHTML=`<div class="dict-empty"><div class="dict-empty-icon">❌</div>Indisponible</div>`;}
 }
 function searchDictWord(w){document.getElementById('dictInput').value=w;searchDict();}
-document.getElementById('dictInput').addEventListener('keydown',e=>{if(e.key==='Enter')searchDict();});
 
 
 
@@ -4065,9 +3971,118 @@ function gainXP(n) {
 
 function showScreen(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');closeWordPopup();}
 function showNotif(msg){const n=document.getElementById('notif');n.textContent=msg;n.classList.add('show');clearTimeout(n._t);n._t=setTimeout(()=>n.classList.remove('show'),2200);}
+// Dictionnaire
+document.getElementById('dictInput').addEventListener('keydown',e=>{if(e.key==='Enter')searchDict();});
+
 // Reprendre la sauvegarde si elle existe
+if(window._LINGUA_HAS_SAVE){
+  applyUI(S.nativeLang);
+  startMenu();
+                 }
+function showTyping(){const c=document.getElementById('chatMsgs');const d=document.createElement('div');d.className='msg npc';d.id='typInd';d.innerHTML=`<div class="msg-av">${S.currentNPC?.emoji||'🧑'}</div><div class="msg-bubble"><div class="typing-ind"><div class="td"></div><div class="td"></div><div class="td"></div></div></div>`;c.appendChild(d);c.scrollTop=c.scrollHeight;}
+function removeTyping(){document.getElementById('typInd')?.remove();}
+
+// =================================================================
+// VOCABULARY
+// =================================================================
+function loadVocab(catKey){
+  const cats=Object.keys(VOCAB);
+  const catsBar=document.getElementById('vocabCats');
+  catsBar.innerHTML=cats.map(k=>`<button class="vcat${k===catKey?' active':''}" onclick="loadVocab('${k}')">${VOCAB[k].icon||'📖'} ${VOCAB[k][S.nativeLang]||VOCAB[k].fr}</button>`).join('');
+  const cat=VOCAB[catKey];
+  if(!cat)return;
+  const isCJK=['zh','ja','ru'].includes(S.targetLang);
+  const showRoman=isCJK&&S.scriptPref!=='native';
+  const showNative=!isCJK||S.scriptPref!=='roman';
+  // Filter by search
+  const search=document.getElementById('vocabSearch').value.toLowerCase();
+  const words=cat.words.filter(w=>!search||(w.t[S.nativeLang]||w.n).toLowerCase().includes(search)||(w.t[S.targetLang]||'').toLowerCase().includes(search));
+  document.getElementById('vocabCount').textContent=words.length+' mots';
+  const vocabRowsHTML = words.map(function(w){
+    const target = w.t[S.targetLang]||w.t.en||'';
+    const match  = target.match(/^(.*)\s*\(([^)]+)\)\s*$/);
+    const chars  = match?match[1]:target;
+    const roman  = match?match[2]:'';
+    const romanSpan = (showRoman&&roman) ? '<span class="vi-roman">'+roman+'</span>' : '';
+    const altWord   = (!showNative&&!roman) ? '<span class="vi-word">'+target+'</span>' : '';
+    return '<div class="vocab-item">'
+      +'<span class="vi-native">'+(w.t[S.nativeLang]||w.t.en||w.n)+'</span>'
+      +'<span class="vi-target"><span class="vi-word">'+(showNative?chars:'')+'</span>'+romanSpan+altWord+'</span>'
+      +'<button class="vi-listen" onclick="speakW(\''+chars.replace(/\'/g,"\\'")+'\')">🔊</button>'
+      +'</div>';
+  }).join('');
+  document.getElementById('vocabList').innerHTML =
+    '<div class="cat-header">'+(cat[S.nativeLang]||cat.fr)+' \u2014 '+words.length+' mots</div>'
+    + vocabRowsHTML;
+}
+document.getElementById('vocabSearch').addEventListener('input',()=>{
+  const active=document.querySelector('.vcat.active');
+  if(active)loadVocab(Object.keys(VOCAB)[Array.from(document.querySelectorAll('.vcat')).indexOf(active)]);
+});
 
 
+
+
+// =================================================================
+// INIT DOM — attachement des listeners quand le HTML est prêt
+// =================================================================
+window.addEventListener('DOMContentLoaded', function() {
+
+// Étoiles de l'écran d'accueil
+(()=>{const c=document.getElementById('wStars');for(let i=0;i<100;i++){const s=document.createElement('div');s.className='w-star';const z=Math.random()*2+0.5;s.style.cssText=`width:${z}px;height:${z}px;left:${Math.random()*100}%;top:${Math.random()*100}%;animation-delay:${Math.random()*5}s;animation-duration:${2+Math.random()*4}s`;c.appendChild(s);}})();
+
+// Sélection langue natale
+document.querySelectorAll('[data-native]').forEach(t=>t.addEventListener('click',()=>{
+  document.querySelectorAll('[data-native]').forEach(x=>x.classList.remove('sel'));
+  t.classList.add('sel');S.nativeLang=t.dataset.native;
+  applyUI(S.nativeLang);
+  document.getElementById('step2').style.display='block';
+  document.getElementById('step3').style.display='none';
+  document.getElementById('step4').style.display='none';
+  document.getElementById('playBtn').style.display='none';
+  document.getElementById('playBtn').disabled=true;
+  document.querySelectorAll('[data-lang]').forEach(o=>o.classList.toggle('disabled',o.dataset.lang===S.nativeLang));
+}));
+
+
+// Saisie prénom
+document.getElementById('inputName').addEventListener('input',function(){
+  document.getElementById('step3').style.display=this.value.trim()?'block':'none';
+  document.getElementById('step4').style.display='none';
+  document.getElementById('playBtn').style.display='none';
+});
+
+
+// Sélection langue cible
+document.querySelectorAll('[data-lang]').forEach(o=>o.addEventListener('click',()=>{
+  if(o.classList.contains('disabled'))return;
+  document.querySelectorAll('[data-lang]').forEach(x=>x.classList.remove('sel'));
+  o.classList.add('sel');S.targetLang=o.dataset.lang;
+  const cjk=['zh','ja','ru'].includes(S.targetLang);
+  if(cjk){
+    document.getElementById('step4').style.display='block';
+    const lb={zh:{n:'你好',r:'Nǐ hǎo'},ja:{n:'こんにちは',r:'Konnichiwa'},ru:{n:'Привет',r:'Privyet'}};
+    document.getElementById('sc-n').textContent=lb[S.targetLang].n;
+    document.getElementById('sc-r').textContent=lb[S.targetLang].r;
+    document.getElementById('playBtn').style.display='none';
+    document.getElementById('playBtn').disabled=true;
+  }else{S.scriptPref='both';document.getElementById('step4').style.display='none';document.getElementById('playBtn').style.display='block';document.getElementById('playBtn').disabled=false;}
+}));
+
+
+// Bouton Commencer
+document.getElementById('playBtn').addEventListener('click',()=>{
+  S.playerName=document.getElementById('inputName').value.trim();
+  if(!S.playerName||!S.nativeLang||!S.targetLang)return;
+  startMenu();
+});
+
+
+// Dialogue input
+document.getElementById('dialInput').addEventListener('keydown',e=>{if(e.key==='Enter')sendMsg();});
+
+// Fermeture popup mot
+document.addEventListener('click',e=>{const p=document.getElementById('wordPopup');if(p.classList.contains('show')&&!p.contains(e.target)&&!e.target.classList.contains('clickable-word'))closeWordPopup();});
 
 // Reprendre la sauvegarde si elle existe
 if(window._LINGUA_HAS_SAVE){
