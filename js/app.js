@@ -4347,3 +4347,94 @@ function gainXP(n){
 }
 function showScreen(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');closeWordPopup();}
 function showNotif(msg){const n=document.getElementById('notif');n.textContent=msg;n.classList.add('show');clearTimeout(n._t);n._t=setTimeout(()=>n.classList.remove('show'),2200);}
+
+// =================================================================
+// INDICATEUR CEFR DANS LE VILLAGE (Suggestion #3)
+// =================================================================
+
+function addCEFRIndicator() {
+  const hud = document.querySelector('.village-hud');
+  if (!hud) return;
+  
+  if (document.getElementById('cefrIndicator')) return;
+  
+  // Calculer la progression selon XP
+  const totalXP = S.xp || 0;
+  let currentLevel = "A1";
+  let nextLevel = "A2";
+  let progressPercent = 0;
+  let levelColor = "#4ecf70";
+  let levelIcon = "🌱";
+  
+  if (totalXP < 300) {
+    currentLevel = "A1";
+    nextLevel = "A2";
+    progressPercent = Math.min(100, Math.floor((totalXP / 300) * 100));
+    levelColor = "#4ecf70";
+    levelIcon = "🌱";
+  } else if (totalXP < 800) {
+    currentLevel = "A2";
+    nextLevel = "B1";
+    progressPercent = Math.min(100, Math.floor(((totalXP - 300) / 500) * 100));
+    levelColor = "#4a9eff";
+    levelIcon = "🌟";
+  } else if (totalXP < 1500) {
+    currentLevel = "B1";
+    nextLevel = "B2";
+    progressPercent = Math.min(100, Math.floor(((totalXP - 800) / 700) * 100));
+    levelColor = "#ff9f43";
+    levelIcon = "🏆";
+  } else if (totalXP < 2500) {
+    currentLevel = "B2";
+    nextLevel = "C1";
+    progressPercent = Math.min(100, Math.floor(((totalXP - 1500) / 1000) * 100));
+    levelColor = "#e040fb";
+    levelIcon = "👑";
+  } else {
+    currentLevel = "C1";
+    nextLevel = null;
+    progressPercent = 100;
+    levelColor = "#ff6b6b";
+    levelIcon = "🏅";
+  }
+  
+  const indicator = document.createElement('div');
+  indicator.id = 'cefrIndicator';
+  indicator.style.cssText = `
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(0,0,0,0.5);
+    padding: 2px 8px;
+    border-radius: 20px;
+    margin-left: auto;
+    margin-right: 8px;
+    font-size: 0.7rem;
+    cursor: pointer;
+  `;
+  indicator.onclick = function() {
+    showNotif('🗺️ Niveau ' + currentLevel + ' → ' + (nextLevel || '🏆 Maître !') + ' (' + progressPercent + '%)');
+  };
+  
+  indicator.innerHTML = `
+    <span style="font-size:0.85rem;">${levelIcon}</span>
+    <span style="font-weight:800;color:${levelColor}">${currentLevel}</span>
+    <div style="width:40px;height:4px;background:rgba(255,255,255,0.2);border-radius:2px;overflow:hidden;">
+      <div style="width:${progressPercent}%;height:100%;background:${levelColor};border-radius:2px;"></div>
+    </div>
+    ${nextLevel ? `<span style="font-size:0.6rem;color:var(--dim);">→ ${nextLevel}</span>` : '🏆'}
+  `;
+  
+  hud.appendChild(indicator);
+}
+
+// Sauvegarder la fonction goVillage originale
+const originalGoVillage = window.goVillage;
+
+// Remplacer goVillage par une version qui ajoute l'indicateur
+window.goVillage = function() {
+  originalGoVillage();
+  setTimeout(function() {
+    addCEFRIndicator();
+  }, 100);
+};
