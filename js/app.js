@@ -4634,7 +4634,7 @@ function addConnectionIndicator() {
   });
 }
 
-// Remplacer la fonction npcOpen originale
+ // Remplacer la fonction npcOpen originale
 window.npcOpen = async function() {
     const npc = S.currentNPC;
     const loc = S.currentLoc;
@@ -4672,7 +4672,7 @@ window.npcOpen = async function() {
     }
     
     document.getElementById('dialSend').disabled = false;
-  };
+};  // ← AJOUTE CE POINT-VIRGULE ET CETTE ACCCOLADE
 
 // =================================================================
 // INIT DOM — tous les listeners après chargement complet du HTML
@@ -4795,9 +4795,6 @@ window.addEventListener('DOMContentLoaded', function() {
 
 }); // fin DOMContentLoaded
 
-
-
-// À la fin de app.js, avant la dernière balise fermante
 // ============================================
 // PROGRESSION CEFR
 // ============================================
@@ -4806,7 +4803,6 @@ function showProgression() {
     const completedCount = Object.keys(S_missions.completed || {}).length;
     let totalMissions = 0;
     
-    // Vérifier si CEFR_ROADMAP existe avant de l'utiliser
     if (typeof CEFR_ROADMAP !== 'undefined' && CEFR_ROADMAP.missions) {
         totalMissions = Object.keys(CEFR_ROADMAP.missions).length;
     }
@@ -4842,7 +4838,6 @@ function showProgression() {
     const overlay = document.createElement('div');
     overlay.innerHTML = html;
     document.body.appendChild(overlay);
-}
-                    
+}  // ← FERMETURE CORRECTE DE showProgression
 
-// Fin du fichier app.js
+// Fin du fichier app.js 
