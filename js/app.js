@@ -4533,7 +4533,7 @@ function addConnectionIndicator() {
 
 // Remplacer la fonction npcOpen originale
 if (typeof window.npcOpen === 'function') {
-  const originalNPCopen = window.npcOpen;
+  const originalNPCopen = window.npcOpen;}
   window.npcOpen = async function() {
     const npc = S.currentNPC;
     const loc = S.currentLoc;
