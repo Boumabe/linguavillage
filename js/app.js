@@ -4302,10 +4302,6 @@ function searchDictWord(w) {
   searchDict();
 }
 
-document.getElementById('dictInput').addEventListener('keydown', e => {
-  if (e.key === 'Enter') searchDict();
-});
-
 // =================================================================
 // XP & UTILS
 // =================================================================
