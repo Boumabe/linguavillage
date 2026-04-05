@@ -4801,13 +4801,18 @@ window.addEventListener('DOMContentLoaded', function() {
 // ============================================
 // PROGRESSION CEFR
 // ============================================
-
 function showProgression() {
     const totalXP = S.xp || 0;
     const completedCount = Object.keys(S_missions.completed || {}).length;
-    const totalMissions = Object.keys(CEFR_ROADMAP?.missions || {}).length || 0;
-    const streak = S.streak || 0;
-    const gems = S.gems || 0;
+    let totalMissions = 0;
+    
+    // Vérifier si CEFR_ROADMAP existe avant de l'utiliser
+    if (typeof CEFR_ROADMAP !== 'undefined' && CEFR_ROADMAP.missions) {
+        totalMissions = Object.keys(CEFR_ROADMAP.missions).length;
+    }
+    
+    const streak = (typeof S_streak !== 'undefined') ? S_streak.current : 0;
+    const gems = (typeof S_missions !== 'undefined') ? S_missions.gems : 0;
     
     let html = `
         <div style="position:fixed;inset:0;background:rgba(0,0,0,0.95);z-index:10000;
@@ -4823,7 +4828,7 @@ function showProgression() {
                     <div>🎯 XP total: <strong>${totalXP}</strong></div>
                     <div>💎 Gemmes: <strong>${gems}</strong></div>
                     <div>🔥 Série: <strong>${streak} jours</strong></div>
-                    <div>✅ Missions complétées: <strong>${completedCount}/${totalMissions}</strong></div>
+                    <div>✅ Missions complétées: <strong>${completedCount}/${totalMissions || '?'}</strong></div>
                 </div>
                 <button onclick="if(typeof showRoadmap === 'function'){this.closest('div').closest('div').remove();showRoadmap();}else{showNotif('Parcours CEFR bientôt disponible');}"
                         style="width:100%;background:rgba(255,215,0,0.1);border:1px solid var(--gold);
@@ -4838,5 +4843,6 @@ function showProgression() {
     overlay.innerHTML = html;
     document.body.appendChild(overlay);
 }
+                    
 
 // Fin du fichier app.js
