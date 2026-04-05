@@ -4679,46 +4679,52 @@ window.npcOpen = async function() {
 // =================================================================
 window.addEventListener('DOMContentLoaded', function() {
 
-  // Étoiles écran d'accueil
-  (()=>{const c=document.getElementById('wStars');if(!c)return;for(let i=0;i<100;i++){const s=document.createElement('div');s.className='w-star';const z=Math.random()*2+0.5;s.style.cssText='width:'+z+'px;height:'+z+'px;left:'+Math.random()*100+'%;top:'+Math.random()*100+'%;animation-delay:'+Math.random()*5+'s;animation-duration:'+(2+Math.random()*4)+'s';c.appendChild(s);}})();
+  // ─── Étoiles d'accueil ────────────────────────────────────────────
+  try {
+    var c = document.getElementById('wStars');
+    if(c){ for(var i=0;i<100;i++){var s=document.createElement('div');s.className='w-star';var z=Math.random()*2+0.5;s.style.cssText='width:'+z+'px;height:'+z+'px;left:'+Math.random()*100+'%;top:'+Math.random()*100+'%;animation-delay:'+Math.random()*5+'s;animation-duration:'+(2+Math.random()*4)+'s';c.appendChild(s);} }
+  } catch(e) {}
 
-  // 1. Sélection de la langue maternelle
+  // ─── 1. Langue maternelle ─────────────────────────────────────────
   document.querySelectorAll('[data-native]').forEach(function(t) {
     t.addEventListener('click', function() {
       document.querySelectorAll('[data-native]').forEach(function(x){ x.classList.remove('sel'); });
       t.classList.add('sel');
       S.nativeLang = t.dataset.native;
-      applyUI(S.nativeLang);
-      var step2 = document.getElementById('step2');
-      if(step2){
-        step2.style.display = 'block';
-        step2.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      }
-      if(document.getElementById('step3')) document.getElementById('step3').style.display = 'none';
-      if(document.getElementById('step4')) document.getElementById('step4').style.display = 'none';
-      if(document.getElementById('playBtn')){
-        document.getElementById('playBtn').style.display = 'none';
-        document.getElementById('playBtn').disabled = true;
-      }
+      try { applyUI(S.nativeLang); } catch(e) {}
+      // Affiche le champ prénom
+      var s2 = document.getElementById('step2');
+      if(s2){ s2.style.display='block'; s2.scrollIntoView({behavior:'smooth',block:'center'}); }
+      // Cache les étapes suivantes
+      ['step3','step4'].forEach(function(id){
+        var el=document.getElementById(id); if(el) el.style.display='none';
+      });
+      var pb = document.getElementById('playBtn');
+      if(pb){ pb.style.display='none'; pb.disabled=true; }
+      // Désactive la même langue dans la cible
       document.querySelectorAll('[data-lang]').forEach(function(o){
-        var isSame = o.dataset.lang === S.nativeLang;
-        o.classList.toggle('disabled', isSame);
-        if(isSame) o.classList.remove('sel');
+        var same = o.dataset.lang === S.nativeLang;
+        o.classList.toggle('disabled', same);
+        if(same) o.classList.remove('sel');
       });
     });
   });
 
-  // 2. Saisie du nom → affiche la liste des langues cibles
+    // ─── 2. Saisie du prénom → révèle la sélection de langue cible ───
   var inputName = document.getElementById('inputName');
-  if(inputName) inputName.addEventListener('input', function() {
-    var hasValue = this.value.trim().length > 0;
-    var step3 = document.getElementById('step3');
-    if(step3) step3.style.display = hasValue ? 'block' : 'none';
-    if(document.getElementById('step4')) document.getElementById('step4').style.display = 'none';
-    if(document.getElementById('playBtn')) document.getElementById('playBtn').style.display = 'none';
-  });
+  if(inputName) {
+    inputName.addEventListener('input', function() {
+      var hasValue = this.value.trim().length > 0;
+      var s3 = document.getElementById('step3');
+      if(s3) s3.style.display = hasValue ? 'block' : 'none';
+      var s4 = document.getElementById('step4');
+      if(s4) s4.style.display = 'none';
+      var pb = document.getElementById('playBtn');
+      if(pb) pb.style.display = 'none';
+    });
+  }
 
-  // 3. Sélection de la langue cible
+  // ─── 3. Langue cible ──────────────────────────────────────────────
   document.querySelectorAll('[data-lang]').forEach(function(o) {
     o.addEventListener('click', function() {
       if(o.classList.contains('disabled')) return;
@@ -4726,59 +4732,66 @@ window.addEventListener('DOMContentLoaded', function() {
       o.classList.add('sel');
       S.targetLang = o.dataset.lang;
       var cjk = ['zh','ja','ru'].includes(S.targetLang);
-      var playBtn = document.getElementById('playBtn');
+      var pb = document.getElementById('playBtn');
       if(cjk){
-        document.getElementById('step4').style.display = 'block';
-        var lb = {zh:{n:'你好',r:'Nǐ hǎo'},ja:{n:'こんにちは',r:'Konnichiwa'},ru:{n:'Привет',r:'Privyet'}};
-        document.getElementById('sc-n').textContent = lb[S.targetLang].n;
-        document.getElementById('sc-r').textContent = lb[S.targetLang].r;
-        playBtn.style.display = 'none'; playBtn.disabled = true;
+        var s4 = document.getElementById('step4');
+        if(s4) s4.style.display='block';
+        var lb={zh:{n:'你好',r:'Nǐ hǎo'},ja:{n:'こんにちは',r:'Konnichiwa'},ru:{n:'Привет',r:'Privyet'}};
+        var sn=document.getElementById('sc-n'); if(sn) sn.textContent=lb[S.targetLang].n;
+        var sr=document.getElementById('sc-r'); if(sr) sr.textContent=lb[S.targetLang].r;
+        if(pb){ pb.style.display='none'; pb.disabled=true; }
       } else {
-        S.scriptPref = 'both';
-        document.getElementById('step4').style.display = 'none';
-        playBtn.style.display = 'block'; playBtn.disabled = false;
+        S.scriptPref='both';
+        var s4=document.getElementById('step4'); if(s4) s4.style.display='none';
+        if(pb){ pb.style.display='block'; pb.disabled=false; }
       }
     });
   });
 
-  // 4. Bouton Commencer
+  // ─── 4. Bouton Commencer ──────────────────────────────────────────
   var playBtn = document.getElementById('playBtn');
   if(playBtn) playBtn.addEventListener('click', function() {
-    S.playerName = document.getElementById('inputName').value.trim();
+    var nm = document.getElementById('inputName');
+    S.playerName = nm ? nm.value.trim() : '';
     if(!S.playerName || !S.nativeLang || !S.targetLang){
-      showNotif('⚠️ Complétez tous les champs !'); return;
+      try { showNotif('⚠️ Complétez tous les champs !'); } catch(e) { alert('Complétez tous les champs !'); }
+      return;
     }
-    startMenu();
+    try { startMenu(); } catch(e) { console.error('startMenu error:', e); }
   });
 
-  // 5. Dialogue — Enter pour envoyer
+  // ─── 5. Dialogue Enter ────────────────────────────────────────────
   var dialInput = document.getElementById('dialInput');
-  if(dialInput) dialInput.addEventListener('keydown', function(e){ if(e.key==='Enter') sendMsg(); });
-
-  // 6. Fermeture popup mot
-  document.addEventListener('click', function(e){
-    var p = document.getElementById('wordPopup');
-    if(p && p.classList.contains('show') && !p.contains(e.target) && !e.target.classList.contains('clickable-word'))
-      closeWordPopup();
+  if(dialInput) dialInput.addEventListener('keydown', function(e){
+    if(e.key==='Enter') try { sendMsg(); } catch(ex) {}
   });
 
-  // 7. Recherche vocabulaire
+  // ─── 6. Fermeture popup mot ───────────────────────────────────────
+  document.addEventListener('click', function(e){
+    var p=document.getElementById('wordPopup');
+    if(p && p.classList.contains('show') && !p.contains(e.target) && !e.target.classList.contains('clickable-word'))
+      try { closeWordPopup(); } catch(ex) {}
+  });
+
+  // ─── 7. Recherche vocabulaire ─────────────────────────────────────
   var vSearch = document.getElementById('vocabSearch');
   if(vSearch) vSearch.oninput = function() {
-    var activeBtn = document.querySelector('.vcat.active');
+    var activeBtn=document.querySelector('.vcat.active');
     if(activeBtn){
-      var activeIdx = Array.from(document.querySelectorAll('.vcat')).indexOf(activeBtn);
-      var catKey = Object.keys(VOCAB)[activeIdx];
-      loadVocab(catKey);
+      var idx=Array.from(document.querySelectorAll('.vcat')).indexOf(activeBtn);
+      var key=Object.keys(VOCAB)[idx];
+      try { loadVocab(key); } catch(ex) {}
     }
   };
 
-  // 8. Dictionnaire — Enter pour chercher
+  // ─── 8. Dictionnaire Enter ────────────────────────────────────────
   var dictInput = document.getElementById('dictInput');
-  if(dictInput) dictInput.addEventListener('keydown', function(e){ if(e.key==='Enter') searchDict(); });
+  if(dictInput) dictInput.addEventListener('keydown', function(e){
+    if(e.key==='Enter') try { searchDict(); } catch(ex) {}
+  });
 
-  // 9. Indicateur de connexion
-  setTimeout(addConnectionIndicator, 500);
+  // ─── 9. Indicateur connexion ─────────────────────────────────────
+  try { setTimeout(addConnectionIndicator, 500); } catch(e) {}
 
 }); // fin DOMContentLoaded
 
