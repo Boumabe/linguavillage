@@ -3836,7 +3836,7 @@ function drawVillage(){
   if(currentWeather==='rain'){
     ctx.fillStyle='rgba(0,10,30,0.12)';ctx.fillRect(0,0,W,H);
   }
-       }
+}
 function drawCloud(x,y,r,c){ctx.fillStyle=c;ctx.beginPath();ctx.arc(x,y,r,0,Math.PI*2);ctx.fill();ctx.beginPath();ctx.arc(x+r*0.7,y+r*0.15,r*0.7,0,Math.PI*2);ctx.fill();ctx.beginPath();ctx.arc(x-r*0.6,y+r*0.2,r*0.6,0,Math.PI*2);ctx.fill();}
 function drawLoc(loc,x,y,w,h,hov){
   const a=hov?1:0.85, night=currentWeather==='night';
@@ -3878,7 +3878,7 @@ function drawLoc(loc,x,y,w,h,hov){
   ctx.fillStyle=hov?'#FFD700':'rgba(255,240,200,0.9)';
   ctx.textAlign='center';ctx.textBaseline='top';
   ctx.fillText(nm, bx, by+r+4);
-     }
+}
 function hexA(h,a){const r=parseInt(h.slice(1,3),16),g=parseInt(h.slice(3,5),16),b=parseInt(h.slice(5,7),16);return`rgba(${r},${g},${b},${a})`;}
 function darken(h){return`#${[1,3,5].map(i=>Math.max(0,parseInt(h.slice(i,i+2),16)-40).toString(16).padStart(2,'0')).join('')}`;}
 function getLocAt(mx,my){
@@ -4416,22 +4416,24 @@ async function searchDict() {
     const escapedTranslation = (p.translation || '').replace(/'/g, "\\'");
 
     // Correction de l'affichage avec Template Literals
-    res.innerHTML = `
-      <div class="dict-card">
-        <div style="font-size:0.68rem;color:var(--dim);margin-bottom:5px">"${q}"</div>
-        <div class="dict-word">${p.translation || ''}</div>
-        ${p.roman && showRoman ? `<div class="dict-roman">${p.roman}</div>` : ''}
-        ${p.grammar ? `<div style="font-size:0.7rem;color:var(--purple);font-weight:800;margin:5px 0">${p.grammar}</div>` : ''}
-        ${p.example ? `<div class="dict-example">💡 ${p.example}</div>` : ''}
-        <button class="dict-listen-btn" onclick="speakW('${escapedTranslation}')">🔊 Écouter</button>
-      </div>
-
-      ${hist.length ? `
-        <div style="font-size:0.65rem;color:var(--dim);letter-spacing:2px;text-transform:uppercase;margin:15px 0 8px 0">Historique</div>
-        <div class="dict-chips">
-          ${hist.map(h => `<span class="dict-chip" onclick="searchDictWord('${h.replace(/'/g, "\\'")}')">${h}</span>`).join('')}
-        </div>
-      ` : ''}`;
+    var histHTML = '';
+    if (hist.length) {
+      histHTML = '<div style="font-size:0.65rem;color:var(--dim);letter-spacing:2px;text-transform:uppercase;margin:15px 0 8px 0">Historique</div>'
+        + '<div class="dict-chips">'
+        + hist.map(function(h) {
+            return '<span class="dict-chip" onclick="searchDictWord(\'' + h.replace(/'/g, "\\'") + '\')">' + h + '</span>';
+          }).join('')
+        + '</div>';
+    }
+    res.innerHTML = '<div class="dict-card">'
+      + '<div style="font-size:0.68rem;color:var(--dim);margin-bottom:5px">"' + q + '"</div>'
+      + '<div class="dict-word">' + (p.translation || '') + '</div>'
+      + (p.roman && showRoman ? '<div class="dict-roman">' + p.roman + '</div>' : '')
+      + (p.grammar ? '<div style="font-size:0.7rem;color:var(--purple);font-weight:800;margin:5px 0">' + p.grammar + '</div>' : '')
+      + (p.example ? '<div class="dict-example">&#128161; ' + p.example + '</div>' : '')
+      + '<button class="dict-listen-btn" onclick="speakW(\'' + escapedTranslation + '\')">&#128266; Écouter</button>'
+      + '</div>'
+      + histHTML;
 
   } catch (e) {
     res.innerHTML = `<div class="dict-empty"><div class="dict-empty-icon">❌</div>Indisponible</div>`;
