@@ -4773,3 +4773,46 @@ window.addEventListener('DOMContentLoaded', function() {
   setTimeout(addConnectionIndicator, 500);
 
 }); // fin DOMContentLoaded
+// À la fin de app.js, avant la dernière balise fermante
+// ============================================
+// PROGRESSION CEFR
+// ============================================
+
+function showProgression() {
+    const totalXP = S.xp || 0;
+    const completedCount = Object.keys(S_missions.completed || {}).length;
+    const totalMissions = Object.keys(CEFR_ROADMAP?.missions || {}).length || 0;
+    const streak = S.streak || 0;
+    const gems = S.gems || 0;
+    
+    let html = `
+        <div style="position:fixed;inset:0;background:rgba(0,0,0,0.95);z-index:10000;
+                    display:flex;align-items:center;justify-content:center;padding:20px;">
+            <div style="background:linear-gradient(135deg,#0f1a30,#0a0a14);border:1px solid var(--gold);
+                        border-radius:24px;padding:24px;max-width:400px;width:100%;">
+                <div style="display:flex;justify-content:space-between;margin-bottom:20px;">
+                    <h3 style="color:var(--gold);margin:0;">📊 Ma progression</h3>
+                    <button onclick="this.closest('div').closest('div').remove()" 
+                            style="background:transparent;border:none;color:var(--dim);font-size:1.5rem;cursor:pointer;">✕</button>
+                </div>
+                <div style="margin-bottom:15px;">
+                    <div>🎯 XP total: <strong>${totalXP}</strong></div>
+                    <div>💎 Gemmes: <strong>${gems}</strong></div>
+                    <div>🔥 Série: <strong>${streak} jours</strong></div>
+                    <div>✅ Missions complétées: <strong>${completedCount}/${totalMissions}</strong></div>
+                </div>
+                <button onclick="if(typeof showRoadmap === 'function'){this.closest('div').closest('div').remove();showRoadmap();}else{showNotif('Parcours CEFR bientôt disponible');}"
+                        style="width:100%;background:rgba(255,215,0,0.1);border:1px solid var(--gold);
+                               color:var(--gold);padding:12px;border-radius:14px;cursor:pointer;font-weight:800;">
+                    🗺️ Voir le parcours CEFR
+                </button>
+            </div>
+        </div>
+    `;
+    
+    const overlay = document.createElement('div');
+    overlay.innerHTML = html;
+    document.body.appendChild(overlay);
+}
+
+// Fin du fichier app.js
