@@ -2,6 +2,7 @@
    roadmap.js — LinguaVillage
    Structure CEFR (A1 à C1) : niveaux, modules, missions
    Intégration avec missions.js et save.js existants
+   Version complète et corrigée
    ================================================================= */
 
 // =================================================================
@@ -467,7 +468,7 @@ const CEFR_ROADMAP = {
       description: "Présentez-vous pour un emploi"
     },
 
-    // === NIVEAU B1 (quelques exemples) ===
+    // === NIVEAU B1 ===
     write_email: {
       id: "write_email",
       title: "Rédiger un email",
@@ -864,6 +865,7 @@ const CEFR_ROADMAP = {
 // =================================================================
 
 function getCurrentLevel() {
+  if (typeof S === 'undefined' || !S.xp) return "A1";
   const totalXP = S.xp || 0;
   const levels = CEFR_ROADMAP.levels;
   let currentLevel = "A1";
@@ -884,12 +886,15 @@ function getNextLevel() {
 }
 
 function getLevelProgress() {
+  if (typeof S === 'undefined') {
+    return { current: "A1", next: "A2", progress: 0, xpNeeded: 300, xpInLevel: 0 };
+  }
   const totalXP = S.xp || 0;
   const currentLevel = getCurrentLevel();
   const nextLevel = getNextLevel();
   
   if (!nextLevel) {
-    return { current: currentLevel, next: null, progress: 100, xpNeeded: 0 };
+    return { current: currentLevel, next: null, progress: 100, xpNeeded: 0, xpInLevel: totalXP };
   }
   
   const nextRequiredXP = CEFR_ROADMAP.levels[nextLevel].requiredXP;
@@ -924,21 +929,20 @@ function getAvailableMissionsForLevel(levelId) {
 }
 
 function getUnlockedMissions() {
-  const progress = loadGame() ? S_missions.completed : {};
-  const completedIds = Object.keys(progress);
+  let completedIds = [];
+  if (typeof S_missions !== 'undefined' && S_missions.completed) {
+    completedIds = Object.keys(S_missions.completed);
+  }
   const allMissions = Object.values(CEFR_ROADMAP.missions);
   
   return allMissions.filter(mission => {
-    // Si déjà complétée
     if (completedIds.includes(mission.id)) return true;
     
-    // Vérifier les prérequis (missions précédentes dans l'ordre)
     const levelMissions = getAvailableMissionsForLevel(mission.level);
     const missionIndex = levelMissions.findIndex(m => m.id === mission.id);
     
-    if (missionIndex === 0) return true; // Première mission du niveau
+    if (missionIndex === 0) return true;
     
-    // Vérifier que toutes les missions précédentes du niveau sont complétées
     const previousMissions = levelMissions.slice(0, missionIndex);
     return previousMissions.every(prev => completedIds.includes(prev.id));
   });
@@ -951,7 +955,10 @@ function getMissionByLocation(locId) {
 
 function getNextMission() {
   const unlocked = getUnlockedMissions();
-  const completed = S_missions.completed || {};
+  let completed = {};
+  if (typeof S_missions !== 'undefined' && S_missions.completed) {
+    completed = S_missions.completed;
+  }
   
   for (const mission of unlocked) {
     if (!completed[mission.id]) {
@@ -977,9 +984,12 @@ function getModuleMissions(levelId, moduleId) {
 // EXTENSION DE missions.js — AJOUT DES MISSIONS CEFR
 // =================================================================
 
-// Fonction pour synchroniser les missions CEFR avec le système existant
 function syncCEFRMissions() {
-  // Ajouter les missions CEFR aux MISSIONS existantes
+  if (typeof MISSIONS === 'undefined') {
+    console.warn("syncCEFRMissions: MISSIONS non défini, synchronisation impossible");
+    return;
+  }
+  
   const allCEFRMissions = Object.values(CEFR_ROADMAP.missions);
   
   for (const mission of allCEFRMissions) {
@@ -988,7 +998,6 @@ function syncCEFRMissions() {
       MISSIONS[locId] = [];
     }
     
-    // Vérifier si la mission existe déjà
     const exists = MISSIONS[locId].some(m => m.id === mission.id);
     if (!exists) {
       MISSIONS[locId].push({
@@ -1003,11 +1012,7 @@ function syncCEFRMissions() {
       });
     }
   }
-}
-
-// Appeler la synchronisation au chargement
-if (typeof MISSIONS !== 'undefined') {
-  syncCEFRMissions();
+  console.log("syncCEFRMissions: Synchronisation terminée");
 }
 
 // =================================================================
@@ -1015,9 +1020,17 @@ if (typeof MISSIONS !== 'undefined') {
 // =================================================================
 
 function showRoadmap() {
-  const nl = S.nativeLang || 'fr';
+  if (typeof S === 'undefined') {
+    showNotif("Chargement en cours...");
+    return;
+  }
+  
+  const nl = (typeof S !== 'undefined' && S.nativeLang) ? S.nativeLang : 'fr';
   const progress = getLevelProgress();
-  const completedMissions = S_missions.completed || {};
+  let completedMissions = {};
+  if (typeof S_missions !== 'undefined' && S_missions.completed) {
+    completedMissions = S_missions.completed;
+  }
   
   let overlay = document.createElement('div');
   overlay.id = 'roadmapOverlay';
@@ -1028,15 +1041,14 @@ function showRoadmap() {
     <div style="background:linear-gradient(135deg,#0f1a30,#0a0a14);border:1px solid var(--gold);
                 border-radius:24px;padding:24px;max-width:700px;width:100%;margin:auto;">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
-        <div style="font-family:'Cinzel',serif;font-size:1.1rem;color:var(--gold);">
+        <div style="font-family:"Cinzel",serif;font-size:1.1rem;color:var(--gold);">
           🗺️ Parcours CEFR
         </div>
-        <button onclick="this.closest('#roadmapOverlay').remove()" 
+        <button onclick="document.getElementById('roadmapOverlay').remove()" 
                 style="background:transparent;border:1px solid var(--border);
                        color:var(--dim);padding:4px 10px;border-radius:12px;cursor:pointer;">✕</button>
       </div>
       
-      <!-- Barre de progression globale -->
       <div style="margin-bottom:24px;">
         <div style="display:flex;justify-content:space-between;font-size:0.72rem;color:var(--dim);margin-bottom:6px;">
           <span>Progression globale</span>
@@ -1053,18 +1065,24 @@ function showRoadmap() {
       </div>
   `;
   
-  // Afficher chaque niveau
   for (const [levelId, levelData] of Object.entries(CEFR_ROADMAP.levels)) {
     const levelMissions = getAvailableMissionsForLevel(levelId);
     const completedCount = levelMissions.filter(m => completedMissions[m.id]).length;
     const totalCount = levelMissions.length;
-    const isUnlocked = progress.current === levelId || 
-                       (levelData.requiredXP <= (S.xp || 0));
+    let isUnlocked = false;
+    if (typeof S !== 'undefined') {
+      isUnlocked = progress.current === levelId || (levelData.requiredXP <= (S.xp || 0));
+    }
+    
+    const levelColor = levelData.color;
+    const r = parseInt(levelColor.slice(1,3), 16);
+    const g = parseInt(levelColor.slice(3,5), 16);
+    const b = parseInt(levelColor.slice(5,7), 16);
     
     html += `
       <div style="margin-bottom:20px;border:1px solid ${isUnlocked ? 'rgba(255,215,0,0.3)' : 'var(--border)'};
                   border-radius:16px;overflow:hidden;opacity:${isUnlocked ? 1 : 0.6};">
-        <div style="background:rgba(${levelData.color.slice(1,3)},${levelData.color.slice(3,5)},${levelData.color.slice(5,7)},0.12);
+        <div style="background:rgba(${r},${g},${b},0.12);
                     padding:12px 16px;display:flex;align-items:center;gap:12px;">
           <span style="font-size:1.5rem;">${levelData.icon}</span>
           <div style="flex:1;">
@@ -1076,15 +1094,14 @@ function showRoadmap() {
             </div>
           </div>
           <div style="width:40px;height:40px;border-radius:50%;
-                      background:rgba(${levelData.color.slice(1,3)},${levelData.color.slice(3,5)},${levelData.color.slice(5,7)},0.2);
+                      background:rgba(${r},${g},${b},0.2);
                       display:flex;align-items:center;justify-content:center;font-size:0.8rem;font-weight:900;">
-            ${Math.round((completedCount/totalCount)*100)}%
+            ${totalCount === 0 ? 0 : Math.round((completedCount/totalCount)*100)}%
           </div>
         </div>
         <div style="padding:12px;">
     `;
     
-    // Afficher les modules
     for (const [moduleId, moduleData] of Object.entries(levelData.modules)) {
       const moduleMissions = getModuleMissions(levelId, moduleId);
       const moduleCompleted = moduleMissions.filter(m => completedMissions[m.id]).length;
@@ -1100,6 +1117,7 @@ function showRoadmap() {
       
       for (const mission of moduleMissions) {
         const isCompleted = completedMissions[mission.id];
+        const missionTitle = mission[nl] || mission.title;
         html += `
           <button onclick="startCEFRMission('${mission.id}')" 
                   style="background:${isCompleted ? 'rgba(78,207,112,0.15)' : 'rgba(255,255,255,0.05)'};
@@ -1107,7 +1125,7 @@ function showRoadmap() {
                          border-radius:20px;padding:6px 14px;font-size:0.7rem;
                          color:${isCompleted ? 'var(--green)' : 'var(--text)'};
                          cursor:${isCompleted ? 'default' : 'pointer'};display:flex;align-items:center;gap:6px;">
-            ${mission.icon} ${mission[nl] || mission.title}
+            ${mission.icon} ${missionTitle.length > 20 ? missionTitle.substring(0,18)+'...' : missionTitle}
             ${isCompleted ? '✓' : `+${mission.xpReward}`}
           </button>
         `;
@@ -1120,7 +1138,7 @@ function showRoadmap() {
   }
   
   html += `
-      <button onclick="this.closest('#roadmapOverlay').remove();showProgression();" 
+      <button onclick="document.getElementById('roadmapOverlay').remove();if(typeof showProgression === 'function'){showProgression();}else{showNotif('Progression disponible bientôt');}" 
               style="width:100%;margin-top:8px;background:rgba(255,215,0,0.1);
                      border:1px solid var(--gold);color:var(--gold);padding:10px;
                      border-radius:14px;cursor:pointer;font-weight:800;">
@@ -1140,43 +1158,50 @@ function startCEFRMission(missionId) {
   const mission = CEFR_ROADMAP.missions[missionId];
   if (!mission) return;
   
-  const completed = S_missions.completed || {};
+  let completed = {};
+  if (typeof S_missions !== 'undefined' && S_missions.completed) {
+    completed = S_missions.completed;
+  }
   if (completed[missionId]) {
-    showNotif("✅ Mission déjà complétée !");
+    if (typeof showNotif === 'function') showNotif("✅ Mission déjà complétée !");
     return;
   }
   
-  // Vérifier les prérequis
   const levelMissions = getAvailableMissionsForLevel(mission.level);
   const missionIndex = levelMissions.findIndex(m => m.id === missionId);
   const previousMissions = levelMissions.slice(0, missionIndex);
   const missing = previousMissions.filter(m => !completed[m.id]);
   
   if (missing.length > 0) {
-    showNotif(`🔒 Complétez d'abord: ${missing.map(m => m.title).join(", ")}`);
+    if (typeof showNotif === 'function') {
+      showNotif(`🔒 Complétez d'abord: ${missing.map(m => m.title).join(", ")}`);
+    }
     return;
   }
   
-  // Aller au village si besoin
-  if (!document.getElementById('screen-village').classList.contains('active')) {
-    goVillage();
+  if (typeof goVillage === 'function') {
+    if (document.getElementById('screen-village') && !document.getElementById('screen-village').classList.contains('active')) {
+      goVillage();
+    }
   }
   
-  // Naviguer vers le bon lieu
   setTimeout(() => {
-    const location = LOCATIONS.find(loc => loc.id === mission.location);
-    if (location) {
-      openLoc(location);
+    if (typeof LOCATIONS !== 'undefined') {
+      const location = LOCATIONS.find(loc => loc.id === mission.location);
+      if (location && typeof openLoc === 'function') {
+        openLoc(location);
+      }
     }
   }, 300);
   
-  // Démarrer la mission dans le système existant
   setTimeout(() => {
-    const existingMission = MISSIONS[mission.location]?.find(m => m.id === missionId);
-    if (existingMission) {
-      startMission(missionId, mission.location);
+    if (typeof MISSIONS !== 'undefined' && typeof startMission === 'function') {
+      const existingMission = MISSIONS[mission.location]?.find(m => m.id === missionId);
+      if (existingMission) {
+        startMission(missionId, mission.location);
+      }
     }
-    showNotif(`🎯 Mission: ${mission.title}`);
+    if (typeof showNotif === 'function') showNotif(`🎯 Mission: ${mission.title}`);
   }, 600);
 }
 
@@ -1184,7 +1209,6 @@ function startCEFRMission(missionId) {
 // AJOUTER LE BOUTON ROADMAP AU MENU
 // =================================================================
 
-// Fonction à appeler après le chargement pour ajouter le bouton
 function addRoadmapButton() {
   const menuContent = document.querySelector('#screen-menu .menu-content');
   if (menuContent && !document.getElementById('roadmapBtn')) {
@@ -1192,7 +1216,7 @@ function addRoadmapButton() {
     roadmapBtn.id = 'roadmapBtn';
     roadmapBtn.className = 'menu-dict-btn';
     roadmapBtn.style.marginTop = '16px';
-    roadmapBtn.onclick = showRoadmap;
+    roadmapBtn.onclick = function() { if (typeof showRoadmap === 'function') showRoadmap(); };
     roadmapBtn.innerHTML = `
       <span class="menu-dict-icon">🗺️</span>
       <div class="menu-dict-text">
@@ -1202,12 +1226,38 @@ function addRoadmapButton() {
       <span style="color:var(--dim);margin-left:auto">›</span>
     `;
     menuContent.appendChild(roadmapBtn);
+    console.log("addRoadmapButton: Bouton ajouté avec succès");
   }
 }
 
-// Attendre que le DOM soit chargé
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', addRoadmapButton);
-} else {
-  addRoadmapButton();
-          }
+// =================================================================
+// INITIALISATION AUTOMATIQUE
+// =================================================================
+
+(function initRoadmap() {
+  function checkAndInit() {
+    if (typeof S !== 'undefined' && typeof MISSIONS !== 'undefined') {
+      console.log("roadmap.js: Dépendances chargées, initialisation...");
+      if (typeof syncCEFRMissions === 'function') {
+        syncCEFRMissions();
+      }
+      if (document.getElementById('screen-menu')) {
+        addRoadmapButton();
+      }
+      return true;
+    }
+    return false;
+  }
+  
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', function() {
+      if (!checkAndInit()) {
+        setTimeout(checkAndInit, 500);
+      }
+    });
+  } else {
+    if (!checkAndInit()) {
+      setTimeout(checkAndInit, 500);
+    }
+  }
+})();
