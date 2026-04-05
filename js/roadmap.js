@@ -2,7 +2,7 @@
    roadmap.js — LinguaVillage
    Structure CEFR (A1 à C1) : niveaux, modules, missions
    Intégration avec missions.js et save.js existants
-   Version complète et corrigée
+   Version complète, corrigée et sécurisée
    ================================================================= */
 
 // =================================================================
@@ -913,6 +913,9 @@ function getLevelProgress() {
 }
 
 function getAvailableMissionsForLevel(levelId) {
+  // Guard pour éviter les erreurs si CEFR_ROADMAP n'est pas complètement chargé
+  if (!CEFR_ROADMAP || !CEFR_ROADMAP.levels) return [];
+  
   const missions = [];
   const levelData = CEFR_ROADMAP.levels[levelId];
   if (!levelData) return missions;
@@ -1021,7 +1024,7 @@ function syncCEFRMissions() {
 
 function showRoadmap() {
   if (typeof S === 'undefined') {
-    showNotif("Chargement en cours...");
+    if (typeof showNotif === 'function') showNotif("Chargement en cours...");
     return;
   }
   
@@ -1138,7 +1141,7 @@ function showRoadmap() {
   }
   
   html += `
-      <button onclick="document.getElementById('roadmapOverlay').remove();if(typeof showProgression === 'function'){showProgression();}else{showNotif('Progression disponible bientôt');}" 
+      <button onclick="document.getElementById('roadmapOverlay').remove();if(typeof showProgression === 'function'){showProgression();}else if(typeof showNotif === 'function'){showNotif('📊 Progression disponible dans l\\'onglet Missions');}" 
               style="width:100%;margin-top:8px;background:rgba(255,215,0,0.1);
                      border:1px solid var(--gold);color:var(--gold);padding:10px;
                      border-radius:14px;cursor:pointer;font-weight:800;">
@@ -1155,6 +1158,12 @@ function showRoadmap() {
 // =================================================================
 
 function startCEFRMission(missionId) {
+  // Guard pour vérifier que la mission existe
+  if (!CEFR_ROADMAP || !CEFR_ROADMAP.missions || !CEFR_ROADMAP.missions[missionId]) {
+    if (typeof showNotif === 'function') showNotif("❌ Mission introuvable");
+    return;
+  }
+  
   const mission = CEFR_ROADMAP.missions[missionId];
   if (!mission) return;
   
@@ -1174,7 +1183,7 @@ function startCEFRMission(missionId) {
   
   if (missing.length > 0) {
     if (typeof showNotif === 'function') {
-      showNotif(`🔒 Complétez d'abord: ${missing.map(m => m.title).join(", ")}`);
+      showNotif(`🔒 Complétez d'abord: ${missing.map(m => m.title).slice(0,2).join(", ")}${missing.length > 2 ? "..." : ""}`);
     }
     return;
   }
@@ -1216,7 +1225,10 @@ function addRoadmapButton() {
     roadmapBtn.id = 'roadmapBtn';
     roadmapBtn.className = 'menu-dict-btn';
     roadmapBtn.style.marginTop = '16px';
-    roadmapBtn.onclick = function() { if (typeof showRoadmap === 'function') showRoadmap(); };
+    roadmapBtn.onclick = function() { 
+      if (typeof showRoadmap === 'function') showRoadmap(); 
+      else if (typeof showNotif === 'function') showNotif("🗺️ Parcours CEFR bientôt disponible");
+    };
     roadmapBtn.innerHTML = `
       <span class="menu-dict-icon">🗺️</span>
       <div class="menu-dict-text">
@@ -1231,33 +1243,41 @@ function addRoadmapButton() {
 }
 
 // =================================================================
-// INITIALISATION AUTOMATIQUE
+// INITIALISATION AUTOMATIQUE AVEC LIMITE DE TENTATIVES
 // =================================================================
 
-(function initRoadmap() {
-  function checkAndInit() {
-    if (typeof S !== 'undefined' && typeof MISSIONS !== 'undefined') {
-      console.log("roadmap.js: Dépendances chargées, initialisation...");
-      if (typeof syncCEFRMissions === 'function') {
-        syncCEFRMissions();
-      }
-      if (document.getElementById('screen-menu')) {
-        addRoadmapButton();
-      }
-      return true;
+let initAttempts = 0;
+const MAX_INIT_ATTEMPTS = 10;
+
+function attemptInit() {
+  initAttempts++;
+  
+  // Vérifier les dépendances nécessaires
+  const dependenciesReady = (typeof S !== 'undefined' && typeof MISSIONS !== 'undefined');
+  
+  if (dependenciesReady) {
+    console.log("roadmap.js: Dépendances chargées, initialisation...");
+    if (typeof syncCEFRMissions === 'function') {
+      syncCEFRMissions();
     }
-    return false;
+    if (document.getElementById('screen-menu')) {
+      addRoadmapButton();
+    }
+    return true;
   }
   
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', function() {
-      if (!checkAndInit()) {
-        setTimeout(checkAndInit, 500);
-      }
-    });
+  if (initAttempts < MAX_INIT_ATTEMPTS) {
+    console.log(`roadmap.js: Tentative ${initAttempts}/${MAX_INIT_ATTEMPTS} - Attente des dépendances...`);
+    setTimeout(attemptInit, 500);
   } else {
-    if (!checkAndInit()) {
-      setTimeout(checkAndInit, 500);
-    }
+    console.warn("roadmap.js: Initialization failed after " + MAX_INIT_ATTEMPTS + " attempts");
   }
-})();
+  return false;
+}
+
+// Lancer l'initialisation
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', attemptInit);
+} else {
+  attemptInit();
+           }
