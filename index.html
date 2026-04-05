@@ -12,6 +12,8 @@
 <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
+<div id="debug" style="position:fixed;top:0;left:0;right:0;background:red;color:white;font-size:12px;padding:4px;z-index:99999;">Chargement...</div>
+  
 <div id="notif"></div>
 <div id="wordPopup">
   <button class="wp-close" onclick="closeWordPopup()">✕</button>
@@ -263,27 +265,30 @@
   </div>
 </div>
 
-<!-- ====== ORDRE CORRECT DES SCRIPTS ====== -->
-<script src="js/save.js"></script>       <!-- 1. Base de données et sauvegarde -->
-<script src="js/missions.js"></script>   <!-- 2. Système de missions existant -->
-<script src="js/roadmap.js"></script>    <!-- 3. Structure CEFR (décommentez cette ligne) -->
-<script src="js/cinema.js"></script>     <!-- 4. Vidéos YouTube -->
-<script src="js/app.js"></script>        <!-- 5. Logique principale de l'application -->
 
 
+<!-- Capture des erreurs -->
+<script>
+  window.onerror = function(msg, url, line) {
+    var debugDiv = document.getElementById('debug');
+    if (debugDiv) {
+      debugDiv.innerHTML += ' | 🔴 ERREUR: ' + msg;
+      debugDiv.style.background = 'darkred';
+    }
+    return false;
+  };
+</script>
 
-<!-- Tests -->
-<div id="debug" style="position:fixed;top:0;left:0;right:0;background:red;color:white;font-size:12px;padding:4px;z-index:99999;">Chargement...</div>
-
+<!-- Chargement des scripts (déjà présent, ne pas dupliquer) -->
 <script src="js/save.js"></script>
 <script src="js/missions.js"></script>
 <script src="js/roadmap.js"></script>
 <script src="js/cinema.js"></script>
 <script src="js/app.js"></script>
 
+<!-- Test des tiles -->
 <script>
-// Test des tiles
-setTimeout(function() {
+  setTimeout(function() {
     var nativeTiles = document.querySelectorAll('[data-native]');
     var langTiles = document.querySelectorAll('[data-lang]');
     var step2 = document.getElementById('step2');
@@ -291,20 +296,23 @@ setTimeout(function() {
               ' | 🎯 Langues cibles: ' + langTiles.length +
               ' | Step2: ' + (step2 ? 'OK' : 'MANQUANT');
     alert(msg);
-}, 1000);
+  }, 1000);
+</script>
 
-// Debug des JS
-setTimeout(function() {
+<!-- Test de chargement JS -->
+<script>
+  setTimeout(function() {
     var debugDiv = document.getElementById('debug');
     if (debugDiv) {
-        debugDiv.innerHTML = 'save.js: ' + (typeof saveGame === 'function' ? '✅' : '❌') + 
-                             ' | app.js: ' + (typeof applyUI === 'function' ? '✅' : '❌');
-        if (typeof applyUI !== 'function') {
-            debugDiv.style.background = 'darkred';
-            debugDiv.innerHTML += ' | ⚠️ app.js non chargé !';
-        }
+      debugDiv.innerHTML = 'save.js: ' + (typeof saveGame === 'function' ? '✅' : '❌') + 
+                           ' | app.js: ' + (typeof applyUI === 'function' ? '✅' : '❌');
+      if (typeof applyUI !== 'function') {
+        debugDiv.style.background = 'darkred';
+        debugDiv.innerHTML += ' | ⚠️ app.js non chargé !';
+      }
     }
-}, 500);
-  </script>
+  }, 500);
+</script>
+
 </body>
   </html>
