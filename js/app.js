@@ -1,3 +1,6 @@
+// PREMIÈRE LIGNE DE app.js
+alert('app.js a commencé à charger');
+console.log('app.js a commencé à charger');
 // TEST MINIMAL - app.js
 console.log('app.js chargé !');
 
