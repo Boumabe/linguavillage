@@ -4682,32 +4682,37 @@ window.addEventListener('DOMContentLoaded', function() {
   // Étoiles écran d'accueil
   (()=>{const c=document.getElementById('wStars');if(!c)return;for(let i=0;i<100;i++){const s=document.createElement('div');s.className='w-star';const z=Math.random()*2+0.5;s.style.cssText='width:'+z+'px;height:'+z+'px;left:'+Math.random()*100+'%;top:'+Math.random()*100+'%;animation-delay:'+Math.random()*5+'s;animation-duration:'+(2+Math.random()*4)+'s';c.appendChild(s);}})();
 
-  // 1. Sélection de la langue maternelle
+    // 1. Sélection de la langue maternelle (MODIFIÉ ET COMPLET)
   document.querySelectorAll('[data-native]').forEach(function(t) {
     t.addEventListener('click', function() {
+      // Gère l'apparence visuelle des drapeaux
       document.querySelectorAll('[data-native]').forEach(function(x){ x.classList.remove('sel'); });
       t.classList.add('sel');
+      
+      // Enregistre la langue et traduit l'interface
       S.nativeLang = t.dataset.native;
       applyUI(S.nativeLang);
-      document.getElementById('step2').style.display = 'block';
-      ['step3','step4','playBtn'].forEach(function(id){
-        var el = document.getElementById(id);
-        if(el){ el.style.display='none'; if(el.tagName==='BUTTON') el.disabled=true; }
-      });
-      document.querySelectorAll('[data-lang]').forEach(function(o){
-        o.classList.toggle('disabled', o.dataset.lang === S.nativeLang);
-        if(o.dataset.lang === S.nativeLang) o.classList.remove('sel');
+
+      // --- LA CORRECTION EST ICI : AFFICHE L'ÉTAPE DU NOM ---
+      const step2 = document.getElementById('step2');
+      if (step2) {
+        step2.style.display = 'block';
+        // Petit scroll automatique pour que l'utilisateur voie le champ du nom
+        step2.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+
+      // Cache les étapes suivantes au cas où l'utilisateur change d'avis
+      if(document.getElementById('step3')) document.getElementById('step3').style.display = 'none';
+      if(document.getElementById('step4')) document.getElementById('step4').style.display = 'none';
+      if(document.getElementById('playBtn')) document.getElementById('playBtn').style.display = 'none';
+
+      // Désactive la même langue dans la liste "Langue à apprendre"
+      document.querySelectorAll('[data-lang]').forEach(function(o) {
+        const isSame = o.dataset.lang === S.nativeLang;
+        o.classList.toggle('disabled', isSame);
+        if (isSame) o.classList.remove('sel');
       });
     });
-  });
-
-  // 2. Saisie du nom
-  var inputName = document.getElementById('inputName');
-  if(inputName) inputName.addEventListener('input', function() {
-    var hasValue = this.value.trim().length > 0;
-    document.getElementById('step3').style.display = hasValue ? 'block' : 'none';
-    document.getElementById('step4').style.display = 'none';
-    document.getElementById('playBtn').style.display = 'none';
   });
 
   // 3. Sélection de la langue cible
