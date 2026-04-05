@@ -272,18 +272,36 @@
 
 
 
-  <script>
-  // Test simple des sélecteurs
+<!-- Tests -->
+<div id="debug" style="position:fixed;top:0;left:0;right:0;background:red;color:white;font-size:12px;padding:4px;z-index:99999;">Chargement...</div>
+
+<script src="js/save.js"></script>
+<script src="js/missions.js"></script>
+<script src="js/roadmap.js"></script>
+<script src="js/cinema.js"></script>
+<script src="js/app.js"></script>
+
+<script>
+  // Test des tiles (celui que tu avais)
   setTimeout(function() {
     var nativeTiles = document.querySelectorAll('[data-native]');
     var langTiles = document.querySelectorAll('[data-lang]');
     var step2 = document.getElementById('step2');
-    
     var msg = '🌍 Langues natives: ' + nativeTiles.length + 
               ' | 🎯 Langues cibles: ' + langTiles.length +
               ' | Step2: ' + (step2 ? 'OK' : 'MANQUANT');
     alert(msg);
   }, 1000);
-  </script>
+
+  // Debug des JS
+  document.getElementById('debug').innerHTML = 'save.js: ' + (typeof saveGame === 'function' ? '✅' : '❌') + ' | ';
+  setTimeout(function() {
+    document.getElementById('debug').innerHTML += 'app.js: ' + (typeof applyUI === 'function' ? '✅' : '❌');
+    if (typeof applyUI !== 'function') {
+      document.getElementById('debug').style.background = 'darkred';
+      document.getElementById('debug').innerHTML += ' | ⚠️ app.js non chargé !';
+    }
+  }, 500);
+</script>
 </body>
   </html>
