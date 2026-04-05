@@ -5,12 +5,13 @@
    Dépendances : save.js, cinema.js, missions.js (chargés avant)
    ================================================================= */
 
-// Reprendre la sauvegarde automatiquement si elle existe
 window.addEventListener('DOMContentLoaded', function(){
-  if(window._LINGUA_HAS_SAVE){
+  if(window._LINGUA_HAS_SAVE && S.playerName && S.nativeLang && S.targetLang){
+    // Sauvegarde valide → on va au menu
     applyUI(S.nativeLang);
     startMenu();
   }
+  // Sinon, on reste sur l'écran d'accueil (rien à faire)
 });
 
 const API = 'https://linguavillage-api--marckensbou2.replit.app';
