@@ -115,13 +115,18 @@ const REWARDS = {
 };
 
 // =================================================================
-// ÉTAT MISSIONS
+// ÉTAT MISSIONS — Initialisation sécurisée
 // =================================================================
 let S_missions = {
   completed: {},
   gems:      0,
   badges:    [],
 };
+
+// Initialisation sécurisée de S_streak si absent
+if (typeof S_streak === 'undefined') {
+  window.S_streak = { current: 0, best: 0, shield: 0 };
+}
 
 // =================================================================
 // MISSIONS — logique de jeu
@@ -133,7 +138,7 @@ function getMissionsForLoc(locId) {
 function openMissionsPanel(locId) {
   var missions = getMissionsForLoc(locId);
   if (!missions.length) return;
-  var nl    = S.nativeLang || 'fr';
+  var nl    = (typeof S !== 'undefined' && S.nativeLang) ? S.nativeLang : 'fr';
   var panel = document.getElementById('missionsPanel');
   if (!panel) return;
 
@@ -176,13 +181,15 @@ function startMission(missionId, locId) {
   var missions  = getMissionsForLoc(locId);
   activeMission = missions.find(function(m) { return m.id === missionId; });
   if (!activeMission) return;
-  var nl  = S.nativeLang || 'fr';
+  var nl  = (typeof S !== 'undefined' && S.nativeLang) ? S.nativeLang : 'fr';
   var inp = document.getElementById('dialInput');
   if (inp) {
     inp.placeholder      = '💡 ' + (activeMission.hint[nl] || activeMission.hint.fr);
     inp.style.borderColor = 'var(--gold)';
   }
-  showNotif('🎯 ' + (activeMission.title[nl] || activeMission.title.fr));
+  if (typeof showNotif === 'function') {
+    showNotif('🎯 ' + (activeMission.title[nl] || activeMission.title.fr));
+  }
 }
 
 function checkMissionInMessage(text) {
@@ -203,13 +210,22 @@ function completeMission(mission) {
   if (S_missions.completed[mission.id]) return;
   S_missions.completed[mission.id] = true;
   S_missions.gems += mission.gem;
-  gainXP(mission.xp);
+  
+  // Guard pour gainXP
+  if (typeof gainXP === 'function') {
+    gainXP(mission.xp);
+  } else {
+    // Fallback si gainXP n'existe pas encore
+    if (typeof S !== 'undefined') {
+      S.xp = (S.xp || 0) + mission.xp;
+    }
+  }
 
   var gd = document.getElementById('gemDisplay');
   if (gd) gd.textContent = '💎 ' + S_missions.gems;
 
   checkBadges();
-  var nl = S.nativeLang || 'fr';
+  var nl = (typeof S !== 'undefined' && S.nativeLang) ? S.nativeLang : 'fr';
   showMissionReward(mission, nl);
   if (typeof saveGame === 'function') saveGame();
 }
@@ -253,8 +269,12 @@ function launchConfetti() {
 }
 
 function checkBadges() {
+  var currentXP = 0;
+  if (typeof S !== 'undefined') {
+    currentXP = S.xp || 0;
+  }
   REWARDS.badges.forEach(function(badge) {
-    if (!S_missions.badges.includes(badge.id) && S.xp >= badge.xp) {
+    if (!S_missions.badges.includes(badge.id) && currentXP >= badge.xp) {
       S_missions.badges.push(badge.id);
       showBadgeUnlocked(badge);
     }
@@ -262,9 +282,11 @@ function checkBadges() {
 }
 
 function showBadgeUnlocked(badge) {
-  var nl = S.nativeLang || 'fr';
+  var nl = (typeof S !== 'undefined' && S.nativeLang) ? S.nativeLang : 'fr';
   setTimeout(function() {
-    showNotif(badge.icon + ' Badge débloqué : ' + (badge.name[nl] || badge.name.fr));
+    if (typeof showNotif === 'function') {
+      showNotif(badge.icon + ' Badge débloqué : ' + (badge.name[nl] || badge.name.fr));
+    }
   }, 2000);
 }
 
@@ -272,12 +294,13 @@ function showBadgeUnlocked(badge) {
 // ÉCRAN PROGRESSION
 // =================================================================
 function showProgression() {
-  var nl           = S.nativeLang || 'fr';
+  var nl           = (typeof S !== 'undefined' && S.nativeLang) ? S.nativeLang : 'fr';
   var totalMissions = Object.values(MISSIONS).flat().length;
   var done         = Object.keys(S_missions.completed).length;
   var pct          = Math.round((done / totalMissions) * 100);
-  var nextBadge    = REWARDS.badges.find(function(b) { return S.xp < b.xp; });
-  var xpToNext     = nextBadge ? nextBadge.xp - S.xp : 0;
+  var currentXP    = (typeof S !== 'undefined' && S.xp) ? S.xp : 0;
+  var nextBadge    = REWARDS.badges.find(function(b) { return currentXP < b.xp; });
+  var xpToNext     = nextBadge ? nextBadge.xp - currentXP : 0;
 
   var badgesHTML = REWARDS.badges.map(function(b) {
     var unlocked = S_missions.badges.includes(b.id);
@@ -295,7 +318,7 @@ function showProgression() {
       + '<div style="font-size:0.72rem;color:var(--gold);font-weight:800;margin-bottom:4px;">⚡ Prochain : ' + nextBadge.icon + ' ' + (nextBadge.name[nl] || nextBadge.name.fr) + '</div>'
       + '<div style="font-size:0.68rem;color:var(--dim);">Il manque ' + xpToNext + ' XP</div>'
       + '<div style="height:5px;background:rgba(255,255,255,0.08);border-radius:3px;margin-top:8px;overflow:hidden;">'
-      + '<div style="height:100%;width:' + Math.round((S.xp / nextBadge.xp) * 100) + '%;background:linear-gradient(90deg,#a86800,#ffd700);border-radius:3px;"></div>'
+      + '<div style="height:100%;width:' + Math.round((currentXP / nextBadge.xp) * 100) + '%;background:linear-gradient(90deg,#a86800,#ffd700);border-radius:3px;"></div>'
       + '</div></div>'
     : '<div style="text-align:center;padding:10px;color:var(--gold);font-family:Cinzel;font-size:0.9rem;">👑 Tous les badges débloqués!</div>';
 
@@ -329,7 +352,7 @@ function showProgression() {
     // Stats
     + '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:20px;">'
     + '<div style="background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:12px;text-align:center;">'
-    + '<div style="font-size:1.4rem;font-weight:900;color:var(--gold);">' + S.xp + '</div>'
+    + '<div style="font-size:1.4rem;font-weight:900;color:var(--gold);">' + currentXP + '</div>'
     + '<div style="font-size:0.65rem;color:var(--dim);">XP Total</div></div>'
     + '<div style="background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:12px;text-align:center;">'
     + '<div style="font-size:1.4rem;font-weight:900;color:#4a9eff;">' + S_missions.gems + '</div>'
@@ -338,8 +361,8 @@ function showProgression() {
     + '<div style="font-size:1.4rem;font-weight:900;color:var(--green)">' + done + '/' + totalMissions + '</div>'
     + '<div style="font-size:0.65rem;color:var(--dim);">Missions</div></div>'
     + '</div>'
-    // Streak
-    + (typeof S_streak !== 'undefined'
+    // Streak (avec guard)
+    + (typeof S_streak !== 'undefined' && S_streak
       ? '<div style="background:rgba(255,159,67,0.08);border:1px solid rgba(255,159,67,0.25);border-radius:12px;padding:12px;margin-bottom:20px;display:flex;align-items:center;gap:12px;">'
         + '<span style="font-size:1.8rem;">🔥</span>'
         + '<div><div style="font-weight:900;font-size:0.9rem;color:#ff9f43;">' + S_streak.current + ' jours consécutifs</div>'
@@ -393,7 +416,7 @@ const SHOP_ITEMS = [
 ];
 
 function openShop() {
-  var nl = S.nativeLang || 'fr';
+  var nl = (typeof S !== 'undefined' && S.nativeLang) ? S.nativeLang : 'fr';
   var overlay = document.createElement('div');
   overlay.id  = 'shopOverlay';
   overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.88);z-index:9500;'
@@ -438,7 +461,9 @@ function openShop() {
 
 function buyItem(id, price) {
   if (S_missions.gems < price) {
-    showNotif('💎 Gemmes insuffisantes !');
+    if (typeof showNotif === 'function') {
+      showNotif('💎 Gemmes insuffisantes !');
+    }
     return;
   }
   S_missions.gems -= price;
@@ -446,21 +471,36 @@ function buyItem(id, price) {
   var gd = document.getElementById('gemDisplay');
   if (gd) gd.textContent = '💎 ' + S_missions.gems;
 
-  if (id === 'shield'      && typeof S_streak !== 'undefined') {
+  if (id === 'shield' && typeof S_streak !== 'undefined') {
     S_streak.shield++;
-    showNotif('🛡️ Bouclier de streak activé !');
+    if (typeof showNotif === 'function') showNotif('🛡️ Bouclier de streak activé !');
   }
-  if (id === 'hint_x5')    { S.freeHints  = (S.freeHints  || 0) + 5;  showNotif('💡 5 indices débloqués !'); }
-  if (id === 'xp_boost')   { S.xpBoostEnd = Date.now() + 3600000;      showNotif('⚡ Double XP pendant 1h !'); }
-  if (id === 'translate_x5'){ S.freeTranslations = (S.freeTranslations || 0) + 5; showNotif('🔤 5 traductions flash !'); }
+  if (id === 'hint_x5')    { 
+    if (typeof S !== 'undefined') {
+      S.freeHints = (S.freeHints || 0) + 5; 
+    }
+    if (typeof showNotif === 'function') showNotif('💡 5 indices débloqués !'); 
+  }
+  if (id === 'xp_boost')   { 
+    if (typeof S !== 'undefined') {
+      S.xpBoostEnd = Date.now() + 3600000;
+    }
+    if (typeof showNotif === 'function') showNotif('⚡ Double XP pendant 1h !'); 
+  }
+  if (id === 'translate_x5'){ 
+    if (typeof S !== 'undefined') {
+      S.freeTranslations = (S.freeTranslations || 0) + 5; 
+    }
+    if (typeof showNotif === 'function') showNotif('🔤 5 traductions flash !'); 
+  }
 
   // Rafraîchir la boutique si elle est encore ouverte
   var shopEl = document.getElementById('shopOverlay');
   if (shopEl) { shopEl.remove(); openShop(); }
 
   if (typeof saveGame === 'function') saveGame();
-     }
-// Ajouter à la fin de missions.js
+}
+
 // =================================================================
 // EXTENSION: Mission complétée → vérifier progression CEFR
 // =================================================================
@@ -468,34 +508,32 @@ function buyItem(id, price) {
 // Sauvegarder la fonction completeMission originale
 const originalCompleteMission = completeMission;
 
-// Remplacer par la version étendue
-completeMission = function(mission) {
-  if (S_missions.completed[mission.id]) return;
-  
-  // Appeler la fonction originale
-  originalCompleteMission(mission);
-  
-  // Vérifier si le niveau est complété (toutes missions du niveau faites)
-  const cefrMission = CEFR_ROADMAP.missions[mission.id];
-  if (cefrMission) {
-    const levelMissions = getAvailableMissionsForLevel(cefrMission.level);
-    const allCompleted = levelMissions.every(m => S_missions.completed[m.id]);
+// Remplacer par la version étendue (uniquement si CEFR_ROADMAP existe)
+if (typeof CEFR_ROADMAP !== 'undefined') {
+  window.completeMission = function(mission) {
+    if (S_missions.completed[mission.id]) return;
     
-    if (allCompleted) {
-      showNotif(`🎉 FÉLICITATIONS ! Niveau ${cefrMission.level} complété ! 🎉`);
-      launchConfetti();
+    // Appeler la fonction originale
+    originalCompleteMission(mission);
+    
+    // Vérifier si le niveau est complété (toutes missions du niveau faites)
+    const cefrMission = CEFR_ROADMAP.missions && CEFR_ROADMAP.missions[mission.id];
+    if (cefrMission && typeof getAvailableMissionsForLevel === 'function') {
+      const levelMissions = getAvailableMissionsForLevel(cefrMission.level);
+      const allCompleted = levelMissions.every(m => S_missions.completed[m.id]);
       
-      // Débloquer le niveau suivant
-      const nextLevel = getNextLevelForLevel(cefrMission.level);
-      if (nextLevel) {
-        showNotif(`🔓 Niveau ${nextLevel} débloqué !`);
+      if (allCompleted && typeof showNotif === 'function') {
+        showNotif(`🎉 FÉLICITATIONS ! Niveau ${cefrMission.level} complété ! 🎉`);
+        launchConfetti();
+        
+        // Débloquer le niveau suivant
+        const levels = ["A1", "A2", "B1", "B2", "C1"];
+        const currentIndex = levels.indexOf(cefrMission.level);
+        const nextLevel = levels[currentIndex + 1] || null;
+        if (nextLevel && typeof showNotif === 'function') {
+          showNotif(`🔓 Niveau ${nextLevel} débloqué !`);
+        }
       }
     }
-  }
-};
-
-function getNextLevelForLevel(currentLevel) {
-  const levels = ["A1", "A2", "B1", "B2", "C1"];
-  const currentIndex = levels.indexOf(currentLevel);
-  return levels[currentIndex + 1] || null;
-                                             }
+  };
+            }
