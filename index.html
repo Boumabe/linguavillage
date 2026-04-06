@@ -12,8 +12,8 @@
 <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
-<div id="debug" style="position:fixed;top:0;left:0;right:0;background:red;color:white;font-size:12px;padding:4px;z-index:99999;">Chargement...</div>
-  
+<div id="debug" style="position:fixed;top:0;left:0;right:0;background:#4ecf70;color:#0a0a14;font-size:11px;padding:2px 6px;z-index:99999;font-family:monospace;">✅ Chargement...</div>
+
 <div id="notif"></div>
 <div id="wordPopup">
   <button class="wp-close" onclick="closeWordPopup()">✕</button>
@@ -33,32 +33,32 @@
   <div class="welcome-form">
     <div>
       <div class="flabel" id="lbl-native">🌍 Votre langue maternelle</div>
-      <div class="grid4">
-        <div class="tile" data-native="fr"><span class="tf">🇫🇷</span><span class="tn">Français</span></div>
-        <div class="tile" data-native="ht"><span class="tf">🇭🇹</span><span class="tn">Kreyòl</span></div>
-        <div class="tile" data-native="en"><span class="tf">🇬🇧</span><span class="tn">English</span></div>
-        <div class="tile" data-native="es"><span class="tf">🇪🇸</span><span class="tn">Español</span></div>
-        <div class="tile" data-native="de"><span class="tf">🇩🇪</span><span class="tn">Deutsch</span></div>
-        <div class="tile" data-native="ru"><span class="tf">🇷🇺</span><span class="tn">Русский</span></div>
-        <div class="tile" data-native="zh"><span class="tf">🇨🇳</span><span class="tn">中文</span></div>
-        <div class="tile" data-native="ja"><span class="tf">🇯🇵</span><span class="tn">日本語</span></div>
+      <div class="grid4" id="nativeGrid">
+        <div class="lang-tile" data-native="fr"><span class="tf">🇫🇷</span><span class="tn">Français</span></div>
+        <div class="lang-tile" data-native="ht"><span class="tf">🇭🇹</span><span class="tn">Kreyòl</span></div>
+        <div class="lang-tile" data-native="en"><span class="tf">🇬🇧</span><span class="tn">English</span></div>
+        <div class="lang-tile" data-native="es"><span class="tf">🇪🇸</span><span class="tn">Español</span></div>
+        <div class="lang-tile" data-native="de"><span class="tf">🇩🇪</span><span class="tn">Deutsch</span></div>
+        <div class="lang-tile" data-native="ru"><span class="tf">🇷🇺</span><span class="tn">Русский</span></div>
+        <div class="lang-tile" data-native="zh"><span class="tf">🇨🇳</span><span class="tn">中文</span></div>
+        <div class="lang-tile" data-native="ja"><span class="tf">🇯🇵</span><span class="tn">日本語</span></div>
       </div>
     </div>
     <div id="step2" style="display:none">
       <div class="flabel" id="lbl-name">✏️ Votre prénom</div>
-      <input class="finput" id="inputName" type="text" maxlength="20">
+      <input class="finput" id="inputName" type="text" maxlength="20" placeholder="ex: Marie">
     </div>
     <div id="step3" style="display:none">
       <div class="flabel" id="lbl-target">🎯 Langue à apprendre</div>
-      <div class="grid4" id="langGrid">
-        <div class="tile" data-lang="en"><span class="tf">🇬🇧</span><span class="tn">English</span></div>
-        <div class="tile" data-lang="fr"><span class="tf">🇫🇷</span><span class="tn">Français</span></div>
-        <div class="tile" data-lang="es"><span class="tf">🇪🇸</span><span class="tn">Español</span></div>
-        <div class="tile" data-lang="ht"><span class="tf">🇭🇹</span><span class="tn">Kreyòl</span></div>
-        <div class="tile" data-lang="de"><span class="tf">🇩🇪</span><span class="tn">Deutsch</span></div>
-        <div class="tile" data-lang="ru"><span class="tf">🇷🇺</span><span class="tn">Русский</span></div>
-        <div class="tile" data-lang="zh"><span class="tf">🇨🇳</span><span class="tn">中文</span></div>
-        <div class="tile" data-lang="ja"><span class="tf">🇯🇵</span><span class="tn">日本語</span></div>
+      <div class="grid4" id="targetGrid">
+        <div class="lang-tile" data-target="en"><span class="tf">🇬🇧</span><span class="tn">English</span></div>
+        <div class="lang-tile" data-target="fr"><span class="tf">🇫🇷</span><span class="tn">Français</span></div>
+        <div class="lang-tile" data-target="es"><span class="tf">🇪🇸</span><span class="tn">Español</span></div>
+        <div class="lang-tile" data-target="ht"><span class="tf">🇭🇹</span><span class="tn">Kreyòl</span></div>
+        <div class="lang-tile" data-target="de"><span class="tf">🇩🇪</span><span class="tn">Deutsch</span></div>
+        <div class="lang-tile" data-target="ru"><span class="tf">🇷🇺</span><span class="tn">Русский</span></div>
+        <div class="lang-tile" data-target="zh"><span class="tf">🇨🇳</span><span class="tn">中文</span></div>
+        <div class="lang-tile" data-target="ja"><span class="tf">🇯🇵</span><span class="tn">日本語</span></div>
       </div>
     </div>
     <div id="step4" style="display:none">
@@ -121,25 +121,24 @@
       </div>
       <span style="color:var(--dim);margin-left:auto">›</span>
     </button>
-    <!-- Le bouton roadmap sera ajouté dynamiquement par roadmap.js -->
   </div>
 </div>
 
 <!-- ====== S3: VILLAGE ====== -->
 <div class="screen" id="screen-village">
   <div class="village-hud">
-  <span class="hud-player" id="hudPlayer">👤</span>
-  <span class="hud-weather" id="hudWeather">☀️</span>
-  <span class="hud-time" id="hudTime"></span>
-  <span class="hud-lang" id="hudLang"></span>
-  <span id="streakDisplay" style="font-size:.68rem;color:#ff9f43;font-weight:900">🔥 0</span>
-  <span class="hud-xp" id="hudXP">0 XP</span>
-  <div class="hud-btns">
-    <button class="hud-btn" onclick="showScreen('screen-menu')">← Menu</button>
-    <button class="hud-btn" onclick="showProgression()">📊</button>
-    <button class="hud-btn" onclick="launchSurpriseMode()">⚡</button>
-    <button class="hud-btn" onclick="openShop()">🏪</button>
-  </div>
+    <span class="hud-player" id="hudPlayer">👤</span>
+    <span class="hud-weather" id="hudWeather">☀️</span>
+    <span class="hud-time" id="hudTime"></span>
+    <span class="hud-lang" id="hudLang"></span>
+    <span id="streakDisplay" style="font-size:.68rem;color:#ff9f43;font-weight:900">🔥 0</span>
+    <span class="hud-xp" id="hudXP">0 XP</span>
+    <div class="hud-btns">
+      <button class="hud-btn" onclick="showScreen('screen-menu')">← Menu</button>
+      <button class="hud-btn" onclick="showProgression()">📊</button>
+      <button class="hud-btn" onclick="launchSurpriseMode()">⚡</button>
+      <button class="hud-btn" onclick="openShop()">🏪</button>
+    </div>
   </div>
   <canvas id="villageCanvas"></canvas>
   <div class="loc-tooltip" id="locTooltip"></div>
@@ -249,58 +248,41 @@
     <div class="u-title" style="color:#e040fb" id="cinema-title">🎬 Cinéma</div>
     <span id="cinema-lang-badge" style="font-size:0.75rem;font-weight:800;color:#e040fb"></span>
   </div>
-  <div style="display:flex;gap:0;background:rgba(10,8,20,0.9);
-              border-bottom:1px solid var(--border);overflow-x:auto;flex-shrink:0;"
-       id="cinemaCats"></div>
+  <div style="display:flex;gap:0;background:rgba(10,8,20,0.9);border-bottom:1px solid var(--border);overflow-x:auto;flex-shrink:0;" id="cinemaCats"></div>
   <div style="flex:1;overflow-y:auto;padding:14px;" id="cinemaInfo">
-    <div style="background:rgba(224,64,251,0.07);border:1px solid rgba(224,64,251,0.2);
-                border-radius:12px;padding:10px 14px;margin-bottom:14px;
-                font-size:0.72rem;color:rgba(224,64,251,0.85);line-height:1.5;">
+    <div style="background:rgba(224,64,251,0.07);border:1px solid rgba(224,64,251,0.2);border-radius:12px;padding:10px 14px;margin-bottom:14px;font-size:0.72rem;color:rgba(224,64,251,0.85);line-height:1.5;">
       💡 Clique sur une vidéo → YouTube s'ouvre.<br>
       Active les sous-titres CC dans YouTube pour apprendre encore plus vite !
     </div>
-    <div id="videoList"
-         style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px;">
-    </div>
+    <div id="videoList" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px;"></div>
   </div>
 </div>
 
-
-
-<!-- Capture des erreurs -->
-<script>
-  window.onerror = function(msg, url, line) {
-    var debugDiv = document.getElementById('debug');
-    if (debugDiv) {
-      debugDiv.innerHTML += ' | 🔴 ERREUR: ' + msg;
-      debugDiv.style.background = 'darkred';
-    }
-    return false;
-  };
-</script>
-
-<!-- Chargement des scripts (déjà présent, ne pas dupliquer) -->
+<!-- SCRIPTS DANS LE BON ORDRE -->
+<script src="js/state.js"></script>
 <script src="js/save.js"></script>
 <script src="js/missions.js"></script>
 <script src="js/roadmap.js"></script>
 <script src="js/cinema.js"></script>
 <script src="js/app.js"></script>
 
-<!-- Test des tiles -->
-
-<!-- Test de chargement JS -->
+<!-- INIT MANUELLE APRÈS CHARGEMENT -->
 <script>
+  // Cacher le debug après 3 secondes
   setTimeout(function() {
-    var debugDiv = document.getElementById('debug');
-    if (debugDiv) {
-      debugDiv.innerHTML = 'save.js: ' + (typeof saveGame === 'function' ? '✅' : '❌') + 
-                           ' | app.js: ' + (typeof applyUI === 'function' ? '✅' : '❌');
-      if (typeof applyUI !== 'function') {
-        debugDiv.style.background = 'darkred';
-        debugDiv.innerHTML += ' | ⚠️ app.js non chargé !';
-      }
+    var d = document.getElementById('debug');
+    if (d) d.style.opacity = '0.7';
+  }, 3000);
+  
+  // Vérifier que app.js est bien chargé
+  setTimeout(function() {
+    if (typeof startMenu !== 'function') {
+      document.getElementById('debug').innerHTML = '❌ app.js non chargé - Vérifiez les chemins';
+      document.getElementById('debug').style.background = '#e05555';
+    } else {
+      document.getElementById('debug').innerHTML = '✅ Tous les scripts chargés - Prêt';
     }
-  }, 500);
+  }, 800);
 </script>
 
 </body>
