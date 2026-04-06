@@ -1,3 +1,17 @@
+// Tout en haut de save.js
+var S = {
+  playerName: '',
+  nativeLang: '',
+  targetLang: '',
+  scriptPref: 'standard',
+  xp: 0,
+  level: 1,
+  // ... autres valeurs par défaut
+};
+
+var S_missions = { completed: {}, current: null };
+var S_streak = { count: 0, lastDate: null };
+
 /* =================================================================
    save.js — LinguaVillage
    Sauvegarde locale (localStorage) + cache quiz
@@ -172,18 +186,25 @@ function showQuotaWarning() {
 }
 
 // -----------------------------------------------------------------
-// CHARGEMENT AUTOMATIQUE AU DÉMARRAGE
+// CHARGEMENT AUTOMATIQUE SÉCURISÉ
 // -----------------------------------------------------------------
-window.addEventListener('DOMContentLoaded', function() {
+window.addEventListener('load', function() {
+  // On utilise 'load' au lieu de 'DOMContentLoaded' pour être sûr 
+  // que app.js a eu le temps d'être interprété par le navigateur.
+  
   const hasSave = loadGame();
 
+  // On vérifie si S est bien rempli et si on peut passer l'écran d'accueil
   if (hasSave && S.playerName && S.nativeLang && S.targetLang) {
-    // Sauvegarde valide → passer directement au menu sans repasser par le welcome
-    // On attend que app.js soit chargé (tous les scripts chargés = DOMContentLoaded est trop tôt)
-    // On utilise un flag que app.js lira au démarrage
-    window._LINGUA_HAS_SAVE = true;
+    console.log("Sauvegarde détectée, tentative de démarrage direct...");
+    
+    // On attend un tout petit peu que app.js attache ses fonctions
+    setTimeout(() => {
+      if (typeof startMenu === 'function') {
+        startMenu();
+      } else {
+        console.warn("startMenu n'est pas encore prêt, l'utilisateur devra cliquer.");
+      }
+    }, 100);
   }
-
-  // Mettre à jour l'affichage streak si on revient
-  updateStreakDisplay();
 });
