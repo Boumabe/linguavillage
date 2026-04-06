@@ -1,12 +1,25 @@
 /* =================================================================
    cinema.js — LinguaVillage
    Vidéos depuis Internet Archive (IDs vérifiés - domaine public)
+   Version corrigée - compatible avec state.js et app.js
    ================================================================= */
 
 // =================================================================
 // CONFIGURATION
 // =================================================================
 const API = 'https://linguavillage-api--marckensbou2.replit.app';
+
+// =================================================================
+// FLAGS (fallback si app.js n'est pas encore chargé)
+// =================================================================
+const FLAGS_FALLBACK = {
+  en: '🇬🇧', fr: '🇫🇷', es: '🇪🇸', ht: '🇭🇹',
+  de: '🇩🇪', ru: '🇷🇺', zh: '🇨🇳', ja: '🇯🇵'
+};
+
+function getFlags() {
+  return (typeof window.FLAGS !== 'undefined') ? window.FLAGS : FLAGS_FALLBACK;
+}
 
 // =================================================================
 // CATÉGORIES PAR LANGUE
@@ -278,7 +291,24 @@ const CINEMA_VIDEOS = {
 };
 
 // =================================================================
-// FONCTIONS PRINCIPALES (à garder telles quelles)
+// CACHE DES QUIZ
+// =================================================================
+function getQuizFromCache(videoId) {
+  if (typeof window.S_quizCache !== 'undefined' && S_quizCache[videoId]) {
+    return S_quizCache[videoId];
+  }
+  return null;
+}
+
+function setQuizInCache(videoId, quiz) {
+  if (typeof window.S_quizCache !== 'undefined') {
+    S_quizCache[videoId] = quiz;
+    if (typeof saveGame === 'function') saveGame();
+  }
+}
+
+// =================================================================
+// FONCTIONS PRINCIPALES
 // =================================================================
 
 function getCinemaCats(lang) {
@@ -309,12 +339,21 @@ var currentCinemaVideos = [];
 
 // Ouvrir le cinéma
 function openCinema() {
+  if (typeof window.S === 'undefined') {
+    if (typeof showNotif === 'function') showNotif("Chargement en cours...");
+    return;
+  }
+  
   currentCinemaLang = S.targetLang;
   var cats = getCinemaCats(currentCinemaLang);
   var langLabels = { en:'English', fr:'Français', es:'Español', ht:'Kreyòl', de:'Deutsch', ru:'Русский', zh:'中文', ja:'日本語' };
   
-  document.getElementById('cinema-title').textContent = '🎬 ' + (langLabels[currentCinemaLang] || 'Cinéma');
-  document.getElementById('cinema-lang-badge').textContent = FLAGS[currentCinemaLang] || '';
+  var titleEl = document.getElementById('cinema-title');
+  var badgeEl = document.getElementById('cinema-lang-badge');
+  var flags = getFlags();
+  
+  if (titleEl) titleEl.textContent = '🎬 ' + (langLabels[currentCinemaLang] || 'Cinéma');
+  if (badgeEl) badgeEl.textContent = flags[currentCinemaLang] || '';
   
   var catsHtml = cats.map(function(c, i) {
     return '<button onclick="loadCinemaCategory(\'' + c.key + '\')" id="ccat-' + c.key + '"'
@@ -326,7 +365,9 @@ function openCinema() {
       + c.icon + ' ' + c.label + '</button>';
   }).join('');
   
-  document.getElementById('cinemaCats').innerHTML = catsHtml;
+  var catsContainer = document.getElementById('cinemaCats');
+  if (catsContainer) catsContainer.innerHTML = catsHtml;
+  
   if (cats.length) loadCinemaCategory(cats[0].key);
   showScreen('screen-cinema');
   if (typeof updateStreak === 'function') updateStreak();
@@ -391,18 +432,40 @@ function openArchiveVideo(id, title) {
   var wrap = document.getElementById('cinemaPlayerWrap');
   var info = document.getElementById('cinemaPlayerInfo');
   
+  // Créer les éléments s'ils n'existent pas
+  if (!wrap) {
+    var cinemaInfo = document.getElementById('cinemaInfo');
+    if (cinemaInfo) {
+      var playerWrap = document.createElement('div');
+      playerWrap.id = 'cinemaPlayerWrap';
+      playerWrap.style.cssText = 'margin-bottom:16px;display:none;';
+      playerWrap.innerHTML = '<iframe id="cinemaPlayer" style="width:100%;height:280px;border:none;border-radius:16px;" allowfullscreen></iframe>';
+      var playerInfo = document.createElement('div');
+      playerInfo.id = 'cinemaPlayerInfo';
+      playerInfo.style.cssText = 'margin-top:8px;margin-bottom:16px;display:none;';
+      playerInfo.innerHTML = '<div id="videoTitle" style="font-weight:800;"></div><div id="videoDesc" style="font-size:0.7rem;color:var(--dim);"></div>';
+      cinemaInfo.insertBefore(playerWrap, cinemaInfo.firstChild);
+      cinemaInfo.insertBefore(playerInfo, cinemaInfo.firstChild.nextSibling);
+    }
+    player = document.getElementById('cinemaPlayer');
+    wrap = document.getElementById('cinemaPlayerWrap');
+    info = document.getElementById('cinemaPlayerInfo');
+  }
+  
   if (player && wrap && info) {
     player.src = 'https://archive.org/embed/' + id + '?autoplay=1';
     wrap.style.display = 'block';
     info.style.display = 'block';
-    document.getElementById('videoTitle').textContent = title || '';
-    document.getElementById('videoDesc').textContent = '📚 Source : Internet Archive — Domaine public';
+    var videoTitle = document.getElementById('videoTitle');
+    var videoDesc = document.getElementById('videoDesc');
+    if (videoTitle) videoTitle.textContent = title || '';
+    if (videoDesc) videoDesc.textContent = '📚 Source : Internet Archive — Domaine public';
     wrap.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
   
   if (typeof gainXP === 'function') gainXP(5);
   if (typeof showNotif === 'function') showNotif('🎬 ' + (title || '').substring(0, 28) + '…');
-  if (typeof launchCinemaQuiz === 'function') setTimeout(function() { launchCinemaQuiz(id, title); }, 8000);
+  setTimeout(function() { launchCinemaQuiz(id, title); }, 8000);
 }
 
 // Fermer le lecteur
@@ -417,6 +480,11 @@ function closeCinemaPlayer() {
 
 // Mode surprise
 function launchSurpriseMode() {
+  if (typeof window.S === 'undefined') {
+    if (typeof showNotif === 'function') showNotif('Chargement en cours...');
+    return;
+  }
+  
   var lang = S.targetLang;
   var level = S.level || 1;
   var videos = getCinemaVideosByLevel(lang, level);
@@ -464,11 +532,16 @@ function closeSurpriseMode() {
   if (el) el.remove();
 }
 
-// Quiz (à garder tel quel)
+// Quiz
 async function launchCinemaQuiz(videoId, videoTitle) {
-  var cached = (typeof getQuizFromCache === 'function') ? getQuizFromCache(videoId) : null;
+  var cached = getQuizFromCache(videoId);
   if (cached && cached.length) {
     showCinemaQuizUI(cached, videoTitle);
+    return;
+  }
+  
+  if (typeof window.S === 'undefined') {
+    if (typeof showNotif === 'function') showNotif('Quiz indisponible.');
     return;
   }
   
@@ -499,7 +572,7 @@ async function launchCinemaQuiz(videoId, videoTitle) {
     var quiz = JSON.parse(raw);
     if (!Array.isArray(quiz) || !quiz.length) throw new Error('Quiz vide');
     var questions = quiz.slice(0, 3);
-    if (typeof setQuizInCache === 'function') setQuizInCache(videoId, questions);
+    setQuizInCache(videoId, questions);
     showCinemaQuizUI(questions, videoTitle);
   } catch (e) {
     console.error('Quiz error:', e);
@@ -533,12 +606,14 @@ function showCinemaQuizUI(questions, videoTitle) {
   window._quizAnswer = function(i) {
     var q = questions[current];
     var btns = overlay.querySelectorAll('button');
-    btns[i].style.background = 'rgba(224,64,251,0.15)';
-    btns[i].style.borderColor = i === q.ans ? '#4ecf70' : '#e05555';
-    btns[q.ans].style.background = 'rgba(78,207,112,0.2)';
-    btns[q.ans].style.borderColor = '#4ecf70';
+    if (btns[i]) btns[i].style.background = 'rgba(224,64,251,0.15)';
+    if (btns[i]) btns[i].style.borderColor = i === q.ans ? '#4ecf70' : '#e05555';
+    if (btns[q.ans]) {
+      btns[q.ans].style.background = 'rgba(78,207,112,0.2)';
+      btns[q.ans].style.borderColor = '#4ecf70';
+    }
     if (i === q.ans) score++;
-    Array.from(btns).forEach(function(b) { b.disabled = true; });
+    Array.from(btns).forEach(function(b) { if (b) b.disabled = true; });
     setTimeout(function() {
       current++;
       overlay.remove();
@@ -565,5 +640,34 @@ function showQuizResult(score, total) {
   document.body.appendChild(el);
   if (typeof gainXP === 'function') gainXP(xp);
   if (score === total && typeof launchConfetti === 'function') launchConfetti();
-  setTimeout(function() { el.remove(); }, 5000);
-     }
+  setTimeout(function() { if (el && el.remove) el.remove(); }, 5000);
+}
+
+// =================================================================
+// INITIALISATION
+// =================================================================
+// S'assurer que S_quizCache existe
+if (typeof window.S_quizCache === 'undefined') {
+  window.S_quizCache = {};
+}
+
+// Exposer les fonctions globalement
+window.CINEMA_CATS = CINEMA_CATS;
+window.CINEMA_VIDEOS = CINEMA_VIDEOS;
+window.getCinemaCats = getCinemaCats;
+window.getCinemaVideos = getCinemaVideos;
+window.getAllCinemaVideos = getAllCinemaVideos;
+window.getCinemaVideosByLevel = getCinemaVideosByLevel;
+window.openCinema = openCinema;
+window.loadCinemaCategory = loadCinemaCategory;
+window.buildVideoGrid = buildVideoGrid;
+window.openArchiveVideo = openArchiveVideo;
+window.closeCinemaPlayer = closeCinemaPlayer;
+window.launchSurpriseMode = launchSurpriseMode;
+window.nextSurpriseVideo = nextSurpriseVideo;
+window.closeSurpriseMode = closeSurpriseMode;
+window.launchCinemaQuiz = launchCinemaQuiz;
+window.getQuizFromCache = getQuizFromCache;
+window.setQuizInCache = setQuizInCache;
+
+console.log("cinema.js: ✅ Chargé - " + Object.keys(CINEMA_VIDEOS).length + " langues disponibles");
