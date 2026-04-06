@@ -7,7 +7,7 @@
 
 // Reprise sauvegarde — exécuté après le bloc principal (IIFE ligne 1359)
 
-const API = 'https://linguavillage-api--marckensbou2.replit.app';
+var API = 'https://linguavillage-api--marckensbou2.replit.app';
 
 // =================================================================
 // UI TRANSLATIONS
