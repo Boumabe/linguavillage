@@ -3835,16 +3835,16 @@ function openLoc(loc) {
     const hint = LOC_DESC[loc.id]?.[S.nativeLang] || '';
 
     // Utilisation impérative des backticks pour que le HTML soit une chaîne de caractères
-          return `
-    <div class="npc-card" onclick="openDialogue('${loc.id}','${npc.id}')">
-      <div class="npc-av">${npc.emoji}</div>
-      <div class="npc-info">
-        <div class="npc-name">${npc.name}</div>
-        <div class="npc-role">${role}</div>
-        <div class="npc-hint">💬 ${hint}</div>
-      </div>
-      <span style="color:var(--dim);font-size:1.2rem">›</span>
-    </div>`;
+              return `
+      <div class="npc-card" onclick="openDialogue('${loc.id}','${npc.id}')">
+        <div class="npc-av">${npc.emoji}</div>
+        <div class="npc-info">
+          <div class="npc-name">${npc.name}</div>
+          <div class="npc-role">${role}</div>
+          <div class="npc-hint">💬 ${hint}</div>
+        </div>
+        <span style="color:var(--dim);font-size:1.2rem">›</span>
+      </div>`;
   }).join('');
 
   showScreen('screen-location');
@@ -4094,19 +4094,17 @@ function loadVocab(catKey) {
 }
 
 // 5. Gestionnaire de recherche (sécurisé pour éviter les erreurs si le champ n'existe pas encore)
-{
-  const vSearch = document.getElementById('vocabSearch');
-  if (vSearch) {
-    vSearch.oninput = () => {
-      const activeBtn = document.querySelector('.vcat.active');
-      if (activeBtn) {
-        const activeIdx = Array.from(document.querySelectorAll('.vcat')).indexOf(activeBtn);
-        const catKey = Object.keys(VOCAB)[activeIdx];
-        loadVocab(catKey);
-      }
-    };
-  }
+const vSearch = document.getElementById('vocabSearch');
+if (vSearch) { // Cette ligne vérifie si l'élément existe avant d'agir
+  vSearch.oninput = () => {
+    const activeBtn = document.querySelector('.vcat.active');
+    if (activeBtn) {
+      const activeIdx = Array.from(document.querySelectorAll('.vcat')).indexOf(activeBtn);
+      loadVocab(Object.keys(VOCAB)[activeIdx]);
+    }
+  };
 }
+
 
 // 6. Fonction de synthèse vocale
 function speakW(w) {
@@ -4692,6 +4690,8 @@ window.addEventListener('DOMContentLoaded', function() {
       t.classList.add('sel');
       S.nativeLang = t.dataset.native;
       try { applyUI(S.nativeLang); } catch(e) {}
+      document.getElementById('step2').style.display = 'block';
+
       // Affiche le champ prénom
       var s2 = document.getElementById('step2');
       if(s2){ s2.style.display='block'; s2.scrollIntoView({behavior:'smooth',block:'center'}); }
