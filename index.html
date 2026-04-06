@@ -284,15 +284,6 @@
     }
   }, 800);
 </script>
-
-<script>
-  // Forcer le chargement manuel de app.js
-  var script = document.createElement('script');
-  script.src = 'js/app.js';
-  script.onload = function() { console.log('app.js chargé manuellement'); };
-  script.onerror = function() { console.error('app.js INTROUVABLE'); };
-  document.head.appendChild(script);
-    </script>
   
 </body>
   </html>
