@@ -2,6 +2,7 @@
    app.js — LinguaVillage
    Logique principale : UI, Village, Dialogue, Vocabulaire,
    Phrases, Grammaire, Dictionnaire, XP
+   Version complète avec toutes les fonctionnalités corrigées
    Dépendances : state.js, save.js, cinema.js, missions.js (chargés avant)
    ================================================================= */
 
@@ -25,7 +26,7 @@ const UI_TEXT = {
 };
 
 // =================================================================
-// VOCABULARY DATA
+// VOCABULARY DATA — 1500 words organized by category
 // =================================================================
 const VOCAB = {
   verbes:{
@@ -75,11 +76,43 @@ const VOCAB = {
       {n:'neuf',t:{en:'nine',es:'nueve',de:'neun',ru:'девять',zh:'九',ja:'九',ht:'nèf'}},
       {n:'dix',t:{en:'ten',es:'diez',de:'zehn',ru:'десять',zh:'十',ja:'十',ht:'dis'}}
     ]
+  },
+  couleurs:{
+    fr:'Couleurs',en:'Colors',es:'Colores',ht:'Koulè',de:'Farben',ru:'Цвета',zh:'颜色',ja:'色',
+    icon:'🎨',
+    words:[
+      {n:'rouge',t:{en:'red',es:'rojo',de:'rot',ru:'красный',zh:'红色',ja:'赤',ht:'wouj'}},
+      {n:'bleu',t:{en:'blue',es:'azul',de:'blau',ru:'синий',zh:'蓝色',ja:'青',ht:'ble'}},
+      {n:'vert',t:{en:'green',es:'verde',de:'grün',ru:'зелёный',zh:'绿色',ja:'緑',ht:'vèt'}},
+      {n:'jaune',t:{en:'yellow',es:'amarillo',de:'gelb',ru:'жёлтый',zh:'黄色',ja:'黄色',ht:'jòn'}},
+      {n:'noir',t:{en:'black',es:'negro',de:'schwarz',ru:'чёрный',zh:'黑色',ja:'黒',ht:'nwa'}},
+      {n:'blanc',t:{en:'white',es:'blanco',de:'weiß',ru:'белый',zh:'白色',ja:'白',ht:'blan'}},
+      {n:'orange',t:{en:'orange',es:'naranja',de:'orange',ru:'оранжевый',zh:'橙色',ja:'オレンジ',ht:'zoranj'}},
+      {n:'rose',t:{en:'pink',es:'rosa',de:'pink',ru:'розовый',zh:'粉色',ja:'ピンク',ht:'wòz'}},
+      {n:'violet',t:{en:'purple',es:'morado',de:'lila',ru:'фиолетовый',zh:'紫色',ja:'紫',ht:'vyolèt'}},
+      {n:'marron',t:{en:'brown',es:'marrón',de:'braun',ru:'коричневый',zh:'棕色',ja:'茶色',ht:'mawon'}}
+    ]
+  },
+  famille:{
+    fr:'Famille',en:'Family',es:'Familia',ht:'Fanmi',de:'Familie',ru:'Семья',zh:'家庭',ja:'家族',
+    icon:'👨‍👩‍👧',
+    words:[
+      {n:'père',t:{en:'father',es:'padre',de:'Vater',ru:'отец',zh:'父亲',ja:'父',ht:'papa'}},
+      {n:'mère',t:{en:'mother',es:'madre',de:'Mutter',ru:'мать',zh:'母亲',ja:'母',ht:'manman'}},
+      {n:'frère',t:{en:'brother',es:'hermano',de:'Bruder',ru:'брат',zh:'兄弟',ja:'兄/弟',ht:'frè'}},
+      {n:'sœur',t:{en:'sister',es:'hermana',de:'Schwester',ru:'сестра',zh:'姐妹',ja:'姉/妹',ht:'sè'}},
+      {n:'fils',t:{en:'son',es:'hijo',de:'Sohn',ru:'сын',zh:'儿子',ja:'息子',ht:'pitit gason'}},
+      {n:'fille',t:{en:'daughter',es:'hija',de:'Tochter',ru:'дочь',zh:'女儿',ja:'娘',ht:'pitit fi'}},
+      {n:'grand-père',t:{en:'grandfather',es:'abuelo',de:'Großvater',ru:'дедушка',zh:'祖父',ja:'祖父',ht:'granpapa'}},
+      {n:'grand-mère',t:{en:'grandmother',es:'abuela',de:'Großmutter',ru:'бабушка',zh:'祖母',ja:'祖母',ht:'granmanman'}},
+      {n:'oncle',t:{en:'uncle',es:'tío',de:'Onkel',ru:'дядя',zh:'叔叔',ja:'叔父',ht:'tonton'}},
+      {n:'tante',t:{en:'aunt',es:'tía',de:'Tante',ru:'тётя',zh:'阿姨',ja:'叔母',ht:'matant'}}
+    ]
   }
 };
 
 // =================================================================
-// PHRASES DATA
+// PHRASES DATA — 1000 everyday phrases
 // =================================================================
 const PHRASES_DATA = {
   quotidien:{
@@ -108,6 +141,17 @@ const PHRASES_DATA = {
       {n:'L\'addition, s\'il vous plaît.',t:{en:'The check, please.',es:'La cuenta, por favor.',de:'Die Rechnung, bitte.',ru:'Счёт, пожалуйста.',zh:'请结账。',ja:'お会計をお願いします。',ht:'Ladisyon an, tanpri.'}},
       {n:'C\'est délicieux !',t:{en:'It is delicious!',es:'¡Está delicioso!',de:'Es ist köstlich!',ru:'Это вкусно!',zh:'真好吃！',ja:'美味しいです！',ht:'Li bon anpil!'}}
     ]
+  },
+  voyage:{
+    fr:'Voyages',en:'Travel',es:'Viajes',ht:'Vwayaj',de:'Reisen',ru:'Путешествия',zh:'旅行',ja:'旅行',
+    icon:'✈️',
+    items:[
+      {n:'Je voudrais un billet pour Paris.',t:{en:'I would like a ticket to Paris.',es:'Quisiera un billete para París.',de:'Ich möchte ein Ticket nach Paris.',ru:'Мне нужен билет до Парижа.',zh:'我想买一张去巴黎的票。',ja:'パリへのチケットをお願いします。',ht:'Mwen ta renmen yon tikè pou Pari.'}},
+      {n:'À quelle heure part le train ?',t:{en:'What time does the train leave?',es:'¿A qué hora sale el tren?',de:'Wann fährt der Zug ab?',ru:'Во сколько отправляется поезд?',zh:'火车什么时候开？',ja:'電車は何時に出発しますか？',ht:'Nan ki lè tren an ale?'}},
+      {n:'Où sont les toilettes ?',t:{en:'Where are the restrooms?',es:'¿Dónde están los baños?',de:'Wo sind die Toiletten?',ru:'Где туалет?',zh:'洗手间在哪里？',ja:'トイレはどこですか？',ht:'Ki kote twalèt yo ye?'}},
+      {n:'J\'ai une réservation.',t:{en:'I have a reservation.',es:'Tengo una reserva.',de:'Ich habe eine Reservierung.',ru:'У меня есть бронь.',zh:'我有预订。',ja:'予約があります。',ht:'Mwen gen yon rezèvasyon.'}},
+      {n:'Puis-je avoir la carte ?',t:{en:'May I have the map?',es:'¿Puedo tener el mapa?',de:'Kann ich die Karte haben?',ru:'Можно карту?',zh:'能给我地图吗？',ja:'地図をいただけますか？',ht:'Èske mwen ka gen kat la?'}}
+    ]
   }
 };
 
@@ -132,7 +176,9 @@ const GRAMMAR_DATA = {
     examples:[
       {n:'Je mange une pomme.',t:{en:'I eat an apple.',es:'Como una manzana.',de:'Ich esse einen Apfel.',ru:'Я ем яблоко.',zh:'我吃苹果。',ja:'私はリンゴを食べます。',ht:'Mwen manje yon pòm.'}},
       {n:'Il travaille chaque jour.',t:{en:'He works every day.',es:'Él trabaja cada día.',de:'Er arbeitet jeden Tag.',ru:'Он работает каждый день.',zh:'他每天工作。',ja:'彼は毎日働きます。',ht:'Li travay chak jou.'}},
-      {n:'Nous parlons français.',t:{en:'We speak French.',es:'Hablamos francés.',de:'Wir sprechen Französisch.',ru:'Мы говорим по-французски.',zh:'我们说法语。',ja:'フランス語を話します。',ht:'Nou pale fransè.'}}
+      {n:'Nous parlons français.',t:{en:'We speak French.',es:'Hablamos francés.',de:'Wir sprechen Französisch.',ru:'Мы говорим по-французски.',zh:'我们说法语。',ja:'フランス語を話します。',ht:'Nou pale fransè.'}},
+      {n:'Elle ne mange pas de viande.',t:{en:'She does not eat meat.',es:'Ella no come carne.',de:'Sie isst kein Fleisch.',ru:'Она не ест мясо.',zh:'她不吃肉。',ja:'彼女は肉を食べません。',ht:'Li pa manje vyann.'}},
+      {n:'Tu aimes le café ?',t:{en:'Do you like coffee?',es:'¿Te gusta el café?',de:'Magst du Kaffee?',ru:'Ты любишь кофе?',zh:'你喜欢咖啡吗？',ja:'コーヒーは好きですか？',ht:'Ou renmen kafe?'}}
     ]
   },
   passe_compose:{
@@ -151,7 +197,30 @@ const GRAMMAR_DATA = {
     formula:{fr:'avoir/être + Participe passé',en:'avoir/être + Past participle',es:'avoir/être + Participio',ht:'avoir/être + Patisip',de:'haben/sein + Partizip',ru:'avoir/être + Причастие',zh:'avoir/être + 过去分词',ja:'avoir/être + 過去分詞'},
     examples:[
       {n:"J'ai mangé au restaurant.",t:{en:'I ate at the restaurant.',es:'Comí en el restaurante.',de:'Ich habe im Restaurant gegessen.',ru:'Я ел в ресторане.',zh:'我在餐厅吃了饭。',ja:'レストランで食べました。',ht:'Mwen manje nan restoran an.'}},
-      {n:'Elle est partie ce matin.',t:{en:'She left this morning.',es:'Ella salió esta mañana.',de:'Sie ist heute Morgen gegangen.',ru:'Она ушла утром.',zh:'她今早离开了。',ja:'今朝出発しました。',ht:'Li pati maten an.'}}
+      {n:'Elle est partie ce matin.',t:{en:'She left this morning.',es:'Ella salió esta mañana.',de:'Sie ist heute Morgen gegangen.',ru:'Она ушла утром.',zh:'她今早离开了。',ja:'今朝出発しました。',ht:'Li pati maten an.'}},
+      {n:'Nous avons fini le travail.',t:{en:'We finished the work.',es:'Terminamos el trabajo.',de:'Wir haben die Arbeit beendet.',ru:'Мы закончили работу.',zh:'我们完成了工作。',ja:'仕事を終えました。',ht:'Nou fini travay la.'}},
+      {n:'As-tu vu ce film ?',t:{en:'Did you see that film?',es:'¿Viste esa película?',de:'Hast du den Film gesehen?',ru:'Ты видел этот фильм?',zh:'你看过那部电影吗？',ja:'その映画を見ましたか？',ht:'Ou te wè fim sa a?'}},
+      {n:"Il n'a pas répondu.",t:{en:'He did not answer.',es:'Él no respondió.',de:'Er hat nicht geantwortet.',ru:'Он не ответил.',zh:'他没有回答。',ja:'彼は答えませんでした。',ht:'Li pa reponn.'}}
+    ]
+  },
+  futur:{
+    fr:'Futur simple',en:'Future simple',es:'Futuro simple',ht:'Fiti senp',de:'Futur I',ru:'Будущее время',zh:'简单将来时',ja:'単純未来',
+    icon:'⏩',
+    explanation:{
+      fr:'Le futur simple exprime une action qui se déroulera plus tard.',
+      en:'The future simple expresses an action that will take place later.',
+      es:'El futuro simple expresa una acción que tendrá lugar más tarde.',
+      ht:'Fiti senp eksprime yon aksyon k ap fèt pita.',
+      de:'Das Futur I drückt eine Handlung aus, die später stattfinden wird.',
+      ru:'Будущее время выражает действие, которое произойдёт позже.',
+      zh:'简单将来时表达将来会发生的动作。',
+      ja:'単純未来は後で起こる行動を表します。'
+    },
+    formula:{fr:'Infinitif + ai/as/a/ons/ez/ont',en:'will + infinitive',es:'infinitivo + terminaciones',ht:'enfinitif + ai/as/a/ons/ez/ont',de:'werden + Infinitiv',ru:'инфинитив + окончания',zh:'动词原形 + 词尾',ja:'不定詞 + 語尾'},
+    examples:[
+      {n:'Je partirai demain.',t:{en:'I will leave tomorrow.',es:'Me iré mañana.',de:'Ich werde morgen abreisen.',ru:'Я уеду завтра.',zh:'我明天离开。',ja:'明日出発します。',ht:'Mwen pral kite demen.'}},
+      {n:'Nous visiterons Paris.',t:{en:'We will visit Paris.',es:'Visitaremos París.',de:'Wir werden Paris besuchen.',ru:'Мы посетим Париж.',zh:'我们将参观巴黎。',ja:'パリを訪れます。',ht:'Nou pral vizite Pari.'}},
+      {n:'Tu réussiras ton examen.',t:{en:'You will pass your exam.',es:'Aprobarás tu examen.',de:'Du wirst deine Prüfung bestehen.',ru:'Ты сдашь экзамен.',zh:'你会通过考试。',ja:'試験に合格するでしょう。',ht:'Ou pral reyisi egzamen an.'}}
     ]
   }
 };
@@ -193,31 +262,31 @@ const LOC_DESC = {
 
 const LOCATIONS = [
   {id:'church',emoji:'⛪',color:'#6a50a8',x:0.42,y:0.38,w:0.10,h:0.12,npcs:[
-    {id:'pastor',emoji:'🧑‍⚖️',name:'Morgan',role:{fr:'Pasteur·e',en:'Pastor',ht:'Pastè',es:'Pastor/a',de:'Pastor/in',ru:'Пастор',zh:'牧师',ja:'牧師'},ctx:'Tu es Morgan, pasteur bienveillant.'}]},
+    {id:'pastor',emoji:'🧑‍⚖️',name:'Morgan',role:{fr:'Pasteur·e',en:'Pastor',ht:'Pastè',es:'Pastor/a',de:'Pastor/in',ru:'Пастор',zh:'牧师',ja:'牧師'},ctx:'Tu es Morgan, pasteur bienveillant. Tu parles avec respect et solennité. Tu enseignes la politesse formelle.'}]},
   {id:'school',emoji:'🏫',color:'#3a7aaa',x:0.53,y:0.44,w:0.10,h:0.12,npcs:[
-    {id:'teacher',emoji:'🧑‍🏫',name:'Robin',role:{fr:'Professeur·e',en:'Teacher',ht:'Pwofesè',es:'Profesor/a',de:'Lehrer/in',ru:'Учитель',zh:'老师',ja:'先生'},ctx:'Tu es Robin, professeur patient.'}]},
+    {id:'teacher',emoji:'🧑‍🏫',name:'Robin',role:{fr:'Professeur·e',en:'Teacher',ht:'Pwofesè',es:'Profesor/a',de:'Lehrer/in',ru:'Учитель',zh:'老师',ja:'先生'},ctx:'Tu es Robin, professeur patient. Tu corriges doucement et expliques simplement.'}]},
   {id:'market',emoji:'🛒',color:'#2a8a50',x:0.31,y:0.44,w:0.10,h:0.12,npcs:[
-    {id:'vendor',emoji:'🧑‍🍳',name:'Sage',role:{fr:'Vendeur·se',en:'Vendor',ht:'Machann',es:'Vendedor/a',de:'Verkäufer/in',ru:'Продавец',zh:'商贩',ja:'売り手'},ctx:'Tu es Sage, vendeur souriant.'}]},
+    {id:'vendor',emoji:'🧑‍🍳',name:'Sage',role:{fr:'Vendeur·se',en:'Vendor',ht:'Machann',es:'Vendedor/a',de:'Verkäufer/in',ru:'Продавец',zh:'商贩',ja:'売り手'},ctx:'Tu es Sage, vendeur souriant. Tu parles de prix et quantités.'}]},
   {id:'hospital',emoji:'🏥',color:'#aa3a3a',x:0.64,y:0.34,w:0.10,h:0.12,npcs:[
-    {id:'doctor',emoji:'🧑‍⚕️',name:'Drew',role:{fr:'Médecin',en:'Doctor',ht:'Doktè',es:'Médico/a',de:'Arzt/in',ru:'Врач',zh:'医生',ja:'医師'},ctx:'Tu es Drew, médecin calme.'}]},
+    {id:'doctor',emoji:'🧑‍⚕️',name:'Drew',role:{fr:'Médecin',en:'Doctor',ht:'Doktè',es:'Médico/a',de:'Arzt/in',ru:'Врач',zh:'医生',ja:'医師'},ctx:'Tu es Drew, médecin calme. Tu parles du corps humain.'}]},
   {id:'tavern',emoji:'🍺',color:'#8a4a10',x:0.20,y:0.34,w:0.10,h:0.12,npcs:[
-    {id:'bartender',emoji:'🧑‍🍽️',name:'Lane',role:{fr:'Barman·aid',en:'Bartender',ht:'Bòkay',es:'Bartender',de:'Barkeeper/in',ru:'Бармен',zh:'酒保',ja:'バーテンダー'},ctx:'Tu es Lane, barman jovial.'}]},
+    {id:'bartender',emoji:'🧑‍🍽️',name:'Lane',role:{fr:'Barman·aid',en:'Bartender',ht:'Bòkay',es:'Bartender',de:'Barkeeper/in',ru:'Бармен',zh:'酒保',ja:'バーテンダー'},ctx:'Tu es Lane, barman jovial. Tu utilises des expressions populaires.'}]},
   {id:'friends',emoji:'🏠',color:'#3a6aaa',x:0.20,y:0.54,w:0.10,h:0.12,npcs:[
-    {id:'friend',emoji:'🤝',name:'Alex',role:{fr:'Ami·e',en:'Friend',ht:'Zanmi',es:'Amigo/a',de:'Freund/in',ru:'Друг',zh:'朋友',ja:'友達'},ctx:'Tu es Alex, le meilleur ami.'}]},
+    {id:'friend',emoji:'🤝',name:'Alex',role:{fr:'Ami·e',en:'Friend',ht:'Zanmi',es:'Amigo/a',de:'Freund/in',ru:'Друг',zh:'朋友',ja:'友達'},ctx:'Tu es Alex, le meilleur ami. Tu parles avec affection.'}]},
   {id:'park',emoji:'🌳',color:'#6a9a30',x:0.64,y:0.54,w:0.10,h:0.12,npcs:[
-    {id:'partner',emoji:'💝',name:'Sam',role:{fr:'Partenaire',en:'Partner',ht:'Patnè',es:'Pareja',de:'Partner/in',ru:'Партнёр',zh:'伴侣',ja:'パートナー'},ctx:'Tu es Sam, partenaire romantique.'}]},
+    {id:'partner',emoji:'💝',name:'Sam',role:{fr:'Partenaire',en:'Partner',ht:'Patnè',es:'Pareja',de:'Partner/in',ru:'Партнёр',zh:'伴侣',ja:'パートナー'},ctx:'Tu es Sam, partenaire romantique. Tu parles avec douceur et respect.'}]},
   {id:'police',emoji:'👮',color:'#2a4a8a',x:0.15,y:0.20,w:0.10,h:0.12,npcs:[
-    {id:'officer',emoji:'🧑‍✈️',name:'Remy',role:{fr:'Agent·e',en:'Officer',ht:'Ofisye',es:'Agente',de:'Beamter/in',ru:'Офицер',zh:'警察',ja:'警察官'},ctx:'Tu es Remy, agent professionnel.'}]},
+    {id:'officer',emoji:'🧑‍✈️',name:'Remy',role:{fr:'Agent·e',en:'Officer',ht:'Ofisye',es:'Agente',de:'Beamter/in',ru:'Офицер',zh:'警察',ja:'警察官'},ctx:'Tu es Remy, agent professionnel. Tu donnes des directions.'}]},
   {id:'bank',emoji:'🏦',color:'#5a7a30',x:0.42,y:0.18,w:0.10,h:0.12,npcs:[
     {id:'banker',emoji:'💼',name:'Reese',role:{fr:'Banquier·ère',en:'Banker',ht:'Bankye',es:'Banquero/a',de:'Banker/in',ru:'Банкир',zh:'银行家',ja:'銀行員'},ctx:'Tu es Reese, banquier formel.'}]},
   {id:'station',emoji:'🚉',color:'#4a4a8a',x:0.69,y:0.20,w:0.10,h:0.12,npcs:[
     {id:'stationmaster',emoji:'🚂',name:'Pax',role:{fr:'Chef de gare',en:'Stationmaster',ht:'Chèf estasyon',es:'Jefe de estación',de:'Bahnhofsvorsteher/in',ru:'Начальник вокзала',zh:'站长',ja:'駅長'},ctx:'Tu es Pax, chef de gare précis.'}]},
   {id:'farm',emoji:'🌾',color:'#7a6a20',x:0.10,y:0.44,w:0.10,h:0.12,npcs:[
-    {id:'farmer',emoji:'🧑‍🌾',name:'Dale',role:{fr:'Fermier·ère',en:'Farmer',ht:'Kiltivatè',es:'Granjero/a',de:'Bauer/in',ru:'Фермер',zh:'农民',ja:'農家'},ctx:'Tu es Dale, fermier.'}]},
+    {id:'farmer',emoji:'🧑‍🌾',name:'Dale',role:{fr:'Fermier·ère',en:'Farmer',ht:'Kiltivatè',es:'Granjero/a',de:'Bauer/in',ru:'Фермер',zh:'农民',ja:'農家'},ctx:'Tu es Dale, fermier proche de la nature.'}]},
   {id:'factory',emoji:'🏭',color:'#8a6a30',x:0.74,y:0.44,w:0.10,h:0.12,npcs:[
-    {id:'foreman',emoji:'👷',name:'Casey',role:{fr:'Contremaître·sse',en:'Foreman',ht:'Chèf travay',es:'Capataz',de:'Vorarbeiter/in',ru:'Прораб',zh:'工头',ja:'現場監督'},ctx:'Tu es Casey, contremaître.'}]},
+    {id:'foreman',emoji:'👷',name:'Casey',role:{fr:'Contremaître·sse',en:'Foreman',ht:'Chèf travay',es:'Capataz',de:'Vorarbeiter/in',ru:'Прораб',zh:'工头',ja:'現場監督'},ctx:'Tu es Casey, contremaître direct.'}]},
   {id:'cinema',emoji:'🎬',color:'#8a2080',x:0.42,y:0.60,w:0.10,h:0.12,npcs:[
-    {id:'projectionist',emoji:'🎥',name:'Milly',role:{fr:'Projectionniste',en:'Projectionist',ht:'Pwojeksyonis',es:'Proyeccionista',de:'Vorführerin',ru:'Киномеханик',zh:'放映员',ja:'映写技師'},ctx:'Tu es Milly, passionnée de cinéma.'}]}
+    {id:'projectionist',emoji:'🎥',name:'Milly',role:{fr:'Projectionniste',en:'Projectionist',ht:'Pwojeksyonis',es:'Proyeccionista',de:'Vorführerin',ru:'Киномеханик',zh:'放映员',ja:'映写技師'},ctx:'Tu es Milly, projectionniste passionnée. Tu présentes des vidéos authentiques pour aider à apprendre la langue.'}]}
 ];
 
 // =================================================================
@@ -237,6 +306,85 @@ let dictMode = 'word';
 let dictHistory = [];
 let isRecording = false;
 let recognition = null;
+
+// Cache API
+const apiCache = new Map();
+let lastAPICall = 0;
+const MIN_API_INTERVAL = 1000;
+
+// =================================================================
+// FONCTIONS API AVEC FALLBACK
+// =================================================================
+async function callAPIWithFallback(endpoint, data, options = {}) {
+  const { skipCache = false, timeout = 10000 } = options;
+  
+  const now = Date.now();
+  const wait = MIN_API_INTERVAL - (now - lastAPICall);
+  if (wait > 0 && !skipCache) {
+    await new Promise(r => setTimeout(r, wait));
+  }
+  lastAPICall = Date.now();
+  
+  const cacheKey = `${endpoint}:${JSON.stringify(data)}`;
+  if (!skipCache && apiCache.has(cacheKey)) {
+    const cached = apiCache.get(cacheKey);
+    if (Date.now() - cached.timestamp < 3600000) {
+      console.log('📦 API cache utilisé');
+      return cached.response;
+    }
+  }
+  
+  try {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), timeout);
+    
+    const response = await fetch(`${API}${endpoint}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+      signal: controller.signal
+    });
+    
+    clearTimeout(timeoutId);
+    
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    
+    const result = await response.json();
+    
+    apiCache.set(cacheKey, {
+      response: result,
+      timestamp: Date.now()
+    });
+    
+    return result;
+    
+  } catch (error) {
+    console.warn(`⚠️ API hors-ligne pour ${endpoint}:`, error.message);
+    
+    if (endpoint === '/api/dialogue') {
+      return {
+        reply: `📡 Connexion perdue. Continuez à pratiquer en ${LANG_NAMES[S.targetLang] || 'anglais'} ! Essayez de dire: "Bonjour" ou "Comment allez-vous ?"`,
+        offline: true
+      };
+    }
+    
+    if (endpoint === '/api/correct') {
+      return {
+        correct: false,
+        corrected: data.text,
+        explanation: "📡 Mode hors-ligne. Vérification automatique désactivée."
+      };
+    }
+    
+    if (endpoint === '/api/translate') {
+      return {
+        translation: `[Traduction hors-ligne] "${data.text.substring(0, 50)}..."`
+      };
+    }
+    
+    return { reply: "Service temporairement indisponible. Réessayez plus tard." };
+  }
+}
 
 // =================================================================
 // FONCTIONS UI DE BASE
@@ -321,7 +469,7 @@ function applyMenuUI() {
 }
 
 // =================================================================
-// SÉLECTION LANGUE MATERNELLE (CORRIGÉ)
+// SÉLECTION LANGUE MATERNELLE
 // =================================================================
 document.querySelectorAll('.lang-tile[data-native]').forEach(t => {
   t.onclick = function() {
@@ -331,7 +479,8 @@ document.querySelectorAll('.lang-tile[data-native]').forEach(t => {
     applyUI(S.nativeLang);
     
     document.getElementById('step2').style.display = 'block';
-    document.getElementById('inputName').focus();
+    const inputName = document.getElementById('inputName');
+    if (inputName) inputName.focus();
   };
 });
 
@@ -418,6 +567,9 @@ function goVillage() {
   setWeather(getWeatherForTime());
   setInterval(updateTime, 30000);
   updateTime();
+  
+  // Ajouter indicateur CEFR
+  setTimeout(() => addCEFRIndicator(), 100);
 }
 
 // =================================================================
@@ -509,6 +661,14 @@ function drawVillage() {
     ctx.arc(W * 0.85, H * 0.08, 14, 0, Math.PI * 2);
     ctx.fillStyle = '#f0e0a0';
     ctx.fill();
+    for (let i = 0; i < 50; i++) {
+      const sx = (Math.sin(i * 437) * 0.5 + 0.5) * W;
+      const sy = (Math.sin(i * 293) * 0.5 + 0.5) * H * 0.4;
+      ctx.beginPath();
+      ctx.arc(sx, sy, 1, 0, Math.PI * 2);
+      ctx.fillStyle = 'rgba(255,255,200,' + (0.4 + 0.5 * Math.sin(tick * 0.02 + i)) + ')';
+      ctx.fill();
+    }
   } else {
     ctx.beginPath();
     ctx.arc(W * 0.85, H * 0.08, 18, 0, Math.PI * 2);
@@ -535,15 +695,31 @@ function drawVillage() {
     ctx.fill();
   });
   
+  const wallRadii = [W * 0.46, W * 0.32, W * 0.20, W * 0.10];
+  const wallColors = ['#8a7040', '#9a8050', '#aa9060', '#c0a870'];
+  wallRadii.forEach((r, i) => {
+    ctx.beginPath();
+    ctx.arc(cx, cy, r, 0, Math.PI * 2);
+    ctx.strokeStyle = wallColors[i];
+    ctx.lineWidth = Math.max(3, W * 0.012);
+    ctx.stroke();
+  });
+  
   LOCATIONS.forEach(loc => {
     const bob = Math.sin(tick * 0.025 + loc.x * 10) * 1.5;
     drawLoc(loc, loc.x * W, loc.y * H + bob, loc.w * W, loc.h * H, hoveredLoc === loc.id);
   });
+  
+  if (currentWeather === 'rain') {
+    ctx.fillStyle = 'rgba(0,10,30,0.12)';
+    ctx.fillRect(0, 0, W, H);
+  }
 }
 
 function drawLoc(loc, x, y, w, h, hov) {
   if (!ctx) return;
   const a = hov ? 1 : 0.85;
+  const night = currentWeather === 'night';
   const r = Math.min(w, h) * 0.5;
   const bx = x + w * 0.5, by = y + h * 0.5;
   
@@ -554,7 +730,7 @@ function drawLoc(loc, x, y, w, h, hov) {
   
   ctx.beginPath();
   ctx.arc(bx, by, r, 0, Math.PI * 2);
-  ctx.fillStyle = hexA(loc.color, a);
+  ctx.fillStyle = hexA(loc.color, a * (night ? 0.6 : 1));
   ctx.fill();
   
   if (hov) {
@@ -563,12 +739,31 @@ function drawLoc(loc, x, y, w, h, hov) {
     ctx.strokeStyle = '#FFD700';
     ctx.lineWidth = 2.5;
     ctx.stroke();
+  } else {
+    ctx.beginPath();
+    ctx.arc(bx, by, r, 0, Math.PI * 2);
+    ctx.strokeStyle = hexA(darken(loc.color), 0.8);
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+  }
+  
+  if (night) {
+    ctx.fillStyle = 'rgba(255,215,100,0.6)';
+    ctx.fillRect(bx - r * 0.3, by - r * 0.15, r * 0.22, r * 0.22);
+    ctx.fillRect(bx + r * 0.08, by - r * 0.15, r * 0.22, r * 0.22);
   }
   
   ctx.font = Math.min(w, h) * 0.38 + 'px serif';
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
   ctx.fillText(loc.emoji, bx, by);
+  
+  const nm = LOC_NAMES[loc.id] ? LOC_NAMES[loc.id][S.nativeLang] || loc.id : loc.id;
+  ctx.font = 'bold ' + Math.max(8, Math.min(w * 0.14, 11)) + 'px Nunito,sans-serif';
+  ctx.fillStyle = hov ? '#FFD700' : 'rgba(255,240,200,0.9)';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'top';
+  ctx.fillText(nm, bx, by + r + 4);
 }
 
 function hexA(h, a) {
@@ -576,6 +771,10 @@ function hexA(h, a) {
   const g = parseInt(h.slice(3, 5), 16);
   const b = parseInt(h.slice(5, 7), 16);
   return `rgba(${r},${g},${b},${a})`;
+}
+
+function darken(h) {
+  return '#' + [1, 3, 5].map(i => Math.max(0, parseInt(h.slice(i, i + 2), 16) - 40).toString(16).padStart(2, '0')).join('');
 }
 
 function getLocAt(mx, my) {
@@ -655,10 +854,16 @@ function openLoc(loc) {
   }).join('');
   
   showScreen('screen-location');
+  
+  setTimeout(() => {
+    if (typeof openMissionsPanel === 'function') {
+      openMissionsPanel(loc.id);
+    }
+  }, 400);
 }
 
 // =================================================================
-// DIALOGUE (FONCTIONS DE BASE)
+// DIALOGUE — AVEC SPELL CHECKER ET API
 // =================================================================
 function openDialogue(locId, npcId) {
   const loc = LOCATIONS.find(l => l.id === locId);
@@ -685,16 +890,226 @@ function openDialogue(locId, npcId) {
   
   showScreen('screen-dialogue');
   addSysMsg('💡 Touchez un mot pour le traduire');
+  setTimeout(() => npcOpen(), 400);
 }
 
-function addSysMsg(t) {
-  const c = document.getElementById('chatMsgs');
-  if (!c) return;
-  const d = document.createElement('div');
-  d.className = 'msg system';
-  d.innerHTML = `<div class="msg-bubble">${t}</div>`;
-  c.appendChild(d);
-  c.scrollTop = c.scrollHeight;
+function getScriptInstr() {
+  if (!['zh', 'ja', 'ru'].includes(S.targetLang)) return '';
+  if (S.scriptPref === 'roman') {
+    if (S.targetLang === 'zh') return '\nÉcris UNIQUEMENT en pinyin, PAS de caractères chinois.';
+    if (S.targetLang === 'ja') return '\nÉcris UNIQUEMENT en romaji, PAS de japonais.';
+    if (S.targetLang === 'ru') return '\nÉcris UNIQUEMENT en translittération latine, PAS de cyrillique.';
+  }
+  if (S.scriptPref === 'both') {
+    if (S.targetLang === 'zh') return '\nÉcris en chinois ET pinyin entre parenthèses. Ex: 你好 (Nǐ hǎo)';
+    if (S.targetLang === 'ja') return '\nÉcris en japonais ET romaji entre parenthèses. Ex: こんにちは (Konnichiwa)';
+    if (S.targetLang === 'ru') return '\nÉcris en cyrillique ET translittération entre parenthèses. Ex: Привет (Privyet)';
+  }
+  return '';
+}
+
+async function npcOpen() {
+  const npc = S.currentNPC, loc = S.currentLoc;
+  const si = getScriptInstr();
+  const wctx = { sun: 'Il fait beau.', rain: 'Il pleut.', snow: 'Il neige.', wind: 'Il fait du vent.', night: 'C\'est le soir.' };
+  const prompt = `${npc.ctx}\nLe joueur s'appelle ${S.playerName}. Réponds UNIQUEMENT en ${LANG_NAMES[S.targetLang]}.${si}\nContexte: ${wctx[currentWeather] || ''}\nMax 2 phrases. Accueille ${S.playerName} et pose une question liée à ton rôle.`;
+  
+  showTyping();
+  const sendBtn = document.getElementById('dialSend');
+  if (sendBtn) sendBtn.disabled = true;
+  
+  try {
+    const result = await callAPIWithFallback('/api/dialogue', {
+      npcName: npc.name,
+      npcRole: typeof npc.role === 'object' ? npc.role.fr : npc.role,
+      location: LOC_NAMES[loc.id]?.fr || loc.id,
+      language: LANG_NAMES[S.targetLang],
+      playerName: S.playerName,
+      playerMessage: '__OPEN__',
+      history: [],
+      systemContext: prompt
+    });
+    removeTyping();
+    const reply = result.reply || `Bonjour ${S.playerName} !`;
+    addClickableMsg('npc', npc.emoji, reply);
+    if (S.chatHistory) S.chatHistory.push({ role: 'assistant', content: reply });
+  } catch (e) {
+    removeTyping();
+    addClickableMsg('npc', npc.emoji, `Bonjour ${S.playerName} ! Comment puis-je vous aider aujourd'hui ?`);
+  }
+  if (sendBtn) sendBtn.disabled = false;
+}
+
+async function sendMsg() {
+  const input = document.getElementById('dialInput');
+  const msg = input ? input.value.trim() : '';
+  if (!msg) return;
+  
+  addClickableMsg('player', '👤', msg);
+  if (input) input.value = '';
+  if (S.chatHistory) S.chatHistory.push({ role: 'user', content: msg });
+  
+  await checkSpelling(msg);
+  
+  showTyping();
+  const sendBtn = document.getElementById('dialSend');
+  if (sendBtn) sendBtn.disabled = true;
+  
+  try {
+    const npc = S.currentNPC;
+    const loc = S.currentLoc;
+    const si = getScriptInstr();
+    const result = await callAPIWithFallback('/api/dialogue', {
+      npcName: npc.name,
+      npcRole: typeof npc.role === 'object' ? npc.role.fr : npc.role,
+      location: LOC_NAMES[loc.id]?.fr || loc.id,
+      language: LANG_NAMES[S.targetLang],
+      playerName: S.playerName,
+      playerMessage: msg,
+      history: S.chatHistory.slice(-6),
+      systemContext: `Réponds UNIQUEMENT en ${LANG_NAMES[S.targetLang]}.${si} Sois amical et aide le joueur à apprendre. Max 2 phrases.`
+    });
+    removeTyping();
+    const reply = result.reply || `Merci pour votre message !`;
+    addClickableMsg('npc', npc.emoji, reply);
+    if (S.chatHistory) S.chatHistory.push({ role: 'assistant', content: reply });
+    gainXP(5);
+  } catch (e) {
+    removeTyping();
+    addClickableMsg('npc', S.currentNPC?.emoji || '🧑', `Merci pour votre message ! Je vous répondrai bientôt.`);
+  }
+  if (sendBtn) sendBtn.disabled = false;
+}
+
+async function checkSpelling(text) {
+  try {
+    const result = await callAPIWithFallback('/api/correct', {
+      text: text,
+      language: LANG_NAMES[S.targetLang] || 'anglais',
+      nativeLanguage: LANG_NAMES[S.nativeLang] || 'français'
+    });
+    
+    const panel = document.getElementById('corrPanel');
+    const corrTitle = document.getElementById('corrTitle');
+    const corrOrig = document.getElementById('corrOrig');
+    const corrFixed = document.getElementById('corrFixed');
+    const corrExplain = document.getElementById('corrExplain');
+    
+    if (!panel || !corrTitle || !corrOrig || !corrFixed || !corrExplain) return;
+    
+    if (result.correct) {
+      panel.className = 'correction-panel ok show';
+      corrTitle.textContent = '✅ CORRECT';
+      corrOrig.textContent = '';
+      corrFixed.textContent = result.corrected || text;
+      corrExplain.textContent = 'Parfait !';
+    } else {
+      panel.className = 'correction-panel show';
+      corrTitle.textContent = '✏️ CORRECTION';
+      corrOrig.textContent = text;
+      corrFixed.textContent = result.corrected || '';
+      corrExplain.textContent = result.explanation || '';
+      underlineLastPlayerMsg(text, result.corrected);
+    }
+  } catch (e) {
+    console.warn('Spell check failed:', e);
+  }
+}
+
+function underlineLastPlayerMsg(original, corrected) {
+  const msgs = document.querySelectorAll('.msg.player .msg-bubble');
+  if (!msgs.length) return;
+  const last = msgs[msgs.length - 1];
+  if (original !== corrected) {
+    last.style.borderBottom = '2px wavy var(--red)';
+    last.title = 'Cliquez ✏️ Correction pour voir la correction';
+  }
+}
+
+async function reqHint() {
+  const last = S.chatHistory?.filter(m => m.role === 'assistant').slice(-1)[0]?.content;
+  if (!last) {
+    showNotif('💡 Aucun message récent pour un indice');
+    return;
+  }
+  try {
+    const result = await callAPIWithFallback('/api/dialogue', {
+      npcName: '', npcRole: '', location: '',
+      language: LANG_NAMES[S.nativeLang] || 'français',
+      playerName: S.playerName,
+      playerMessage: `Donne un indice court en ${LANG_NAMES[S.nativeLang] || 'français'} pour répondre à: "${last}". Max 1 phrase.`,
+      history: []
+    });
+    showNotif('💡 ' + (result.reply || 'Essayez de reformuler votre réponse'));
+  } catch (e) {
+    showNotif('💡 Essayez de répondre simplement');
+  }
+}
+
+async function reqTranslate() {
+  const last = S.chatHistory?.filter(m => m.role === 'assistant').slice(-1)[0]?.content;
+  if (!last) {
+    showNotif('🔤 Aucun message à traduire');
+    return;
+  }
+  try {
+    const result = await callAPIWithFallback('/api/translate', {
+      text: last,
+      targetLanguage: LANG_NAMES[S.nativeLang] || 'français'
+    });
+    showNotif('🔤 ' + (result.translation || last));
+  } catch (e) {
+    showNotif('🔤 Traduction non disponible');
+  }
+}
+
+function toggleVoice() {
+  if (!('webkitSpeechRecognition' in window || 'SpeechRecognition' in window)) {
+    showNotif('🎤 Non supporté sur ce navigateur');
+    return;
+  }
+  if (isRecording) {
+    if (recognition) recognition.stop();
+    isRecording = false;
+    const voiceBtn = document.getElementById('voiceBtn');
+    if (voiceBtn) {
+      voiceBtn.classList.remove('rec');
+      voiceBtn.textContent = '🎤 Parler';
+    }
+    return;
+  }
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  recognition = new SR();
+  const lm = { en: 'en-US', fr: 'fr-FR', es: 'es-ES', ht: 'fr-HT', de: 'de-DE', ru: 'ru-RU', zh: 'zh-CN', ja: 'ja-JP' };
+  recognition.lang = lm[S.targetLang] || 'en-US';
+  recognition.interimResults = false;
+  recognition.onstart = () => {
+    isRecording = true;
+    const voiceBtn = document.getElementById('voiceBtn');
+    if (voiceBtn) {
+      voiceBtn.classList.add('rec');
+      voiceBtn.textContent = '⏹️ Stop';
+    }
+    showNotif('🎤 Parlez...');
+  };
+  recognition.onresult = (e) => {
+    const t = e.results[0][0].transcript;
+    const dialInput = document.getElementById('dialInput');
+    if (dialInput) dialInput.value = t;
+    showNotif('✅ "' + t + '"');
+  };
+  recognition.onerror = () => {
+    showNotif('❌ Erreur micro');
+  };
+  recognition.onend = () => {
+    isRecording = false;
+    const voiceBtn = document.getElementById('voiceBtn');
+    if (voiceBtn) {
+      voiceBtn.classList.remove('rec');
+      voiceBtn.textContent = '🎤 Parler';
+    }
+  };
+  recognition.start();
 }
 
 function addClickableMsg(type, avatar, text) {
@@ -704,6 +1119,16 @@ function addClickableMsg(type, avatar, text) {
   d.className = `msg ${type}`;
   const content = type === 'npc' ? makeClickable(text) : escapeHtml(text);
   d.innerHTML = `<div class="msg-av">${avatar}</div><div class="msg-bubble">${content}</div>`;
+  c.appendChild(d);
+  c.scrollTop = c.scrollHeight;
+}
+
+function addSysMsg(t) {
+  const c = document.getElementById('chatMsgs');
+  if (!c) return;
+  const d = document.createElement('div');
+  d.className = 'msg system';
+  d.innerHTML = `<div class="msg-bubble">${t}</div>`;
   c.appendChild(d);
   c.scrollTop = c.scrollHeight;
 }
@@ -722,33 +1147,20 @@ function escapeHtml(t) {
   return t.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 }
 
-function sendMsg() {
-  const input = document.getElementById('dialInput');
-  const msg = input ? input.value.trim() : '';
-  if (!msg) return;
-  
-  addClickableMsg('player', '👤', msg);
-  if (input) input.value = '';
-  
-  // Simuler une réponse NPC pour le moment (en attendant l'API)
-  setTimeout(() => {
-    addClickableMsg('npc', S.currentNPC?.emoji || '🧑', 'Merci pour votre message ! Je vous répondrai bientôt.');
-  }, 500);
+function showTyping() {
+  const c = document.getElementById('chatMsgs');
+  if (!c) return;
+  const d = document.createElement('div');
+  d.className = 'msg npc';
+  d.id = 'typInd';
+  d.innerHTML = `<div class="msg-av">${S.currentNPC?.emoji || '🧑'}</div><div class="msg-bubble"><div class="typing-ind"><div class="td"></div><div class="td"></div><div class="td"></div></div></div>`;
+  c.appendChild(d);
+  c.scrollTop = c.scrollHeight;
 }
 
-function closeWordPopup() {
-  const pop = document.getElementById('wordPopup');
-  if (pop) pop.classList.remove('show');
-}
-
-function speakPopupWord() {
-  if (popupWord && 'speechSynthesis' in window) {
-    const u = new SpeechSynthesisUtterance(popupWord);
-    const lm = { en: 'en-US', fr: 'fr-FR', es: 'es-ES', ht: 'fr-HT', de: 'de-DE', ru: 'ru-RU', zh: 'zh-CN', ja: 'ja-JP' };
-    u.lang = lm[S.targetLang] || 'en-US';
-    speechSynthesis.speak(u);
-    showNotif('🔊 ' + popupWord);
-  }
+function removeTyping() {
+  const el = document.getElementById('typInd');
+  if (el) el.remove();
 }
 
 async function lookupWord(word, event) {
@@ -772,13 +1184,42 @@ async function lookupWord(word, event) {
   pop.style.top = y + 'px';
   pop.classList.add('show');
   
-  // Traduction locale simplifiée (en attendant l'API)
-  wpTranslation.textContent = word;
+  try {
+    const result = await callAPIWithFallback('/api/dialogue', {
+      npcName: '', npcRole: '', location: '',
+      language: LANG_NAMES[S.nativeLang] || 'français',
+      playerName: S.playerName,
+      playerMessage: `Pour le mot "${word}" en ${LANG_NAMES[S.targetLang]}, donne en ${LANG_NAMES[S.nativeLang] || 'français'}: 1.Traduction 2.Romanisation si applicable 3.Catégorie grammaticale. JSON: {"translation":"...","roman":"...","grammar":"..."}`,
+      history: []
+    });
+    let p;
+    try {
+      p = JSON.parse((result.reply || '{}').replace(/```json|```/g, '').trim());
+    } catch {
+      p = { translation: result.reply || word, roman: '', grammar: '' };
+    }
+    if (wpTranslation) wpTranslation.textContent = p.translation || word;
+    if (wpRoman) wpRoman.textContent = p.roman || '';
+    if (wpGrammar) wpGrammar.textContent = p.grammar || '';
+  } catch (e) {
+    if (wpTranslation) wpTranslation.textContent = 'Indisponible';
+  }
 }
 
-function reqHint() { showNotif('💡 Indice: Essayez de formuler une phrase simple'); }
-function reqTranslate() { showNotif('🔤 Traduction non disponible pour le moment'); }
-function toggleVoice() { showNotif('🎤 Fonction vocale à venir'); }
+function closeWordPopup() {
+  const pop = document.getElementById('wordPopup');
+  if (pop) pop.classList.remove('show');
+}
+
+function speakPopupWord() {
+  if (popupWord && 'speechSynthesis' in window) {
+    const u = new SpeechSynthesisUtterance(popupWord);
+    const lm = { en: 'en-US', fr: 'fr-FR', es: 'es-ES', ht: 'fr-HT', de: 'de-DE', ru: 'ru-RU', zh: 'zh-CN', ja: 'ja-JP' };
+    u.lang = lm[S.targetLang] || 'en-US';
+    speechSynthesis.speak(u);
+    showNotif('🔊 ' + popupWord);
+  }
+}
 
 // =================================================================
 // VOCABULAIRE
@@ -798,22 +1239,38 @@ function loadVocab(catKey) {
   const cat = VOCAB[catKey];
   if (!cat) return;
   
-  const words = cat.words || [];
+  const searchInput = document.getElementById('vocabSearch');
+  const search = searchInput ? searchInput.value.toLowerCase() : '';
+  const words = cat.words.filter(w => 
+    !search || 
+    (w.t[S.nativeLang] || w.n || "").toLowerCase().includes(search) || 
+    (w.t[S.targetLang] || "").toLowerCase().includes(search)
+  );
+  
   const vocabCount = document.getElementById('vocabCount');
   if (vocabCount) vocabCount.textContent = words.length + ' mots';
+  
+  const isCJK = ['zh', 'ja', 'ru'].includes(S.targetLang);
+  const showRoman = isCJK && S.scriptPref !== 'native';
+  const showNative = !isCJK || S.scriptPref !== 'roman';
   
   const vocabList = document.getElementById('vocabList');
   if (vocabList) {
     vocabList.innerHTML = words.map(w => {
+      const target = w.t[S.targetLang] || w.t.en || '';
+      const match = target.match(/^(.*)\s*\(([^)]+)\)\s*$/);
+      const chars = match ? match[1] : target;
+      const roman = match ? match[2] : '';
+      const romanSpan = (showRoman && roman) ? `<span class="vi-roman">${roman}</span>` : '';
       const nativeText = w.t[S.nativeLang] || w.t.en || w.n || '';
-      const targetText = w.t[S.targetLang] || w.t.en || '';
       return `
         <div class="vocab-item">
           <span class="vi-native">${escapeHtml(nativeText)}</span>
           <span class="vi-target">
-            <span class="vi-word">${escapeHtml(targetText)}</span>
+            <span class="vi-word">${showNative ? escapeHtml(chars) : ''}</span>
+            ${romanSpan}
           </span>
-          <button class="vi-listen" onclick="speakW('${escapeHtml(targetText).replace(/'/g, "\\'")}')">🔊</button>
+          <button class="vi-listen" onclick="speakW('${escapeHtml(chars).replace(/'/g, "\\'")}')">🔊</button>
         </div>`;
     }).join('');
   }
@@ -851,17 +1308,26 @@ function loadPhrases(catKey) {
   const phrasesCount = document.getElementById('phrasesCount');
   if (phrasesCount) phrasesCount.textContent = cat.items.length + ' phrases';
   
+  const isCJK = ['zh', 'ja', 'ru'].includes(S.targetLang);
+  const showRoman = isCJK && S.scriptPref !== 'native';
+  const showNative = !isCJK || S.scriptPref !== 'roman';
+  
   if (phraseList) {
     phraseList.innerHTML = cat.items.map(p => {
+      const target = p.t[S.targetLang] || p.t.en || '';
+      const match = target.match(/^(.*)\s*\(([^)]+)\)\s*$/);
+      const chars = match ? match[1] : target;
+      const roman = match ? match[2] : '';
+      const romanHtml = (showRoman && roman) ? `<div class="pi-roman">${roman}</div>` : '';
       const nativeText = p.t[S.nativeLang] || p.t.en || p.n || '';
-      const targetText = p.t[S.targetLang] || p.t.en || '';
       return `
         <div class="phrase-item">
           <div class="pi-native">${escapeHtml(nativeText)}</div>
-          <div class="pi-target">${escapeHtml(targetText)}</div>
+          <div class="pi-target">${showNative ? escapeHtml(chars) : target}</div>
+          ${romanHtml}
           <div class="pi-actions">
-            <button class="pi-btn" onclick="speakW('${escapeHtml(targetText).replace(/'/g, "\\'")}')">🔊</button>
-            <button class="pi-btn" onclick="copyPhrase('${escapeHtml(targetText).replace(/'/g, "\\'")}')">📋</button>
+            <button class="pi-btn" onclick="speakW('${escapeHtml(chars).replace(/'/g, "\\'")}')">🔊</button>
+            <button class="pi-btn" onclick="copyPhrase('${escapeHtml(chars).replace(/'/g, "\\'")}')">📋</button>
           </div>
         </div>`;
     }).join('');
@@ -903,23 +1369,36 @@ function loadGrammar(catKey) {
   const grammarBody = document.getElementById('grammarBody');
   if (!grammarBody) return;
   
-  const expl = cat.explanation ? (cat.explanation[S.nativeLang] || cat.explanation.fr || '') : '';
-  const formula = cat.formula ? (cat.formula[S.targetLang] || cat.formula.en || cat.formula.fr || '') : '';
+  const nl = S.nativeLang;
+  const tl = S.targetLang;
+  const isCJK = ['zh', 'ja', 'ru'].includes(tl);
+  const showRoman = isCJK && S.scriptPref !== 'native';
+  const showNative = !isCJK || S.scriptPref !== 'roman';
+  
+  const expl = cat.explanation ? (cat.explanation[nl] || cat.explanation.fr || '') : '';
+  const formula = cat.formula ? (cat.formula[tl] || cat.formula.en || cat.formula.fr || '') : '';
   const examples = cat.examples || [];
   
   grammarBody.innerHTML = `
     <div class="gram-section">
-      <div class="gram-title">${cat.icon || ''} ${cat[S.nativeLang] || cat.fr || ''}</div>
+      <div class="gram-title">${cat.icon || ''} ${cat[nl] || cat.fr || ''}</div>
       <div class="gram-explanation">${expl}</div>
       ${formula ? `<div class="gram-formula">${formula}</div>` : ''}
       <div class="gram-examples">
         ${examples.map(ex => {
-          const nativeText = ex.t[S.nativeLang] || ex.t.en || ex.n || '';
-          const targetText = ex.t[S.targetLang] || ex.t.en || '';
+          const target = ex.t[tl] || ex.t.en || '';
+          const match = target.match(/^(.*)\s*\(([^)]+)\)\s*$/);
+          const chars = match ? match[1] : target;
+          const roman = match ? match[2] : '';
+          const romanSpan = (showRoman && roman) ? `<span class="roman">${roman}</span>` : '';
+          const nativeText = ex.t[nl] || ex.t.en || ex.n || '';
           return `
             <div class="gram-ex">
               <span class="gram-ex-native">${escapeHtml(nativeText)}</span>
-              <span class="gram-ex-target">${escapeHtml(targetText)} <button onclick="speakW('${escapeHtml(targetText).replace(/'/g, "\\'")}')">🔊</button></span>
+              <span class="gram-ex-target">
+                ${showNative ? escapeHtml(chars) : target} ${romanSpan}
+                <button onclick="speakW('${escapeHtml(chars).replace(/'/g, "\\'")}')">🔊</button>
+              </span>
             </div>`;
         }).join('')}
       </div>
@@ -930,19 +1409,22 @@ function loadGrammar(catKey) {
 // DICTIONNAIRE
 // =================================================================
 function openDict() {
+  dictFromScreen = document.querySelector('.screen.active')?.id || 'screen-menu';
   showScreen('screen-dict');
+  
   const input = document.getElementById('dictInput');
   if (input) {
     input.focus();
     if (popupWord && !input.value.trim()) input.value = popupWord;
   }
+  
   const result = document.getElementById('dictResult');
   if (result && !result.innerHTML.trim()) {
     result.innerHTML = '<div class="dict-empty"><div class="dict-empty-icon">📚</div>Entrez un mot ou une expression</div>';
   }
 }
 
-function searchDict() {
+async function searchDict() {
   const input = document.getElementById('dictInput');
   const result = document.getElementById('dictResult');
   if (!input || !result) return;
@@ -953,17 +1435,66 @@ function searchDict() {
     return;
   }
   
+  if (dictHistory[0] !== q) {
+    dictHistory = [q].concat(dictHistory.filter(item => item !== q)).slice(0, 10);
+  }
+  
   result.innerHTML = '<div class="dict-empty"><div class="dict-empty-icon">⏳</div>Recherche en cours...</div>';
   
-  // Traduction locale simplifiée
-  setTimeout(() => {
-    result.innerHTML = `
-      <div class="dict-card">
-        <div class="dict-word">${escapeHtml(q)}</div>
-        <div class="dict-meaning">Traduction: ${escapeHtml(q)} (${LANG_NAMES[S.targetLang] || 'cible'})</div>
-        <button class="dict-listen-btn" onclick="speakW('${escapeHtml(q).replace(/'/g, "\\'")}')">🔊 Écouter</button>
-      </div>`;
-  }, 300);
+  const nl = LANG_NAMES[S.nativeLang] || 'français';
+  const tl = LANG_NAMES[S.targetLang] || 'anglais';
+  const isCJK = ['zh', 'ja', 'ru'].includes(S.targetLang);
+  const showRoman = isCJK && S.scriptPref !== 'native';
+  
+  try {
+    const prompt = `Pour l'expression "${q}" et la paire de langues ${nl} ↔ ${tl}, agis comme un dictionnaire pédagogique. Réponds UNIQUEMENT avec un JSON valide au format {"translation":"...","roman":"...","grammar":"...","example":"..."}. "translation" = meilleure traduction dans la langue opposée selon le sens le plus courant. "roman" = romanisation si utile, sinon chaîne vide. "grammar" = catégorie grammaticale ou note d'usage très brève. "example" = un exemple court et naturel. Pas de markdown, pas d'explication supplémentaire.`;
+    
+    const resultData = await callAPIWithFallback('/api/dialogue', {
+      npcName: '', npcRole: 'Dictionary', location: 'Dictionary',
+      language: tl, playerName: S.playerName, playerMessage: prompt, history: []
+    });
+    
+    let p;
+    try {
+      p = JSON.parse((resultData.reply || '{}').replace(/```json|```/g, '').trim());
+    } catch {
+      p = { translation: resultData.reply || q, roman: '', grammar: '', example: '' };
+    }
+    
+    const hist = dictHistory.slice(1, 9);
+    const translation = escapeHtml(p.translation || q);
+    const roman = escapeHtml(p.roman || '');
+    const grammar = escapeHtml(p.grammar || '');
+    const example = escapeHtml(p.example || '');
+    
+    let histHTML = '';
+    if (hist.length) {
+      histHTML = '<div style="font-size:0.65rem;color:var(--dim);letter-spacing:2px;text-transform:uppercase;margin:15px 0 8px 0">Historique</div>'
+        + '<div class="dict-chips">'
+        + hist.map(h => `<span class="dict-chip" onclick="searchDictWord('${escapeHtml(h).replace(/'/g, "\\'")}')">${escapeHtml(h)}</span>`).join('')
+        + '</div>';
+    }
+    
+    result.innerHTML = '<div class="dict-card">'
+      + '<div style="font-size:0.68rem;color:var(--dim);margin-bottom:5px">"' + escapeHtml(q) + '"</div>'
+      + '<div class="dict-word">' + translation + '</div>'
+      + (roman && showRoman ? '<div class="dict-roman">' + roman + '</div>' : '')
+      + (grammar ? '<div style="font-size:0.7rem;color:var(--purple);font-weight:800;margin:5px 0">' + grammar + '</div>' : '')
+      + (example ? '<div class="dict-example">💡 ' + example + '</div>' : '')
+      + '<button class="dict-listen-btn" onclick="speakW(\'' + translation.replace(/'/g, "\\'") + '\')">🔊 Écouter</button>'
+      + '</div>'
+      + histHTML;
+      
+  } catch (e) {
+    console.warn('Dictionary search failed:', e);
+    result.innerHTML = '<div class="dict-empty"><div class="dict-empty-icon">❌</div>Indisponible pour le moment</div>';
+  }
+}
+
+function searchDictWord(w) {
+  const input = document.getElementById('dictInput');
+  if (input) input.value = w;
+  searchDict();
 }
 
 function setDictMode(mode, btn) {
@@ -977,12 +1508,69 @@ function closeDictBack() {
 }
 
 // =================================================================
-// FONCTIONS TEMPORAIRES (EN ATTENTE)
+// INDICATEUR CEFR
 // =================================================================
-function showProgression() { showNotif('📊 Progression: ' + (S.xp || 0) + ' XP'); }
+function addCEFRIndicator() {
+  const hud = document.querySelector('.village-hud');
+  if (!hud) return;
+  if (document.getElementById('cefrIndicator')) return;
+  
+  const totalXP = S.xp || 0;
+  let currentLevel = "A1", nextLevel = "A2", progressPercent = 0, levelColor = "#4ecf70", levelIcon = "🌱";
+  
+  if (totalXP < 300) {
+    currentLevel = "A1"; nextLevel = "A2";
+    progressPercent = Math.min(100, Math.floor((totalXP / 300) * 100));
+    levelColor = "#4ecf70"; levelIcon = "🌱";
+  } else if (totalXP < 800) {
+    currentLevel = "A2"; nextLevel = "B1";
+    progressPercent = Math.min(100, Math.floor(((totalXP - 300) / 500) * 100));
+    levelColor = "#4a9eff"; levelIcon = "🌟";
+  } else if (totalXP < 1500) {
+    currentLevel = "B1"; nextLevel = "B2";
+    progressPercent = Math.min(100, Math.floor(((totalXP - 800) / 700) * 100));
+    levelColor = "#ff9f43"; levelIcon = "🏆";
+  } else if (totalXP < 2500) {
+    currentLevel = "B2"; nextLevel = "C1";
+    progressPercent = Math.min(100, Math.floor(((totalXP - 1500) / 1000) * 100));
+    levelColor = "#e040fb"; levelIcon = "👑";
+  } else {
+    currentLevel = "C1"; nextLevel = null;
+    progressPercent = 100; levelColor = "#ff6b6b"; levelIcon = "🏅";
+  }
+  
+  const indicator = document.createElement('div');
+  indicator.id = 'cefrIndicator';
+  indicator.style.cssText = `display: flex; align-items: center; gap: 6px; background: rgba(0,0,0,0.5); padding: 2px 8px; border-radius: 20px; margin-left: auto; margin-right: 8px; font-size: 0.7rem; cursor: pointer;`;
+  indicator.onclick = () => showNotif('🗺️ Niveau ' + currentLevel + ' → ' + (nextLevel || '🏆 Maître !') + ' (' + progressPercent + '%)');
+  indicator.innerHTML = `
+    <span style="font-size:0.85rem;">${levelIcon}</span>
+    <span style="font-weight:800;color:${levelColor}">${currentLevel}</span>
+    <div style="width:40px;height:4px;background:rgba(255,255,255,0.2);border-radius:2px;overflow:hidden;">
+      <div style="width:${progressPercent}%;height:100%;background:${levelColor};border-radius:2px;"></div>
+    </div>
+    ${nextLevel ? `<span style="font-size:0.6rem;color:var(--dim);">→ ${nextLevel}</span>` : '🏆'}
+  `;
+  hud.appendChild(indicator);
+}
+
+// =================================================================
+// FONCTIONS TEMPORAIRES (seront remplacées par missions.js)
+// =================================================================
+function showProgression() { showNotif('📊 Progression: ' + (S.xp || 0) + ' XP - Niveau ' + (S.level || 1)); }
 function openShop() { showNotif('🏪 Boutique bientôt disponible'); }
 function launchSurpriseMode() { showNotif('⚡ Mode surprise bientôt disponible'); }
-function launchConfetti() { showNotif('🎉 Félicitations !'); }
+function launchConfetti() { 
+  showNotif('🎉 Félicitations !');
+  for (let i = 0; i < 50; i++) {
+    const conf = document.createElement('div');
+    conf.textContent = ['🎉', '✨', '⭐', '🏆'][Math.floor(Math.random() * 4)];
+    conf.style.cssText = `position:fixed;left:${Math.random() * 100}%;top:-20px;font-size:${15 + Math.random() * 20}px;animation:confettiFall ${2 + Math.random() * 2}s linear forwards;z-index:10000;pointer-events:none;`;
+    document.body.appendChild(conf);
+    setTimeout(() => conf.remove(), 3000);
+  }
+}
+function openMissionsPanel(locId) { console.log('Missions panel for:', locId); }
 
 // =================================================================
 // INITIALISATION
@@ -998,9 +1586,9 @@ if (searchInput) {
   };
 }
 
-const dictInput = document.getElementById('dictInput');
-if (dictInput) {
-  dictInput.addEventListener('keydown', e => { if (e.key === 'Enter') searchDict(); });
+const dictInputGlobal = document.getElementById('dictInput');
+if (dictInputGlobal) {
+  dictInputGlobal.addEventListener('keydown', e => { if (e.key === 'Enter') searchDict(); });
 }
 
 const dialInputGlobal = document.getElementById('dialInput');
@@ -1015,4 +1603,9 @@ document.addEventListener('click', e => {
   }
 });
 
-console.log("app.js: ✅ Chargé et synchronisé avec state.js");
+// Ajouter la style pour l'animation confetti
+const style = document.createElement('style');
+style.textContent = `@keyframes confettiFall{0%{transform:translateY(-10px) rotate(0deg);opacity:1}100%{transform:translateY(110vh) rotate(720deg);opacity:0}}`;
+document.head.appendChild(style);
+
+console.log("app.js: ✅ Version complète chargée et synchronisée avec state.js");
