@@ -1339,140 +1339,125 @@ function addConnectionIndicator() {
   });
 }
 
-// Remplacer la fonction npcOpen originale
-window.npcOpen = async function() {
-    const npc = S.currentNPC;
-    const loc = S.currentLoc;
-    const si = getScriptInstr ? getScriptInstr() : '';
-    const wctx = { sun: 'Il fait beau.', rain: 'Il pleut.', snow: 'Il neige.', wind: 'Il fait du vent.', night: 'C\'est le soir.' };
-    const prompt = `${npc.ctx}\nLe joueur s'appelle ${S.playerName}. Réponds UNIQUEMENT en ${LANG_NAMES[S.targetLang]}.${si}\nContexte: ${wctx[currentWeather] || ''}\nMax 2 phrases. Accueille ${S.playerName} et pose une question liée à ton rôle.`;
-    
-    showTyping();
-    document.getElementById('dialSend').disabled = true;
-    
-    try {
-      const r = await callAPIWithFallback('/api/dialogue', {
-        npcName: npc.name,
-        npcRole: typeof npc.role === 'object' ? npc.role.fr : npc.role,
-        location: LOC_NAMES[loc.id]?.fr || loc.id,
-        language: LANG_NAMES[S.targetLang],
-        playerName: S.playerName,
-        playerMessage: '__OPEN__',
-        history: [],
-        systemContext: prompt
-      });
-      
-      removeTyping();
-      const reply = r.reply || `Bonjour ${S.playerName} !`;
-      addClickableMsg('npc', npc.emoji, reply);
-      S.chatHistory.push({ role: 'assistant', content: reply });
-      
-      if (r.offline) {
-        addSysMsg('📡 Mode hors-ligne - L\'IA utilise des réponses simples');
-      }
-      
-    } catch (e) {
-      removeTyping();
-      addClickableMsg('npc', npc.emoji, `Bonjour ${S.playerName} ! Comment puis-je vous aider aujourd'hui ?`);
-    }
-    
-    document.getElementById('dialSend').disabled = false;
+/* =================================================================
+   app.js — LinguaVillage
+   Logique principale : UI, Village, Dialogue, Vocabulaire,
+   Phrases, Grammaire, Dictionnaire, XP
+   Dépendances : save.js, cinema.js, missions.js (chargés avant)
+   ================================================================= */
+
+
+// [--- LES 1350 PREMIÈRES LIGNES RESTENT IDENTIQUES ---]
+// (Gardez tout votre code habituel : UI_TEXT, VOCAB, GRAMMAR, PHRASES, etc.)
+// ...
+// ... (Toutes vos fonctions : showScreen, startMenu, sendMsg, etc.)
+// ...
+
+// =================================================================
+// INITIALISATION FINALE (CORRIGÉE - Ligne 1359 et suivantes)
+// =================================================================
+
+// On s'assure que S existe (déjà créé par save.js normalement)
+if (typeof S === 'undefined') {
+    window.S = { playerName:'', nativeLang:'', targetLang:'', scriptPref:'standard', xp:0, level:1 };
+}
+
+// 1. Gestion des onglets (Tabs)
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.onclick = function() {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+    this.classList.add('active');
+    const target = this.dataset.tab;
+    const content = document.getElementById('tab-' + target);
+    if(content) content.classList.add('active');
   };
+});
 
-// =================================================================
-// INIT DOM — listeners welcome flow
-// =================================================================
-(function() {
-  // Etoiles
-  try{var c=document.getElementById('wStars');if(c){for(var i=0;i<100;i++){var s=document.createElement('div');s.className='w-star';var z=Math.random()*2+0.5;s.style.cssText='width:'+z+'px;height:'+z+'px;left:'+Math.random()*100+'%;top:'+Math.random()*100+'%;animation-delay:'+Math.random()*5+'s;animation-duration:'+(2+Math.random()*4)+'s';c.appendChild(s);}}}catch(e){}
+// 2. Sélection de la langue maternelle (Drapeaux)
+document.querySelectorAll('.lang-tile[data-native]').forEach(t => {
+  t.onclick = function() {
+    document.querySelectorAll('.lang-tile[data-native]').forEach(x => x.classList.remove('active'));
+    this.classList.add('active');
+    S.nativeLang = this.dataset.native;
+    console.log("Langue maternelle choisie :", S.nativeLang);
+  };
+});
 
-  // 1. Langue maternelle
-  document.querySelectorAll('[data-native]').forEach(function(t){
-    t.addEventListener('click',function(){
-      document.querySelectorAll('[data-native]').forEach(function(x){x.classList.remove('sel');});
-      t.classList.add('sel');
-      S.nativeLang=t.dataset.native;
-      try{applyUI(S.nativeLang);}catch(e){}
-      var s2=document.getElementById('step2');
-      if(s2){s2.style.display='block';s2.scrollIntoView({behavior:'smooth',block:'center'});}
-      ['step3','step4'].forEach(function(id){var el=document.getElementById(id);if(el)el.style.display='none';});
-      var pb=document.getElementById('playBtn');if(pb){pb.style.display='none';pb.disabled=true;}
-      document.querySelectorAll('[data-lang]').forEach(function(o){
-        var same=o.dataset.lang===S.nativeLang;
-        o.classList.toggle('disabled',same);if(same)o.classList.remove('sel');
-      });
-    });
-  });
+// 3. Sélection de la langue cible
+document.querySelectorAll('.lang-tile[data-target]').forEach(t => {
+  t.onclick = function() {
+    document.querySelectorAll('.lang-tile[data-target]').forEach(x => x.classList.remove('active'));
+    this.classList.add('active');
+    S.targetLang = this.dataset.target;
+    console.log("Langue à apprendre :", S.targetLang);
+  };
+});
 
-  // 2. Prenom
-  var inputName=document.getElementById('inputName');
-  if(inputName)inputName.addEventListener('input',function(){
-    var has=this.value.trim().length>0;
-    var s3=document.getElementById('step3');if(s3)s3.style.display=has?'block':'none';
-    var s4=document.getElementById('step4');if(s4)s4.style.display='none';
-    var pb=document.getElementById('playBtn');if(pb)pb.style.display='none';
-  });
-
-  // 3. Langue cible
-  document.querySelectorAll('[data-lang]').forEach(function(o){
-    o.addEventListener('click',function(){
-      if(o.classList.contains('disabled'))return;
-      document.querySelectorAll('[data-lang]').forEach(function(x){x.classList.remove('sel');});
-      o.classList.add('sel');S.targetLang=o.dataset.lang;
-      var cjk=['zh','ja','ru'].includes(S.targetLang);
-      var pb=document.getElementById('playBtn');
-      if(cjk){
-        var s4=document.getElementById('step4');if(s4)s4.style.display='block';
-        var lb={zh:{n:'你好',r:'Ni hao'},ja:{n:'こんにちは',r:'Konnichiwa'},ru:{n:'Привет',r:'Privyet'}};
-        var sn=document.getElementById('sc-n');if(sn)sn.textContent=lb[S.targetLang].n;
-        var sr=document.getElementById('sc-r');if(sr)sr.textContent=lb[S.targetLang].r;
-        if(pb){pb.style.display='none';pb.disabled=true;}
-      }else{
-        S.scriptPref='both';
-        var s4=document.getElementById('step4');if(s4)s4.style.display='none';
-        if(pb){pb.style.display='block';pb.disabled=false;}
+// 4. Bouton Commencer
+var playBtn = document.getElementById('playBtn');
+if (playBtn) {
+  playBtn.addEventListener('click', function() {
+    var nm = document.getElementById('inputName');
+    S.playerName = nm ? nm.value.trim() : '';
+    
+    if (!S.playerName || !S.nativeLang || !S.targetLang) {
+      try {
+        showNotif('Veuillez entrer votre prénom et choisir les langues !');
+      } catch(e) {
+        alert('Veuillez remplir tous les champs !');
       }
-    });
-  });
-
-  // 4. Commencer
-  var playBtn=document.getElementById('playBtn');
-  if(playBtn)playBtn.addEventListener('click',function(){
-    var nm=document.getElementById('inputName');
-    S.playerName=nm?nm.value.trim():'';
-    if(!S.playerName||!S.nativeLang||!S.targetLang){
-      try{showNotif('Complétez tous les champs !');}catch(e){alert('Complétez tous les champs !');}
       return;
     }
-    try{startMenu();}catch(e){console.error('startMenu error:',e);}
+    
+    if (typeof startMenu === 'function') {
+      if (typeof saveGame === 'function') saveGame();
+      startMenu();
+    }
   });
+}
 
-  // 5. Dialogue Enter
-  var di=document.getElementById('dialInput');
-  if(di)di.addEventListener('keydown',function(e){if(e.key==='Enter')try{sendMsg();}catch(ex){}});
-
-  // 6. Popup mot
-  document.addEventListener('click',function(e){
-    var p=document.getElementById('wordPopup');
-    if(p&&p.classList.contains('show')&&!p.contains(e.target)&&!e.target.classList.contains('clickable-word'))
-      try{closeWordPopup();}catch(ex){}
+// 5. Dialogue Enter
+var di = document.getElementById('dialInput');
+if (di) {
+  di.addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') {
+      try { sendMsg(); } catch(ex) { console.error("Erreur sendMsg:", ex); }
+    }
   });
+}
 
-  // 7. Vocab search
-  var vs=document.getElementById('vocabSearch');
-  if(vs)vs.oninput=function(){
-    var ab=document.querySelector('.vcat.active');
-    if(ab){var idx=Array.from(document.querySelectorAll('.vcat')).indexOf(ab);try{loadVocab(Object.keys(VOCAB)[idx]);}catch(ex){}}
+// 6. Popup mot (Fermeture au clic extérieur)
+document.addEventListener('click', function(e) {
+  var p = document.getElementById('wordPopup');
+  if (p && p.classList.contains('show') && !p.contains(e.target) && !e.target.classList.contains('clickable-word')) {
+    try { closeWordPopup(); } catch(ex) {}
+  }
+});
+
+// 7. Vocab search
+var vs = document.getElementById('vocabSearch');
+if (vs) {
+  vs.oninput = function() {
+    var ab = document.querySelector('.vcat.active');
+    if (ab) {
+      var idx = Array.from(document.querySelectorAll('.vcat')).indexOf(ab);
+      try {
+        loadVocab(Object.keys(VOCAB)[idx]);
+      } catch(ex) {}
+    }
   };
+}
 
-  // 8. Dict Enter
-  var dc=document.getElementById('dictInput');
-  if(dc)dc.addEventListener('keydown',function(e){if(e.key==='Enter')try{searchDict();}catch(ex){}});
+// 8. Dict Enter
+var dc = document.getElementById('dictInput');
+if (dc) {
+  dc.addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') {
+      try { searchDict(); } catch(ex) {}
+    }
+  });
+}
 
-  // 9. Connexion
-  try{setTimeout(addConnectionIndicator,500);}catch(e){}
+console.log("app.js: ✅ Chargement et synchronisation terminés.");
 
-})(); // exécution immédiate
-
-
-// Fin du fichier app.js
