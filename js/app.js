@@ -573,29 +573,62 @@ async function npcOpen(){
   document.getElementById('dialSend').disabled=false;
 }
 
-async function sendMsg(){
-  const inp=document.getElementById('dialInput');
-  const text=inp.value.trim();if(!text)return;
-  inp.value='';
-  document.getElementById('corrPanel').className='correction-panel';
-  addClickableMsg('player','😊',text);
-  S.chatHistory.push({role:'user',content:text});
-  gainXP(10);
-  // Check active mission
-  if (typeof checkMissionInMessage === 'function') checkMissionInMessage(text);
-  // Auto spell check after send
-  checkSpelling(text);
-  const npc=S.currentNPC,loc=S.currentLoc;
-  const si=getScriptInstr();
-  const prompt=`${npc.ctx}\nLe joueur s'appelle ${S.playerName}. Réponds UNIQUEMENT en ${LANG_NAMES[S.targetLang]}.${si}\nMax 2 phrases. Si faute: reformule naturellement.`;
-  showTyping();document.getElementById('dialSend').disabled=true;
-  try{
-    const r=await fetch(`${API}/api/dialogue`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({npcName:npc.name,npcRole:typeof npc.role==='object'?npc.role.fr:npc.role,location:LOC_NAMES[loc.id]?.fr||loc.id,language:LANG_NAMES[S.targetLang],playerName:S.playerName,playerMessage:text,history:S.chatHistory.slice(-8),systemContext:prompt})});
-    const d=await r.json();removeTyping();
-    const reply=d.reply||'...';addClickableMsg('npc',npc.emoji,reply);S.chatHistory.push({role:'assistant',content:reply});
-  }catch(e){removeTyping();addClickableMsg('npc',npc.emoji,'...');}
-  document.getElementById('dialSend').disabled=false;
+// =================================================================
+// INITIALISATION FINALE (Synchronisée avec save.js)
+// =================================================================
+
+// 1. Gestion des onglets (Tabs)
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.onclick = function() {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+    this.classList.add('active');
+    const target = this.dataset.tab;
+    const content = document.getElementById('tab-' + target);
+    if(content) content.classList.add('active');
+  };
+});
+
+// 2. Sélection de la langue maternelle (DÉBLOQUE L'INTERFACE)
+document.querySelectorAll('.lang-tile[data-native]').forEach(t => {
+  t.onclick = function() {
+    document.querySelectorAll('.lang-tile[data-native]').forEach(x => x.classList.remove('active'));
+    this.classList.add('active');
+    if(typeof S !== 'undefined') S.nativeLang = this.dataset.native;
+    console.log("Langue maternelle :", this.dataset.native);
+  };
+});
+
+// 3. Sélection de la langue cible
+document.querySelectorAll('.lang-tile[data-target]').forEach(t => {
+  t.onclick = function() {
+    document.querySelectorAll('.lang-tile[data-target]').forEach(x => x.classList.remove('active'));
+    this.classList.add('active');
+    if(typeof S !== 'undefined') S.targetLang = this.dataset.target;
+    console.log("Langue cible :", this.dataset.target);
+  };
+});
+
+// 4. Bouton Commencer
+var playBtn = document.getElementById('playBtn');
+if (playBtn) {
+  playBtn.addEventListener('click', function() {
+    var nm = document.getElementById('inputName');
+    if(typeof S !== 'undefined') S.playerName = nm ? nm.value.trim() : '';
+    
+    if (!S.playerName || !S.nativeLang || !S.targetLang) {
+      alert('Veuillez entrer votre prénom et choisir les deux langues.');
+      return;
+    }
+    
+    if (typeof startMenu === 'function') {
+      if(typeof saveGame === 'function') saveGame();
+      startMenu();
+    }
+  });
 }
+
+console.log("app.js: ✅ Initialisation finale réussie !");
 
 // =================================================================
 // SPELL CHECKER
