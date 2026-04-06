@@ -4675,123 +4675,40 @@ window.npcOpen = async function() {
 // =================================================================
 // INIT DOM — tous les listeners après chargement complet du HTML
 // =================================================================
-window.addEventListener('DOMContentLoaded', function() {
-
-  // ─── Étoiles d'accueil ────────────────────────────────────────────
-  try {
-    var c = document.getElementById('wStars');
-    if(c){ for(var i=0;i<100;i++){var s=document.createElement('div');s.className='w-star';var z=Math.random()*2+0.5;s.style.cssText='width:'+z+'px;height:'+z+'px;left:'+Math.random()*100+'%;top:'+Math.random()*100+'%;animation-delay:'+Math.random()*5+'s;animation-duration:'+(2+Math.random()*4)+'s';c.appendChild(s);} }
-  } catch(e) {}
-
-  // ─── 1. Langue maternelle ─────────────────────────────────────────
+  // 1. Sélection de la langue maternelle (CORRIGÉ)
   document.querySelectorAll('[data-native]').forEach(function(t) {
     t.addEventListener('click', function() {
+      // Gestion visuelle (sélection du drapeau)
       document.querySelectorAll('[data-native]').forEach(function(x){ x.classList.remove('sel'); });
       t.classList.add('sel');
+      
+      // Enregistrement du choix
       S.nativeLang = t.dataset.native;
-      try { applyUI(S.nativeLang); } catch(e) {}
-      document.getElementById('step2').style.display = 'block';
+      
+      // --- CORRECTION 1 : Traduit les textes (ex: "Votre prénom" devient "Non ou")
+      applyUI(S.nativeLang);
 
-      // Affiche le champ prénom
-      var s2 = document.getElementById('step2');
-      if(s2){ s2.style.display='block'; s2.scrollIntoView({behavior:'smooth',block:'center'}); }
-      // Cache les étapes suivantes
-      ['step3','step4'].forEach(function(id){
-        var el=document.getElementById(id); if(el) el.style.display='none';
-      });
-      var pb = document.getElementById('playBtn');
-      if(pb){ pb.style.display='none'; pb.disabled=true; }
-      // Désactive la même langue dans la cible
-      document.querySelectorAll('[data-lang]').forEach(function(o){
-        var same = o.dataset.lang === S.nativeLang;
-        o.classList.toggle('disabled', same);
-        if(same) o.classList.remove('sel');
-      });
-    });
-  });
-
-  // ─── 2. Saisie du prénom → révèle la sélection de langue cible ───
-  var inputName = document.getElementById('inputName');
-  if(inputName) {
-    inputName.addEventListener('input', function() {
-      var hasValue = this.value.trim().length > 0;
-      var s3 = document.getElementById('step3');
-      if(s3) s3.style.display = hasValue ? 'block' : 'none';
-      var s4 = document.getElementById('step4');
-      if(s4) s4.style.display = 'none';
-      var pb = document.getElementById('playBtn');
-      if(pb) pb.style.display = 'none';
-    });
-  }
-
-  // ─── 3. Langue cible ──────────────────────────────────────────────
-  document.querySelectorAll('[data-lang]').forEach(function(o) {
-    o.addEventListener('click', function() {
-      if(o.classList.contains('disabled')) return;
-      document.querySelectorAll('[data-lang]').forEach(function(x){ x.classList.remove('sel'); });
-      o.classList.add('sel');
-      S.targetLang = o.dataset.lang;
-      var cjk = ['zh','ja','ru'].includes(S.targetLang);
-      var pb = document.getElementById('playBtn');
-      if(cjk){
-        var s4 = document.getElementById('step4');
-        if(s4) s4.style.display='block';
-        var lb={zh:{n:'你好',r:'Nǐ hǎo'},ja:{n:'こんにちは',r:'Konnichiwa'},ru:{n:'Привет',r:'Privyet'}};
-        var sn=document.getElementById('sc-n'); if(sn) sn.textContent=lb[S.targetLang].n;
-        var sr=document.getElementById('sc-r'); if(sr) sr.textContent=lb[S.targetLang].r;
-        if(pb){ pb.style.display='none'; pb.disabled=true; }
-      } else {
-        S.scriptPref='both';
-        var s4=document.getElementById('step4'); if(s4) s4.style.display='none';
-        if(pb){ pb.style.display='block'; pb.disabled=false; }
+      // --- CORRECTION 2 : Affiche enfin la partie pour écrire le nom
+      const step2 = document.getElementById('step2');
+      if (step2) {
+        step2.style.display = 'block';
+        // Fait défiler l'écran pour montrer le champ de saisie
+        step2.scrollIntoView({ behavior: 'smooth', block: 'center' });
       }
+
+      // Cache les étapes suivantes pour garder un ordre propre
+      ['step3', 'step4', 'playBtn'].forEach(function(id) {
+        const el = document.getElementById(id);
+        if (el) el.style.display = 'none';
+      });
+
+      // Désactive la langue choisie dans la liste "Langue à apprendre"
+      document.querySelectorAll('[data-lang]').forEach(function(o) {
+        o.classList.toggle('disabled', o.dataset.lang === S.nativeLang);
+        if (o.dataset.lang === S.nativeLang) o.classList.remove('sel');
+      });
     });
   });
-
-  // ─── 4. Bouton Commencer ──────────────────────────────────────────
-  var playBtn = document.getElementById('playBtn');
-  if(playBtn) playBtn.addEventListener('click', function() {
-    var nm = document.getElementById('inputName');
-    S.playerName = nm ? nm.value.trim() : '';
-    if(!S.playerName || !S.nativeLang || !S.targetLang){
-      try { showNotif('⚠️ Complétez tous les champs !'); } catch(e) { alert('Complétez tous les champs !'); }
-      return;
-    }
-    try { startMenu(); } catch(e) { console.error('startMenu error:', e); }
-  });
-
-  // ─── 5. Dialogue Enter ────────────────────────────────────────────
-  var dialInput = document.getElementById('dialInput');
-  if(dialInput) dialInput.addEventListener('keydown', function(e){
-    if(e.key==='Enter') try { sendMsg(); } catch(ex) {}
-  });
-
-  // ─── 6. Fermeture popup mot ───────────────────────────────────────
-  document.addEventListener('click', function(e){
-    var p=document.getElementById('wordPopup');
-    if(p && p.classList.contains('show') && !p.contains(e.target) && !e.target.classList.contains('clickable-word'))
-      try { closeWordPopup(); } catch(ex) {}
-  });
-
-  // ─── 7. Recherche vocabulaire ─────────────────────────────────────
-  var vSearch = document.getElementById('vocabSearch');
-  if(vSearch) vSearch.oninput = function() {
-    var activeBtn=document.querySelector('.vcat.active');
-    if(activeBtn){
-      var idx=Array.from(document.querySelectorAll('.vcat')).indexOf(activeBtn);
-      var key=Object.keys(VOCAB)[idx];
-      try { loadVocab(key); } catch(ex) {}
-    }
-  };
-
-  // ─── 8. Dictionnaire Enter ────────────────────────────────────────
-  var dictInput = document.getElementById('dictInput');
-  if(dictInput) dictInput.addEventListener('keydown', function(e){
-    if(e.key==='Enter') try { searchDict(); } catch(ex) {}
-  });
-
-  // ─── 9. Indicateur connexion ─────────────────────────────────────
-  try { setTimeout(addConnectionIndicator, 500); } catch(e) {}
 
 }); // fin DOMContentLoaded
 
