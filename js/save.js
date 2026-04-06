@@ -1,29 +1,27 @@
-// Tout en haut de save.js
-var S = {
+/* =================================================================
+   save.js — LinguaVillage
+   Source de vérité pour les données globales
+   ================================================================= */
+
+// 1. DÉCLARATION DES VARIABLES GLOBALES (Source unique)
+// On utilise 'var' pour permettre la ré-assignation sans erreur 'already declared'
+var S = window.S || {
   playerName: '',
   nativeLang: '',
   targetLang: '',
   scriptPref: 'standard',
   xp: 0,
-  level: 1,
-  // ... autres valeurs par défaut
+  level: 1
 };
 
-var S_missions = { completed: {}, current: null };
-var S_streak = { count: 0, lastDate: null };
-
-/* =================================================================
-   save.js — LinguaVillage
-   Sauvegarde locale (localStorage) + cache quiz
-   Chargé EN PREMIER dans index.html
-   ================================================================= */
+var S_missions = window.S_missions || { completed: {}, current: null };
+var S_streak = window.S_streak || { count: 0, lastDate: null };
+var S_quizCache = window.S_quizCache || {};
 
 const SAVE_KEY  = 'linguavillage_save';
 const QUOTA_KEY = 'linguavillage_quota_warn';
 
-// -----------------------------------------------------------------
-// SAUVEGARDE
-// -----------------------------------------------------------------
+// 2. LOGIQUE DE SAUVEGARDE
 function saveGame() {
   const data = {
     playerName:  S.playerName,
@@ -39,9 +37,7 @@ function saveGame() {
   };
   try {
     localStorage.setItem(SAVE_KEY, JSON.stringify(data));
-    localStorage.removeItem(QUOTA_KEY);
   } catch(e) {
-    // Quota dépassé (fréquent en PWA sur espace disque plein)
     if (e.name === 'QuotaExceededError' || e.name === 'NS_ERROR_DOM_QUOTA_REACHED') {
       if (!localStorage.getItem(QUOTA_KEY)) {
         localStorage.setItem(QUOTA_KEY, '1');
@@ -51,160 +47,57 @@ function saveGame() {
   }
 }
 
+// 3. LOGIQUE DE CHARGEMENT
 function loadGame() {
   try {
     const raw = localStorage.getItem(SAVE_KEY);
     if (!raw) return false;
-    const data = JSON.parse(raw);
+    const d = JSON.parse(raw);
+    if (!d) return false;
 
-    // Restaurer l'état principal
-    S.playerName = data.playerName || '';
-    S.nativeLang = data.nativeLang || '';
-    S.targetLang = data.targetLang || '';
-    S.scriptPref = data.scriptPref || 'both';
-    S.xp         = data.xp    || 0;
-    S.level      = data.level || 1;
+    // Mise à jour des variables globales avec les données chargées
+    S.playerName = d.playerName || '';
+    S.nativeLang = d.nativeLang || '';
+    S.targetLang = d.targetLang || '';
+    S.scriptPref = d.scriptPref || 'standard';
+    S.xp         = d.xp || 0;
+    S.level      = d.level || 1;
 
-    // Restaurer missions
-    if (data.missions) {
-      S_missions.completed = data.missions.completed || {};
-      S_missions.gems      = data.missions.gems      || 0;
-      S_missions.badges    = data.missions.badges    || [];
-    }
-
-    // Restaurer streak
-    if (data.streak) {
-      S_streak.current = data.streak.current || 0;
-      S_streak.best    = data.streak.best    || 0;
-      S_streak.lastDay = data.streak.lastDay || null;
-      S_streak.shield  = data.streak.shield  !== undefined ? data.streak.shield : 1;
-    }
-
-    // Restaurer cache quiz
-    if (data.quizCache) {
-      Object.assign(S_quizCache, data.quizCache);
-    }
+    if (d.missions) S_missions = d.missions;
+    if (d.streak)   S_streak   = d.streak;
+    if (d.quizCache) S_quizCache = d.quizCache;
 
     return true;
   } catch(e) {
-    console.warn('loadGame: données corrompues, reset.', e);
+    console.error("Erreur de chargement:", e);
     return false;
   }
 }
 
-function resetGame() {
-  if (!confirm('Effacer toute la progression ? Cette action est irréversible.')) return;
-  localStorage.removeItem(SAVE_KEY);
-  localStorage.removeItem(QUOTA_KEY);
-  location.reload();
-}
-
-// -----------------------------------------------------------------
-// CACHE QUIZ (évite les appels API répétés pour la même vidéo)
-// -----------------------------------------------------------------
-var S_quizCache = {};   // { videoId: [questions] }
-
-function getQuizFromCache(videoId) {
-  return S_quizCache[videoId] || null;
-}
-
-function setQuizInCache(videoId, questions) {
-  // Garder max 50 vidéos en cache pour ne pas saturer localStorage
-  const keys = Object.keys(S_quizCache);
-  if (keys.length >= 50) {
-    delete S_quizCache[keys[0]];
-  }
-  S_quizCache[videoId] = questions;
-  saveGame();
-}
-
-// -----------------------------------------------------------------
-// STREAK
-// -----------------------------------------------------------------
-var S_streak = {
-  current: 0,
-  best:    0,
-  lastDay: null,   // 'YYYY-MM-DD'
-  shield:  1       // 1 bouclier de grâce par semaine
-};
-
-function updateStreak() {
-  const today     = new Date().toISOString().split('T')[0];
-  const yesterday = new Date(Date.now() - 86400000).toISOString().split('T')[0];
-
-  if (S_streak.lastDay === today) return; // Déjà joué aujourd'hui
-
-  if (S_streak.lastDay === yesterday) {
-    // Continuité parfaite
-    S_streak.current++;
-  } else if (S_streak.lastDay && S_streak.shield > 0) {
-    // Un jour manqué → bouclier activé automatiquement
-    S_streak.shield--;
-    S_streak.current++;
-    showNotif('🛡️ Bouclier de grâce utilisé ! Streak sauvé.');
-  } else {
-    // Streak perdu
-    if (S_streak.current > 0) showNotif('💔 Streak perdu. On recommence !');
-    S_streak.current = 1;
-  }
-
-  S_streak.best    = Math.max(S_streak.best, S_streak.current);
-  S_streak.lastDay = today;
-
-  // Recharger le bouclier chaque lundi
-  const day = new Date().getDay();
-  if (day === 1 && S_streak.shield === 0) S_streak.shield = 1;
-
-  updateStreakDisplay();
-  saveGame();
-}
-
-function updateStreakDisplay() {
-  const el = document.getElementById('streakDisplay');
-  if (el) {
-    el.textContent = '🔥 ' + S_streak.current;
-    el.title       = 'Record : ' + S_streak.best + ' jours';
-  }
-}
-
-// -----------------------------------------------------------------
-// AVERTISSEMENT QUOTA PWA
-// -----------------------------------------------------------------
+// 4. ALERTE ESPACE DISQUE
 function showQuotaWarning() {
   const div = document.createElement('div');
   div.style.cssText = 'position:fixed;bottom:70px;left:50%;transform:translateX(-50%);'
     + 'background:#1a0a2e;border:1px solid #e05555;border-radius:14px;'
-    + 'padding:12px 18px;font-size:0.78rem;color:#f0e8d0;z-index:9999;'
-    + 'max-width:320px;text-align:center;line-height:1.5;';
-  div.innerHTML = '⚠️ Espace de stockage presque plein.<br>'
-    + 'Libère de l\'espace sur ton appareil pour ne pas perdre ta progression.'
-    + '<br><button onclick="this.parentElement.remove()" style="margin-top:8px;'
-    + 'background:rgba(255,255,255,0.1);border:none;color:#f0e8d0;padding:4px 14px;'
-    + 'border-radius:8px;cursor:pointer;font-family:Nunito,sans-serif;">OK</button>';
+    + 'padding:12px 18px;font-size:0.78rem;color:#f0e8d0;z-index:9999;';
+  div.innerHTML = '⚠️ Stockage plein. Libère de l\'espace pour ne pas perdre ta progression.<br>'
+    + '<button onclick="this.parentElement.remove()" style="margin-top:8px;background:gold;color:black;border:none;padding:4px 10px;border-radius:5px;">OK</button>';
   document.body.appendChild(div);
-  setTimeout(() => div.remove(), 8000);
 }
 
-// -----------------------------------------------------------------
-// CHARGEMENT AUTOMATIQUE SÉCURISÉ
-// -----------------------------------------------------------------
+// 5. INITIALISATION AUTOMATIQUE SÉCURISÉE
 window.addEventListener('load', function() {
-  // On utilise 'load' au lieu de 'DOMContentLoaded' pour être sûr 
-  // que app.js a eu le temps d'être interprété par le navigateur.
-  
   const hasSave = loadGame();
 
-  // On vérifie si S est bien rempli et si on peut passer l'écran d'accueil
+  // Si une sauvegarde complète existe, on tente de lancer l'interface
   if (hasSave && S.playerName && S.nativeLang && S.targetLang) {
-    console.log("Sauvegarde détectée, tentative de démarrage direct...");
-    
-    // On attend un tout petit peu que app.js attache ses fonctions
+    console.log("Sauvegarde trouvée, démarrage...");
     setTimeout(() => {
       if (typeof startMenu === 'function') {
         startMenu();
-      } else {
-        console.warn("startMenu n'est pas encore prêt, l'utilisateur devra cliquer.");
       }
-    }, 100);
+    }, 200);
+  } else {
+    console.log("Pas de sauvegarde ou incomplète. Attente de l'utilisateur.");
   }
 });
