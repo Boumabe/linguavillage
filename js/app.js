@@ -5,14 +5,7 @@
    Dépendances : save.js, cinema.js, missions.js (chargés avant)
    ================================================================= */
 
-window.addEventListener('DOMContentLoaded', function(){
-  if(window._LINGUA_HAS_SAVE && S.playerName && S.nativeLang && S.targetLang){
-    // Sauvegarde valide → on va au menu
-    applyUI(S.nativeLang);
-    startMenu();
-  }
-  // Sinon, on reste sur l'écran d'accueil (rien à faire)
-});
+// Reprise sauvegarde — exécuté après le bloc principal (IIFE ligne 1359)
 
 const API = 'https://linguavillage-api--marckensbou2.replit.app';
 
@@ -1356,8 +1349,7 @@ window.npcOpen = async function() {
 // =================================================================
 // INIT DOM — listeners welcome flow
 // =================================================================
-window.addEventListener('DOMContentLoaded', function() {
-
+(function() {
   // Etoiles
   try{var c=document.getElementById('wStars');if(c){for(var i=0;i<100;i++){var s=document.createElement('div');s.className='w-star';var z=Math.random()*2+0.5;s.style.cssText='width:'+z+'px;height:'+z+'px;left:'+Math.random()*100+'%;top:'+Math.random()*100+'%;animation-delay:'+Math.random()*5+'s;animation-duration:'+(2+Math.random()*4)+'s';c.appendChild(s);}}}catch(e){}
 
@@ -1447,50 +1439,7 @@ window.addEventListener('DOMContentLoaded', function() {
   // 9. Connexion
   try{setTimeout(addConnectionIndicator,500);}catch(e){}
 
-}); // fin DOMContentLoaded
+})(); // exécution immédiate
 
-
-
-// À la fin de app.js, avant la dernière balise fermante
-// ============================================
-// PROGRESSION CEFR
-// ============================================
-
-function showProgression() {
-    const totalXP = S.xp || 0;
-    const completedCount = Object.keys(S_missions.completed || {}).length;
-    const totalMissions = Object.keys(CEFR_ROADMAP?.missions || {}).length || 0;
-    const streak = S.streak || 0;
-    const gems = S.gems || 0;
-    
-    let html = `
-        <div style="position:fixed;inset:0;background:rgba(0,0,0,0.95);z-index:10000;
-                    display:flex;align-items:center;justify-content:center;padding:20px;">
-            <div style="background:linear-gradient(135deg,#0f1a30,#0a0a14);border:1px solid var(--gold);
-                        border-radius:24px;padding:24px;max-width:400px;width:100%;">
-                <div style="display:flex;justify-content:space-between;margin-bottom:20px;">
-                    <h3 style="color:var(--gold);margin:0;">📊 Ma progression</h3>
-                    <button onclick="this.closest('div').closest('div').remove()" 
-                            style="background:transparent;border:none;color:var(--dim);font-size:1.5rem;cursor:pointer;">✕</button>
-                </div>
-                <div style="margin-bottom:15px;">
-                    <div>🎯 XP total: <strong>${totalXP}</strong></div>
-                    <div>💎 Gemmes: <strong>${gems}</strong></div>
-                    <div>🔥 Série: <strong>${streak} jours</strong></div>
-                    <div>✅ Missions complétées: <strong>${completedCount}/${totalMissions}</strong></div>
-                </div>
-                <button onclick="if(typeof showRoadmap === 'function'){this.closest('div').closest('div').remove();showRoadmap();}else{showNotif('Parcours CEFR bientôt disponible');}"
-                        style="width:100%;background:rgba(255,215,0,0.1);border:1px solid var(--gold);
-                               color:var(--gold);padding:12px;border-radius:14px;cursor:pointer;font-weight:800;">
-                    🗺️ Voir le parcours CEFR
-                </button>
-            </div>
-        </div>
-    `;
-    
-    const overlay = document.createElement('div');
-    overlay.innerHTML = html;
-    document.body.appendChild(overlay);
-}
 
 // Fin du fichier app.js
