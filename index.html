@@ -735,7 +735,8 @@ var S = window.S;
 // =================================================================
 // WELCOME FLOW — dans DOMContentLoaded pour que le DOM existe
 // =================================================================
-(function() {
+window.addEventListener('DOMContentLoaded', function() {
+
   // Restaurer session si sauvegarde valide
   if (window._LINGUA_HAS_SAVE) {
     try { applyUI(S.nativeLang); startMenu(); return; } catch(e) {}
@@ -815,7 +816,7 @@ var S = window.S;
     });
   }
 
-})(); // exécution immédiate — DOM déjà prêt
+}); // fin DOMContentLoaded welcome flow
 
 // MENU PRINCIPAL
 function startMenu() {
