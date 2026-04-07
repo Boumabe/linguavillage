@@ -801,6 +801,15 @@ window.addEventListener('DOMContentLoaded', function() {
     };
   });
 
+  // 3b. Choix du mode d'écriture (CJK uniquement)
+  window.selScript = function(pref, btn) {
+    document.querySelectorAll('.sc-btn').forEach(function(b) { b.classList.remove('sel','active'); });
+    btn.classList.add('sel','active');
+    S.scriptPref = pref;
+    var pb = document.getElementById('playBtn');
+    if (pb) { pb.style.display = 'block'; pb.disabled = false; }
+  };
+  
   // 4. Bouton Commencer
   var playBtnElement = document.getElementById('playBtn');
   if (playBtnElement) {
