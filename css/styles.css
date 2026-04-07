@@ -1,339 +1,183 @@
-/* =========================
-GLOBAL
-========================= */
+/* =================================================================
+   LinguaVillage — styles.css
+   Version Finale Corrigée (Alignement Drapeaux + Bordure Jaune)
+   ================================================================= */
 
-*{
-margin:0;
-padding:0;
-box-sizing:border-box;
+:root {
+  --gold: #FFD700;
+  --gold-dim: #c8a030;
+  --bg: #0a0a14;
+  --bg2: #161625;
+  --border: rgba(255, 215, 0, 0.18);
+  --text: #f0e8d0;
+  --dim: #9a8a70;
+  --white: #ffffff;
 }
 
-body{
-
-font-family:Segoe UI, Arial, sans-serif;
-
-background:
-radial-gradient(circle at 50% 0%, #1a2d57 0%, #081029 60%, #020617 100%);
-
-color:white;
-
-min-height:100vh;
-
-display:flex;
-justify-content:center;
-
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
 }
 
-/* =========================
-CONTAINER
-========================= */
-
-.container{
-
-width:90%;
-max-width:420px;
-
+body {
+  width: 100%;
+  height: 100vh;
+  background: var(--bg);
+  font-family: 'Nunito', sans-serif;
+  color: var(--text);
+  overflow-x: hidden;
 }
 
-/* =========================
-LOGO
-========================= */
-
-.logo{
-
-text-align:center;
-margin-top:80px;
-
+/* Écrans */
+.screen {
+  display: none;
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  overflow-y: auto;
+  padding: 20px;
 }
 
-.logo h1{
-
-color:#FFD84D;
-
-font-size:40px;
-
-letter-spacing:3px;
-
-text-shadow:
-0 0 10px rgba(255,215,0,0.6),
-0 0 25px rgba(255,215,0,0.4);
-
+.screen.active {
+  display: block;
 }
 
-.logo p{
-
-margin-top:6px;
-
-color:#8fa6d6;
-
-letter-spacing:2px;
-
+/* Accueil & Onboarding */
+.welcome-box {
+  max-width: 500px;
+  margin: 40px auto;
+  text-align: center;
 }
 
-/* =========================
-PANEL LANGUES
-========================= */
-
-.language-panel{
-
-margin-top:40px;
-
-padding:22px;
-
-border-radius:22px;
-
-background:rgba(20,25,40,0.65);
-
-border:1px solid rgba(255,215,0,0.25);
-
-box-shadow:
-0 0 20px rgba(0,0,0,0.6),
-inset 0 0 12px rgba(255,215,0,0.05);
-
+.step {
+  margin-top: 30px;
+  animation: fadeIn 0.5s ease;
 }
 
-/* TITRE */
-
-.panel-title{
-
-color:#c6a846;
-
-font-size:14px;
-
-letter-spacing:2px;
-
-margin-bottom:15px;
-
+label {
+  display: block;
+  font-weight: 800;
+  margin-bottom: 15px;
+  color: var(--gold);
+  font-size: 1.1rem;
 }
 
-/* =========================
-GRILLE DRAPEAUX
-========================= */
-
-.language-grid{
-
-display:grid;
-
-grid-template-columns:repeat(4,1fr);
-
-gap:14px;
-
+/* === LES CASES DE LANGUES (CORRECTION CHIRURGICALE) === */
+.grid-opts {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 }
 
-/* =========================
-CARTE LANGUE
-========================= */
-
-.language-card{
-
-background:rgba(255,255,255,0.03);
-
-border:2px solid rgba(255,215,0,0.25);
-
-border-radius:16px;
-
-padding:14px 8px;
-
-text-align:center;
-
-cursor:pointer;
-
-transition:0.25s;
-
+.opt {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 20px;
+  
+  background: var(--bg2);
+  border: 2px solid #333; /* Bordure grise par défaut comme sur ta photo */
+  border-radius: 15px;
+  padding: 18px 25px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  user-select: none;
 }
 
-.language-card:hover{
-
-border-color:#FFD84D;
-
-background:rgba(255,215,0,0.08);
-
-transform:translateY(-3px);
-
+/* Taille de l'émoji drapeau */
+.opt-f {
+  font-size: 2.2rem;
+  line-height: 1;
 }
 
-/* CARTE ACTIVE */
-
-.language-card.active{
-
-border-color:#FFD84D;
-
-box-shadow:0 0 12px rgba(255,215,0,0.4);
-
+/* Texte de la langue */
+.opt-t {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--dim);
 }
 
-/* DRAPEAU */
-
-.flag{
-
-font-size:28px;
-
-display:block;
-
-margin-bottom:6px;
-
+/* ÉTAT SÉLECTIONNÉ (LA BORDURE JAUNE DE TA PHOTO) */
+.opt.sel {
+  border-color: var(--gold); /* Bordure Jaune */
+  background: rgba(255, 215, 0, 0.05);
+  box-shadow: 0 0 15px rgba(255, 215, 0, 0.2); /* Effet brillant */
 }
 
-/* NOM LANGUE */
-
-.language-name{
-
-font-size:13px;
-
-color:#d7c57a;
-
+.opt.sel .opt-t {
+  color: var(--white);
 }
 
-/* =========================
-MENU PRINCIPAL
-========================= */
-
-.menu{
-
-margin-top:40px;
-
-display:grid;
-
-grid-template-columns:1fr 1fr;
-
-gap:16px;
-
+.opt.disabled {
+  opacity: 0.3;
+  pointer-events: none;
+  filter: grayscale(1);
 }
 
-/* =========================
-CARTES MENU
-========================= */
-
-.menu-card{
-
-border-radius:20px;
-
-padding:22px;
-
-color:white;
-
-position:relative;
-
-box-shadow:0 10px 25px rgba(0,0,0,0.4);
-
+/* Champ de saisie du nom */
+input[type="text"] {
+  width: 100%;
+  background: var(--bg2);
+  border: 2px solid #333;
+  border-radius: 12px;
+  padding: 15px;
+  color: #fff;
+  font-size: 1.1rem;
+  outline: none;
+  transition: border-color 0.3s;
 }
 
-/* COULEURS CARTES */
-
-.village{
-
-background:linear-gradient(135deg,#5c2b2b,#7c2d2d);
-
+input[type="text"]:focus {
+  border-color: var(--gold);
 }
 
-.vocab{
-
-background:linear-gradient(135deg,#1f5e3b,#256d4c);
-
+/* Bouton Play */
+#playBtn {
+  width: 100%;
+  padding: 18px;
+  background: var(--gold);
+  border: none;
+  border-radius: 15px;
+  color: #000;
+  font-size: 1.3rem;
+  font-weight: 900;
+  margin-top: 30px;
+  cursor: pointer;
+  box-shadow: 0 4px 15px rgba(255, 215, 0, 0.3);
 }
 
-.phrase{
-
-background:linear-gradient(135deg,#274472,#355f9a);
-
+#playBtn:disabled {
+  background: #444;
+  color: #888;
+  box-shadow: none;
+  cursor: not-allowed;
 }
 
-.grammar{
-
-background:linear-gradient(135deg,#3a245f,#4c2f8b);
-
+/* Animation d'apparition */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
-/* TITRE */
-
-.menu-title{
-
-font-size:18px;
-
-margin-top:10px;
-
-font-weight:600;
-
+/* Étoiles d'arrière-plan */
+#wStars {
+  position: fixed;
+  top: 0; left: 0; width: 100%; height: 100%;
+  z-index: -1;
+  pointer-events: none;
 }
 
-/* DESCRIPTION */
-
-.menu-desc{
-
-font-size:13px;
-
-opacity:0.8;
-
-margin-top:4px;
-
+.w-star {
+  position: absolute;
+  background: white;
+  border-radius: 50%;
+  opacity: 0.5;
+  animation: twinkle linear infinite;
 }
 
-/* BADGE */
-
-.badge{
-
-position:absolute;
-
-top:10px;
-
-right:10px;
-
-background:rgba(255,255,255,0.2);
-
-padding:4px 10px;
-
-border-radius:10px;
-
-font-size:12px;
-
+@keyframes twinkle {
+  0%, 100% { opacity: 0.3; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.2); }
 }
-
-/* =========================
-DICTIONNAIRE
-========================= */
-
-.dictionary{
-
-margin-top:20px;
-
-padding:16px;
-
-border-radius:18px;
-
-background:rgba(20,25,40,0.7);
-
-border:1px solid rgba(255,215,0,0.25);
-
-display:flex;
-
-align-items:center;
-
-gap:12px;
-
-}
-
-.dictionary-icon{
-
-font-size:22px;
-
-}
-
-.dictionary-text{
-
-font-size:15px;
-
-}
-
-/* =========================
-RESPONSIVE
-========================= */
-
-@media(max-width:380px){
-
-.language-grid{
-
-grid-template-columns:repeat(3,1fr);
-
-}
-
-   }
