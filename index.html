@@ -1660,30 +1660,27 @@ function loadGrammar(catKey) {
   const formula = cat.formula ? (cat.formula[tl] || cat.formula.en || cat.formula.fr || '') : '';
   const examples = cat.examples || [];
   
-  grammarBody.innerHTML = `
-    <div class="gram-section">
-      <div class="gram-title">${cat.icon || ''} ${cat[nl] || cat.fr || ''}</div>
-      <div class="gram-explanation">${expl}</div>
-      ${formula ? `<div class="gram-formula">${formula}</div>` : ''}
-      <div class="gram-examples">
-        ${examples.map(ex => {
-          const target = ex.t[tl] || ex.t.en || '';
-          const match = target.match(/^(.*)\s*\(([^)]+)\)\s*$/);
-          const chars = match ? match[1] : target;
-          const roman = match ? match[2] : '';
-          const romanSpan = (showRoman && roman) ? `<span class="roman">${roman}</span>` : '';
-          const nativeText = ex.t[nl] || ex.t.en || ex.n || '';
-          return `
-            <div class="gram-ex">
-              <span class="gram-ex-native">${escapeHtml(nativeText)}</span>
-              <span class="gram-ex-target">
-                ${showNative ? escapeHtml(chars) : target} ${romanSpan}
-                <button onclick="speakW('${escapeHtml(chars).replace(/'/g, "\\'")}')">🔊</button>
-              </span>
-            </div>`;
-        }).join('')}
-      </div>
-    </div>`;
+  var gramRowsHTML = examples.map(function(ex) {
+    var target = ex.t[tl] || ex.t.en || '';
+    var match  = target.match(/^(.*)\s*\(([^)]+)\)\s*$/);
+    var chars  = match ? match[1] : target;
+    var roman  = match ? match[2] : '';
+    var romanSpan = (showRoman && roman) ? '<span class="roman">'+roman+'</span>' : '';
+    var nativeText = ex.t[nl] || ex.t.en || ex.n || '';
+    return '<div class="gram-ex">'
+      + '<span class="gram-ex-native">'+escapeHtml(nativeText)+'</span>'
+      + '<span class="gram-ex-target">'
+      + (showNative ? escapeHtml(chars) : target) + ' ' + romanSpan
+      + '<button onclick="speakW(\''+escapeHtml(chars).replace(/\'/g,"\\\'")+'\')">&#128266;</button>'
+      + '</span></div>';
+  }).join('');
+  var formulaHTML = formula ? '<div class="gram-formula">'+formula+'</div>' : '';
+  grammarBody.innerHTML = '<div class="gram-section">'
+    + '<div class="gram-title">'+(cat.icon||'')+' '+(cat[nl]||cat.fr||'')+'</div>'
+    + '<div class="gram-explanation">'+expl+'</div>'
+    + formulaHTML
+    + '<div class="gram-examples">'+gramRowsHTML+'</div>'
+    + '</div>';
 }
 
 // DICTIONNAIRE
@@ -1831,10 +1828,526 @@ function addCEFRIndicator() {
   hud.appendChild(indicator);
 }
 
-// FONCTIONS TEMPORAIRES
-function showProgression() { showNotif('📊 Progression: ' + (S.xp || 0) + ' XP - Niveau ' + (S.level || 1)); }
-function openShop() { showNotif('🏪 Boutique bientôt disponible'); }
-function launchSurpriseMode() { showNotif('⚡ Mode surprise bientôt disponible'); }
+// =================================================================
+// ÉTAT MISSIONS & BOUTIQUE
+// =================================================================
+if (!window.S_missions) {
+  window.S_missions = { completed:{}, gems:0, badges:[], shield:0, freeHints:0 };
+}
+var S_missions = window.S_missions;
+
+// Charger depuis la sauvegarde
+(function(){
+  try {
+    var saved = localStorage.getItem('linguavillage_save');
+    if (saved) {
+      var d = JSON.parse(saved);
+      if (d.missions) Object.assign(window.S_missions, d.missions);
+    }
+  } catch(e) {}
+})();
+
+function saveMissions() {
+  try {
+    var saved = localStorage.getItem('linguavillage_save');
+    var d = saved ? JSON.parse(saved) : {};
+    d.missions = window.S_missions;
+    localStorage.setItem('linguavillage_save', JSON.stringify(d));
+  } catch(e) {}
+}
+
+// =================================================================
+// DONNÉES MISSIONS PAR LIEU
+// =================================================================
+var MISSIONS = {
+  market:[
+    {id:'m_market_1', icon:'☕', xp:30, gem:1,
+     title:{fr:'Commande un café',en:'Order a coffee',es:'Pide un café',ht:'Kòmande yon kafe',de:'Kaffee bestellen',ru:'Закажи кофе',zh:'点咖啡',ja:'コーヒー注文'},
+     desc:{fr:'Dis "Je voudrais un café"',en:'Say "I\'d like a coffee"',es:'Di "Quisiera un café"',ht:'Di "Mwen ta renmen yon kafe"',de:'Sag "Ich möchte einen Kaffee"',ru:'Скажи «Кофе, пожалуйста»',zh:'说"我要一杯咖啡"',ja:'「コーヒーをください」と言う'},
+     hint:{fr:'"Je voudrais..."',en:'"I\'d like..."',es:'"Quisiera..."',ht:'"Mwen ta renmen..."',de:'"Ich möchte..."',ru:'"Мне, пожалуйста..."',zh:'"我要..."',ja:'「...をください」'},
+     check:['café','coffee','kafe','kaffee','кофе','咖啡','コーヒー','voudrais','like','quisiera','renmen','möchte']},
+    {id:'m_market_2', icon:'💰', xp:40, gem:1,
+     title:{fr:'Demande le prix',en:'Ask the price',es:'Pregunta el precio',ht:'Mande pri a',de:'Preis fragen',ru:'Спроси цену',zh:'问价格',ja:'値段を聞く'},
+     desc:{fr:'Demande combien coûte quelque chose',en:'Ask how much something costs',es:'Pregunta cuánto cuesta algo',ht:'Mande konbyen yon bagay koute',de:'Frage wie viel etwas kostet',ru:'Спроси сколько стоит',zh:'询问某物的价格',ja:'何かの値段を聞く'},
+     hint:{fr:'"Combien coûte...?"',en:'"How much is...?"',es:'"¿Cuánto cuesta...?"',ht:'"Konbyen...koute?"',de:'"Wie viel kostet...?"',ru:'"Сколько стоит...?"',zh:'"...多少钱?"',ja:'「...はいくらですか?」'},
+     check:['combien','how much','cuánto','konbyen','wie viel','сколько','多少','いくら']},
+  ],
+  school:[
+    {id:'m_school_1', icon:'📚', xp:35, gem:1,
+     title:{fr:'Pose une question',en:'Ask a question',es:'Haz una pregunta',ht:'Poze yon kesyon',de:'Eine Frage stellen',ru:'Задай вопрос',zh:'提问',ja:'質問する'},
+     desc:{fr:'Demande au professeur d\'expliquer quelque chose',en:'Ask the teacher to explain something',es:'Pide al profesor que explique algo',ht:'Mande pwofesè eksplike yon bagay',de:'Bitte den Lehrer etwas zu erklären',ru:'Попроси учителя объяснить',zh:'请老师解释某事',ja:'先生に説明してもらう'},
+     hint:{fr:'"Pouvez-vous expliquer...?"',en:'"Can you explain...?"',es:'"¿Puede explicar...?"',ht:'"Ou ka eksplike...?"',de:'"Können Sie...erklären?"',ru:'"Объясните, пожалуйста..."',zh:'"能解释一下...吗?"',ja:'「...を説明してください」'},
+     check:['expliquer','explain','explicar','eksplike','erklären','объясните','解释','説明']},
+  ],
+  hospital:[
+    {id:'m_hospital_1', icon:'🩺', xp:40, gem:1,
+     title:{fr:'Décris tes symptômes',en:'Describe your symptoms',es:'Describe tus síntomas',ht:'Dekri sentòm ou',de:'Symptome beschreiben',ru:'Опиши симптомы',zh:'描述症状',ja:'症状を説明'},
+     desc:{fr:'Dis au médecin où tu as mal',en:'Tell the doctor where it hurts',es:'Dile al médico dónde te duele',ht:'Di doktè kote w fè mal',de:'Sag dem Arzt wo es wehtut',ru:'Скажи врачу что болит',zh:'告诉医生哪里痛',ja:'医者に痛い場所を伝える'},
+     hint:{fr:'"J\'ai mal à..."',en:'"My...hurts"',es:'"Me duele el/la..."',ht:'"...mwen fè mal"',de:'"Mein...tut weh"',ru:'"У меня болит..."',zh:'"我...痛"',ja:'「...が痛いです」'},
+     check:['mal','hurts','duele','fè mal','weh','болит','痛','痛い']},
+  ],
+  station:[
+    {id:'m_station_1', icon:'🎫', xp:45, gem:2,
+     title:{fr:'Achète un billet',en:'Buy a ticket',es:'Compra un billete',ht:'Achte yon tikè',de:'Ticket kaufen',ru:'Купи билет',zh:'买票',ja:'切符を買う'},
+     desc:{fr:'Demande un billet pour une destination',en:'Ask for a ticket to a destination',es:'Pide un billete a una ciudad',ht:'Mande yon tikè pou yon destinasyon',de:'Bitte um eine Fahrkarte',ru:'Попроси билет до',zh:'要一张去某地的票',ja:'目的地への切符を頼む'},
+     hint:{fr:'"Un billet pour...s\'il vous plaît"',en:'"One ticket to...please"',es:'"Un billete para...por favor"',ht:'"Yon tikè pou...tanpri"',de:'"Eine Fahrkarte nach...bitte"',ru:'"Один билет до...пожалуйста"',zh:'"一张去...的票"',ja:'「...まで一枚ください」'},
+     check:['billet','ticket','billete','tikè','fahrkarte','билет','票','切符']},
+  ],
+  tavern:[
+    {id:'m_tavern_1', icon:'🍺', xp:25, gem:1,
+     title:{fr:'Commande une boisson',en:'Order a drink',es:'Pide una bebida',ht:'Kòmande yon bwason',de:'Getränk bestellen',ru:'Закажи напиток',zh:'点饮料',ja:'飲み物を注文'},
+     desc:{fr:'Commande ta boisson préférée',en:'Order your favourite drink',es:'Pide tu bebida favorita',ht:'Kòmande bwason ou pi renmen',de:'Bestell dein Lieblingsgetränk',ru:'Закажи любимый напиток',zh:'点你最喜欢的饮料',ja:'好きな飲み物を注文する'},
+     hint:{fr:'"Je prends..."',en:'"I\'ll have..."',es:'"Tomaré..."',ht:'"Mwen pran..."',de:'"Ich nehme..."',ru:'"Мне..."',zh:'"我要..."',ja:'「...をください」'},
+     check:['prends','have','tomaré','pran','nehme','мне','我要','ください']},
+  ],
+  friends:[
+    {id:'m_friends_1', icon:'👋', xp:20, gem:1,
+     title:{fr:'Présente-toi',en:'Introduce yourself',es:'Preséntate',ht:'Prezante tèt ou',de:'Stell dich vor',ru:'Представься',zh:'自我介绍',ja:'自己紹介'},
+     desc:{fr:'Dis ton prénom et d\'où tu viens',en:'Say your name and where you\'re from',es:'Di tu nombre y de dónde eres',ht:'Di non ou ak kote ou soti',de:'Sag deinen Namen und wo du herkommst',ru:'Скажи своё имя и откуда ты',zh:'说你的名字和来自哪里',ja:'名前と出身地を言う'},
+     hint:{fr:'"Je m\'appelle...je viens de..."',en:'"My name is...I\'m from..."',es:'"Me llamo...soy de..."',ht:'"Mwen rele...mwen soti..."',de:'"Ich heiße...ich komme aus..."',ru:'"Меня зовут...я из..."',zh:'"我叫...我来自..."',ja:'「私の名前は...出身は...」'},
+     check:['appelle','name is','llamo','rele','heiße','зовут','我叫','名前は']},
+  ],
+  bank:[
+    {id:'m_bank_1', icon:'💳', xp:50, gem:2,
+     title:{fr:'Ouvre un compte',en:'Open an account',es:'Abre una cuenta',ht:'Ouvri yon kont',de:'Konto eröffnen',ru:'Открой счёт',zh:'开户',ja:'口座を開く'},
+     desc:{fr:'Demande à ouvrir un compte bancaire',en:'Ask to open a bank account',es:'Pide abrir una cuenta bancaria',ht:'Mande ouvri yon kont labank',de:'Bitte um Kontoeröffnung',ru:'Попроси открыть счёт',zh:'申请开银行账户',ja:'銀行口座の開設を申し込む'},
+     hint:{fr:'"Je voudrais ouvrir un compte"',en:'"I\'d like to open an account"',es:'"Quisiera abrir una cuenta"',ht:'"Mwen ta renmen ouvri yon kont"',de:'"Ich möchte ein Konto eröffnen"',ru:'"Хочу открыть счёт"',zh:'"我想开一个账户"',ja:'「口座を開きたいのですが」'},
+     check:['ouvrir','open','abrir','ouvri','eröffnen','открыть','开','開設']},
+  ],
+  park:[
+    {id:'m_park_1', icon:'💝', xp:30, gem:1,
+     title:{fr:'Fais un compliment',en:'Give a compliment',es:'Haz un cumplido',ht:'Fè yon konpliman',de:'Kompliment machen',ru:'Сделай комплимент',zh:'称赞别人',ja:'褒め言葉を言う'},
+     desc:{fr:'Dis quelque chose de gentil',en:'Say something kind',es:'Di algo amable',ht:'Di yon bèl bagay',de:'Sag etwas Nettes',ru:'Скажи что-то доброе',zh:'说些好听的话',ja:'親切な言葉を言う'},
+     hint:{fr:'"Tu es très..."',en:'"You are very..."',es:'"Eres muy..."',ht:'"Ou trè..."',de:'"Du bist sehr..."',ru:'"Ты очень..."',zh:'"你很..."',ja:'「あなたはとても...」'},
+     check:['magnifique','beautiful','hermoso','bèl','wunderschön','красивый','漂亮','美しい','gentil','kind']},
+  ],
+  police:[
+    {id:'m_police_1', icon:'🗺️', xp:30, gem:1,
+     title:{fr:'Demande ton chemin',en:'Ask for directions',es:'Pide indicaciones',ht:'Mande chemen',de:'Nach dem Weg fragen',ru:'Спроси дорогу',zh:'问路',ja:'道を聞く'},
+     desc:{fr:'Demande comment aller quelque part',en:'Ask how to get somewhere',es:'Pregunta cómo llegar a un lugar',ht:'Mande kijan pou rive yon kote',de:'Frage wie man irgendwohin kommt',ru:'Спроси как добраться',zh:'问如何到达某地',ja:'どこかへの行き方を聞く'},
+     hint:{fr:'"Comment aller à...?"',en:'"How do I get to...?"',es:'"¿Cómo llego a...?"',ht:'"Kijan pou rive...?"',de:'"Wie komme ich zu...?"',ru:'"Как добраться до...?"',zh:'"怎么去...?"',ja:'「...へはどう行けばいいですか」'},
+     check:['comment','how','cómo','kijan','wie','как','怎么','どう']},
+  ],
+};
+
+// Badges de progression
+var BADGES = [
+  {id:'b1', xp:100,  icon:'🌱', fr:'Apprenti',         en:'Apprentice'},
+  {id:'b2', xp:300,  icon:'⭐', fr:'Explorateur',      en:'Explorer'},
+  {id:'b3', xp:600,  icon:'🏅', fr:'Voyageur',         en:'Traveler'},
+  {id:'b4', xp:1000, icon:'🏆', fr:'Champion',         en:'Champion'},
+  {id:'b5', xp:2000, icon:'👑', fr:'Maître des langues',en:'Language Master'},
+];
+
+// Articles de la boutique
+var SHOP_ITEMS = [
+  {id:'hint5',    icon:'💡', price:2, fr:'5 indices gratuits',   en:'5 free hints',     effect:function(){ S_missions.freeHints=(S_missions.freeHints||0)+5; }},
+  {id:'shield',   icon:'🛡️', price:3, fr:'Bouclier de streak',   en:'Streak shield',    effect:function(){ S_missions.shield=(S_missions.shield||0)+1; }},
+  {id:'xpboost',  icon:'⚡', price:4, fr:'Double XP — 1 heure',  en:'Double XP — 1h',   effect:function(){ S.xpBoostEnd=Date.now()+3600000; }},
+  {id:'trans5',   icon:'🔤', price:1, fr:'5 traductions flash',  en:'5 flash translations', effect:function(){ S_missions.freeHints=(S_missions.freeHints||0)+5; }},
+];
+
+// Vidéos surprise par langue (Internet Archive — domaine public)
+var SURPRISE_VIDEOS = {
+  fr:[
+    {id:'French1.3',                             t:'FSI Français — Unité 1',          diff:'🟢'},
+    {id:'LearnToSpeakFrenchVideo1-11',           t:'Learn French — Video 1-11',        diff:'🟢'},
+    {id:'ll-french',                             t:'Let\'s Learn French',              diff:'🟢'},
+    {id:'FrenchIntermediateFSI',                 t:'FSI Français Intermédiaire',       diff:'🟡'},
+    {id:'FrenchFSI_Intermediate',                t:'FSI Intermediate Units',           diff:'🟡'},
+  ],
+  en:[
+    {id:'FSIEnglishBasic_Vol1',                  t:'FSI English Basic Vol.1',          diff:'🟢'},
+    {id:'PeaceCorpsEnglishCourse',               t:'Peace Corps English',              diff:'🟢'},
+    {id:'AmericanEnglishIntermediateFSI',        t:'American English Intermediate',    diff:'🟡'},
+    {id:'AdvancedEnglishLectures_Archive',       t:'Advanced English Lectures',        diff:'🔴'},
+  ],
+  es:[
+    {id:'FsiSpanishBasicCourseVolume1Unit01a',   t:'FSI Español Básico Vol.1',         diff:'🟢'},
+    {id:'Fsi-SpanishProgrammaticCourse-Volume1', t:'FSI Español Programático',         diff:'🟡'},
+  ],
+  ht:[
+    {id:'HaitianCreoleBasic_Archive',            t:'Kreyòl Ayisyen — Baz',             diff:'🟢'},
+    {id:'PaleKreyol_Archive',                    t:'Pale Kreyòl — Salitasyon',         diff:'🟢'},
+  ],
+  de:[
+    {id:'GermanFSI_Basic_Vol1',                  t:'FSI Deutsch Basiskurs Vol.1',      diff:'🟢'},
+    {id:'GermanFSI_Intermediate',                t:'FSI Deutsch Mittelstufe',           diff:'🟡'},
+  ],
+  ru:[
+    {id:'RussianFSI_Basic',                      t:'FSI Русский — Базовый',            diff:'🟢'},
+    {id:'RussianFSI_Intermediate',               t:'FSI Русский — Средний',            diff:'🟡'},
+  ],
+  zh:[
+    {id:'MandarinFSI_Basic',                     t:'FSI 普通话 基础',                   diff:'🟢'},
+    {id:'MandarinFSI_Intermediate',              t:'FSI 普通话 中级',                   diff:'🟡'},
+  ],
+  ja:[
+    {id:'JapaneseFSI_Basic',                     t:'FSI 日本語 基礎',                   diff:'🟢'},
+    {id:'JapaneseFSI_Intermediate',              t:'FSI 日本語 中級',                   diff:'🟡'},
+  ],
+};
+
+// =================================================================
+// MISSIONS
+// =================================================================
+var activeMission = null;
+
+function getMissionsForLoc(locId) {
+  return MISSIONS[locId] || [];
+}
+
+function openMissionsPanel(locId) {
+  var missions = getMissionsForLoc(locId);
+  var panel = document.getElementById('missionsPanel');
+  if (!panel) return;
+  if (!missions.length) { panel.style.display='none'; return; }
+
+  var nl = S.nativeLang || 'fr';
+  var html = '<div style="padding:10px 14px 6px;background:rgba(255,215,0,0.06);border-bottom:1px solid rgba(255,215,0,0.15);">'
+    + '<div style="font-family:Cinzel,serif;font-size:0.85rem;color:#FFD700;margin-bottom:2px;">🎯 Missions</div>'
+    + '<div style="font-size:0.65rem;color:rgba(255,255,255,0.4)">💎 ' + (S_missions.gems||0) + ' gemmes · '
+    + Object.keys(S_missions.completed).length + ' missions complétées</div>'
+    + '</div><div style="overflow-y:auto;max-height:200px;padding:8px;">';
+
+  missions.forEach(function(m) {
+    var done  = !!S_missions.completed[m.id];
+    var title = (m.title[nl] || m.title.fr);
+    var desc  = (m.desc[nl]  || m.desc.fr);
+    var hint  = (m.hint[nl]  || m.hint.fr);
+    var xpBadge = done ? '✅' : ('+' + m.xp + ' XP · ' + '💎'.repeat(m.gem));
+    html += '<div style="background:' + (done ? 'rgba(78,207,112,0.08)' : 'var(--bg-card,#1a1a2e)')
+      + ';border:1px solid ' + (done ? 'rgba(78,207,112,0.3)' : 'rgba(255,255,255,0.1)')
+      + ';border-radius:10px;padding:9px 11px;margin-bottom:6px;cursor:' + (done ? 'default' : 'pointer') + ';"'
+      + (done ? '' : ' onclick="startMission(\'' + m.id + '\',\'' + locId + '\')"') + '>'
+      + '<div style="display:flex;align-items:center;gap:7px;margin-bottom:3px;">'
+      + '<span style="font-size:1.1rem">' + m.icon + '</span>'
+      + '<span style="font-weight:800;font-size:0.82rem;color:' + (done ? '#4ecf70' : '#f0e8d0') + '">' + title + '</span>'
+      + '<span style="margin-left:auto;font-size:0.65rem;color:' + (done ? '#4ecf70' : '#FFD700') + '">' + xpBadge + '</span>'
+      + '</div>'
+      + '<div style="font-size:0.7rem;color:rgba(255,255,255,0.5)">' + desc + '</div>'
+      + (done ? '' : '<div style="font-size:0.65rem;color:rgba(255,215,0,0.5);margin-top:4px;font-style:italic">💡 ' + hint + '</div>')
+      + '</div>';
+  });
+
+  html += '</div>';
+  panel.innerHTML = html;
+  panel.style.display = 'block';
+}
+
+function startMission(missionId, locId) {
+  var missions = getMissionsForLoc(locId);
+  activeMission = missions.find(function(m){ return m.id === missionId; });
+  if (!activeMission) return;
+  var nl = S.nativeLang || 'fr';
+  var inp = document.getElementById('dialInput');
+  if (inp) {
+    inp.placeholder = '💡 ' + (activeMission.hint[nl] || activeMission.hint.fr);
+    inp.style.borderColor = '#FFD700';
+  }
+  showNotif('🎯 ' + (activeMission.title[nl] || activeMission.title.fr));
+}
+
+function checkMissionInMessage(text) {
+  if (!activeMission) return;
+  var lower = text.toLowerCase();
+  var hit = activeMission.check.some(function(kw){ return lower.includes(kw.toLowerCase()); });
+  if (hit) { completeMission(activeMission); activeMission = null; }
+}
+
+function completeMission(m) {
+  if (S_missions.completed[m.id]) return;
+  S_missions.completed[m.id] = true;
+  S_missions.gems = (S_missions.gems || 0) + m.gem;
+  gainXP(m.xp);
+  var gd = document.getElementById('gemDisplay');
+  if (gd) gd.textContent = '💎 ' + S_missions.gems;
+  checkBadges();
+  showMissionReward(m);
+  saveMissions();
+}
+
+function showMissionReward(m) {
+  var nl = S.nativeLang || 'fr';
+  var ov = document.createElement('div');
+  ov.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:9999;display:flex;align-items:center;justify-content:center;';
+  ov.innerHTML = '<div style="background:linear-gradient(135deg,#1a0a2e,#0a0a14);border:2px solid #FFD700;border-radius:22px;padding:26px 30px;text-align:center;max-width:290px;">'
+    + '<div style="font-size:2.8rem;margin-bottom:8px">' + m.icon + '</div>'
+    + '<div style="font-family:Cinzel,serif;color:#FFD700;font-size:1rem;margin-bottom:4px">✅ Mission réussie!</div>'
+    + '<div style="color:#f0e8d0;font-size:0.88rem;font-weight:800;margin-bottom:12px">' + (m.title[nl]||m.title.fr) + '</div>'
+    + '<div style="display:flex;justify-content:center;gap:14px;margin-bottom:16px">'
+    + '<span style="background:rgba(255,215,0,0.15);border:1px solid #FFD700;border-radius:10px;padding:5px 13px;color:#FFD700;font-weight:900">+' + m.xp + ' XP ⭐</span>'
+    + '<span style="background:rgba(100,200,255,0.1);border:1px solid #4a9eff;border-radius:10px;padding:5px 13px;color:#4a9eff;font-weight:900">' + '💎'.repeat(m.gem) + ' ×' + m.gem + '</span>'
+    + '</div>'
+    + '<button onclick="this.parentElement.parentElement.remove()" style="background:linear-gradient(135deg,#a86800,#ffd700);border:none;border-radius:11px;padding:9px 26px;font-family:Cinzel,serif;font-weight:700;cursor:pointer;font-size:0.82rem;">🎉 Super!</button>'
+    + '</div>';
+  document.body.appendChild(ov);
+  launchConfetti();
+  setTimeout(function(){ if(ov.parentElement) ov.remove(); }, 4000);
+}
+
+function checkBadges() {
+  var nl = S.nativeLang || 'fr';
+  BADGES.forEach(function(b){
+    if (!S_missions.badges.includes(b.id) && S.xp >= b.xp) {
+      S_missions.badges.push(b.id);
+      setTimeout(function(){ showNotif(b.icon + ' Badge: ' + (b[nl] || b.fr || b.en)); }, 1500);
+      saveMissions();
+    }
+  });
+}
+
+// =================================================================
+// PROGRESSION
+// =================================================================
+function showProgression() {
+  var nl   = S.nativeLang || 'fr';
+  var xp   = S.xp || 0;
+  var gems = S_missions.gems || 0;
+  var done = Object.keys(S_missions.completed).length;
+  var total = Object.values(MISSIONS).reduce(function(a,m){ return a+m.length; }, 0);
+  var pct  = total ? Math.round((done/total)*100) : 0;
+
+  var nextBadge = BADGES.find(function(b){ return xp < b.xp; });
+  var xpToNext  = nextBadge ? nextBadge.xp - xp : 0;
+
+  // Streak
+  var streak = 0;
+  try { var sd=JSON.parse(localStorage.getItem('linguavillage_save')||'{}'); streak=sd.streak||0; } catch(e){}
+
+  var badgesHTML = BADGES.map(function(b){
+    var unlocked = S_missions.badges.includes(b.id);
+    return '<div style="text-align:center;opacity:' + (unlocked?1:0.35) + ';background:'
+      + (unlocked?'rgba(255,215,0,0.1)':'rgba(255,255,255,0.03)')
+      + ';border:1px solid ' + (unlocked?'#FFD700':'rgba(255,255,255,0.1)')
+      + ';border-radius:10px;padding:7px 10px;">'
+      + '<div style="font-size:1.2rem">' + b.icon + '</div>'
+      + '<div style="font-size:0.58rem;color:' + (unlocked?'#FFD700':'rgba(255,255,255,0.4)') + ';margin-top:2px">' + (b[nl]||b.fr||b.en) + '</div>'
+      + '<div style="font-size:0.55rem;color:rgba(255,255,255,0.3)">' + b.xp + ' XP</div>'
+      + '</div>';
+  }).join('');
+
+  var nextHTML = nextBadge
+    ? '<div style="background:rgba(255,215,0,0.06);border:1px solid rgba(255,215,0,0.2);border-radius:10px;padding:10px;margin-bottom:16px">'
+      + '<div style="font-size:0.7rem;color:#FFD700;font-weight:800;margin-bottom:3px">⚡ Prochain: ' + nextBadge.icon + ' ' + (nextBadge[nl]||nextBadge.fr||nextBadge.en) + '</div>'
+      + '<div style="font-size:0.65rem;color:rgba(255,255,255,0.4);margin-bottom:6px">Il manque ' + xpToNext + ' XP</div>'
+      + '<div style="height:5px;background:rgba(255,255,255,0.08);border-radius:3px;overflow:hidden">'
+      + '<div style="height:100%;width:' + Math.round((xp/nextBadge.xp)*100) + '%;background:linear-gradient(90deg,#a86800,#ffd700);border-radius:3px"></div>'
+      + '</div></div>'
+    : '<div style="text-align:center;padding:8px;color:#FFD700;font-family:Cinzel">👑 Tous les badges débloqués!</div>';
+
+  var ov = document.createElement('div');
+  ov.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.92);z-index:9500;overflow-y:auto;display:flex;align-items:flex-start;justify-content:center;padding:20px;';
+  ov.innerHTML = '<div style="background:linear-gradient(135deg,#0f1a30,#0a0a14);border:1px solid rgba(255,215,0,0.3);border-radius:22px;padding:22px;max-width:390px;width:100%;margin:auto">'
+    + '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px">'
+    + '<div style="font-family:Cinzel,serif;font-size:1rem;color:#FFD700">📊 Ma Progression</div>'
+    + '<button onclick="this.closest(\'div\').parentElement.remove()" style="background:transparent;border:1px solid rgba(255,255,255,0.15);color:rgba(255,255,255,0.5);padding:3px 9px;border-radius:10px;cursor:pointer;font-size:0.72rem">✕</button>'
+    + '</div>'
+    // Stats
+    + '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:16px">'
+    + '<div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,215,0,0.15);border-radius:10px;padding:10px;text-align:center"><div style="font-size:1.3rem;font-weight:900;color:#FFD700">' + xp + '</div><div style="font-size:0.6rem;color:rgba(255,255,255,0.4)">XP Total</div></div>'
+    + '<div style="background:rgba(255,255,255,0.04);border:1px solid rgba(74,158,255,0.2);border-radius:10px;padding:10px;text-align:center"><div style="font-size:1.3rem;font-weight:900;color:#4a9eff">' + gems + '</div><div style="font-size:0.6rem;color:rgba(255,255,255,0.4)">💎 Gemmes</div></div>'
+    + '<div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,159,67,0.2);border-radius:10px;padding:10px;text-align:center"><div style="font-size:1.3rem;font-weight:900;color:#ff9f43">' + streak + '</div><div style="font-size:0.6rem;color:rgba(255,255,255,0.4)">🔥 Jours</div></div>'
+    + '</div>'
+    // Missions
+    + '<div style="margin-bottom:16px">'
+    + '<div style="display:flex;justify-content:space-between;font-size:0.7rem;color:rgba(255,255,255,0.4);margin-bottom:5px"><span>Missions</span><span>' + done + '/' + total + ' (' + pct + '%)</span></div>'
+    + '<div style="height:7px;background:rgba(255,255,255,0.07);border-radius:4px;overflow:hidden"><div style="height:100%;width:' + pct + '%;background:linear-gradient(90deg,#4ecf70,#4a9eff);border-radius:4px;transition:width .5s"></div></div>'
+    + '</div>'
+    // Badges
+    + '<div style="font-size:0.68rem;color:rgba(255,255,255,0.35);letter-spacing:2px;text-transform:uppercase;margin-bottom:8px">🏅 Badges</div>'
+    + '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px">' + badgesHTML + '</div>'
+    + nextHTML
+    // Bouton boutique
+    + '<button onclick="this.parentElement.parentElement.remove();openShop();" style="width:100%;background:rgba(255,215,0,0.08);border:1px solid #FFD700;color:#FFD700;padding:9px;border-radius:12px;cursor:pointer;font-weight:800;font-family:Nunito,sans-serif;font-size:0.82rem;">🏪 Ouvrir la Boutique</button>'
+    + '</div>';
+
+  document.body.appendChild(ov);
+}
+
+// =================================================================
+// BOUTIQUE
+// =================================================================
+function openShop() {
+  var nl = S.nativeLang || 'fr';
+  var gems = S_missions.gems || 0;
+
+  var ov = document.createElement('div');
+  ov.id = 'shopOverlay';
+  ov.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.88);z-index:9500;display:flex;align-items:center;justify-content:center;padding:20px;';
+
+  var itemsHTML = SHOP_ITEMS.map(function(item){
+    var canBuy = gems >= item.price;
+    var label  = item[nl] || item.fr || item.en;
+    return '<div style="display:flex;align-items:center;gap:11px;padding:11px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,215,0,0.12);border-radius:11px;margin-bottom:7px">'
+      + '<span style="font-size:1.5rem;flex-shrink:0">' + item.icon + '</span>'
+      + '<div style="flex:1"><div style="font-weight:800;font-size:0.82rem;color:#f0e8d0">' + label + '</div></div>'
+      + '<button onclick="buyItem(\'' + item.id + '\')" style="background:' + (canBuy?'rgba(255,215,0,0.15)':'rgba(255,255,255,0.04)') + ';border:1px solid ' + (canBuy?'#FFD700':'rgba(255,255,255,0.12)') + ';border-radius:9px;color:' + (canBuy?'#FFD700':'rgba(255,255,255,0.25)') + ';padding:5px 11px;cursor:' + (canBuy?'pointer':'not-allowed') + ';font-weight:800;font-family:Nunito,sans-serif;font-size:0.8rem;flex-shrink:0">'
+      + '💎 ' + item.price
+      + '</button></div>';
+  }).join('');
+
+  ov.innerHTML = '<div style="background:linear-gradient(135deg,#0f0a20,#0a0a14);border:1px solid #FFD700;border-radius:22px;padding:22px;max-width:370px;width:100%">'
+    + '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">'
+    + '<span style="font-family:Cinzel,serif;color:#FFD700;font-size:1rem">🏪 Boutique</span>'
+    + '<span style="color:#4a9eff;font-weight:900;font-size:0.9rem">💎 ' + gems + '</span>'
+    + '</div>'
+    + itemsHTML
+    + '<button onclick="document.getElementById(\'shopOverlay\').remove()" style="width:100%;margin-top:6px;background:transparent;border:1px solid rgba(255,255,255,0.12);color:rgba(255,255,255,0.4);padding:7px;border-radius:11px;cursor:pointer;font-family:Nunito,sans-serif;font-size:0.8rem">Fermer</button>'
+    + '</div>';
+
+  document.body.appendChild(ov);
+}
+
+function buyItem(id) {
+  var item = SHOP_ITEMS.find(function(i){ return i.id === id; });
+  if (!item) return;
+  var gems = S_missions.gems || 0;
+  if (gems < item.price) { showNotif('💎 Gemmes insuffisantes !'); return; }
+  S_missions.gems -= item.price;
+  item.effect();
+  var gd = document.getElementById('gemDisplay');
+  if (gd) gd.textContent = '💎 ' + S_missions.gems;
+  var nl = S.nativeLang || 'fr';
+  showNotif('✅ ' + (item[nl]||item.fr||item.en) + ' acheté !');
+  var ov = document.getElementById('shopOverlay');
+  if (ov) { ov.remove(); openShop(); }
+  saveMissions();
+}
+
+// =================================================================
+// MODE SURPRISE ⚡
+// =================================================================
+function launchSurpriseMode() {
+  var lang   = S.targetLang || 'fr';
+  var level  = S.level || 1;
+  var videos = (SURPRISE_VIDEOS[lang] || SURPRISE_VIDEOS['fr']).slice();
+  if (!videos.length) { showNotif('Aucune vidéo disponible.'); return; }
+
+  // Filtrer par niveau
+  var filtered = videos.filter(function(v){
+    if (level <= 3) return v.diff === '🟢';
+    if (level <= 7) return v.diff === '🟢' || v.diff === '🟡';
+    return true;
+  });
+  if (!filtered.length) filtered = videos;
+
+  var pick = filtered[Math.floor(Math.random() * filtered.length)];
+  var safeT = pick.t.replace(/'/g,'&apos;');
+  var embedURL = 'https://archive.org/embed/' + pick.id + '?autoplay=1';
+
+  var ov = document.createElement('div');
+  ov.id = 'surpriseOverlay';
+  ov.style.cssText = 'position:fixed;inset:0;background:#000;z-index:9800;display:flex;flex-direction:column;';
+
+  ov.innerHTML =
+    '<button onclick="document.getElementById(\'surpriseOverlay\').remove()" style="position:absolute;top:12px;right:12px;background:rgba(0,0,0,0.6);border:none;color:#fff;width:34px;height:34px;border-radius:50%;font-size:1rem;cursor:pointer;z-index:10;display:flex;align-items:center;justify-content:center;">✕</button>'
+    + '<div style="position:absolute;bottom:80px;left:0;right:0;padding:0 14px;z-index:10">'
+    + '<div style="font-weight:900;font-size:0.88rem;color:#fff;margin-bottom:3px;text-shadow:0 1px 8px rgba(0,0,0,0.8)">' + pick.t + '</div>'
+    + '<div style="font-size:0.7rem;color:rgba(255,255,255,0.6)">' + pick.diff + ' · 📚 Internet Archive</div>'
+    + '</div>'
+    + '<iframe src="' + embedURL + '" style="flex:1;width:100%;border:none" allowfullscreen allow="autoplay;fullscreen"></iframe>'
+    + '<div style="position:absolute;right:12px;bottom:140px;display:flex;flex-direction:column;gap:10px">'
+    + '<button onclick="nextSurpriseVideo()" style="background:rgba(224,64,251,0.85);border:none;color:#fff;width:42px;height:42px;border-radius:50%;font-size:1.1rem;cursor:pointer">⏭</button>'
+    + '<button onclick="launchSurpriseQuiz(\'' + pick.id + '\',\'' + safeT + '\')" style="background:rgba(255,215,0,0.2);border:1px solid #FFD700;color:#FFD700;width:42px;height:42px;border-radius:50%;font-size:0.95rem;cursor:pointer">❓</button>'
+    + '</div>';
+
+  document.body.appendChild(ov);
+  gainXP(5);
+}
+
+function nextSurpriseVideo() {
+  var ov = document.getElementById('surpriseOverlay');
+  if (ov) { ov.remove(); setTimeout(launchSurpriseMode, 80); }
+}
+
+function closeSurpriseMode() {
+  var ov = document.getElementById('surpriseOverlay');
+  if (ov) ov.remove();
+}
+
+async function launchSurpriseQuiz(videoId, videoTitle) {
+  var nl = S.nativeLang || 'fr';
+  var nln = {fr:'français',en:'anglais',es:'espagnol',ht:'créole haïtien',de:'allemand',ru:'russe',zh:'mandarin',ja:'japonais'};
+
+  var prompt = 'Génère exactement 3 questions QCM en ' + (nln[nl]||'français')
+    + ' sur le contenu d\'une vidéo intitulée "' + videoTitle + '" en ' + (nln[S.targetLang]||'anglais') + '.'
+    + ' Réponds UNIQUEMENT en JSON valide sans texte avant ni après: [{"q":"question","opts":["A","B","C","D"],"ans":0}]'
+    + ' "ans" est l\'index 0-3 de la bonne réponse.';
+
+  showNotif('⏳ Génération du quiz...');
+  try {
+    var r = await fetch(API + '/api/dialogue', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({npcName:'',npcRole:'',location:'',language:nln[nl]||'français',
+        playerName:S.playerName||'Joueur',playerMessage:prompt,history:[]})
+    });
+    var d = await r.json();
+    var raw = (d.reply||'[]').replace(/```json|```/g,'').trim();
+    var quiz = JSON.parse(raw);
+    if (!Array.isArray(quiz)||!quiz.length) throw new Error('vide');
+    showQuizUI(quiz.slice(0,3), videoTitle);
+  } catch(e) {
+    showNotif('Quiz indisponible pour cette vidéo.');
+  }
+}
+
+function showQuizUI(questions, videoTitle) {
+  var current = 0, score = 0;
+  var ov = document.createElement('div');
+  ov.id = 'quizOverlay';
+  ov.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.92);z-index:9900;display:flex;align-items:center;justify-content:center;padding:18px;';
+
+  function renderQ() {
+    var q = questions[current];
+    ov.innerHTML = '<div style="background:linear-gradient(135deg,#0f0a20,#0a0a14);border:1px solid #e040fb;border-radius:18px;padding:22px;max-width:350px;width:100%">'
+      + '<div style="display:flex;justify-content:space-between;margin-bottom:10px">'
+      + '<span style="font-size:0.65rem;color:rgba(255,255,255,0.4)">🎬 Quiz vidéo</span>'
+      + '<span style="font-size:0.65rem;color:#e040fb;font-weight:800">' + (current+1) + ' / ' + questions.length + '</span>'
+      + '</div>'
+      + '<div style="font-size:0.9rem;font-weight:800;color:#f0e8d0;margin-bottom:16px;line-height:1.4">' + q.q + '</div>'
+      + q.opts.map(function(opt,i){
+          return '<button onclick="window._quizAns(' + i + ')" style="width:100%;text-align:left;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:9px;padding:9px 13px;color:#f0e8d0;cursor:pointer;margin-bottom:7px;font-family:Nunito,sans-serif;font-size:0.82rem">' + opt + '</button>';
+        }).join('')
+      + '</div>';
+    document.body.appendChild(ov);
+  }
+
+  window._quizAns = function(i) {
+    var q = questions[current];
+    var btns = ov.querySelectorAll('button');
+    btns[i].style.background = i===q.ans ? 'rgba(78,207,112,0.2)' : 'rgba(224,64,251,0.15)';
+    btns[i].style.borderColor = i===q.ans ? '#4ecf70' : '#e05555';
+    btns[q.ans].style.background = 'rgba(78,207,112,0.2)';
+    btns[q.ans].style.borderColor = '#4ecf70';
+    if (i===q.ans) score++;
+    Array.from(btns).forEach(function(b){ b.disabled=true; });
+    setTimeout(function(){
+      current++;
+      ov.remove();
+      if (current < questions.length) renderQ();
+      else showQuizResult(score, questions.length);
+    }, 850);
+  };
+  renderQ();
+}
+
+function showQuizResult(score, total) {
+  var xp = score * 20;
+  var ov = document.createElement('div');
+  ov.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.88);z-index:9900;display:flex;align-items:center;justify-content:center;';
+  ov.innerHTML = '<div style="background:linear-gradient(135deg,#0f0a20,#0a0a14);border:2px solid #FFD700;border-radius:20px;padding:26px 30px;text-align:center;max-width:270px">'
+    + '<div style="font-size:2.4rem;margin-bottom:7px">' + (score===total?'🏆':score>=total/2?'⭐':'📚') + '</div>'
+    + '<div style="font-family:Cinzel,serif;color:#FFD700;font-size:0.95rem;margin-bottom:5px">Quiz terminé!</div>'
+    + '<div style="font-size:1.2rem;font-weight:900;color:#f0e8d0;margin-bottom:3px">' + score + ' / ' + total + '</div>'
+    + '<div style="font-size:0.78rem;color:#4ecf70;margin-bottom:14px;font-weight:800">+' + xp + ' XP</div>'
+    + '<button onclick="this.closest(\'div\').parentElement.remove()" style="background:linear-gradient(135deg,#a86800,#ffd700);border:none;border-radius:11px;padding:9px 26px;font-family:Cinzel,serif;font-weight:700;cursor:pointer;font-size:0.82rem">Continuer</button>'
+    + '</div>';
+  document.body.appendChild(ov);
+  gainXP(xp);
+  if (score===total) launchConfetti();
+  setTimeout(function(){ if(ov.parentElement) ov.remove(); }, 5000);
+}
 function launchConfetti() { 
   showNotif('🎉 Félicitations !');
   for (let i = 0; i < 50; i++) {
@@ -1845,7 +2358,7 @@ function launchConfetti() {
     setTimeout(() => conf.remove(), 3000);
   }
 }
-function openMissionsPanel(locId) { console.log('Missions panel for:', locId); }
+// openMissionsPanel défini dans le nouveau bloc ci-dessous
 
 // INITIALISATION
 const searchInputElem = document.getElementById('vocabSearch');
@@ -1897,4 +2410,4 @@ console.log("app.js: ✅ Version complète chargée et synchronisée avec state.
 </script>
 
 </body>
-          </html>
+                                                                  </html>
