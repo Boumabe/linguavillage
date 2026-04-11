@@ -147,7 +147,7 @@
 <!-- ====== S4: LOCATION ====== -->
 <div class="screen" id="screen-location">
   <div class="u-header">
-    <button class="back-btn" onclick="showScreen('screen-village')">← Village</button>
+    <button class="back-btn" onclick="playerGoHome();showScreen('screen-village')">← Village</button>
     <div class="u-title" id="locTitle" style="color:var(--village)"></div>
     <span id="locWeather" style="font-size:1.1rem"></span>
   </div>
@@ -4146,6 +4146,64 @@ function startMenu() {
   if (typeof updateStreak === 'function') updateStreak();
 }
 
+
+// =================================================================
+// SYSTÈME JOUEUR — maison + personnage animé
+// =================================================================
+
+// Position de la maison (centre du village)
+const HOME = { x: 0.50, y: 0.50 };
+
+// État du personnage
+const player = {
+  x: HOME.x, y: HOME.y,
+  dest: null, destName: '', onArrival: null,
+  walking: false, speed: 0.006,
+  currentLoc: 'home'
+};
+
+// Démarrer une marche vers une destination
+function startPlayerWalk(destX, destY, destName, onArrival) {
+  // Si déjà à cet endroit, ouvrir directement
+  const dx = destX - player.x, dy = destY - player.y;
+  if (Math.sqrt(dx*dx+dy*dy) < 0.04) {
+    if (onArrival) onArrival();
+    return;
+  }
+  player.dest     = { x: destX, y: destY };
+  player.destName = destName;
+  player.onArrival = onArrival;
+  player.walking  = true;
+}
+
+// Mise à jour position chaque frame
+function updatePlayer() {
+  if (!player.dest) return;
+  const dx = player.dest.x - player.x;
+  const dy = player.dest.y - player.y;
+  const dist = Math.sqrt(dx*dx + dy*dy);
+  if (dist < player.speed * 1.5) {
+    // Arrivé
+    player.x = player.dest.x;
+    player.y = player.dest.y;
+    player.dest = null;
+    player.walking = false;
+    const cb = player.onArrival;
+    player.onArrival = null;
+    if (cb) cb();
+  } else {
+    player.x += (dx/dist) * player.speed;
+    player.y += (dy/dist) * player.speed;
+  }
+}
+
+// Retour à la maison (quand on quitte un lieu)
+function playerGoHome() {
+  startPlayerWalk(HOME.x, HOME.y, 'Maison', function() {
+    player.currentLoc = 'home';
+  });
+}
+
 function goVillage() {
   if (!window.S) return;
   const hudPlayer = document.getElementById('hudPlayer');
@@ -4154,14 +4212,20 @@ function goVillage() {
   if (hudPlayer) hudPlayer.textContent = '👤 ' + S.playerName;
   if (hudLang) hudLang.textContent = (FLAGS[S.targetLang] || '') + ' ' + (LANG_NAMES[S.targetLang] || '');
   if (hudXP) hudXP.textContent = (S.xp || 0) + ' XP';
-  
+
   showScreen('screen-village');
   initCanvas();
   setWeather(getWeatherForTime());
   setInterval(updateTime, 30000);
   updateTime();
-  
-  // Ajouter indicateur CEFR
+
+  // Reset personnage à la maison
+  player.x = HOME.x;
+  player.y = HOME.y;
+  player.dest = null;
+  player.walking = false;
+  player.currentLoc = 'home';
+
   setTimeout(() => addCEFRIndicator(), 100);
 }
 
@@ -4228,6 +4292,7 @@ function initCanvas() {
 
 function villageLoop() {
   tick++;
+  updatePlayer();
   drawVillage();
   requestAnimationFrame(villageLoop);
 }
@@ -4237,72 +4302,165 @@ function drawVillage() {
   const W = canvas.width, H = canvas.height;
   const cx = W * 0.5, cy = H * 0.5;
   const night = currentWeather === 'night';
-  
+
+  // Fond ciel
   const sky = ctx.createLinearGradient(0, 0, 0, H);
   if (night) { sky.addColorStop(0, '#01020a'); sky.addColorStop(1, '#0a0a1e'); }
   else if (currentWeather === 'rain') { sky.addColorStop(0, '#1a2535'); sky.addColorStop(1, '#2a3848'); }
   else { sky.addColorStop(0, '#1a3a1a'); sky.addColorStop(1, '#2d5a2d'); }
   ctx.fillStyle = sky;
   ctx.fillRect(0, 0, W, H);
-  
+
+  // Soleil / lune / étoiles
   if (night) {
-    ctx.beginPath();
-    ctx.arc(W * 0.85, H * 0.08, 14, 0, Math.PI * 2);
-    ctx.fillStyle = '#f0e0a0';
-    ctx.fill();
-    for (let i = 0; i < 50; i++) {
-      const sx = (Math.sin(i * 437) * 0.5 + 0.5) * W;
-      const sy = (Math.sin(i * 293) * 0.5 + 0.5) * H * 0.4;
-      ctx.beginPath();
-      ctx.arc(sx, sy, 1, 0, Math.PI * 2);
-      ctx.fillStyle = 'rgba(255,255,200,' + (0.4 + 0.5 * Math.sin(tick * 0.02 + i)) + ')';
-      ctx.fill();
+    ctx.beginPath(); ctx.arc(W*0.85,H*0.08,14,0,Math.PI*2);
+    ctx.fillStyle='#f0e0a0'; ctx.fill();
+    for (let i=0;i<50;i++){
+      const sx=(Math.sin(i*437)*0.5+0.5)*W, sy=(Math.sin(i*293)*0.5+0.5)*H*0.4;
+      ctx.beginPath(); ctx.arc(sx,sy,1,0,Math.PI*2);
+      ctx.fillStyle='rgba(255,255,200,'+(0.4+0.5*Math.sin(tick*0.02+i))+')'; ctx.fill();
     }
   } else {
-    ctx.beginPath();
-    ctx.arc(W * 0.85, H * 0.08, 18, 0, Math.PI * 2);
-    ctx.fillStyle = currentWeather === 'rain' ? '#7a8898' : '#ffe0a0';
-    ctx.fill();
+    ctx.beginPath(); ctx.arc(W*0.85,H*0.08,18,0,Math.PI*2);
+    ctx.fillStyle = currentWeather==='rain' ? '#7a8898' : '#ffe0a0'; ctx.fill();
   }
-  
-  const grass = ctx.createRadialGradient(cx, cy, 0, cx, cy, W * 0.55);
-  grass.addColorStop(0, currentWeather === 'snow' ? '#d0d8e0' : '#3a6b30');
-  grass.addColorStop(1, currentWeather === 'snow' ? '#b0b8c0' : '#1e3d1a');
-  ctx.fillStyle = grass;
-  ctx.fillRect(0, 0, W, H);
-  
-  const rings = [
-    { r: W * 0.46, color: 'rgba(160,130,80,0.25)' },
-    { r: W * 0.32, color: 'rgba(160,130,80,0.30)' },
-    { r: W * 0.20, color: 'rgba(160,130,80,0.38)' },
-    { r: W * 0.10, color: 'rgba(160,130,80,0.50)' }
-  ];
-  rings.forEach(ring => {
-    ctx.beginPath();
-    ctx.arc(cx, cy, ring.r, 0, Math.PI * 2);
-    ctx.fillStyle = ring.color;
-    ctx.fill();
+
+  // Sol
+  const grass = ctx.createRadialGradient(cx,cy,0,cx,cy,W*0.55);
+  grass.addColorStop(0, currentWeather==='snow'?'#d0d8e0':'#3a6b30');
+  grass.addColorStop(1, currentWeather==='snow'?'#b0b8c0':'#1e3d1a');
+  ctx.fillStyle = grass; ctx.fillRect(0,0,W,H);
+
+  // Anneaux
+  [{r:W*0.46,c:'rgba(160,130,80,0.25)'},{r:W*0.32,c:'rgba(160,130,80,0.30)'},
+   {r:W*0.20,c:'rgba(160,130,80,0.38)'},{r:W*0.10,c:'rgba(160,130,80,0.50)'}
+  ].forEach(ring=>{
+    ctx.beginPath(); ctx.arc(cx,cy,ring.r,0,Math.PI*2);
+    ctx.fillStyle=ring.c; ctx.fill();
   });
-  
-  const wallRadii = [W * 0.46, W * 0.32, W * 0.20, W * 0.10];
-  const wallColors = ['#8a7040', '#9a8050', '#aa9060', '#c0a870'];
-  wallRadii.forEach((r, i) => {
-    ctx.beginPath();
-    ctx.arc(cx, cy, r, 0, Math.PI * 2);
-    ctx.strokeStyle = wallColors[i];
-    ctx.lineWidth = Math.max(3, W * 0.012);
-    ctx.stroke();
+
+  // Murs circulaires
+  [W*0.46,W*0.32,W*0.20,W*0.10].forEach((r,i)=>{
+    ctx.beginPath(); ctx.arc(cx,cy,r,0,Math.PI*2);
+    ctx.strokeStyle=['#8a7040','#9a8050','#aa9060','#c0a870'][i];
+    ctx.lineWidth=Math.max(3,W*0.012); ctx.stroke();
   });
-  
+
+  // Chemins cardinaux
+  const pathW = Math.max(6,W*0.022);
+  [0,Math.PI/2,Math.PI,Math.PI*1.5].forEach(angle=>{
+    const x1=cx+Math.cos(angle)*W*0.10, y1=cy+Math.sin(angle)*W*0.10;
+    const x2=cx+Math.cos(angle)*W*0.52, y2=cy+Math.sin(angle)*W*0.52;
+    ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x2,y2);
+    ctx.strokeStyle='rgba(180,150,90,0.6)'; ctx.lineWidth=pathW;
+    ctx.lineCap='round'; ctx.stroke();
+  });
+
+  // Maison du joueur (centre du village)
+  drawPlayerHome(cx, cy, W);
+
+  // Lieux
   LOCATIONS.forEach(loc => {
-    const bob = Math.sin(tick * 0.025 + loc.x * 10) * 1.5;
-    drawLoc(loc, loc.x * W, loc.y * H + bob, loc.w * W, loc.h * H, hoveredLoc === loc.id);
+    const bob = Math.sin(tick*0.025+loc.x*10)*1.5;
+    drawLoc(loc, loc.x*W, loc.y*H+bob, loc.w*W, loc.h*H, hoveredLoc===loc.id);
   });
-  
-  if (currentWeather === 'rain') {
-    ctx.fillStyle = 'rgba(0,10,30,0.12)';
-    ctx.fillRect(0, 0, W, H);
+
+  // Chemin de marche (ligne pointillée de la maison vers dest)
+  if (player.dest) {
+    const px=player.x*W, py=player.y*H;
+    const dx=player.dest.x*W, dy=player.dest.y*H;
+    ctx.beginPath(); ctx.moveTo(px,py); ctx.lineTo(dx,dy);
+    ctx.strokeStyle='rgba(255,215,0,0.25)'; ctx.lineWidth=2;
+    ctx.setLineDash([4,6]); ctx.stroke(); ctx.setLineDash([]);
   }
+
+  // Personnage joueur
+  drawPlayerCharacter(W, H);
+
+  if (currentWeather==='rain') {
+    ctx.fillStyle='rgba(0,10,30,0.12)'; ctx.fillRect(0,0,W,H);
+  }
+}
+
+// ── Maison du joueur ──────────────────────────────────────────
+function drawPlayerHome(cx, cy, W) {
+  const hw = W*0.09, hh = W*0.09;
+  const hx = cx - hw/2, hy = cy - hh/2;
+
+  // Halo pulsant si personnage à la maison
+  if (player.currentLoc === 'home') {
+    const pulse = 0.5 + 0.5*Math.sin(tick*0.05);
+    ctx.beginPath(); ctx.arc(cx,cy,hw*0.7,0,Math.PI*2);
+    ctx.fillStyle=`rgba(255,215,0,${0.06+0.06*pulse})`; ctx.fill();
+  }
+
+  // Corps maison
+  ctx.fillStyle = '#2a1a0a'; ctx.fillRect(hx,hy,hw,hh);
+  ctx.strokeStyle = '#c0a060'; ctx.lineWidth=2; ctx.strokeRect(hx,hy,hw,hh);
+
+  // Toit
+  ctx.beginPath();
+  ctx.moveTo(hx-4,hy); ctx.lineTo(cx,hy-hh*0.5); ctx.lineTo(hx+hw+4,hy);
+  ctx.fillStyle='#7a3a10'; ctx.fill();
+  ctx.strokeStyle='#c07030'; ctx.lineWidth=1.5; ctx.stroke();
+
+  // Fenêtre lumineuse
+  const winC = player.currentLoc==='home' ? 'rgba(255,230,100,0.8)' : 'rgba(255,200,80,0.3)';
+  ctx.fillStyle=winC; ctx.fillRect(hx+hw*0.15,hy+hh*0.15,hw*0.28,hh*0.28);
+  ctx.fillRect(hx+hw*0.55,hy+hh*0.15,hw*0.28,hh*0.28);
+
+  // Porte
+  ctx.fillStyle='#5a3010'; ctx.fillRect(hx+hw*0.35,hy+hh*0.55,hw*0.3,hh*0.45);
+
+  // Nom du joueur
+  ctx.font = `bold ${Math.max(8,W*0.022)}px Nunito,sans-serif`;
+  ctx.textAlign='center'; ctx.textBaseline='middle';
+  ctx.fillStyle='rgba(255,215,0,0.9)';
+  ctx.fillText('🏠 '+(S.playerName||''), cx, hy-hh*0.7);
+}
+
+// ── Personnage joueur animé ──────────────────────────────────
+function drawPlayerCharacter(W, H) {
+  const px = player.x * W;
+  const py = player.y * H;
+  const r  = Math.max(12, W*0.032);
+  const bob = player.walking ? Math.sin(tick*0.2)*3 : 0;
+
+  // Ombre
+  ctx.beginPath(); ctx.ellipse(px,py+r+2,r*0.6,r*0.2,0,0,Math.PI*2);
+  ctx.fillStyle='rgba(0,0,0,0.25)'; ctx.fill();
+
+  // Corps
+  ctx.beginPath(); ctx.arc(px,py+bob,r,0,Math.PI*2);
+  ctx.fillStyle='rgba(255,215,0,0.15)'; ctx.fill();
+  ctx.strokeStyle='#ffd700'; ctx.lineWidth=2; ctx.stroke();
+
+  // Emoji personnage
+  ctx.font = r*1.2+'px serif';
+  ctx.textAlign='center'; ctx.textBaseline='middle';
+  ctx.fillText('🧑', px, py+bob);
+
+  // Bulle "en route vers..."
+  if (player.walking && player.destName) {
+    ctx.font = `bold ${Math.max(8,W*0.022)}px Nunito,sans-serif`;
+    ctx.textAlign='center';
+    const txt = '→ '+player.destName;
+    const tw = ctx.measureText(txt).width;
+    const bx=px-tw/2-6, by=py+bob-r-22, bw=tw+12, bh=18;
+    ctx.fillStyle='rgba(7,9,15,0.85)';
+    roundRect(bx,by,bw,bh,6);
+    ctx.fill();
+    ctx.fillStyle='#ffd700'; ctx.fillText(txt,px,by+9);
+  }
+}
+
+function roundRect(x,y,w,h,r){
+  ctx.beginPath();
+  ctx.moveTo(x+r,y); ctx.lineTo(x+w-r,y); ctx.arcTo(x+w,y,x+w,y+r,r);
+  ctx.lineTo(x+w,y+h-r); ctx.arcTo(x+w,y+h,x+w-r,y+h,r);
+  ctx.lineTo(x+r,y+h); ctx.arcTo(x,y+h,x,y+h-r,r);
+  ctx.lineTo(x,y+r); ctx.arcTo(x,y,x+r,y,r);
+  ctx.closePath();
 }
 
 function drawLoc(loc, x, y, w, h, hov) {
@@ -4411,44 +4569,42 @@ function onVillageTouch(e) {
 function openLoc(loc) {
   if (!window.S) return;
   S.currentLoc = loc;
-  
+
   const locTitle = document.getElementById('locTitle');
   const locWeather = document.getElementById('locWeather');
-  if (locTitle) locTitle.textContent = `${loc.emoji} ${LOC_NAMES[loc.id][S.nativeLang] || loc.id}`;
+  if (locTitle) locTitle.textContent = `${loc.emoji} ${LOC_NAMES[loc.id]?.[S.nativeLang] || loc.id}`;
   if (locWeather) locWeather.textContent = WEATHER_ICONS[currentWeather] || '☀️';
-  
-  if (loc.id === 'cinema') {
-    if (typeof openCinema === 'function') openCinema();
-    return;
-  }
-  
-  const listEl = document.getElementById('npcList');
-  if (!listEl) return;
-  
-  listEl.innerHTML = loc.npcs.map(npc => {
-    const role = typeof npc.role === 'object' ? (npc.role[S.nativeLang] || npc.role.en) : npc.role;
-    const hint = LOC_DESC[loc.id] ? LOC_DESC[loc.id][S.nativeLang] || '' : '';
-    return `
-      <div class="npc-card" onclick="openDialogue('${loc.id}','${npc.id}')">
-        <div class="npc-av">${npc.emoji}</div>
-        <div class="npc-info">
-          <div class="npc-name">${npc.name}</div>
-          <div class="npc-role">${role}</div>
-          <div class="npc-hint">💬 ${hint}</div>
-        </div>
-        <span style="color:var(--dim);font-size:1.2rem">›</span>
-      </div>`;
-  }).join('');
-  
-  showScreen('screen-location');
-  
-  setTimeout(() => {
-    if (typeof openMissionsPanel === 'function') {
-      openMissionsPanel(loc.id);
-    }
-  }, 400);
-}
 
+  // Déclencher animation de marche AVANT d'ouvrir le lieu
+  const destX = loc.x + loc.w/2;
+  const destY = loc.y + loc.h/2;
+  const locName = LOC_NAMES[loc.id]?.[S.nativeLang] || loc.id;
+  startPlayerWalk(destX, destY, locName, function() {
+    player.currentLoc = loc.id;
+    // Ouvrir le lieu après l'arrivée
+    if (loc.id === 'cinema') {
+      if (typeof openCinema === 'function') openCinema();
+      return;
+    }
+    const listEl = document.getElementById('npcList');
+    if (!listEl) return;
+    listEl.innerHTML = loc.npcs.map(npc => {
+      const role = typeof npc.role === 'object' ? (npc.role[S.nativeLang] || npc.role.en) : npc.role;
+      const hint = LOC_DESC[loc.id] ? (LOC_DESC[loc.id][S.nativeLang] || '') : '';
+      return `
+        <div class="npc-card" onclick="openDialogue('${loc.id}','${npc.id}')">
+          <div class="npc-av">${npc.emoji}</div>
+          <div class="npc-info">
+            <div class="npc-name">${npc.name}</div>
+            <div class="npc-role">${role}</div>
+            ${hint?`<div class="npc-hint">💡 ${hint}</div>`:''}
+          </div>
+          <span style="color:var(--dim);font-size:1.2rem">›</span>
+        </div>`;
+    }).join('');
+    showScreen('screen-location');
+  });
+}
 // DIALOGUE — AVEC SPELL CHECKER ET API
 function openDialogue(locId, npcId) {
   const loc = LOCATIONS.find(l => l.id === locId);
@@ -4495,19 +4651,31 @@ function getScriptInstr() {
 
 async function npcOpen() {
   const npc = S.currentNPC, loc = S.currentLoc;
+  if (!npc || !loc) return;
   const si = getScriptInstr();
-  const wctx = { sun: 'Il fait beau.', rain: 'Il pleut.', snow: 'Il neige.', wind: 'Il fait du vent.', night: 'C\'est le soir.' };
-  const prompt = `${npc.ctx}\nLe joueur s'appelle ${S.playerName}. Réponds UNIQUEMENT en ${LANG_NAMES[S.targetLang]}.${si}\nContexte: ${wctx[currentWeather] || ''}\nMax 2 phrases. Accueille ${S.playerName} et pose une question liée à ton rôle.`;
-  
+  const wctx = {sun:'Il fait beau.',rain:'Il pleut.',snow:'Il neige.',wind:'Il fait du vent.',night:'Il fait nuit.'};
+  const role = typeof npc.role==='object' ? (npc.role.fr||npc.role.en) : npc.role;
+  const locName = LOC_NAMES[loc.id]?.fr || loc.id;
+
+  // Prompt strict : le NPC reste dans son rôle
+  const prompt = `${npc.ctx}
+Tu es ${npc.name}, ${role} à ${locName}.
+Le joueur s'appelle ${S.playerName}. Météo: ${wctx[currentWeather]||''}
+RÈGLES STRICTES:
+1. Réponds UNIQUEMENT en ${LANG_NAMES[S.targetLang]}.${si}
+2. Tu incarnes TOUJOURS ton rôle de ${role}. Ne réponds JAMAIS hors de ce rôle.
+3. Si le joueur parle d'un sujet sans rapport avec ton rôle, redirige poliment: "En tant que ${role}, je préfère qu'on parle de [ton domaine]."
+4. Vocabulaire adapté au niveau débutant/intermédiaire.
+5. Phrases courtes (max 2-3 phrases par réponse).`;
+
   showTyping();
   const sendBtn = document.getElementById('dialSend');
   if (sendBtn) sendBtn.disabled = true;
-  
   try {
     const result = await callAPIWithFallback('/api/dialogue', {
       npcName: npc.name,
-      npcRole: typeof npc.role === 'object' ? npc.role.fr : npc.role,
-      location: LOC_NAMES[loc.id]?.fr || loc.id,
+      npcRole: role,
+      location: locName,
       language: LANG_NAMES[S.targetLang],
       playerName: S.playerName,
       playerMessage: '__OPEN__',
@@ -4517,10 +4685,10 @@ async function npcOpen() {
     removeTyping();
     const reply = result.reply || `Bonjour ${S.playerName} !`;
     addClickableMsg('npc', npc.emoji, reply);
-    if (S.chatHistory) S.chatHistory.push({ role: 'assistant', content: reply });
-  } catch (e) {
+    if (S.chatHistory) S.chatHistory.push({role:'assistant',content:reply});
+  } catch(e) {
     removeTyping();
-    addClickableMsg('npc', npc.emoji, `Bonjour ${S.playerName} ! Comment puis-je vous aider aujourd'hui ?`);
+    addClickableMsg('npc', npc.emoji, `Bonjour ${S.playerName} !`);
   }
   if (sendBtn) sendBtn.disabled = false;
 }
@@ -4529,42 +4697,49 @@ async function sendMsg() {
   const input = document.getElementById('dialInput');
   const msg = input ? input.value.trim() : '';
   if (!msg) return;
-  
+
   addClickableMsg('player', '👤', msg);
   if (input) input.value = '';
-  if (S.chatHistory) S.chatHistory.push({ role: 'user', content: msg });
+  if (S.chatHistory) S.chatHistory.push({role:'user',content:msg});
   if (typeof gainXP === 'function') gainXP(10);
   if (typeof checkMissionInMessage === 'function') checkMissionInMessage(msg);
   if (typeof onMessageSent === 'function') onMessageSent(msg);
-  
+
   await checkSpelling(msg);
-  
+
   showTyping();
   const sendBtn = document.getElementById('dialSend');
   if (sendBtn) sendBtn.disabled = true;
-  
+
   try {
     const npc = S.currentNPC;
     const loc = S.currentLoc;
-    const si = getScriptInstr();
+    const si  = getScriptInstr();
+    const role = typeof npc.role==='object' ? (npc.role.fr||npc.role.en) : npc.role;
+    const locName = LOC_NAMES[loc.id]?.fr || loc.id;
+
     const result = await callAPIWithFallback('/api/dialogue', {
       npcName: npc.name,
-      npcRole: typeof npc.role === 'object' ? npc.role.fr : npc.role,
-      location: LOC_NAMES[loc.id]?.fr || loc.id,
+      npcRole: role,
+      location: locName,
       language: LANG_NAMES[S.targetLang],
       playerName: S.playerName,
       playerMessage: msg,
       history: S.chatHistory.slice(-6),
-      systemContext: `Réponds UNIQUEMENT en ${LANG_NAMES[S.targetLang]}.${si} Sois amical et aide le joueur à apprendre. Max 2 phrases.`
+      systemContext: `Tu es ${npc.name}, ${role} à ${locName}.
+Réponds UNIQUEMENT en ${LANG_NAMES[S.targetLang]}.${si}
+RÈGLE ABSOLUE: Tu restes TOUJOURS dans ton rôle de ${role}.
+Si le message est hors-sujet, dis: "En tant que ${role}, revenons à [ton domaine]."
+Phrases courtes, vocabulaire simple. Aide le joueur à pratiquer la langue.`
     });
     removeTyping();
-    const reply = result.reply || `Merci pour votre message !`;
+    const reply = result.reply || 'Merci pour votre message !';
     addClickableMsg('npc', npc.emoji, reply);
-    if (S.chatHistory) S.chatHistory.push({ role: 'assistant', content: reply });
+    if (S.chatHistory) S.chatHistory.push({role:'assistant',content:reply});
     gainXP(5);
-  } catch (e) {
+  } catch(e) {
     removeTyping();
-    addClickableMsg('npc', S.currentNPC?.emoji || '🧑', `Merci pour votre message ! Je vous répondrai bientôt.`);
+    addClickableMsg('npc', S.currentNPC?.emoji||'🧑', 'Merci pour votre message !');
   }
   if (sendBtn) sendBtn.disabled = false;
 }
@@ -4821,42 +4996,55 @@ function loadVocab(catKey) {
       return `<button class="vcat${a}" onclick="loadVocab('${k}')">${icon} ${label}</button>`;
     }).join('');
   }
-  
+
   const cat = VOCAB[catKey];
   if (!cat) return;
-  
+
   const searchInput = document.getElementById('vocabSearch');
   const search = searchInput ? searchInput.value.toLowerCase() : '';
-  const words = cat.words.filter(w => 
-    !search || 
-    (w.t[S.nativeLang] || w.n || "").toLowerCase().includes(search) || 
-    (w.t[S.targetLang] || "").toLowerCase().includes(search)
+  const words = cat.words.filter(w =>
+    !search ||
+    (w.t[S.nativeLang] || w.n || '').toLowerCase().includes(search) ||
+    (w.t[S.targetLang] || '').toLowerCase().includes(search)
   );
-  
+
   const vocabCount = document.getElementById('vocabCount');
   if (vocabCount) vocabCount.textContent = words.length + ' mots';
-  
-  const isCJK = ['zh', 'ja', 'ru'].includes(S.targetLang);
-  const showRoman = isCJK && S.scriptPref !== 'native';
-  const showNative = !isCJK || S.scriptPref !== 'roman';
-  
+
+  const isCJK = ['zh','ja','ru'].includes(S.targetLang);
+  // Pour CJK : toujours montrer les 2 (caractères + romanisation)
+  const showChars  = !isCJK || S.scriptPref !== 'roman';
+  const showRoman  = isCJK;  // toujours pour zh/ja/ru
+
   const vocabList = document.getElementById('vocabList');
   if (vocabList) {
     vocabList.innerHTML = words.map(w => {
       const target = w.t[S.targetLang] || w.t.en || '';
-      const match = target.match(/^(.*)\s*\(([^)]+)\)\s*$/);
-      const chars = match ? match[1] : target;
-      const roman = match ? match[2] : '';
-      const romanSpan = (showRoman && roman) ? `<span class="vi-roman">${roman}</span>` : '';
+      // Extraire caractères et romanisation : "你好 (Nǐ hǎo)" ou "быть (byt)"
+      const match = target.match(/^(.*?)\s*\(([^)]+)\)\s*$/);
+      const chars  = match ? match[1].trim() : target;
+      const roman  = match ? match[2].trim() : '';
       const nativeText = w.t[S.nativeLang] || w.t.en || w.n || '';
+
+      // Ligne caractères
+      const charsLine = (showChars && chars)
+        ? `<span class="vi-word">${escapeHtml(chars)}</span>`
+        : '';
+      // Ligne romanisation — toujours visible pour CJK
+      const romanLine = (showRoman && roman)
+        ? `<span class="vi-roman">${escapeHtml(roman)}</span>`
+        : (showRoman && !roman && chars)
+        ? `<span class="vi-roman vi-roman-hint">🔤 pas de romanisation</span>`
+        : '';
+
       return `
         <div class="vocab-item">
           <span class="vi-native">${escapeHtml(nativeText)}</span>
           <span class="vi-target">
-            <span class="vi-word">${showNative ? escapeHtml(chars) : ''}</span>
-            ${romanSpan}
+            ${charsLine}
+            ${romanLine}
           </span>
-          <button class="vi-listen" onclick="speakW('${escapeHtml(chars).replace(/'/g, "\\'")}')">🔊</button>
+          <button class="vi-listen" onclick="speakW('${escapeHtml(chars||target).replace(/'/g,"\'")}')">🔊</button>
         </div>`;
     }).join('');
   }
@@ -5127,9 +5315,9 @@ function addCEFRIndicator() {
     ${nextLevel ? `<span style="font-size:0.6rem;color:var(--dim);">→ ${nextLevel}</span>` : '🏆'}
   `;
   hud.appendChild(indicator);
-}
+  }
 
-// =================================================================
+  // =================================================================
 // ÉTAT MISSIONS & BOUTIQUE
 // =================================================================
 // =================================================================
@@ -5328,7 +5516,7 @@ function defeatBoss(zoneId) {
   launchConfetti(); saveGame();
 }
 
-// =================================================================
+  // =================================================================
 // COFFRES
 // =================================================================
 var CHEST_TYPES = {
@@ -5791,7 +5979,7 @@ const styleElem = document.createElement('style');
 styleElem.textContent = `@keyframes confettiFall{0%{transform:translateY(-10px) rotate(0deg);opacity:1}100%{transform:translateY(110vh) rotate(720deg);opacity:0}}`;
 document.head.appendChild(styleElem);
 
-// =================================================================
+  // =================================================================
 // SAUVEGARDE UNIFIÉE
 // =================================================================
 function saveGame() {
@@ -5913,4 +6101,3 @@ console.log("app.js: ✅ Version complète chargée et synchronisée avec state.
 </script>
 
 </body>
-                                                                           </html>
