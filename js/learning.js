@@ -1,6 +1,5 @@
 // LinguaVillage — learning.js
-// Apprentissage : vocabulaire, phrases, grammaire, dictionnaire, CEFR
-// Modifier ici pour changer l'affichage des leçons
+// Vocabulaire, phrases, grammaire, dictionnaire, CEFR
 
 function loadVocab(catKey) {
   const cats = Object.keys(VOCAB);
@@ -305,3 +304,65 @@ function addCEFRIndicator() {
   
   const totalXP = S.xp || 0;
   let currentLevel = "A1", nextLevel = "A2", progressPercent = 0, levelColor = "#4ecf70", levelIcon = "🌱";
+  
+  if (totalXP < 300) {
+    currentLevel = "A1"; nextLevel = "A2";
+    progressPercent = Math.min(100, Math.floor((totalXP / 300) * 100));
+    levelColor = "#4ecf70"; levelIcon = "🌱";
+  } else if (totalXP < 800) {
+    currentLevel = "A2"; nextLevel = "B1";
+    progressPercent = Math.min(100, Math.floor(((totalXP - 300) / 500) * 100));
+    levelColor = "#4a9eff"; levelIcon = "🌟";
+  } else if (totalXP < 1500) {
+    currentLevel = "B1"; nextLevel = "B2";
+    progressPercent = Math.min(100, Math.floor(((totalXP - 800) / 700) * 100));
+    levelColor = "#ff9f43"; levelIcon = "🏆";
+  } else if (totalXP < 2500) {
+    currentLevel = "B2"; nextLevel = "C1";
+    progressPercent = Math.min(100, Math.floor(((totalXP - 1500) / 1000) * 100));
+    levelColor = "#e040fb"; levelIcon = "👑";
+  } else {
+    currentLevel = "C1"; nextLevel = null;
+    progressPercent = 100; levelColor = "#ff6b6b"; levelIcon = "🏅";
+  }
+  
+  const indicator = document.createElement('div');
+  indicator.id = 'cefrIndicator';
+  indicator.style.cssText = `display: flex; align-items: center; gap: 6px; background: rgba(0,0,0,0.5); padding: 2px 8px; border-radius: 20px; margin-left: auto; margin-right: 8px; font-size: 0.7rem; cursor: pointer;`;
+  indicator.onclick = () => showNotif('🗺️ Niveau ' + currentLevel + ' → ' + (nextLevel || '🏆 Maître !') + ' (' + progressPercent + '%)');
+  indicator.innerHTML = `
+    <span style="font-size:0.85rem;">${levelIcon}</span>
+    <span style="font-weight:800;color:${levelColor}">${currentLevel}</span>
+    <div style="width:40px;height:4px;background:rgba(255,255,255,0.2);border-radius:2px;overflow:hidden;">
+      <div style="width:${progressPercent}%;height:100%;background:${levelColor};border-radius:2px;"></div>
+    </div>
+    ${nextLevel ? `<span style="font-size:0.6rem;color:var(--dim);">→ ${nextLevel}</span>` : '🏆'}
+  `;
+  hud.appendChild(indicator);
+}
+
+// =================================================================
+// ÉTAT MISSIONS & BOUTIQUE
+// =================================================================
+// =================================================================
+// ZONES DU MONDE
+// =================================================================
+var ZONES = {
+  zone_debutant:     { id:'zone_debutant',     icon:'🌱', order:1, xpRequired:0,    fr:'Village de l\'Aube',    en:'Dawn Village',      color:'#4ecf70', locs:['church','school','friends'],  boss:{fr:'Le Vieil Érudit',    en:'The Old Scholar',  icon:'📚', hp:5, reward:{xp:100,gems:3,chest:'rare'},     challenge:'Mène une conversation complète de 5 échanges sur ta famille sans fautes.', check:5}},
+  zone_elementaire:  { id:'zone_elementaire',  icon:'⭐', order:2, xpRequired:300,  fr:'Bourg du Marché',       en:'Market Town',       color:'#4a9eff', locs:['market','tavern','park'],     boss:{fr:'Le Marchand Pressé', en:'The Busy Merchant', icon:'💼', hp:6, reward:{xp:200,gems:5,chest:'epic'},     challenge:'Négocie un prix, commande 3 choses ET demande des directions.'}},
+  zone_intermediaire:{ id:'zone_intermediaire', icon:'🏅', order:3, xpRequired:800,  fr:'Cité des Voyageurs',    en:'Traveler\'s City',  color:'#e040fb', locs:['station','bank','hospital'],  boss:{fr:'Le Diplomate',       en:'The Diplomat',     icon:'🎩', hp:8, reward:{xp:350,gems:8,chest:'legendary'}, challenge:'Explique un problème complexe et négocie une solution formelle.'}},
+  zone_avance:       { id:'zone_avance',        icon:'🏆', order:4, xpRequired:1500, fr:'Tour de la Maîtrise',   en:'Mastery Tower',     color:'#FFD700', locs:['police','factory','cinema'],  boss:{fr:'Le Maître des Langues',en:'Language Master', icon:'👑', hp:10,reward:{xp:500,gems:15,chest:'legendary'},challenge:'Conversation libre de 10 échanges sur un sujet complexe. Niveau C1.'}},
+};
+
+function isZoneUnlocked(zoneId) {
+  var zone = ZONES[zoneId];
+  return zone ? (S.xp||0) >= zone.xpRequired : false;
+}
+
+function hexToRgb(hex) {
+  return parseInt(hex.slice(1,3),16)+','+parseInt(hex.slice(3,5),16)+','+parseInt(hex.slice(5,7),16);
+}
+
+// =================================================================
+// STREAK
+// =================================================================
