@@ -1,6 +1,5 @@
 // LinguaVillage — dialogue.js
-// Dialogues NPC : envoi messages, correcteur, popup mots, voix
-// Modifier ici pour changer le comportement de l'IA conversationnelle
+// Dialogues NPC, IA, correcteur, popup mots, voix
 
 function openDialogue(locId, npcId) {
   const loc = LOCATIONS.find(l => l.id === locId);
@@ -363,4 +362,3 @@ function speakPopupWord() {
 }
 
 // VOCABULAIRE
-function loadVocab(catKey) {
