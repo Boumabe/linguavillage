@@ -1,33 +1,5 @@
 // LinguaVillage — advanced.js
-// Fonctionnalités avancées : oral, flashcards SRS, leaderboard,
-// statistiques, rappels intelligents, quiz adaptatif, lieux verrouillés
-
-}
-
-
-
-
-
-
-
-
-
-// =================================================================
-// ████████╗██████╗  ██████╗ ██╗███████╗
-//    ██╔══╝██╔══██╗██╔═══██╗██║██╔════╝
-//    ██║   ██████╔╝██║   ██║██║███████╗
-//    ██║   ██╔══██╗██║   ██║██║╚════██║
-//    ██║   ██║  ██║╚██████╔╝██║███████║
-//    ╚═╝   ╚═╝  ╚═╝ ╚═════╝ ╚═╝╚══════╝
-// LinguaVillage — 8 Features Pack
-// =================================================================
-
-// ════════════════════════════════════════════════════════════════
-// 1. 🎤 RÉPÉTITION ORALE — Score de prononciation
-// ════════════════════════════════════════════════════════════════
-var _oralTargetWord = '';
-var _oralTargetLang = '';
-var _oralResolve    = null;
+// Oral, flashcards SRS, leaderboard, stats, rappels, quiz adaptatif
 
 function openOralPractice(word, targetLang) {
   var nl = S.nativeLang || 'fr';
