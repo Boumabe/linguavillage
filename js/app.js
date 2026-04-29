@@ -52,6 +52,7 @@ window.addEventListener('DOMContentLoaded', function() {
   // 3. Langue cible
   document.querySelectorAll('.lang-tile[data-lang]').forEach(function(t) {
     t.addEventListener('click', function() {
+      if (this.classList.contains('disabled')) return;
       document.querySelectorAll('.lang-tile[data-lang]').forEach(function(x){ x.classList.remove('active','sel'); });
       this.classList.add('active','sel');
       S.targetLang = this.dataset.lang;
@@ -78,7 +79,7 @@ window.addEventListener('DOMContentLoaded', function() {
     var pb = document.getElementById('playBtn');
     if (pb) { pb.style.display = 'block'; pb.disabled = false; }
   };
-  
+
   // 4. Bouton Commencer
   var playBtnElement = document.getElementById('playBtn');
   if (playBtnElement) {
@@ -94,33 +95,49 @@ window.addEventListener('DOMContentLoaded', function() {
     });
   }
 
-}); // fin DOMContentLoaded welcome flow
+}); // fin DOMContentLoaded
 
+// ================================================================
 // MENU PRINCIPAL
+// ================================================================
 function startMenu() {
   if (!window.S) return;
-  const menuPlayer = document.getElementById('menuPlayer');
-  const menuLang = document.getElementById('menuLang');
-  const menuXP = document.getElementById('menuXP');
-  const gemDisplay = document.getElementById('gemDisplay');
-  const xpFill = document.getElementById('xpFill');
-  
-  if (menuPlayer) menuPlayer.textContent = '👤 ' + S.playerName;
-  if (menuLang) menuLang.textContent = (FLAGS[S.targetLang] || '') + (LANG_NAMES[S.targetLang] || S.targetLang);
-  if (menuXP) menuXP.textContent = (S.xp || 0) + ' XP';
-  if (gemDisplay) gemDisplay.textContent = '💎 ' + ((window.S_missions && S_missions.gems) || 0);
-  if (xpFill) xpFill.style.width = ((S.xp || 0) % 100) + '%';
-  
-  // Citation puis menu — voir _launchMenu()
-  if (typeof saveGame === 'function') saveGame();
-if (typeof updateStreak === 'function') updateStreak();
-_launchMenu(); // ← ajouter cette ligne
 
-// Affichage de la citation puis du menu
+  var menuPlayer = document.getElementById('menuPlayer');
+  var menuLang   = document.getElementById('menuLang');
+  var menuXP     = document.getElementById('menuXP');
+  var gemDisplay = document.getElementById('gemDisplay');
+  var xpFill     = document.getElementById('xpFill');
+
+  if (menuPlayer) menuPlayer.textContent = '👤 ' + S.playerName;
+  if (menuLang)   menuLang.textContent   = (FLAGS[S.targetLang]||'') + ' ' + (LANG_NAMES[S.targetLang]||S.targetLang);
+  if (menuXP)     menuXP.textContent     = (S.xp||0) + ' XP';
+  if (gemDisplay) gemDisplay.textContent = '💎 ' + ((window.S_missions && S_missions.gems)||0);
+  if (xpFill)     xpFill.style.width     = ((S.xp||0) % 100) + '%';
+
+  if (typeof saveGame   === 'function') saveGame();
+  if (typeof updateStreak === 'function') updateStreak();
+
+  _launchMenu();
+}
+
+// ================================================================
+// LANCEMENT DU MENU (avec citation si disponible)
+// ================================================================
 function _launchMenu() {
   if (typeof showDailyQuote === 'function') {
     showDailyQuote(function() { applyMenuUI(); showScreen('screen-menu'); });
   } else {
-    applyMenuUI(); showScreen('screen-menu');
+    applyMenuUI();
+    showScreen('screen-menu');
   }
+}
+
+// ================================================================
+// MISE À JOUR DE L'UI DU MENU
+// ================================================================
+function applyMenuUI() {
+  if (typeof FLAGS === 'undefined' || typeof LANG_NAMES === 'undefined') return;
+  var menuLang = document.getElementById('menuLang');
+  if (menuLang) menuLang.textContent = (FLAGS[S.targetLang]||'') + ' ' + (LANG_NAMES[S.targetLang]||S.targetLang);
 }
