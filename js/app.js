@@ -13,7 +13,7 @@ window.addEventListener('DOMContentLoaded', function() {
 
   // 1. Langue maternelle
   document.querySelectorAll('.lang-tile[data-native]').forEach(function(t) {
-    t.onclick = function() {
+    t.addEventListener('click', function() {
       document.querySelectorAll('.lang-tile[data-native]').forEach(function(x){ x.classList.remove('active','sel'); });
       this.classList.add('active','sel');
       S.nativeLang = this.dataset.native;
@@ -34,7 +34,7 @@ window.addEventListener('DOMContentLoaded', function() {
       });
       // Focus sur le champ
       var inp=document.getElementById('inputName'); if(inp) setTimeout(function(){inp.focus();},300);
-    };
+    });
   });
 
   // 2. Saisie prénom → affiche les langues cibles
@@ -51,7 +51,7 @@ window.addEventListener('DOMContentLoaded', function() {
 
   // 3. Langue cible
   document.querySelectorAll('.lang-tile[data-lang]').forEach(function(t) {
-    t.onclick = function() {
+    t.addEventListener('click', function() {
       document.querySelectorAll('.lang-tile[data-lang]').forEach(function(x){ x.classList.remove('active','sel'); });
       this.classList.add('active','sel');
       S.targetLang = this.dataset.lang;
@@ -67,7 +67,7 @@ window.addEventListener('DOMContentLoaded', function() {
         var s4=document.getElementById('step4'); if(s4) s4.style.display='none';
         var pb=document.getElementById('playBtn'); if(pb){pb.style.display='block';pb.disabled=false;}
       }
-    };
+    });
   });
 
   // 3b. Choix du mode d'écriture (CJK uniquement)
