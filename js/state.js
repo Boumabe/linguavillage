@@ -238,3 +238,8 @@ window.callAPIWithFallback = async function(endpoint, payload) {
 })();
 
 console.log('✅ LinguaVillage — state.js chargé');
+
+window.onerror = function(msg, src, line) {
+  var dbg = document.getElementById('debug');
+  if (dbg) dbg.textContent = '❌ ' + msg + ' (ligne ' + line + ')';
+};
