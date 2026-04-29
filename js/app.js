@@ -2,7 +2,7 @@
 // Point d'entrée principal : welcome flow + startMenu
 // CHARGÉ EN DERNIER
 
-const API = 'https://linguavillage-api--marckensbou2.replit.app';
+window.API = 'https://linguavillage-api--marckensbou2.replit.app';
 
 window.addEventListener('DOMContentLoaded', function() {
 
@@ -113,8 +113,8 @@ function startMenu() {
   
   // Citation puis menu — voir _launchMenu()
   if (typeof saveGame === 'function') saveGame();
-  if (typeof updateStreak === 'function') updateStreak();
-}
+if (typeof updateStreak === 'function') updateStreak();
+_launchMenu(); // ← ajouter cette ligne
 
 // Affichage de la citation puis du menu
 function _launchMenu() {
