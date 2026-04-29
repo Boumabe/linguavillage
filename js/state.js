@@ -243,3 +243,4 @@ window.onerror = function(msg, src, line) {
   var dbg = document.getElementById('debug');
   if (dbg) dbg.textContent = '❌ ' + msg + ' (ligne ' + line + ')';
 };
+ 
