@@ -26,15 +26,17 @@ function goVillage() {
   if (hudLang)   hudLang.textContent   = (FLAGS[S.targetLang]||'') + ' ' + (LANG_NAMES[S.targetLang]||'');
   if (hudXP)     hudXP.textContent     = (S.xp||0) + ' XP';
   
-  // Afficher l'écran village et masquer tous les autres
-  document.querySelectorAll('.screen').forEach(function(s) {
-    s.classList.remove('active');
-  });
-  
-  var villageScreen = document.getElementById('screen-village');
-  if (villageScreen) {
-    villageScreen.classList.add('active');
-    villageScreen.style.display = 'flex';
+  // Afficher l'écran village via showScreen (reset les style.display inline)
+  if (typeof window.showScreen === 'function') {
+    window.showScreen('screen-village');
+  } else {
+    // fallback si showScreen pas encore disponible
+    document.querySelectorAll('.screen').forEach(function(s) {
+      s.classList.remove('active');
+      s.style.display = '';
+    });
+    var vs = document.getElementById('screen-village');
+    if (vs) vs.classList.add('active');
   }
   
   // Réinitialiser complètement le canvas
