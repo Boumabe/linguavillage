@@ -20,13 +20,14 @@ window.addEventListener('DOMContentLoaded', function() {
     };
   }
 
+  // ── Restaurer session si sauvegarde valide ──────────────────
   if (window._LINGUA_HAS_SAVE && window.S && S.playerName && S.nativeLang && S.targetLang) {
     try {
       if (typeof applyUI === 'function') applyUI(S.nativeLang);
       startMenu();
       try { if (typeof checkDailyStreak === 'function') checkDailyStreak(); } catch(e) {}
       return;
-    } catch(e) {}
+    } catch(e) { console.warn('Restore session failed:', e); }
   }
 
   // ── 1. Sélection langue maternelle ─────────────────────────
@@ -36,15 +37,23 @@ window.addEventListener('DOMContentLoaded', function() {
         window.S = { nativeLang: null, targetLang: null, playerName: '', scriptPref: 'both', xp: 0 };
       }
 
-      document.querySelectorAll('.lang-tile[data-native]').forEach(function(x) { x.classList.remove('active', 'sel'); });
+      document.querySelectorAll('.lang-tile[data-native]').forEach(function(x) {
+        x.classList.remove('active', 'sel');
+      });
       this.classList.add('active', 'sel');
+
       window.S.nativeLang = this.dataset.native;
 
       try { if (typeof applyUI === 'function') applyUI(window.S.nativeLang); } catch(e) {}
 
+      // Affiche step2 (champ prénom)
       var s2 = document.getElementById('step2');
-      if (s2) { s2.style.display = 'block'; s2.scrollIntoView({ behavior: 'smooth', block: 'center' }); }
+      if (s2) {
+        s2.style.display = 'block';
+        s2.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
 
+      // Cache step3, step4, playBtn
       var s3 = document.getElementById('step3');
       var s4 = document.getElementById('step4');
       var pb = document.getElementById('playBtn');
@@ -52,21 +61,24 @@ window.addEventListener('DOMContentLoaded', function() {
       if (s4) s4.style.display = 'none';
       if (pb) { pb.style.display = 'none'; pb.disabled = true; }
 
+      // Réinitialise le champ prénom
       var inp = document.getElementById('inputName');
       if (inp) { inp.value = ''; }
 
+      // Désactive la même langue dans la liste cible
       document.querySelectorAll('.lang-tile[data-lang]').forEach(function(o) {
         var same = o.dataset.lang === window.S.nativeLang;
         o.classList.toggle('disabled', same);
-        if (same) o.classList.remove('active', 'sel');
+        if (same) { o.classList.remove('active', 'sel'); }
       });
 
+      // Focus automatique sur le champ prénom
       var inpFocus = document.getElementById('inputName');
       if (inpFocus) setTimeout(function() { inpFocus.focus(); }, 300);
     };
   });
 
-  // ── 2. Saisie prénom ────────────────────────────────────────
+  // ── 2. Saisie prénom → affiche step3 (langues cibles) ──────
   var inputName = document.getElementById('inputName');
   if (inputName) {
     inputName.addEventListener('input', function() {
@@ -76,11 +88,23 @@ window.addEventListener('DOMContentLoaded', function() {
       var s4 = document.getElementById('step4');
       var pb = document.getElementById('playBtn');
 
-      if (s3) s3.style.display = (hasValue && hasNative) ? 'block' : 'none';
+      // N'afficher step3 QUE si prénom non vide ET langue maternelle choisie
+      if (s3) {
+        if (hasValue && hasNative) {
+          s3.style.display = 'block';
+          s3.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        } else {
+          s3.style.display = 'none';
+        }
+      }
+
       if (s4) s4.style.display = 'none';
       if (pb) { pb.style.display = 'none'; pb.disabled = true; }
 
-      document.querySelectorAll('.lang-tile[data-lang]').forEach(function(x) { x.classList.remove('active', 'sel'); });
+      // Réinitialise la sélection de langue cible
+      document.querySelectorAll('.lang-tile[data-lang]').forEach(function(x) {
+        x.classList.remove('active', 'sel');
+      });
       window.S.targetLang = null;
     });
   }
@@ -90,16 +114,23 @@ window.addEventListener('DOMContentLoaded', function() {
     t.onclick = function() {
       if (this.classList.contains('disabled')) return;
 
-      document.querySelectorAll('.lang-tile[data-lang]').forEach(function(x) { x.classList.remove('active', 'sel'); });
+      document.querySelectorAll('.lang-tile[data-lang]').forEach(function(x) {
+        x.classList.remove('active', 'sel');
+      });
       this.classList.add('active', 'sel');
+
       window.S.targetLang = this.dataset.lang;
 
       var cjk = ['zh', 'ja', 'ru'].indexOf(window.S.targetLang) !== -1;
+
       var s4 = document.getElementById('step4');
       var pb = document.getElementById('playBtn');
 
       if (cjk) {
-        if (s4) { s4.style.display = 'block'; s4.scrollIntoView({ behavior: 'smooth', block: 'center' }); }
+        if (s4) {
+          s4.style.display = 'block';
+          s4.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
 
         var lb = {
           zh: { n: '你好',      r: 'Ni hao' },
@@ -111,24 +142,39 @@ window.addEventListener('DOMContentLoaded', function() {
         if (sn) sn.textContent = lb[window.S.targetLang].n;
         if (sr) sr.textContent = lb[window.S.targetLang].r;
 
+        // Réinitialise le choix de script
         window.S.scriptPref = null;
-        document.querySelectorAll('.sc-btn').forEach(function(b) { b.classList.remove('sel', 'active'); });
+        document.querySelectorAll('.sc-btn').forEach(function(b) {
+          b.classList.remove('sel', 'active');
+        });
+
         if (pb) { pb.style.display = 'none'; pb.disabled = true; }
       } else {
         window.S.scriptPref = 'both';
         if (s4) s4.style.display = 'none';
-        if (pb) { pb.style.display = 'block'; pb.disabled = false; pb.scrollIntoView({ behavior: 'smooth', block: 'center' }); }
+        if (pb) {
+          pb.style.display = 'block';
+          pb.disabled = false;
+          pb.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
       }
     };
   });
 
   // ── 3b. Choix script CJK ────────────────────────────────────
   window.selScript = function(pref, btn) {
-    document.querySelectorAll('.sc-btn').forEach(function(b) { b.classList.remove('sel', 'active'); });
+    document.querySelectorAll('.sc-btn').forEach(function(b) {
+      b.classList.remove('sel', 'active');
+    });
     if (btn) btn.classList.add('sel', 'active');
     window.S.scriptPref = pref;
+
     var pb = document.getElementById('playBtn');
-    if (pb) { pb.style.display = 'block'; pb.disabled = false; pb.scrollIntoView({ behavior: 'smooth', block: 'center' }); }
+    if (pb) {
+      pb.style.display = 'block';
+      pb.disabled = false;
+      pb.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
   };
 
   // ── 4. Bouton Commencer ─────────────────────────────────────
@@ -136,19 +182,36 @@ window.addEventListener('DOMContentLoaded', function() {
   if (playBtn) {
     playBtn.addEventListener('click', function() {
       var nm = document.getElementById('inputName');
-      window.S.playerName = nm ? nm.value.trim() : '';
+      if (nm) {
+        window.S.playerName = nm.value.trim();
+      } else {
+        window.S.playerName = '';
+      }
 
       if (!window.S.playerName || !window.S.nativeLang || !window.S.targetLang) {
-        try { showNotif('Complétez tous les champs !'); } catch(e) { alert('Complétez tous les champs !'); }
+        try {
+          showNotif('Complétez tous les champs !');
+        } catch(e) {
+          alert('Complétez tous les champs !');
+        }
         return;
       }
 
       if (['zh', 'ja', 'ru'].indexOf(window.S.targetLang) !== -1 && !window.S.scriptPref) {
-        try { showNotif('Choisissez un mode d\'écriture !'); } catch(e) { alert('Choisissez un mode d\'écriture !'); }
+        try {
+          showNotif('Choisissez un mode d\'écriture !');
+        } catch(e) {
+          alert('Choisissez un mode d\'écriture !');
+        }
         return;
       }
 
-      try { if (typeof saveGame === 'function') saveGame(); } catch(e) {}
+      try {
+        if (typeof saveGame === 'function') {
+          saveGame();
+        }
+      } catch(e) {}
+
       startMenu();
     });
   }
@@ -156,7 +219,7 @@ window.addEventListener('DOMContentLoaded', function() {
 });
 
 // ================================================================
-// startMenu
+// startMenu — appelée après welcome flow OU restauration session
 // ================================================================
 function startMenu() {
   if (!window.S) return;
@@ -185,7 +248,7 @@ function startMenu() {
 }
 
 // ================================================================
-// _launchMenu — CORRIGÉ : affichage direct sans applyMenuUI/sowScreen
+// _launchMenu — onboarding 1ère fois → citation → screen-menu
 // ================================================================
 function _launchMenu() {
   function showQuoteThenMenu() {
@@ -235,4 +298,4 @@ function resetOnboarding() {
   localStorage.removeItem('lv_onboarding_done');
   localStorage.removeItem('lv_last_quote_idx');
   if (typeof showNotif === 'function') showNotif('Onboarding réinitialisé');
-    }
+        }
