@@ -145,7 +145,7 @@
   <canvas id="villageCanvas"></canvas>
   <div class="loc-tooltip" id="locTooltip"></div>
 </div>
-
+<button onclick="openWordGame()">🔤 Jeu de mots</button>
 <!-- ====== S4: LOCATION ====== -->
 <div class="screen" id="screen-location">
   <div class="u-header">
@@ -283,8 +283,6 @@
 
 <!-- ====== SCRIPT: app.js (version complète) ====== -->
   <!-- ═══ LinguaVillage — Scripts ═══════════════════════════════ -->
-<script src="js/state.js"></script>
-  
   <!-- 1. Données : vocabulaire, lieux, constantes -->
   <script src="js/data.js"></script>
 
@@ -317,6 +315,20 @@
 
   <!-- 11. App : point d'entrée, welcome flow, startMenu -->
   <script src="js/app.js"></script>
+
+  <!-- ═══ Nouvelles fonctionnalités v2 ═══════════════════════ -->
+  <!-- F1. Mémoire personnalisée (chargée tôt) -->
+  <script src="js/memory.js"></script>
+  <!-- F2. Phonèmes adaptés à la langue maternelle -->
+  <script src="js/phonemes.js"></script>
+  <!-- F3. PNJ vivant IA (patch dialogue) -->
+  <script src="js/pnj.js"></script>
+  <!-- F4. Sprites PNJ animés SVG -->
+  <script src="js/sprites.js"></script>
+  <!-- F5. Porte d'entrée zéro -->
+  <script src="js/onboarding.js"></script>
+  <!-- F6. Jeu de formation de mots -->
+  <script src="js/wordgame.js"></script>
 
 </body>
                                                   </html>
