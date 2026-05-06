@@ -365,6 +365,7 @@ input  { font-family: var(--font-body); }
 #screen-village {
   background: #07090f;
   overflow: hidden;
+  position: relative;  /* ← AJOUTE CECI */
 }
 
 .village-hud {
@@ -395,8 +396,12 @@ input  { font-family: var(--font-body); }
 .hud-btn:hover { background: rgba(255,215,0,0.1); border-color: var(--gold-dim); color: var(--gold); }
 
 #villageCanvas {
-  position: absolute; inset: 0;
-  width: 100%; height: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: block;  /* ← AJOUTE CECI (évite les espaces inline) */
 }
 
 .loc-tooltip {
