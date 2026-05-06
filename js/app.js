@@ -2,7 +2,7 @@
 // Point d'entrée principal : welcome flow + startMenu
 // CHARGÉ EN DERNIER
 
-window.API = 'https://linguavillage-api--marckensbou2.replit.app';
+const API = 'https://linguavillage-api--marckensbou2.replit.app';
 
 window.addEventListener('DOMContentLoaded', function() {
 
@@ -13,7 +13,7 @@ window.addEventListener('DOMContentLoaded', function() {
 
   // 1. Langue maternelle
   document.querySelectorAll('.lang-tile[data-native]').forEach(function(t) {
-    t.addEventListener('click', function() {
+    t.onclick = function() {
       document.querySelectorAll('.lang-tile[data-native]').forEach(function(x){ x.classList.remove('active','sel'); });
       this.classList.add('active','sel');
       S.nativeLang = this.dataset.native;
@@ -34,7 +34,7 @@ window.addEventListener('DOMContentLoaded', function() {
       });
       // Focus sur le champ
       var inp=document.getElementById('inputName'); if(inp) setTimeout(function(){inp.focus();},300);
-    });
+    };
   });
 
   // 2. Saisie prénom → affiche les langues cibles
@@ -51,8 +51,7 @@ window.addEventListener('DOMContentLoaded', function() {
 
   // 3. Langue cible
   document.querySelectorAll('.lang-tile[data-lang]').forEach(function(t) {
-    t.addEventListener('click', function() {
-      if (this.classList.contains('disabled')) return;
+    t.onclick = function() {
       document.querySelectorAll('.lang-tile[data-lang]').forEach(function(x){ x.classList.remove('active','sel'); });
       this.classList.add('active','sel');
       S.targetLang = this.dataset.lang;
@@ -68,7 +67,7 @@ window.addEventListener('DOMContentLoaded', function() {
         var s4=document.getElementById('step4'); if(s4) s4.style.display='none';
         var pb=document.getElementById('playBtn'); if(pb){pb.style.display='block';pb.disabled=false;}
       }
-    });
+    };
   });
 
   // 3b. Choix du mode d'écriture (CJK uniquement)
@@ -79,7 +78,7 @@ window.addEventListener('DOMContentLoaded', function() {
     var pb = document.getElementById('playBtn');
     if (pb) { pb.style.display = 'block'; pb.disabled = false; }
   };
-
+  
   // 4. Bouton Commencer
   var playBtnElement = document.getElementById('playBtn');
   if (playBtnElement) {
@@ -95,49 +94,48 @@ window.addEventListener('DOMContentLoaded', function() {
     });
   }
 
-}); // fin DOMContentLoaded
+}); // fin DOMContentLoaded welcome flow
 
-// ================================================================
 // MENU PRINCIPAL
-// ================================================================
 function startMenu() {
   if (!window.S) return;
-
-  var menuPlayer = document.getElementById('menuPlayer');
-  var menuLang   = document.getElementById('menuLang');
-  var menuXP     = document.getElementById('menuXP');
-  var gemDisplay = document.getElementById('gemDisplay');
-  var xpFill     = document.getElementById('xpFill');
-
+  const menuPlayer = document.getElementById('menuPlayer');
+  const menuLang = document.getElementById('menuLang');
+  const menuXP = document.getElementById('menuXP');
+  const gemDisplay = document.getElementById('gemDisplay');
+  const xpFill = document.getElementById('xpFill');
+  
   if (menuPlayer) menuPlayer.textContent = '👤 ' + S.playerName;
-  if (menuLang)   menuLang.textContent   = (FLAGS[S.targetLang]||'') + ' ' + (LANG_NAMES[S.targetLang]||S.targetLang);
-  if (menuXP)     menuXP.textContent     = (S.xp||0) + ' XP';
-  if (gemDisplay) gemDisplay.textContent = '💎 ' + ((window.S_missions && S_missions.gems)||0);
-  if (xpFill)     xpFill.style.width     = ((S.xp||0) % 100) + '%';
-
-  if (typeof saveGame   === 'function') saveGame();
+  if (menuLang) menuLang.textContent = (FLAGS[S.targetLang] || '') + (LANG_NAMES[S.targetLang] || S.targetLang);
+  if (menuXP) menuXP.textContent = (S.xp || 0) + ' XP';
+  if (gemDisplay) gemDisplay.textContent = '💎 ' + ((window.S_missions && S_missions.gems) || 0);
+  if (xpFill) xpFill.style.width = ((S.xp || 0) % 100) + '%';
+  
+  // Citation puis menu — voir _launchMenu()
+  if (typeof saveGame === 'function') saveGame();
   if (typeof updateStreak === 'function') updateStreak();
-
-  _launchMenu();
 }
 
-// ================================================================
-// LANCEMENT DU MENU (avec citation si disponible)
-// ================================================================
+// Affichage onboarding (1ère fois) → citation → menu
 function _launchMenu() {
-  if (typeof showDailyQuote === 'function') {
-    showDailyQuote(function() { applyMenuUI(); showScreen('screen-menu'); });
+  var isFirstTime = !localStorage.getItem('lv_onboarding_done');
+  function showQuoteThenMenu() {
+    if (typeof showDailyQuote === 'function') {
+      showDailyQuote(function() { applyMenuUI(); showScreen('screen-menu'); });
+    } else {
+      applyMenuUI(); showScreen('screen-menu');
+    }
+  }
+  if (isFirstTime && typeof window.LV_ONBOARDING !== 'undefined') {
+    localStorage.setItem('lv_onboarding_done', '1');
+    window.LV_ONBOARDING.show(showQuoteThenMenu);
   } else {
-    applyMenuUI();
-    showScreen('screen-menu');
+    showQuoteThenMenu();
   }
 }
 
-// ================================================================
-// MISE À JOUR DE L'UI DU MENU
-// ================================================================
-function applyMenuUI() {
-  if (typeof FLAGS === 'undefined' || typeof LANG_NAMES === 'undefined') return;
-  var menuLang = document.getElementById('menuLang');
-  if (menuLang) menuLang.textContent = (FLAGS[S.targetLang]||'') + ' ' + (LANG_NAMES[S.targetLang]||S.targetLang);
+// Bouton jeu de mots accessible depuis le menu
+function openWordGame() {
+  if (window.LV_WORDGAME) window.LV_WORDGAME.open();
+  else if (typeof showNotif === 'function') showNotif('Chargement...');
 }
