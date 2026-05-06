@@ -96,131 +96,149 @@ const QUOTES = {
 
 // ── Favoris ────────────────────────────────────────────────────
 function loadFavoriteQuotes() {
-  try { return JSON.parse(localStorage.getItem('lv_fav_quotes')||'[]'); }
-  catch(e) { return []; }
+  try {
+    return JSON.parse(localStorage.getItem('lv_fav_quotes') || '[]');
+  } catch(e) {
+    return [];
+  }
 }
+
 function saveFavoriteQuote(quote) {
-  const favs = loadFavoriteQuotes();
-  const key = quote.text;
-  if (!favs.find(q => q.text===key)) {
+  var favs = loadFavoriteQuotes();
+  var key = quote.text;
+  var alreadyExists = false;
+  for (var i = 0; i < favs.length; i++) {
+    if (favs[i].text === key) {
+      alreadyExists = true;
+      break;
+    }
+  }
+  if (!alreadyExists) {
     favs.push(quote);
     localStorage.setItem('lv_fav_quotes', JSON.stringify(favs));
-    showNotif('⭐ Ajouté aux favoris !');
+    if (typeof showNotif === 'function') showNotif('⭐ Ajouté aux favoris !');
   } else {
-    showNotif('⭐ Déjà dans tes favoris.');
+    if (typeof showNotif === 'function') showNotif('⭐ Déjà dans tes favoris.');
   }
 }
 
 // ── Affichage de la citation ────────────────────────────────────
 function showDailyQuote(onDone) {
-  const lang = (window.S && S.targetLang) || 'fr';
-  const pool = QUOTES[lang] || QUOTES['fr'];
-  const isCJK = ['zh','ja','ru'].includes(lang);
+  var lang = (window.S && S.targetLang) || 'fr';
+  var pool = QUOTES[lang] || QUOTES['fr'];
+  var isCJK = (lang === 'zh' || lang === 'ja' || lang === 'ru');
 
   // Choisir une citation aléatoire (différente du jour précédent)
-  const lastIdx = parseInt(localStorage.getItem('lv_last_quote_idx')||'-1');
-  let idx;
-  do { idx = Math.floor(Math.random()*pool.length); }
-  while (idx===lastIdx && pool.length>1);
+  var lastIdx = parseInt(localStorage.getItem('lv_last_quote_idx') || '-1');
+  var idx;
+  do {
+    idx = Math.floor(Math.random() * pool.length);
+  } while (idx === lastIdx && pool.length > 1);
   localStorage.setItem('lv_last_quote_idx', idx);
 
-  const q = pool[idx];
+  var q = pool[idx];
 
   // Injecter le screen citation dans le DOM
-  let screen = document.getElementById('screen-quote');
+  var screen = document.getElementById('screen-quote');
   if (!screen) {
     screen = document.createElement('div');
     screen.id = 'screen-quote';
     screen.className = 'screen';
-    screen.style.cssText = 'display:none;flex-direction:column;align-items:center;justify-content:center;padding:24px;background:radial-gradient(ellipse at 50% 40%,#0d1a2e 0%,#07090f 70%);';
+    screen.style.cssText = 'flex-direction:column;align-items:center;justify-content:center;padding:24px;background:radial-gradient(ellipse at 50% 40%,#0d1a2e 0%,#07090f 70%);';
     document.body.appendChild(screen);
   }
 
-  const langName = { fr:'Français',es:'Español',en:'English',de:'Deutsch',ru:'Русский',zh:'中文',ja:'日本語',ht:'Kreyòl' }[lang] || lang;
-  const flag = (window.FLAGS && FLAGS[lang]) || '';
+  var langNames = { fr:'Français', es:'Español', en:'English', de:'Deutsch', ru:'Русский', zh:'中文', ja:'日本語', ht:'Kreyòl' };
+  var langName = langNames[lang] || lang;
+  var flag = (window.FLAGS && FLAGS[lang]) || '';
 
-  screen.innerHTML = `
-    <div style="position:fixed;inset:0;pointer-events:none;z-index:0;" id="quote-stars"></div>
+  // Construction du HTML sans template literals
+  var romanBlock = '';
+  if (isCJK && q.roman) {
+    romanBlock = '<div id="quote-roman" style="font-size:0.9rem;color:rgba(74,158,255,0.9);font-style:italic;margin-bottom:10px;">' +
+      (typeof escapeHtml === 'function' ? escapeHtml(q.roman) : q.roman) +
+      '</div>';
+  }
 
-    <div style="position:relative;z-index:1;width:100%;max-width:420px;display:flex;flex-direction:column;align-items:center;gap:20px;">
+  var quoteText = typeof escapeHtml === 'function' ? escapeHtml(q.text) : q.text;
 
-      <!-- Badge langue -->
-      <div style="font-size:0.72rem;font-weight:800;letter-spacing:0.15em;text-transform:uppercase;
-                  color:rgba(255,215,0,0.6);border:1px solid rgba(255,215,0,0.2);
-                  padding:4px 14px;border-radius:20px;">
-        ${flag} ${langName} — Proverbe du jour
-      </div>
-
-      <!-- Citation principale -->
-      <div style="text-align:center;">
-        <div id="quote-text" style="font-family:'Cinzel',serif;font-size:clamp(1.1rem,4vw,1.5rem);
-                                     font-weight:700;color:#fff;line-height:1.5;margin-bottom:14px;
-                                     text-shadow:0 0 30px rgba(255,215,0,0.2);">
-          ${escapeHtml ? escapeHtml(q.text) : q.text}
-        </div>
-        ${isCJK && q.roman ? `
-        <div id="quote-roman" style="font-size:0.9rem;color:rgba(74,158,255,0.9);
-                                      font-style:italic;margin-bottom:10px;">
-          ${q.roman}
-        </div>` : ''}
-        <div style="font-size:0.72rem;color:rgba(255,215,0,0.55);font-weight:600;">
-          — ${q.author}
-        </div>
-      </div>
-
-      <!-- Traduction (cachée par défaut) -->
-      <div id="quote-translation" style="display:none;background:rgba(74,158,255,0.08);
-            border:1px solid rgba(74,158,255,0.2);border-radius:12px;
-            padding:12px 16px;font-size:0.85rem;color:var(--blue,#4a9eff);
-            text-align:center;width:100%;line-height:1.5;">
-      </div>
-
-      <!-- Boutons actions -->
-      <div style="display:flex;gap:10px;width:100%;">
-        <button onclick="quoteTranslate()" id="quote-btn-translate"
-          style="flex:1;background:rgba(74,158,255,0.1);border:1px solid rgba(74,158,255,0.3);
-                 color:#4a9eff;padding:11px 8px;border-radius:12px;font-weight:800;font-size:0.8rem;cursor:pointer;">
-          🌐 Traduire
-        </button>
-        <button onclick="quoteFavorite()"
-          style="flex:1;background:rgba(255,215,0,0.08);border:1px solid rgba(255,215,0,0.2);
-                 color:#ffd700;padding:11px 8px;border-radius:12px;font-weight:800;font-size:0.8rem;cursor:pointer;">
-          ⭐ Favoris
-        </button>
-        <button onclick="quoteNext()"
-          style="flex:1;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);
-                 color:rgba(232,224,208,0.7);padding:11px 8px;border-radius:12px;font-weight:800;font-size:0.8rem;cursor:pointer;">
-          ⏭ Passer
-        </button>
-      </div>
-
-      <!-- Bouton Continuer (principal) -->
-      <button onclick="quoteContinue()"
-        style="width:100%;background:linear-gradient(135deg,#a86800,#ffd700);border:none;
-               border-radius:14px;padding:15px;font-family:'Cinzel',serif;
-               font-size:1rem;font-weight:700;color:#0a0a0a;letter-spacing:0.05em;
-               box-shadow:0 4px 20px rgba(255,215,0,0.3);cursor:pointer;
-               transition:all 0.2s;">
-        ▶ Entrer dans le village
-      </button>
-
-      <div style="font-size:0.65rem;color:rgba(255,255,255,0.2);text-align:center;">
-        LinguaVillage — Apprendre en vivant
-      </div>
-    </div>
-  `;
+  screen.innerHTML = '' +
+    '<div style="position:fixed;inset:0;pointer-events:none;z-index:0;" id="quote-stars"></div>' +
+    '' +
+    '<div style="position:relative;z-index:1;width:100%;max-width:420px;display:flex;flex-direction:column;align-items:center;gap:20px;">' +
+    '' +
+    '  <!-- Badge langue -->' +
+    '  <div style="font-size:0.72rem;font-weight:800;letter-spacing:0.15em;text-transform:uppercase;' +
+    '              color:rgba(255,215,0,0.6);border:1px solid rgba(255,215,0,0.2);' +
+    '              padding:4px 14px;border-radius:20px;">' +
+    '    ' + flag + ' ' + langName + ' — Proverbe du jour' +
+    '  </div>' +
+    '' +
+    '  <!-- Citation principale -->' +
+    '  <div style="text-align:center;">' +
+    '    <div id="quote-text" style="font-family:\'Cinzel\',serif;font-size:clamp(1.1rem,4vw,1.5rem);' +
+    '                                 font-weight:700;color:#fff;line-height:1.5;margin-bottom:14px;' +
+    '                                 text-shadow:0 0 30px rgba(255,215,0,0.2);">' +
+    '      ' + quoteText +
+    '    </div>' +
+    '    ' + romanBlock +
+    '    <div style="font-size:0.72rem;color:rgba(255,215,0,0.55);font-weight:600;">' +
+    '      — ' + q.author +
+    '    </div>' +
+    '  </div>' +
+    '' +
+    '  <!-- Traduction (cachée par défaut) -->' +
+    '  <div id="quote-translation" style="display:none;background:rgba(74,158,255,0.08);' +
+    '        border:1px solid rgba(74,158,255,0.2);border-radius:12px;' +
+    '        padding:12px 16px;font-size:0.85rem;color:#4a9eff;' +
+    '        text-align:center;width:100%;line-height:1.5;">' +
+    '  </div>' +
+    '' +
+    '  <!-- Boutons actions -->' +
+    '  <div style="display:flex;gap:10px;width:100%;">' +
+    '    <button onclick="quoteTranslate()" id="quote-btn-translate"' +
+    '      style="flex:1;background:rgba(74,158,255,0.1);border:1px solid rgba(74,158,255,0.3);' +
+    '             color:#4a9eff;padding:11px 8px;border-radius:12px;font-weight:800;font-size:0.8rem;cursor:pointer;">' +
+    '      🌐 Traduire' +
+    '    </button>' +
+    '    <button onclick="quoteFavorite()"' +
+    '      style="flex:1;background:rgba(255,215,0,0.08);border:1px solid rgba(255,215,0,0.2);' +
+    '             color:#ffd700;padding:11px 8px;border-radius:12px;font-weight:800;font-size:0.8rem;cursor:pointer;">' +
+    '      ⭐ Favoris' +
+    '    </button>' +
+    '    <button onclick="quoteNext()"' +
+    '      style="flex:1;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);' +
+    '             color:rgba(232,224,208,0.7);padding:11px 8px;border-radius:12px;font-weight:800;font-size:0.8rem;cursor:pointer;">' +
+    '      ⏭ Passer' +
+    '    </button>' +
+    '  </div>' +
+    '' +
+    '  <!-- Bouton Continuer (principal) -->' +
+    '  <button onclick="quoteContinue()"' +
+    '    style="width:100%;background:linear-gradient(135deg,#a86800,#ffd700);border:none;' +
+    '           border-radius:14px;padding:15px;font-family:\'Cinzel\',serif;' +
+    '           font-size:1rem;font-weight:700;color:#0a0a0a;letter-spacing:0.05em;' +
+    '           box-shadow:0 4px 20px rgba(255,215,0,0.3);cursor:pointer;' +
+    '           transition:all 0.2s;">' +
+    '    ▶ Entrer dans le village' +
+    '  </button>' +
+    '' +
+    '  <div style="font-size:0.65rem;color:rgba(255,255,255,0.2);text-align:center;">' +
+    '    LinguaVillage — Apprendre en vivant' +
+    '  </div>' +
+    '</div>';
 
   // Étoiles de fond
-  const starsEl = screen.querySelector('#quote-stars');
+  var starsEl = screen.querySelector('#quote-stars');
   if (starsEl) {
-    let starsHTML = '';
-    for (let i=0;i<80;i++) {
-      const z = Math.random()*2+0.4;
-      starsHTML += `<div style="position:absolute;width:${z}px;height:${z}px;border-radius:50%;
-        background:#fff;left:${Math.random()*100}%;top:${Math.random()*100}%;
-        opacity:${0.2+Math.random()*0.6};
-        animation:twinkle ${2+Math.random()*4}s ease-in-out infinite alternate;
-        animation-delay:${Math.random()*5}s;"></div>`;
+    var starsHTML = '';
+    for (var i = 0; i < 80; i++) {
+      var z = Math.random() * 2 + 0.4;
+      starsHTML += '<div style="position:absolute;width:' + z + 'px;height:' + z + 'px;border-radius:50%;' +
+        'background:#fff;left:' + (Math.random() * 100) + '%;top:' + (Math.random() * 100) + '%;' +
+        'opacity:' + (0.2 + Math.random() * 0.6) + ';' +
+        'animation:twinkle ' + (2 + Math.random() * 4) + 's ease-in-out infinite alternate;' +
+        'animation-delay:' + (Math.random() * 5) + 's;"></div>';
     }
     starsEl.innerHTML = starsHTML;
   }
@@ -229,60 +247,86 @@ function showDailyQuote(onDone) {
   window._quoteDoneCb = onDone;
   window._currentQuote = q;
 
-  // Afficher
-  document.querySelectorAll('.screen').forEach(s => s.style.display='none');
-  screen.style.display = 'flex';
+  // ✅ CORRECTION : Utiliser classList au lieu de style.display
+  document.querySelectorAll('.screen').forEach(function(s) {
+    s.classList.remove('active');
+  });
+  screen.classList.add('active');
 }
 
+// ── Traduction de la citation ──────────────────────────────────
 function quoteTranslate() {
-  const q = window._currentQuote;
+  var q = window._currentQuote;
   if (!q) return;
-  const btn = document.getElementById('quote-btn-translate');
-  const div = document.getElementById('quote-translation');
+  var btn = document.getElementById('quote-btn-translate');
+  var div = document.getElementById('quote-translation');
   if (!div) return;
-  if (div.style.display !== 'none') { div.style.display='none'; return; }
+  if (div.style.display !== 'none') {
+    div.style.display = 'none';
+    return;
+  }
 
-  const nativeLang = (window.S && S.nativeLang) || 'fr';
-  const targetLang = (window.S && S.targetLang) || 'fr';
-  const nativeNames = { fr:'français',en:'anglais',es:'espagnol',ht:'créole haïtien',de:'allemand',ru:'russe',zh:'mandarin',ja:'japonais' };
+  var nativeLang = (window.S && S.nativeLang) || 'fr';
+  var targetLang = (window.S && S.targetLang) || 'fr';
+  var nativeNames = {
+    fr: 'français',
+    en: 'anglais',
+    es: 'espagnol',
+    ht: 'créole haïtien',
+    de: 'allemand',
+    ru: 'russe',
+    zh: 'mandarin',
+    ja: 'japonais'
+  };
 
   if (btn) btn.textContent = '⏳ Traduction...';
 
-  const prompt = `Traduis ce proverbe en ${nativeNames[nativeLang]||nativeLang} et explique-le brièvement (1 phrase): "${q.text}"`;
+  var prompt = 'Traduis ce proverbe en ' + (nativeNames[nativeLang] || nativeLang) +
+    ' et explique-le brièvement (1 phrase): "' + q.text + '"';
 
-  fetch(window.API+'/api/dialogue', {
-    method:'POST', headers:{'Content-Type':'application/json'},
-    body: JSON.stringify({ npcName:'', npcRole:'', location:'', language:'français',
-      playerName:'', playerMessage: prompt, history:[] })
+  fetch(window.API + '/api/dialogue', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      npcName: '',
+      npcRole: '',
+      location: '',
+      language: 'français',
+      playerName: '',
+      playerMessage: prompt,
+      history: []
+    })
   })
-  .then(r=>r.json())
-  .then(d=>{
+  .then(function(r) { return r.json(); })
+  .then(function(d) {
     div.textContent = d.reply || 'Traduction indisponible.';
     div.style.display = 'block';
     if (btn) btn.textContent = '🌐 Cacher';
   })
-  .catch(()=>{
+  .catch(function() {
     div.textContent = 'Traduction indisponible pour le moment.';
     div.style.display = 'block';
     if (btn) btn.textContent = '🌐 Traduire';
   });
 }
 
+// ── Ajouter aux favoris ────────────────────────────────────────
 function quoteFavorite() {
-  const q = window._currentQuote;
+  var q = window._currentQuote;
   if (q) saveFavoriteQuote(q);
 }
 
+// ── Passer à un autre proverbe ─────────────────────────────────
 function quoteNext() {
-  // Passer à un autre proverbe
   if (window._quoteDoneCb !== undefined) {
-    // Re-afficher avec un nouveau proverbe
     showDailyQuote(window._quoteDoneCb);
   }
 }
 
+// ── Continuer après la citation ────────────────────────────────
 function quoteContinue() {
-  const screen = document.getElementById('screen-quote');
-  if (screen) screen.style.display = 'none';
+  var screen = document.getElementById('screen-quote');
+  // ✅ CORRECTION : Utiliser classList au lieu de style.display
+  if (screen) screen.classList.remove('active');
   if (window._quoteDoneCb) window._quoteDoneCb();
-}
+     }
