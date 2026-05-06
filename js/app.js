@@ -257,34 +257,29 @@ function startMenu() {
 // ================================================================
 // _launchMenu — onboarding 1ère fois → citation → screen-menu
 // ================================================================
+// ================================================================
+// showScreen — navigation globale entre écrans
+// NE PAS utiliser style.display inline : laisser le CSS gérer via .active
+// ================================================================
+window.showScreen = function(id) {
+  document.querySelectorAll('.screen').forEach(function(s) {
+    s.classList.remove('active');
+    s.style.display = ''; // reset inline pour laisser le CSS prendre le relais
+  });
+  var target = document.getElementById(id);
+  if (target) {
+    target.classList.add('active');
+  }
+};
+
 function _launchMenu() {
   function showQuoteThenMenu() {
     if (typeof showDailyQuote === 'function') {
       showDailyQuote(function() {
-        // Afficher le menu directement
-        var menuScreen = document.getElementById('screen-menu');
-        if (menuScreen) {
-          var allScreens = document.querySelectorAll('.screen');
-          for (var i = 0; i < allScreens.length; i++) {
-            allScreens[i].classList.remove('active');
-            allScreens[i].style.display = 'none';
-          }
-          menuScreen.classList.add('active');
-          menuScreen.style.display = 'flex';
-        }
+        showScreen('screen-menu');
       });
     } else {
-      // Fallback : afficher le menu directement
-      var menuScreen = document.getElementById('screen-menu');
-      if (menuScreen) {
-        var allScreens = document.querySelectorAll('.screen');
-        for (var i = 0; i < allScreens.length; i++) {
-          allScreens[i].classList.remove('active');
-          allScreens[i].style.display = 'none';
-        }
-        menuScreen.classList.add('active');
-        menuScreen.style.display = 'flex';
-      }
+      showScreen('screen-menu');
     }
   }
 
