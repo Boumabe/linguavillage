@@ -1,6 +1,14 @@
+// village.js - CORRIGÉ (tick initialisé)
 // LinguaVillage — village.js
 // Village canvas, météo, interactions, ouverture des lieux
 // ================================================================
+
+// Variables globales du village
+var canvas = null;
+var ctx = null;
+var tick = 0;
+var currentWeather = 'sun';
+var hoveredLoc = null;
 
 // ================================================================
 // NAVIGATION VERS LE VILLAGE
@@ -31,6 +39,7 @@ function goVillage() {
   // Réinitialiser complètement le canvas
   canvas = null;
   ctx = null;
+  tick = 0;
   window._villageLoopRunning = false;
   
   // Attendre que le DOM soit prêt puis initialiser le canvas
@@ -57,11 +66,13 @@ function goVillage() {
     updateTime();
     
     // Positionner le joueur à la maison
-    player.x = HOME.x;
-    player.y = HOME.y;
-    player.dest = null;
-    player.walking = false;
-    player.currentLoc = 'home';
+    if (typeof player !== 'undefined') {
+      player.x = HOME.x;
+      player.y = HOME.y;
+      player.dest = null;
+      player.walking = false;
+      player.currentLoc = 'home';
+    }
     
     setTimeout(function() {
       if (typeof addCEFRIndicator === 'function') addCEFRIndicator();
@@ -164,7 +175,7 @@ function initCanvas() {
   ctx.fillRect(0, 0, canvas.width, canvas.height);
   
   // Dessiner le village
-  tick++;
+  tick = 0;
   drawVillage();
   
   // Gérer le redimensionnement de la fenêtre
@@ -201,7 +212,7 @@ function initCanvas() {
 // ================================================================
 function villageLoop() {
   tick++;
-  updatePlayer();
+  if (typeof updatePlayer === 'function') updatePlayer();
   drawVillage();
   requestAnimationFrame(villageLoop);
 }
@@ -239,13 +250,11 @@ function drawVillage() {
   
   // ---- Lune ou soleil ----
   if (night) {
-    // Lune
     ctx.beginPath();
     ctx.arc(W * 0.85, H * 0.08, 14, 0, Math.PI * 2);
     ctx.fillStyle = '#f0e0a0';
     ctx.fill();
     
-    // Étoiles scintillantes
     for (var i = 0; i < 50; i++) {
       var sx = (Math.sin(i * 437) * 0.5 + 0.5) * W;
       var sy = (Math.sin(i * 293) * 0.5 + 0.5) * H * 0.4;
@@ -255,7 +264,6 @@ function drawVillage() {
       ctx.fill();
     }
   } else {
-    // Soleil
     ctx.beginPath();
     ctx.arc(W * 0.85, H * 0.08, 18, 0, Math.PI * 2);
     ctx.fillStyle = currentWeather === 'rain' ? '#7a8898' : '#ffe0a0';
@@ -297,16 +305,20 @@ function drawVillage() {
   });
   
   // ---- Maison du joueur ----
-  drawPlayerHome(cx, cy, W);
+  if (typeof drawPlayerHome === 'function') {
+    drawPlayerHome(cx, cy, W);
+  }
   
   // ---- Lieux ----
-  LOCATIONS.forEach(function(loc) {
-    var bob = Math.sin(tick * 0.025 + loc.x * 10) * 1.5;
-    drawLoc(loc, loc.x * W, loc.y * H + bob, loc.w * W, loc.h * H, hoveredLoc === loc.id);
-  });
+  if (typeof LOCATIONS !== 'undefined') {
+    LOCATIONS.forEach(function(loc) {
+      var bob = Math.sin(tick * 0.025 + loc.x * 10) * 1.5;
+      drawLoc(loc, loc.x * W, loc.y * H + bob, loc.w * W, loc.h * H, hoveredLoc === loc.id);
+    });
+  }
   
   // ---- Ligne de marche ----
-  if (player.dest) {
+  if (typeof player !== 'undefined' && player.dest) {
     ctx.beginPath();
     ctx.moveTo(player.x * W, player.y * H);
     ctx.lineTo(player.dest.x * W, player.dest.y * H);
@@ -318,7 +330,9 @@ function drawVillage() {
   }
   
   // ---- Personnage ----
-  drawPlayerCharacter(W, H);
+  if (typeof drawPlayerCharacter === 'function') {
+    drawPlayerCharacter(W, H);
+  }
   
   // ---- Effet de pluie global ----
   if (currentWeather === 'rain') {
@@ -472,14 +486,14 @@ function openLoc(loc) {
   
   // Cinéma — ouverture directe
   if (loc.id === 'cinema') {
-    openCinema();
+    if (typeof openCinema === 'function') openCinema();
     return;
   }
   
   var listEl = document.getElementById('npcList');
   if (!listEl) return;
   
-  listEl.innerHTML = loc.npcs.map(function(npc) {
+  listEl.innerHTML = (loc.npcs || []).map(function(npc) {
     var role = typeof npc.role === 'object' ? (npc.role[S.nativeLang] || npc.role.en) : npc.role;
     var hint = (LOC_DESC[loc.id] && LOC_DESC[loc.id][S.nativeLang]) ? LOC_DESC[loc.id][S.nativeLang] : '';
     
@@ -494,15 +508,9 @@ function openLoc(loc) {
       '</div>';
   }).join('');
   
-  showScreen('screen-location');
+  if (typeof showScreen === 'function') showScreen('screen-location');
 
   setTimeout(function() {
     if (typeof openMissionsPanel === 'function') openMissionsPanel(loc.id);
   }, 400);
-}
-
-// ================================================================
-// DIALOGUE — Ces fonctions sont dans dialogue.js
-// Les fonctions openDialogue, sendMsg, reqHint, reqTranslate,
-// toggleVoice, speakPopupWord, closeWordPopup sont définies ailleurs
-// ================================================================
+      }
