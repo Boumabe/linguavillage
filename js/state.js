@@ -1,3 +1,4 @@
+// state.js - CORRIGÉ (chargé en premier)
 // LinguaVillage — state.js
 // CHARGÉ EN TOUT PREMIER dans index.html (avant data.js)
 // Définit : window.S, showScreen, applyUI, showNotif, gainXP, saveGame,
@@ -12,9 +13,13 @@ window.S = window.S || {
   targetLang   : '',
   scriptPref   : 'both',
   xp           : 0,
+  level        : 1,
   chatHistory  : [],
   currentNPC   : null,
   currentLoc   : null,
+  currentUI    : {},
+  xpBoostEnd   : null,
+  userLevel    : 'zero'
 };
 var S = window.S;
 
@@ -132,7 +137,7 @@ window.gainXP = function(amount) {
   // Badge CEFR
   if (typeof checkBadges === 'function') checkBadges();
 
-  saveGame();
+  if (typeof saveGame === 'function') saveGame();
 };
 
 // =================================================================
@@ -243,4 +248,3 @@ window.onerror = function(msg, src, line) {
   var dbg = document.getElementById('debug');
   if (dbg) dbg.textContent = '❌ ' + msg + ' (ligne ' + line + ')';
 };
- 
