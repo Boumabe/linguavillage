@@ -124,8 +124,6 @@ function saveFavoriteQuote(quote) {
 
 // ── Affichage de la citation ────────────────────────────────────
 function showDailyQuote(onDone) {
-  alert('📜 showDailyQuote() appelé');
-
   var lang = (window.S && S.targetLang) || 'fr';
   var pool = QUOTES[lang] || QUOTES['fr'];
   var isCJK = (lang === 'zh' || lang === 'ja' || lang === 'ru');
@@ -146,7 +144,6 @@ function showDailyQuote(onDone) {
     screen.className = 'screen';
     screen.style.cssText = 'flex-direction:column;align-items:center;justify-content:center;padding:24px;background:radial-gradient(ellipse at 50% 40%,#0d1a2e 0%,#07090f 70%);';
     document.body.appendChild(screen);
-    alert('✅ Écran screen-quote créé');
   }
 
   var langNames = { fr:'Français', es:'Español', en:'English', de:'Deutsch', ru:'Русский', zh:'中文', ja:'日本語', ht:'Kreyòl' };
@@ -233,12 +230,14 @@ function showDailyQuote(onDone) {
   window._quoteDoneCb = onDone;
   window._currentQuote = q;
 
-  // Afficher l'écran citation
-  document.querySelectorAll('.screen').forEach(function(s) {
-    s.classList.remove('active');
-  });
+  // Afficher l'écran citation (méthode directe compatible)
+  var allScreens = document.querySelectorAll('.screen');
+  for (var j = 0; j < allScreens.length; j++) {
+    allScreens[j].classList.remove('active');
+    allScreens[j].style.display = 'none';
+  }
   screen.classList.add('active');
-  alert('✅ Citation affichée : ' + q.text.substring(0, 30) + '...');
+  screen.style.display = 'flex';
 }
 
 // ── Traduction ──────────────────────────────────────────────────
@@ -311,19 +310,12 @@ function quoteNext() {
 
 // ── Continuer vers le menu ──────────────────────────────────────
 function quoteContinue() {
-  alert('▶ quoteContinue() appelé');
   var screen = document.getElementById('screen-quote');
   if (screen) {
     screen.classList.remove('active');
-    alert('✅ screen-quote masqué');
-  } else {
-    alert('❌ screen-quote INTROUVABLE');
+    screen.style.display = 'none';
   }
   if (window._quoteDoneCb) {
-    alert('✅ callback trouvé, exécution...');
     window._quoteDoneCb();
-    alert('✅ callback exécuté');
-  } else {
-    alert('❌ PAS de callback _quoteDoneCb !');
   }
      }
