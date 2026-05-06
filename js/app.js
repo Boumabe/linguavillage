@@ -46,14 +46,12 @@ window.addEventListener('DOMContentLoaded', function() {
 
       try { if (typeof applyUI === 'function') applyUI(window.S.nativeLang); } catch(e) {}
 
-      // Affiche step2 (champ prénom)
       var s2 = document.getElementById('step2');
       if (s2) {
         s2.style.display = 'block';
         s2.scrollIntoView({ behavior: 'smooth', block: 'center' });
       }
 
-      // Cache step3, step4, playBtn
       var s3 = document.getElementById('step3');
       var s4 = document.getElementById('step4');
       var pb = document.getElementById('playBtn');
@@ -61,18 +59,15 @@ window.addEventListener('DOMContentLoaded', function() {
       if (s4) s4.style.display = 'none';
       if (pb) { pb.style.display = 'none'; pb.disabled = true; }
 
-      // Réinitialise le champ prénom
       var inp = document.getElementById('inputName');
       if (inp) { inp.value = ''; }
 
-      // Désactive la même langue dans la liste cible
       document.querySelectorAll('.lang-tile[data-lang]').forEach(function(o) {
         var same = o.dataset.lang === window.S.nativeLang;
         o.classList.toggle('disabled', same);
         if (same) { o.classList.remove('active', 'sel'); }
       });
 
-      // Focus automatique sur le champ prénom
       var inpFocus = document.getElementById('inputName');
       if (inpFocus) setTimeout(function() { inpFocus.focus(); }, 300);
     };
@@ -88,7 +83,6 @@ window.addEventListener('DOMContentLoaded', function() {
       var s4 = document.getElementById('step4');
       var pb = document.getElementById('playBtn');
 
-      // N'afficher step3 QUE si prénom non vide ET langue maternelle choisie
       if (s3) {
         if (hasValue && hasNative) {
           s3.style.display = 'block';
@@ -101,7 +95,6 @@ window.addEventListener('DOMContentLoaded', function() {
       if (s4) s4.style.display = 'none';
       if (pb) { pb.style.display = 'none'; pb.disabled = true; }
 
-      // Réinitialise la sélection de langue cible
       document.querySelectorAll('.lang-tile[data-lang]').forEach(function(x) {
         x.classList.remove('active', 'sel');
       });
@@ -142,7 +135,6 @@ window.addEventListener('DOMContentLoaded', function() {
         if (sn) sn.textContent = lb[window.S.targetLang].n;
         if (sr) sr.textContent = lb[window.S.targetLang].r;
 
-        // Réinitialise le choix de script
         window.S.scriptPref = null;
         document.querySelectorAll('.sc-btn').forEach(function(b) {
           b.classList.remove('sel', 'active');
@@ -260,26 +252,40 @@ function _launchMenu() {
           var allScreens = document.querySelectorAll('.screen');
           for (var i = 0; i < allScreens.length; i++) {
             allScreens[i].classList.remove('active');
+            allScreens[i].style.display = 'none';
           }
           menuScreen.classList.add('active');
+          menuScreen.style.display = 'flex';
         }
       });
     } else {
+      // Fallback : afficher le menu directement
       var menuScreen = document.getElementById('screen-menu');
       if (menuScreen) {
         var allScreens = document.querySelectorAll('.screen');
         for (var i = 0; i < allScreens.length; i++) {
           allScreens[i].classList.remove('active');
+          allScreens[i].style.display = 'none';
         }
         menuScreen.classList.add('active');
+        menuScreen.style.display = 'flex';
       }
     }
   }
 
-  var isFirstTime = !localStorage.getItem('lv_onboarding_done');
+  // Vérifier si localStorage est accessible
+  var isFirstTime = true;
+  try {
+    isFirstTime = !localStorage.getItem('lv_onboarding_done');
+  } catch(e) {
+    // localStorage inaccessible (navigation privée sur certains navigateurs)
+    isFirstTime = false;
+  }
 
   if (isFirstTime && window.LV_ONBOARDING) {
-    localStorage.setItem('lv_onboarding_done', '1');
+    try {
+      localStorage.setItem('lv_onboarding_done', '1');
+    } catch(e) {}
     window.LV_ONBOARDING.show(showQuoteThenMenu);
   } else {
     showQuoteThenMenu();
@@ -295,7 +301,7 @@ function openWordGame() {
 }
 
 function resetOnboarding() {
-  localStorage.removeItem('lv_onboarding_done');
-  localStorage.removeItem('lv_last_quote_idx');
+  try { localStorage.removeItem('lv_onboarding_done'); } catch(e) {}
+  try { localStorage.removeItem('lv_last_quote_idx'); } catch(e) {}
   if (typeof showNotif === 'function') showNotif('Onboarding réinitialisé');
         }
