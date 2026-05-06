@@ -26,6 +26,28 @@ const UI_TEXT = {
 };
 
 // =================================================================
+// AFFICHAGE DES ÉCRANS
+// =================================================================
+function showScreen(id) {
+  // Masquer tous les écrans
+  var allScreens = document.querySelectorAll('.screen');
+  for (var i = 0; i < allScreens.length; i++) {
+    allScreens[i].classList.remove('active');
+  }
+  
+  // Afficher l'écran demandé
+  var target = document.getElementById(id);
+  if (target) {
+    target.classList.add('active');
+  }
+  
+  // Fermer le popup de mot s'il est ouvert
+  if (typeof closeWordPopup === 'function') {
+    closeWordPopup();
+  }
+}
+
+// =================================================================
 // VOCABULARY DATA — 1500 words organized by category
 // =================================================================
 const VOCAB = {
