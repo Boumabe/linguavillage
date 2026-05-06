@@ -247,8 +247,12 @@ window.LV_ONBOARDING = (function() {
   function _showStep(step) {
     const sc = document.getElementById('screen-onboarding');
     if (!sc) return;
-    document.querySelectorAll('.screen').forEach(s => s.style.display = 'none');
-    sc.style.display = 'flex';
+    if (typeof window.showScreen === 'function') {
+      window.showScreen('screen-onboarding');
+    } else {
+      document.querySelectorAll('.screen').forEach(s => { s.classList.remove('active'); s.style.display = ''; });
+      sc.classList.add('active');
+    }
 
     if (step === 0) _renderLevelSelect(sc);
     else if (step === 1) _renderSounds(sc);
@@ -463,7 +467,7 @@ window.LV_ONBOARDING = (function() {
 
   function _finish() {
     const sc = document.getElementById('screen-onboarding');
-    if (sc) sc.style.display = 'none';
+    if (sc) { sc.classList.remove('active'); sc.style.display = ''; }
     if (_onDone) _onDone();
   }
 
