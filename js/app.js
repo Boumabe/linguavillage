@@ -3,7 +3,7 @@
 // CHARGÉ EN DERNIER — dépend de tous les autres fichiers
 // ================================================================
 
-const API = 'https://linguavillage-api--marckensbou2.replit.app';
+var API = 'https://linguavillage-api--marckensbou2.replit.app';
 
 // ================================================================
 // WELCOME FLOW
@@ -34,7 +34,6 @@ window.addEventListener('DOMContentLoaded', function() {
   // ── 1. Sélection langue maternelle ─────────────────────────
   document.querySelectorAll('.lang-tile[data-native]').forEach(function(t) {
     t.onclick = function() {
-      // Vérifier que window.S existe
       if (!window.S) {
         window.S = {
           nativeLang: null,
@@ -51,21 +50,15 @@ window.addEventListener('DOMContentLoaded', function() {
       this.classList.add('active', 'sel');
 
       window.S.nativeLang = this.dataset.native;
-      console.log('✅ Langue maternelle sélectionnée :', window.S.nativeLang);
 
       try { if (typeof applyUI === 'function') applyUI(window.S.nativeLang); } catch(e) {}
 
-      // Affiche step2 (champ prénom)
       var s2 = document.getElementById('step2');
       if (s2) {
         s2.style.display = 'block';
         s2.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        console.log('✅ Step2 affiché');
-      } else {
-        console.error('❌ Élément #step2 introuvable');
       }
 
-      // Cache step3, step4, playBtn
       var s3 = document.getElementById('step3');
       var s4 = document.getElementById('step4');
       var pb = document.getElementById('playBtn');
@@ -73,24 +66,19 @@ window.addEventListener('DOMContentLoaded', function() {
       if (s4) s4.style.display = 'none';
       if (pb) { pb.style.display = 'none'; pb.disabled = true; }
 
-      // Réinitialise le champ prénom
       var inp = document.getElementById('inputName');
       if (inp) {
         inp.value = '';
-        console.log('✅ Champ prénom réinitialisé');
       }
 
-      // Désactive la même langue dans la liste cible
       document.querySelectorAll('.lang-tile[data-lang]').forEach(function(o) {
         var same = o.dataset.lang === window.S.nativeLang;
         o.classList.toggle('disabled', same);
         if (same) {
           o.classList.remove('active', 'sel');
-          console.log('✅ Langue désactivée dans cibles :', o.dataset.lang);
         }
       });
 
-      // Focus automatique sur le champ prénom
       var inpFocus = document.getElementById('inputName');
       if (inpFocus) setTimeout(function() { inpFocus.focus(); }, 300);
     };
@@ -106,44 +94,29 @@ window.addEventListener('DOMContentLoaded', function() {
       var s4 = document.getElementById('step4');
       var pb = document.getElementById('playBtn');
 
-      console.log('📝 Prénom saisi :', this.value, '| hasValue:', hasValue, '| hasNative:', hasNative);
-
-      // N'afficher step3 QUE si prénom non vide ET langue maternelle choisie
       if (s3) {
         if (hasValue && hasNative) {
           s3.style.display = 'block';
           s3.scrollIntoView({ behavior: 'smooth', block: 'center' });
-          console.log('✅ Step3 affiché');
         } else {
           s3.style.display = 'none';
-          console.log('⚠️ Step3 masqué (hasValue=' + hasValue + ', hasNative=' + hasNative + ')');
         }
-      } else {
-        console.error('❌ Élément #step3 introuvable');
       }
 
       if (s4) s4.style.display = 'none';
       if (pb) { pb.style.display = 'none'; pb.disabled = true; }
 
-      // Réinitialise la sélection de langue cible
       document.querySelectorAll('.lang-tile[data-lang]').forEach(function(x) {
         x.classList.remove('active', 'sel');
       });
       window.S.targetLang = null;
     });
-  } else {
-    console.error('❌ Élément #inputName introuvable');
   }
 
   // ── 3. Sélection langue cible ───────────────────────────────
   document.querySelectorAll('.lang-tile[data-lang]').forEach(function(t) {
     t.onclick = function() {
-      console.log('🎯 Clic sur langue cible :', this.dataset.lang, '| disabled:', this.classList.contains('disabled'));
-
-      if (this.classList.contains('disabled')) {
-        console.log('⚠️ Langue désactivée, clic ignoré');
-        return;
-      }
+      if (this.classList.contains('disabled')) return;
 
       document.querySelectorAll('.lang-tile[data-lang]').forEach(function(x) {
         x.classList.remove('active', 'sel');
@@ -151,10 +124,7 @@ window.addEventListener('DOMContentLoaded', function() {
       this.classList.add('active', 'sel');
 
       window.S.targetLang = this.dataset.lang;
-      console.log('✅ Langue cible sélectionnée :', window.S.targetLang);
-
-      var cjk = ['zh', 'ja', 'ru'].includes(window.S.targetLang);
-      console.log('🌐 CJK ?', cjk);
+      var cjk = ['zh', 'ja', 'ru'].indexOf(window.S.targetLang) !== -1;
 
       var s4 = document.getElementById('step4');
       var pb = document.getElementById('playBtn');
@@ -163,9 +133,6 @@ window.addEventListener('DOMContentLoaded', function() {
         if (s4) {
           s4.style.display = 'block';
           s4.scrollIntoView({ behavior: 'smooth', block: 'center' });
-          console.log('✅ Step4 affiché (CJK)');
-        } else {
-          console.error('❌ Élément #step4 introuvable');
         }
 
         var lb = {
@@ -178,7 +145,6 @@ window.addEventListener('DOMContentLoaded', function() {
         if (sn) sn.textContent = lb[window.S.targetLang].n;
         if (sr) sr.textContent = lb[window.S.targetLang].r;
 
-        // Réinitialise le choix de script
         window.S.scriptPref = null;
         document.querySelectorAll('.sc-btn').forEach(function(b) {
           b.classList.remove('sel', 'active');
@@ -192,9 +158,6 @@ window.addEventListener('DOMContentLoaded', function() {
           pb.style.display = 'block';
           pb.disabled = false;
           pb.scrollIntoView({ behavior: 'smooth', block: 'center' });
-          console.log('✅ Bouton Commencer affiché (non-CJK)');
-        } else {
-          console.error('❌ Élément #playBtn introuvable');
         }
       }
     };
@@ -202,8 +165,6 @@ window.addEventListener('DOMContentLoaded', function() {
 
   // ── 3b. Choix script CJK ────────────────────────────────────
   window.selScript = function(pref, btn) {
-    console.log('✍️ Script sélectionné :', pref);
-
     document.querySelectorAll('.sc-btn').forEach(function(b) {
       b.classList.remove('sel', 'active');
     });
@@ -215,9 +176,6 @@ window.addEventListener('DOMContentLoaded', function() {
       pb.style.display = 'block';
       pb.disabled = false;
       pb.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      console.log('✅ Bouton Commencer activé après choix script');
-    } else {
-      console.error('❌ Élément #playBtn introuvable');
     }
   };
 
@@ -225,8 +183,6 @@ window.addEventListener('DOMContentLoaded', function() {
   var playBtn = document.getElementById('playBtn');
   if (playBtn) {
     playBtn.addEventListener('click', function() {
-      console.log('🚀 Bouton Commencer cliqué');
-
       var nm = document.getElementById('inputName');
       if (nm) {
         window.S.playerName = nm.value.trim();
@@ -234,15 +190,7 @@ window.addEventListener('DOMContentLoaded', function() {
         window.S.playerName = '';
       }
 
-      console.log('📋 Récapitulatif :', {
-        playerName: window.S.playerName,
-        nativeLang: window.S.nativeLang,
-        targetLang: window.S.targetLang,
-        scriptPref: window.S.scriptPref
-      });
-
       if (!window.S.playerName || !window.S.nativeLang || !window.S.targetLang) {
-        console.error('❌ Champs incomplets');
         try {
           showNotif('Complétez tous les champs !');
         } catch(e) {
@@ -251,8 +199,7 @@ window.addEventListener('DOMContentLoaded', function() {
         return;
       }
 
-      if (['zh', 'ja', 'ru'].includes(window.S.targetLang) && !window.S.scriptPref) {
-        console.error('❌ Script non sélectionné pour langue CJK');
+      if (['zh', 'ja', 'ru'].indexOf(window.S.targetLang) !== -1 && !window.S.scriptPref) {
         try {
           showNotif('Choisissez un mode d\'écriture !');
         } catch(e) {
@@ -261,25 +208,15 @@ window.addEventListener('DOMContentLoaded', function() {
         return;
       }
 
-      console.log('✅ Tous les champs validés, sauvegarde...');
-
       try {
         if (typeof saveGame === 'function') {
           saveGame();
-          console.log('✅ Partie sauvegardée');
         }
-      } catch(e) {
-        console.warn('⚠️ Erreur sauvegarde :', e);
-      }
+      } catch(e) {}
 
-      console.log('🏁 Lancement du menu principal');
       startMenu();
     });
-  } else {
-    console.error('❌ Élément #playBtn introuvable');
   }
-
-  console.log('✅ Welcome flow initialisé avec succès');
 
 }); // fin DOMContentLoaded
 
@@ -287,10 +224,10 @@ window.addEventListener('DOMContentLoaded', function() {
 // startMenu — appelée après welcome flow OU restauration session
 // ================================================================
 function startMenu() {
-  console.log('📋 startMenu() appelé');
+  alert('📋 startMenu() appelé');
 
   if (!window.S) {
-    console.error('❌ window.S est undefined dans startMenu()');
+    alert('❌ window.S est undefined dans startMenu()');
     return;
   }
 
@@ -310,13 +247,11 @@ function startMenu() {
   if (gemDisplay) gemDisplay.textContent = '💎 ' + ((window.S_missions && window.S_missions.gems) || 0);
   if (xpFill)     xpFill.style.width     = ((window.S.xp || 0) % 100) + '%';
 
-  try { if (typeof saveGame     === 'function') saveGame();     } catch(e) { console.warn('⚠️ Erreur saveGame:', e); }
-  try { if (typeof updateStreak === 'function') updateStreak(); } catch(e) { console.warn('⚠️ Erreur updateStreak:', e); }
-  try { if (typeof applyMenuUI  === 'function') applyMenuUI();  } catch(e) { console.warn('⚠️ Erreur applyMenuUI:', e); }
+  try { if (typeof saveGame     === 'function') saveGame();     } catch(e) {}
+  try { if (typeof updateStreak === 'function') updateStreak(); } catch(e) {}
+  try { if (typeof applyMenuUI  === 'function') applyMenuUI();  } catch(e) {}
 
-  console.log('✅ Interface menu mise à jour, lancement _launchMenu()');
-
-  // ← ICI: appel OBLIGATOIRE à _launchMenu pour afficher le menu
+  alert('✅ Interface menu mise à jour, lancement _launchMenu()');
   _launchMenu();
 }
 
@@ -324,33 +259,34 @@ function startMenu() {
 // _launchMenu — onboarding 1ère fois → citation → screen-menu
 // ================================================================
 function _launchMenu() {
-  console.log('📋 _launchMenu() appelé');
+  alert('📋 _launchMenu() appelé');
 
   function showQuoteThenMenu() {
-    console.log('💬 Affichage citation puis menu');
+    alert('💬 showQuoteThenMenu() exécuté');
     if (typeof showDailyQuote === 'function') {
+      alert('✅ showDailyQuote trouvé, appel...');
       showDailyQuote(function() {
+        alert('🔔 Callback citation exécuté');
         try { if (typeof applyMenuUI === 'function') applyMenuUI(); } catch(e) {}
         showScreen('screen-menu');
-        console.log('✅ Menu affiché');
+        alert('✅ showScreen(screen-menu) exécuté');
       });
     } else {
+      alert('❌ showDailyQuote PAS trouvé ! Menu direct.');
       try { if (typeof applyMenuUI === 'function') applyMenuUI(); } catch(e) {}
       showScreen('screen-menu');
-      console.log('✅ Menu affiché (sans citation)');
     }
   }
 
   var isFirstTime = !localStorage.getItem('lv_onboarding_done');
-  console.log('🆕 Première visite ?', isFirstTime);
-  console.log('📦 LV_ONBOARDING disponible ?', !!window.LV_ONBOARDING);
+  alert('🆕 Première visite ? ' + isFirstTime + ' | LV_ONBOARDING ? ' + !!window.LV_ONBOARDING);
 
   if (isFirstTime && window.LV_ONBOARDING) {
     localStorage.setItem('lv_onboarding_done', '1');
-    console.log('🎓 Lancement onboarding...');
+    alert('🎓 Lancement onboarding...');
     window.LV_ONBOARDING.show(showQuoteThenMenu);
   } else {
-    console.log('⏭️ Onboarding ignoré, accès direct au menu');
+    alert('⏭️ Onboarding ignoré, accès direct au menu');
     showQuoteThenMenu();
   }
 }
@@ -367,4 +303,4 @@ function resetOnboarding() {
   localStorage.removeItem('lv_onboarding_done');
   localStorage.removeItem('lv_last_quote_idx');
   if (typeof showNotif === 'function') showNotif('Onboarding réinitialisé');
-    }
+          }
