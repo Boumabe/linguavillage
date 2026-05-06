@@ -28,7 +28,6 @@ window.addEventListener('DOMContentLoaded', function() {
       });
       this.classList.add('active', 'sel');
 
-      // S est garanti d'exister (défini dans data.js avant app.js)
       window.S.nativeLang = this.dataset.native;
 
       try { if (typeof applyUI === 'function') applyUI(window.S.nativeLang); } catch(e) {}
@@ -40,13 +39,16 @@ window.addEventListener('DOMContentLoaded', function() {
         s2.scrollIntoView({ behavior: 'smooth', block: 'center' });
       }
 
-      // Cache step3, step4, playBtn
+      // Cache step3, step4, playBtn pour réinitialiser le flow si on change de langue maternelle
       var s3 = document.getElementById('step3');
       var s4 = document.getElementById('step4');
       var pb = document.getElementById('playBtn');
       if (s3) s3.style.display = 'none';
       if (s4) s4.style.display = 'none';
-      if (pb) { pb.style.display = 'none'; pb.disabled = true; }
+      if (pb) { 
+        pb.style.display = 'none'; 
+        pb.disabled = true; 
+      }
 
       // Désactive la même langue dans la liste cible
       document.querySelectorAll('.lang-tile[data-lang]').forEach(function(o) {
@@ -67,11 +69,14 @@ window.addEventListener('DOMContentLoaded', function() {
     inputName.addEventListener('input', function() {
       var hasValue = this.value.trim().length > 0;
       var s3 = document.getElementById('step3');
-      var s4 = document.getElementById('step4');
-      var pb = document.getElementById('playBtn');
-      if (s3) s3.style.display = hasValue ? 'block' : 'none';
-      if (s4) s4.style.display = 'none';
-      if (pb) pb.style.display = 'none';
+      
+      // On affiche step3 uniquement si un nom est saisi
+      if (s3) {
+        s3.style.display = hasValue ? 'block' : 'none';
+        if (hasValue) {
+           s3.scrollIntoView({ behavior: 'smooth' });
+        }
+      }
     });
   }
 
@@ -93,7 +98,7 @@ window.addEventListener('DOMContentLoaded', function() {
       if (cjk) {
         if (s4) s4.style.display = 'block';
         var lb = {
-          zh: { n: '你好',      r: 'Nǐ hǎo' },
+          zh: { n: '你好',      r: 'Ni hao' },
           ja: { n: 'こんにちは', r: 'Konnichiwa' },
           ru: { n: 'Привет',    r: 'Privyet' }
         };
@@ -105,7 +110,10 @@ window.addEventListener('DOMContentLoaded', function() {
       } else {
         window.S.scriptPref = 'both';
         if (s4) s4.style.display = 'none';
-        if (pb) { pb.style.display = 'block'; pb.disabled = false; }
+        if (pb) { 
+            pb.style.display = 'block'; 
+            pb.disabled = false; 
+        }
       }
     };
   });
@@ -118,7 +126,10 @@ window.addEventListener('DOMContentLoaded', function() {
     if (btn) btn.classList.add('sel', 'active');
     window.S.scriptPref = pref;
     var pb = document.getElementById('playBtn');
-    if (pb) { pb.style.display = 'block'; pb.disabled = false; }
+    if (pb) { 
+        pb.style.display = 'block'; 
+        pb.disabled = false; 
+    }
   };
 
   // ── 4. Bouton Commencer ─────────────────────────────────────
@@ -128,11 +139,7 @@ window.addEventListener('DOMContentLoaded', function() {
       var nm = document.getElementById('inputName');
       window.S.playerName = nm ? nm.value.trim() : '';
       if (!window.S.playerName || !window.S.nativeLang || !window.S.targetLang) {
-        try {
-          showNotif('⚠️ Complétez tous les champs !');
-        } catch(e) {
-          alert('Complétez tous les champs !');
-        }
+        try { showNotif('Completez tous les champs !'); } catch(e) { alert('Completez tous les champs !'); }
         return;
       }
       try { if (typeof saveGame === 'function') saveGame(); } catch(e) {}
@@ -143,12 +150,11 @@ window.addEventListener('DOMContentLoaded', function() {
 }); // fin DOMContentLoaded
 
 // ================================================================
-// startMenu — appelée après welcome flow ou restauration session
+// startMenu — appelée apres welcome flow OU restauration session
 // ================================================================
 function startMenu() {
   if (!window.S) return;
 
-  // Mettre à jour les labels de l'interface menu
   var menuPlayer = document.getElementById('menuPlayer');
   var menuLang   = document.getElementById('menuLang');
   var menuXP     = document.getElementById('menuXP');
@@ -157,29 +163,26 @@ function startMenu() {
 
   if (menuPlayer) menuPlayer.textContent = '👤 ' + (window.S.playerName || '');
   if (menuLang) {
-    var flag   = (window.FLAGS && FLAGS[window.S.targetLang]) || '';
-    var lname  = (window.LANG_NAMES && LANG_NAMES[window.S.targetLang]) || window.S.targetLang || '';
+    var flag  = (window.FLAGS && FLAGS[window.S.targetLang]) || '';
+    var lname = (window.LANG_NAMES && LANG_NAMES[window.S.targetLang]) || window.S.targetLang || '';
     menuLang.textContent = flag + ' ' + lname;
   }
   if (menuXP)     menuXP.textContent     = (window.S.xp || 0) + ' XP';
   if (gemDisplay) gemDisplay.textContent = '💎 ' + ((window.S_missions && window.S_missions.gems) || 0);
   if (xpFill)     xpFill.style.width     = ((window.S.xp || 0) % 100) + '%';
 
-  // Sauvegarde + streak
   try { if (typeof saveGame     === 'function') saveGame();     } catch(e) {}
   try { if (typeof updateStreak === 'function') updateStreak(); } catch(e) {}
   try { if (typeof applyMenuUI  === 'function') applyMenuUI();  } catch(e) {}
 
-  // Onboarding (1ère fois) → citation → menu
+  // ← ICI: appel OBLIGATOIRE à _launchMenu pour afficher le menu
   _launchMenu();
 }
 
 // ================================================================
-// _launchMenu — onboarding → citation → showScreen('screen-menu')
+// _launchMenu — onboarding 1ere fois → citation → screen-menu
 // ================================================================
 function _launchMenu() {
-  var isFirstTime = !localStorage.getItem('lv_onboarding_done');
-
   function showQuoteThenMenu() {
     if (typeof showDailyQuote === 'function') {
       showDailyQuote(function() {
@@ -192,6 +195,7 @@ function _launchMenu() {
     }
   }
 
+  var isFirstTime = !localStorage.getItem('lv_onboarding_done');
   if (isFirstTime && window.LV_ONBOARDING) {
     localStorage.setItem('lv_onboarding_done', '1');
     window.LV_ONBOARDING.show(showQuoteThenMenu);
@@ -201,21 +205,15 @@ function _launchMenu() {
 }
 
 // ================================================================
-// Helpers accessibles globalement
+// Helpers globaux
 // ================================================================
-
-// Ouvrir le jeu de mots depuis le menu
 function openWordGame() {
-  if (window.LV_WORDGAME) {
-    window.LV_WORDGAME.open();
-  } else if (typeof showNotif === 'function') {
-    showNotif('⚠️ Jeu de mots non chargé.');
-  }
+  if (window.LV_WORDGAME) window.LV_WORDGAME.open();
+  else if (typeof showNotif === 'function') showNotif('Jeu de mots non charge.');
 }
 
-// Réinitialiser l'onboarding (debug)
 function resetOnboarding() {
   localStorage.removeItem('lv_onboarding_done');
   localStorage.removeItem('lv_last_quote_idx');
-  if (typeof showNotif === 'function') showNotif('🔄 Onboarding réinitialisé');
+  if (typeof showNotif === 'function') showNotif('Onboarding reinitialise');
 }
