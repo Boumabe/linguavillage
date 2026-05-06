@@ -216,6 +216,21 @@ window.addEventListener('DOMContentLoaded', function() {
 function startMenu() {
   if (!window.S) return;
 
+  // Nettoyer le localStorage au cas où il serait corrompu
+  try {
+    var testLS = localStorage.getItem('linguavillage_save');
+    if (testLS) {
+      var parsed = JSON.parse(testLS);
+      if (!parsed.S || !parsed.S.nativeLang || !parsed.S.targetLang || !parsed.S.playerName) {
+        localStorage.removeItem('linguavillage_save');
+        localStorage.removeItem('lv_onboarding_done');
+        localStorage.removeItem('lv_last_quote_idx');
+      }
+    }
+  } catch(e) {
+    try { localStorage.clear(); } catch(e2) {}
+  }
+
   var menuPlayer = document.getElementById('menuPlayer');
   var menuLang   = document.getElementById('menuLang');
   var menuXP     = document.getElementById('menuXP');
@@ -278,7 +293,6 @@ function _launchMenu() {
   try {
     isFirstTime = !localStorage.getItem('lv_onboarding_done');
   } catch(e) {
-    // localStorage inaccessible (navigation privée sur certains navigateurs)
     isFirstTime = false;
   }
 
