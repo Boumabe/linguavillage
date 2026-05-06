@@ -259,34 +259,39 @@ function startMenu() {
 // _launchMenu — onboarding 1ère fois → citation → screen-menu
 // ================================================================
 function _launchMenu() {
-  alert('📋 _launchMenu() appelé');
-
   function showQuoteThenMenu() {
-    alert('💬 showQuoteThenMenu() exécuté');
     if (typeof showDailyQuote === 'function') {
-      alert('✅ showDailyQuote trouvé, appel...');
       showDailyQuote(function() {
-        alert('🔔 Callback citation exécuté');
-        try { if (typeof applyMenuUI === 'function') applyMenuUI(); } catch(e) {}
-        showScreen('screen-menu');
-        alert('✅ showScreen(screen-menu) exécuté');
+        // Afficher directement le menu sans applyMenuUI qui peut planter
+        var menuScreen = document.getElementById('screen-menu');
+        if (menuScreen) {
+          // Masquer tous les écrans d'abord
+          var allScreens = document.querySelectorAll('.screen');
+          for (var i = 0; i < allScreens.length; i++) {
+            allScreens[i].classList.remove('active');
+          }
+          // Afficher le menu
+          menuScreen.classList.add('active');
+        }
       });
     } else {
-      alert('❌ showDailyQuote PAS trouvé ! Menu direct.');
-      try { if (typeof applyMenuUI === 'function') applyMenuUI(); } catch(e) {}
-      showScreen('screen-menu');
+      var menuScreen = document.getElementById('screen-menu');
+      if (menuScreen) {
+        var allScreens = document.querySelectorAll('.screen');
+        for (var i = 0; i < allScreens.length; i++) {
+          allScreens[i].classList.remove('active');
+        }
+        menuScreen.classList.add('active');
+      }
     }
   }
 
   var isFirstTime = !localStorage.getItem('lv_onboarding_done');
-  alert('🆕 Première visite ? ' + isFirstTime + ' | LV_ONBOARDING ? ' + !!window.LV_ONBOARDING);
 
   if (isFirstTime && window.LV_ONBOARDING) {
     localStorage.setItem('lv_onboarding_done', '1');
-    alert('🎓 Lancement onboarding...');
     window.LV_ONBOARDING.show(showQuoteThenMenu);
   } else {
-    alert('⏭️ Onboarding ignoré, accès direct au menu');
     showQuoteThenMenu();
   }
 }
