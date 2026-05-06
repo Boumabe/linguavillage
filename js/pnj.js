@@ -311,13 +311,15 @@ ${favWords ? `- Réutilise naturellement ces mots que l'apprenant aime : ${favWo
 
   // ── Init : appliquer le patch dès que les fonctions existent ─
   function init() {
-    if (window.openDialogue && window.npcOpen && window.sendMsg) {
-      patchDialogue();
+    function tryPatch() {
+      if (window.openDialogue && window.npcOpen && window.sendMsg) {
+        patchDialogue();
+      }
+    }
+    if (document.readyState === 'loading') {
+      window.addEventListener('DOMContentLoaded', function() { setTimeout(tryPatch, 200); });
     } else {
-      // Réessayer après chargement complet
-      window.addEventListener('DOMContentLoaded', function() {
-        setTimeout(patchDialogue, 500);
-      });
+      setTimeout(tryPatch, 200);
     }
   }
 
