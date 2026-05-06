@@ -2,37 +2,73 @@
 // Village canvas, météo, interactions, ouverture des lieux
 // ================================================================
 
+// ================================================================
+// NAVIGATION VERS LE VILLAGE
+// ================================================================
 function goVillage() {
   if (!window.S) return;
   
-  const hudPlayer = document.getElementById('hudPlayer');
-  const hudLang   = document.getElementById('hudLang');
-  const hudXP     = document.getElementById('hudXP');
+  // Mise à jour du HUD
+  var hudPlayer = document.getElementById('hudPlayer');
+  var hudLang   = document.getElementById('hudLang');
+  var hudXP     = document.getElementById('hudXP');
   
   if (hudPlayer) hudPlayer.textContent = '👤 ' + S.playerName;
   if (hudLang)   hudLang.textContent   = (FLAGS[S.targetLang]||'') + ' ' + (LANG_NAMES[S.targetLang]||'');
   if (hudXP)     hudXP.textContent     = (S.xp||0) + ' XP';
   
-  showScreen('screen-village');
+  // Afficher l'écran village et masquer tous les autres
+  document.querySelectorAll('.screen').forEach(function(s) {
+    s.classList.remove('active');
+  });
   
-  // Forcer le canvas à se réinitialiser complètement
+  var villageScreen = document.getElementById('screen-village');
+  if (villageScreen) {
+    villageScreen.classList.add('active');
+    villageScreen.style.display = 'flex';
+  }
+  
+  // Réinitialiser complètement le canvas
+  canvas = null;
+  ctx = null;
+  window._villageLoopRunning = false;
+  
+  // Attendre que le DOM soit prêt puis initialiser le canvas
   setTimeout(function() {
-    canvas = null;
-    ctx = null;
+    var c = document.getElementById('villageCanvas');
+    if (c) {
+      // Forcer les dimensions du canvas
+      var parent = c.parentElement;
+      if (parent) {
+        var rect = parent.getBoundingClientRect();
+        c.width = rect.width || window.innerWidth;
+        c.height = rect.height || window.innerHeight;
+      } else {
+        c.width = window.innerWidth;
+        c.height = window.innerHeight;
+      }
+      c.style.width = '100%';
+      c.style.height = '100%';
+      c.style.display = 'block';
+    }
+    
     initCanvas();
     setWeather(getWeatherForTime());
     updateTime();
+    
+    // Positionner le joueur à la maison
     player.x = HOME.x;
     player.y = HOME.y;
     player.dest = null;
     player.walking = false;
     player.currentLoc = 'home';
+    
     setTimeout(function() {
       if (typeof addCEFRIndicator === 'function') addCEFRIndicator();
     }, 100);
-  }, 200);
+  }, 300);
   
-  // Nettoyer l'ancien intervalle s'il existe
+  // Nettoyer l'ancien intervalle de temps s'il existe
   if (window._timeUpdateInterval) {
     clearInterval(window._timeUpdateInterval);
   }
@@ -42,121 +78,127 @@ function goVillage() {
 // ================================================================
 // MÉTÉO
 // ================================================================
-
 function getWeatherForTime() {
-  const h = new Date().getHours();
+  var h = new Date().getHours();
   if (h >= 21 || h < 6) return 'night';
-  const weathers = ['sun', 'sun', 'rain', 'wind', 'snow'];
+  var weathers = ['sun', 'sun', 'rain', 'wind', 'snow'];
   return weathers[Math.floor(Math.random() * weathers.length)];
 }
 
 function setWeather(w) {
   currentWeather = w;
-  const hudWeather = document.getElementById('hudWeather');
+  var hudWeather = document.getElementById('hudWeather');
   if (hudWeather) hudWeather.textContent = WEATHER_ICONS[w] || '☀️';
   buildWeatherFX(w);
 }
 
 function buildWeatherFX(w) {
-  const o = document.getElementById('weatherOverlay');
+  var o = document.getElementById('weatherOverlay');
   if (!o) return;
   o.innerHTML = '';
   
   if (w === 'rain') {
-    for (let i = 0; i < 60; i++) {
-      const d = document.createElement('div');
+    for (var i = 0; i < 60; i++) {
+      var d = document.createElement('div');
       d.className = 'rain-drop';
-      d.style.cssText = [
-        'left:' + (Math.random() * 110 - 5) + '%',
-        'height:' + (60 + Math.random() * 80) + 'px',
-        'top:-' + (60 + Math.random() * 80) + 'px',
-        'animation-duration:' + (0.4 + Math.random() * 0.4) + 's',
-        'animation-delay:' + (Math.random() * 2) + 's',
-        'opacity:' + (0.3 + Math.random() * 0.4)
-      ].join(';');
+      d.style.cssText = 'left:' + (Math.random() * 110 - 5) + '%;' +
+        'height:' + (60 + Math.random() * 80) + 'px;' +
+        'top:-' + (60 + Math.random() * 80) + 'px;' +
+        'animation-duration:' + (0.4 + Math.random() * 0.4) + 's;' +
+        'animation-delay:' + (Math.random() * 2) + 's;' +
+        'opacity:' + (0.3 + Math.random() * 0.4);
       o.appendChild(d);
     }
   } else if (w === 'snow') {
-    for (let i = 0; i < 40; i++) {
-      const d = document.createElement('div');
-      d.className = 'snow-flake';
-      d.textContent = '❄';
-      d.style.cssText = [
-        'left:' + (Math.random() * 100) + '%',
-        'font-size:' + (8 + Math.random() * 10) + 'px',
-        'animation-duration:' + (3 + Math.random() * 4) + 's',
-        'animation-delay:' + (Math.random() * 5) + 's',
-        'opacity:' + (0.5 + Math.random() * 0.4)
-      ].join(';');
-      o.appendChild(d);
+    for (var j = 0; j < 40; j++) {
+      var f = document.createElement('div');
+      f.className = 'snow-flake';
+      f.textContent = '❄';
+      f.style.cssText = 'left:' + (Math.random() * 100) + '%;' +
+        'font-size:' + (8 + Math.random() * 10) + 'px;' +
+        'animation-duration:' + (3 + Math.random() * 4) + 's;' +
+        'animation-delay:' + (Math.random() * 5) + 's;' +
+        'opacity:' + (0.5 + Math.random() * 0.4);
+      o.appendChild(f);
     }
   }
 }
 
 function updateTime() {
-  const n = new Date();
-  const hudTime = document.getElementById('hudTime');
+  var n = new Date();
+  var hudTime = document.getElementById('hudTime');
   if (hudTime) {
-    hudTime.textContent = n.getHours().toString().padStart(2, '0') + ':' + n.getMinutes().toString().padStart(2, '0');
+    hudTime.textContent = n.getHours().toString().padStart(2, '0') + ':' + 
+                          n.getMinutes().toString().padStart(2, '0');
   }
 }
 
 // ================================================================
-// VILLAGE CANVAS
+// INITIALISATION DU CANVAS
 // ================================================================
-
 function initCanvas() {
   canvas = document.getElementById('villageCanvas');
-  if (!canvas) {
-    console.error('❌ Canvas #villageCanvas introuvable');
-    return;
+  if (!canvas) return;
+  
+  // Si les dimensions sont à 0, les forcer
+  if (canvas.width === 0 || canvas.height === 0) {
+    var parent = canvas.parentElement;
+    if (parent) {
+      var rect = parent.getBoundingClientRect();
+      canvas.width = rect.width || window.innerWidth;
+      canvas.height = rect.height || window.innerHeight;
+    } else {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
   }
   
-  // Redimensionner le canvas à la taille de son conteneur
-  canvas.width = canvas.offsetWidth;
-  canvas.height = canvas.offsetHeight;
+  // S'assurer que le canvas est visible
+  canvas.style.display = 'block';
+  
   ctx = canvas.getContext('2d');
+  if (!ctx) return;
   
-  if (!ctx) {
-    console.error('❌ Contexte 2D du canvas introuvable');
-    return;
-  }
+  // Dessiner immédiatement un fond pour confirmer que le canvas fonctionne
+  ctx.fillStyle = '#0a0a14';
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
   
-  console.log('✅ Canvas initialisé :', canvas.width, 'x', canvas.height);
-  
-  // Forcer un premier dessin immédiat
+  // Dessiner le village
   tick++;
   drawVillage();
   
   // Gérer le redimensionnement de la fenêtre
   window.removeEventListener('resize', _onCanvasResize);
   window._onCanvasResize = function() {
-    if (canvas) {
-      canvas.width = canvas.offsetWidth;
-      canvas.height = canvas.offsetHeight;
+    if (canvas && canvas.parentElement) {
+      var r = canvas.parentElement.getBoundingClientRect();
+      canvas.width = r.width || window.innerWidth;
+      canvas.height = r.height || window.innerHeight;
       drawVillage();
     }
   };
   window.addEventListener('resize', window._onCanvasResize);
   
-  // Nettoyer les anciens event listeners avant d'en ajouter
+  // Nettoyer les anciens event listeners
   canvas.removeEventListener('click', onVillageClick);
   canvas.removeEventListener('mousemove', onVillageHover);
   canvas.removeEventListener('touchstart', onVillageTouch);
   
-  // Ajouter les event listeners
+  // Ajouter les nouveaux event listeners
   canvas.addEventListener('click', onVillageClick);
   canvas.addEventListener('mousemove', onVillageHover);
   canvas.addEventListener('touchstart', onVillageTouch, { passive: true });
   
-  // Lancer la boucle d'animation si elle ne tourne pas déjà
+  // Lancer la boucle d'animation
   if (!window._villageLoopRunning) {
     window._villageLoopRunning = true;
     requestAnimationFrame(villageLoop);
-    console.log('✅ Boucle village démarrée');
   }
 }
 
+// ================================================================
+// BOUCLE D'ANIMATION
+// ================================================================
 function villageLoop() {
   tick++;
   updatePlayer();
@@ -164,21 +206,24 @@ function villageLoop() {
   requestAnimationFrame(villageLoop);
 }
 
+// ================================================================
+// DESSIN DU VILLAGE
+// ================================================================
 function drawVillage() {
   if (!canvas || !ctx) return;
   
-  const W = canvas.width;
-  const H = canvas.height;
+  var W = canvas.width;
+  var H = canvas.height;
   
   // Si le canvas est invisible (taille 0), ne pas dessiner
   if (W === 0 || H === 0) return;
   
-  const cx = W * 0.5;
-  const cy = H * 0.5;
-  const night = currentWeather === 'night';
+  var cx = W * 0.5;
+  var cy = H * 0.5;
+  var night = currentWeather === 'night';
   
-  // Fond de ciel
-  const sky = ctx.createLinearGradient(0, 0, 0, H);
+  // ---- Fond de ciel ----
+  var sky = ctx.createLinearGradient(0, 0, 0, H);
   if (night) {
     sky.addColorStop(0, '#01020a');
     sky.addColorStop(1, '#0a0a1e');
@@ -192,7 +237,7 @@ function drawVillage() {
   ctx.fillStyle = sky;
   ctx.fillRect(0, 0, W, H);
   
-  // Lune ou soleil
+  // ---- Lune ou soleil ----
   if (night) {
     // Lune
     ctx.beginPath();
@@ -200,10 +245,10 @@ function drawVillage() {
     ctx.fillStyle = '#f0e0a0';
     ctx.fill();
     
-    // Étoiles
-    for (let i = 0; i < 50; i++) {
-      const sx = (Math.sin(i * 437) * 0.5 + 0.5) * W;
-      const sy = (Math.sin(i * 293) * 0.5 + 0.5) * H * 0.4;
+    // Étoiles scintillantes
+    for (var i = 0; i < 50; i++) {
+      var sx = (Math.sin(i * 437) * 0.5 + 0.5) * W;
+      var sy = (Math.sin(i * 293) * 0.5 + 0.5) * H * 0.4;
       ctx.beginPath();
       ctx.arc(sx, sy, 1, 0, Math.PI * 2);
       ctx.fillStyle = 'rgba(255,255,200,' + (0.4 + 0.5 * Math.sin(tick * 0.02 + i)) + ')';
@@ -217,15 +262,15 @@ function drawVillage() {
     ctx.fill();
   }
   
-  // Herbe
-  const grass = ctx.createRadialGradient(cx, cy, 0, cx, cy, W * 0.55);
+  // ---- Herbe / sol ----
+  var grass = ctx.createRadialGradient(cx, cy, 0, cx, cy, W * 0.55);
   grass.addColorStop(0, currentWeather === 'snow' ? '#d0d8e0' : '#3a6b30');
   grass.addColorStop(1, currentWeather === 'snow' ? '#b0b8c0' : '#1e3d1a');
   ctx.fillStyle = grass;
   ctx.fillRect(0, 0, W, H);
   
-  // Cercles concentriques (zones du village)
-  const rings = [
+  // ---- Cercles concentriques (zones) ----
+  var rings = [
     { r: W * 0.46, color: 'rgba(160,130,80,0.25)' },
     { r: W * 0.32, color: 'rgba(160,130,80,0.30)' },
     { r: W * 0.20, color: 'rgba(160,130,80,0.38)' },
@@ -239,9 +284,9 @@ function drawVillage() {
     ctx.fill();
   });
   
-  // Murs circulaires
-  const wallRadii = [W * 0.46, W * 0.32, W * 0.20, W * 0.10];
-  const wallColors = ['#8a7040', '#9a8050', '#aa9060', '#c0a870'];
+  // ---- Murs circulaires ----
+  var wallRadii = [W * 0.46, W * 0.32, W * 0.20, W * 0.10];
+  var wallColors = ['#8a7040', '#9a8050', '#aa9060', '#c0a870'];
   
   wallRadii.forEach(function(r, i) {
     ctx.beginPath();
@@ -251,16 +296,16 @@ function drawVillage() {
     ctx.stroke();
   });
   
-  // Maison du joueur
+  // ---- Maison du joueur ----
   drawPlayerHome(cx, cy, W);
   
-  // Lieux
+  // ---- Lieux ----
   LOCATIONS.forEach(function(loc) {
-    const bob = Math.sin(tick * 0.025 + loc.x * 10) * 1.5;
+    var bob = Math.sin(tick * 0.025 + loc.x * 10) * 1.5;
     drawLoc(loc, loc.x * W, loc.y * H + bob, loc.w * W, loc.h * H, hoveredLoc === loc.id);
   });
   
-  // Ligne de marche
+  // ---- Ligne de marche ----
   if (player.dest) {
     ctx.beginPath();
     ctx.moveTo(player.x * W, player.y * H);
@@ -272,10 +317,10 @@ function drawVillage() {
     ctx.setLineDash([]);
   }
   
-  // Personnage
+  // ---- Personnage ----
   drawPlayerCharacter(W, H);
   
-  // Effet de pluie global
+  // ---- Effet de pluie global ----
   if (currentWeather === 'rain') {
     ctx.fillStyle = 'rgba(0,10,30,0.12)';
     ctx.fillRect(0, 0, W, H);
@@ -283,17 +328,16 @@ function drawVillage() {
 }
 
 // ================================================================
-// DESSIN DES LIEUX
+// DESSIN D'UN LIEU
 // ================================================================
-
 function drawLoc(loc, x, y, w, h, hov) {
   if (!ctx) return;
   
-  const a = hov ? 1 : 0.85;
-  const night = currentWeather === 'night';
-  const r = Math.min(w, h) * 0.5;
-  const bx = x + w * 0.5;
-  const by = y + h * 0.5;
+  var a = hov ? 1 : 0.85;
+  var night = currentWeather === 'night';
+  var r = Math.min(w, h) * 0.5;
+  var bx = x + w * 0.5;
+  var by = y + h * 0.5;
   
   // Ombre portée
   ctx.beginPath();
@@ -307,7 +351,7 @@ function drawLoc(loc, x, y, w, h, hov) {
   ctx.fillStyle = hexA(loc.color, a * (night ? 0.6 : 1));
   ctx.fill();
   
-  // Bordure dorée si survolé
+  // Bordure
   if (hov) {
     ctx.beginPath();
     ctx.arc(bx, by, r, 0, Math.PI * 2);
@@ -336,7 +380,7 @@ function drawLoc(loc, x, y, w, h, hov) {
   ctx.fillText(loc.emoji, bx, by);
   
   // Nom du lieu
-  const nm = LOC_NAMES[loc.id] ? (LOC_NAMES[loc.id][S.nativeLang] || loc.id) : loc.id;
+  var nm = (LOC_NAMES[loc.id] && LOC_NAMES[loc.id][S.nativeLang]) ? LOC_NAMES[loc.id][S.nativeLang] : loc.id;
   ctx.font = 'bold ' + Math.max(8, Math.min(w * 0.14, 11)) + 'px Nunito,sans-serif';
   ctx.fillStyle = hov ? '#FFD700' : 'rgba(255,240,200,0.9)';
   ctx.textAlign = 'center';
@@ -347,16 +391,15 @@ function drawLoc(loc, x, y, w, h, hov) {
 // ================================================================
 // UTILITAIRES COULEURS
 // ================================================================
-
 function hexA(h, a) {
-  const r = parseInt(h.slice(1, 3), 16);
-  const g = parseInt(h.slice(3, 5), 16);
-  const b = parseInt(h.slice(5, 7), 16);
+  var r = parseInt(h.slice(1, 3), 16);
+  var g = parseInt(h.slice(3, 5), 16);
+  var b = parseInt(h.slice(5, 7), 16);
   return 'rgba(' + r + ',' + g + ',' + b + ',' + a + ')';
 }
 
 function darken(h) {
-  const parts = [1, 3, 5].map(function(i) {
+  var parts = [1, 3, 5].map(function(i) {
     return Math.max(0, parseInt(h.slice(i, i + 2), 16) - 40)
       .toString(16)
       .padStart(2, '0');
@@ -367,30 +410,29 @@ function darken(h) {
 // ================================================================
 // INTERACTIONS SOURIS / TACTILE
 // ================================================================
-
 function getLocAt(mx, my) {
-  const W = canvas.width;
-  const H = canvas.height;
+  var W = canvas.width;
+  var H = canvas.height;
   
   return LOCATIONS.find(function(loc) {
-    const bx = loc.x * W + loc.w * W * 0.5;
-    const by = loc.y * H + loc.h * H * 0.5;
-    const r = Math.min(loc.w * W, loc.h * H) * 0.5;
-    const dx = mx - bx;
-    const dy = my - by;
+    var bx = loc.x * W + loc.w * W * 0.5;
+    var by = loc.y * H + loc.h * H * 0.5;
+    var r = Math.min(loc.w * W, loc.h * H) * 0.5;
+    var dx = mx - bx;
+    var dy = my - by;
     return dx * dx + dy * dy <= r * r;
   });
 }
 
 function onVillageHover(e) {
-  const rect = canvas.getBoundingClientRect();
-  const loc = getLocAt(e.clientX - rect.left, e.clientY - rect.top);
+  var rect = canvas.getBoundingClientRect();
+  var loc = getLocAt(e.clientX - rect.left, e.clientY - rect.top);
   hoveredLoc = loc ? loc.id : null;
   
-  const tip = document.getElementById('locTooltip');
+  var tip = document.getElementById('locTooltip');
   if (loc && tip) {
-    const nm = LOC_NAMES[loc.id] ? (LOC_NAMES[loc.id][S.nativeLang] || loc.id) : loc.id;
-    const ds = LOC_DESC[loc.id] ? (LOC_DESC[loc.id][S.nativeLang] || '') : '';
+    var nm = (LOC_NAMES[loc.id] && LOC_NAMES[loc.id][S.nativeLang]) ? LOC_NAMES[loc.id][S.nativeLang] : loc.id;
+    var ds = (LOC_DESC[loc.id] && LOC_DESC[loc.id][S.nativeLang]) ? LOC_DESC[loc.id][S.nativeLang] : '';
     tip.textContent = (WEATHER_ICONS[currentWeather] || '') + ' ' + nm + ' — ' + ds;
     tip.style.left = (loc.x * canvas.width + loc.w * canvas.width / 2) + 'px';
     tip.style.top = (loc.y * canvas.height) + 'px';
@@ -401,30 +443,29 @@ function onVillageHover(e) {
 }
 
 function onVillageClick(e) {
-  const rect = canvas.getBoundingClientRect();
-  const loc = getLocAt(e.clientX - rect.left, e.clientY - rect.top);
+  var rect = canvas.getBoundingClientRect();
+  var loc = getLocAt(e.clientX - rect.left, e.clientY - rect.top);
   if (loc) openLoc(loc);
 }
 
 function onVillageTouch(e) {
-  const rect = canvas.getBoundingClientRect();
-  const t = e.touches[0];
-  const loc = getLocAt(t.clientX - rect.left, t.clientY - rect.top);
+  var rect = canvas.getBoundingClientRect();
+  var t = e.touches[0];
+  var loc = getLocAt(t.clientX - rect.left, t.clientY - rect.top);
   if (loc) openLoc(loc);
 }
 
 // ================================================================
 // OUVERTURE D'UN LIEU
 // ================================================================
-
 function openLoc(loc) {
   if (!window.S) return;
   
   S.currentLoc = loc;
   
-  const locTitle   = document.getElementById('locTitle');
-  const locWeather = document.getElementById('locWeather');
-  const locName = (LOC_NAMES[loc.id] && LOC_NAMES[loc.id][S.nativeLang]) ? LOC_NAMES[loc.id][S.nativeLang] : loc.id;
+  var locTitle   = document.getElementById('locTitle');
+  var locWeather = document.getElementById('locWeather');
+  var locName = (LOC_NAMES[loc.id] && LOC_NAMES[loc.id][S.nativeLang]) ? LOC_NAMES[loc.id][S.nativeLang] : loc.id;
   
   if (locTitle)   locTitle.textContent   = loc.emoji + ' ' + locName;
   if (locWeather) locWeather.textContent = WEATHER_ICONS[currentWeather] || '☀️';
@@ -435,22 +476,22 @@ function openLoc(loc) {
     return;
   }
   
-  const listEl = document.getElementById('npcList');
+  var listEl = document.getElementById('npcList');
   if (!listEl) return;
   
   listEl.innerHTML = loc.npcs.map(function(npc) {
-    const role = typeof npc.role === 'object' ? (npc.role[S.nativeLang] || npc.role.en) : npc.role;
-    const hint = (LOC_DESC[loc.id] && LOC_DESC[loc.id][S.nativeLang]) ? LOC_DESC[loc.id][S.nativeLang] : '';
+    var role = typeof npc.role === 'object' ? (npc.role[S.nativeLang] || npc.role.en) : npc.role;
+    var hint = (LOC_DESC[loc.id] && LOC_DESC[loc.id][S.nativeLang]) ? LOC_DESC[loc.id][S.nativeLang] : '';
     
-    return '<div class="npc-card" onclick="openDialogue(\'' + loc.id + '\',\'' + npc.id + '\')">'
-      + '<div class="npc-av">' + npc.emoji + '</div>'
-      + '<div class="npc-info">'
-      + '<div class="npc-name">' + npc.name + '</div>'
-      + '<div class="npc-role">' + role + '</div>'
-      + (hint ? '<div class="npc-hint">💬 ' + hint + '</div>' : '')
-      + '</div>'
-      + '<span style="color:var(--dim);font-size:1.2rem">›</span>'
-      + '</div>';
+    return '<div class="npc-card" onclick="openDialogue(\'' + loc.id + '\',\'' + npc.id + '\')">' +
+      '<div class="npc-av">' + npc.emoji + '</div>' +
+      '<div class="npc-info">' +
+      '<div class="npc-name">' + npc.name + '</div>' +
+      '<div class="npc-role">' + role + '</div>' +
+      (hint ? '<div class="npc-hint">💬 ' + hint + '</div>' : '') +
+      '</div>' +
+      '<span style="color:var(--dim);font-size:1.2rem">›</span>' +
+      '</div>';
   }).join('');
   
   showScreen('screen-location');
@@ -461,7 +502,7 @@ function openLoc(loc) {
 }
 
 // ================================================================
-// DIALOGUE — REDIRECTION VERS dialogue.js
-// ================================================================
+// DIALOGUE — Ces fonctions sont dans dialogue.js
 // Les fonctions openDialogue, sendMsg, reqHint, reqTranslate,
-// toggleVoice, speakPopupWord, closeWordPopup sont dans dialogue.js
+// toggleVoice, speakPopupWord, closeWordPopup sont définies ailleurs
+// ================================================================
