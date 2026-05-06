@@ -1,32 +1,83 @@
+// dialogue.js - CORRIGÉ (event listeners déplacés dans DOMContentLoaded)
 // LinguaVillage — dialogue.js
 // Dialogues NPC, IA, correcteur, popup mots, voix
 
+var dictFromScreen = null;
+var dictMode = 'word';
+var dictHistory = [];
+var isRecording = false;
+var recognition = null;
+var popupWord = '';
+
+// Initialiser les event listeners au chargement du DOM
+document.addEventListener('DOMContentLoaded', function() {
+  // Dialogue input - Entrée clavier
+  var dialInput = document.getElementById('dialInput');
+  if (dialInput) {
+    dialInput.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter' && typeof sendMsg === 'function') sendMsg();
+    });
+  }
+  
+  // Dict input - Entrée clavier
+  var dictInput = document.getElementById('dictInput');
+  if (dictInput) {
+    dictInput.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter' && typeof searchDict === 'function') searchDict();
+    });
+  }
+  
+  // Vocab search
+  var vocabSearch = document.getElementById('vocabSearch');
+  if (vocabSearch) {
+    vocabSearch.addEventListener('input', function() {
+      var active = document.querySelector('.vcat.active');
+      if (active && typeof loadVocab === 'function') {
+        var idx = Array.from(document.querySelectorAll('.vcat')).indexOf(active);
+        var keys = Object.keys(VOCAB);
+        if (keys[idx]) loadVocab(keys[idx]);
+      }
+    });
+  }
+  
+  // Fermer popup mot au clic extérieur
+  document.addEventListener('click', function(e) {
+    var pop = document.getElementById('wordPopup');
+    if (pop && pop.classList.contains('show') && !pop.contains(e.target) && !e.target.classList.contains('clickable-word')) {
+      closeWordPopup();
+    }
+  });
+});
+
 function openDialogue(locId, npcId) {
-  const loc = LOCATIONS.find(l => l.id === locId);
-  const npc = loc.npcs.find(n => n.id === npcId);
+  var loc = LOCATIONS.find(function(l) { return l.id === locId; });
+  if (!loc) return;
+  var npc = (loc.npcs || []).find(function(n) { return n.id === npcId; });
+  if (!npc) return;
   if (!window.S) return;
+  
   S.currentNPC = npc;
   S.currentLoc = loc;
   S.chatHistory = [];
   
-  const role = typeof npc.role === 'object' ? (npc.role[S.nativeLang] || npc.role.en) : npc.role;
-  const dialAv = document.getElementById('dialAv');
-  const dialName = document.getElementById('dialName');
-  const dialRole = document.getElementById('dialRole');
-  const chatMsgs = document.getElementById('chatMsgs');
-  const corrPanel = document.getElementById('corrPanel');
-  const dialInput = document.getElementById('dialInput');
+  var role = typeof npc.role === 'object' ? (npc.role[S.nativeLang] || npc.role.en) : npc.role;
+  var dialAv = document.getElementById('dialAv');
+  var dialName = document.getElementById('dialName');
+  var dialRole = document.getElementById('dialRole');
+  var chatMsgs = document.getElementById('chatMsgs');
+  var corrPanel = document.getElementById('corrPanel');
+  var dialInputEl = document.getElementById('dialInput');
   
   if (dialAv) dialAv.textContent = npc.emoji;
   if (dialName) dialName.textContent = npc.name;
-  if (dialRole) dialRole.textContent = role + ' — ' + (LOC_NAMES[loc.id] ? LOC_NAMES[loc.id][S.nativeLang] || loc.id : loc.id);
+  if (dialRole) dialRole.textContent = role + ' — ' + (LOC_NAMES[loc.id] ? (LOC_NAMES[loc.id][S.nativeLang] || loc.id) : loc.id);
   if (chatMsgs) chatMsgs.innerHTML = '';
   if (corrPanel) corrPanel.className = 'correction-panel';
-  if (dialInput) dialInput.value = '';
+  if (dialInputEl) dialInputEl.value = '';
   
-  showScreen('screen-dialogue');
+  if (typeof showScreen === 'function') showScreen('screen-dialogue');
   addSysMsg('💡 Touchez un mot pour le traduire');
-  setTimeout(() => npcOpen(), 400);
+  setTimeout(function() { npcOpen(); }, 400);
 }
 
 function getScriptInstr() {
@@ -45,41 +96,48 @@ function getScriptInstr() {
 }
 
 async function npcOpen() {
-  const npc=S.currentNPC, loc=S.currentLoc;
-  if(!npc||!loc)return;
-  const si=getScriptInstr();
-  const wctx={sun:'Il fait beau.',rain:'Il pleut.',snow:'Il neige.',wind:'Il fait du vent.',night:'Il fait nuit.'};
-  const role=typeof npc.role==='object'?(npc.role.fr||npc.role.en):npc.role;
-  const locName=(typeof LOC_NAMES!=='undefined'&&LOC_NAMES[loc.id])?LOC_NAMES[loc.id].fr||loc.id:loc.id;
-  const prompt=npc.ctx+'\nTu es '+npc.name+', '+role+' à '+locName+'.\nJoueur: '+S.playerName+'. Météo: '+(wctx[currentWeather]||'')+'\nRÈGLES STRICTES:\n1. Réponds UNIQUEMENT en '+LANG_NAMES[S.targetLang]+'.'+si+'\n2. Reste TOUJOURS dans ton rôle de '+role+'. Ne réponds JAMAIS hors de ce rôle.\n3. Si hors-sujet: "En tant que '+role+', parlons plutôt de [ton domaine]."\n4. Phrases courtes (2-3 max). Vocabulaire simple.';
+  var npc = S.currentNPC;
+  var loc = S.currentLoc;
+  if (!npc || !loc) return;
+  var si = getScriptInstr();
+  var wctx = {sun:'Il fait beau.', rain:'Il pleut.', snow:'Il neige.', wind:'Il fait du vent.', night:'Il fait nuit.'};
+  var role = typeof npc.role === 'object' ? (npc.role.fr || npc.role.en) : npc.role;
+  var locName = (typeof LOC_NAMES !== 'undefined' && LOC_NAMES[loc.id]) ? (LOC_NAMES[loc.id].fr || loc.id) : loc.id;
+  var prompt = 'Tu es ' + npc.name + ', ' + role + ' à ' + locName + '.\nJoueur: ' + S.playerName + '. Météo: ' + (wctx[currentWeather] || '') + '\nRÈGLES STRICTES:\n1. Réponds UNIQUEMENT en ' + (LANG_NAMES[S.targetLang] || '') + '.' + si + '\n2. Reste TOUJOURS dans ton rôle de ' + role + '. Ne réponds JAMAIS hors de ce rôle.\n3. Si hors-sujet: "En tant que ' + role + ', parlons plutôt de [ton domaine]."\n4. Phrases courtes (2-3 max). Vocabulaire simple.';
+  
   showTyping();
-  const sendBtn=document.getElementById('dialSend');
-  if(sendBtn)sendBtn.disabled=true;
-  try{
-    const result=await callAPIWithFallback('/api/dialogue',{
-      npcName:npc.name,
-      npcRole:role,
-      location:locName,
-      language:LANG_NAMES[S.targetLang],
-      playerName:S.playerName,
-      playerMessage:'__OPEN__',
-      history:[],
-      systemContext:prompt
-    });
+  var sendBtn = document.getElementById('dialSend');
+  if (sendBtn) sendBtn.disabled = true;
+  
+  try {
+    if (typeof callAPIWithFallback === 'function') {
+      var result = await callAPIWithFallback('/api/dialogue', {
+        npcName: npc.name,
+        npcRole: role,
+        location: locName,
+        language: LANG_NAMES[S.targetLang] || 'français',
+        playerName: S.playerName,
+        playerMessage: '__OPEN__',
+        history: [],
+        systemContext: prompt
+      });
+      removeTyping();
+      var reply = result.reply || 'Bonjour ' + S.playerName + ' !';
+      addClickableMsg('npc', npc.emoji, reply);
+      if (S.chatHistory) S.chatHistory.push({role: 'assistant', content: reply});
+    } else {
+      throw new Error('API not available');
+    }
+  } catch(e) {
     removeTyping();
-    const reply=result.reply||'Bonjour '+S.playerName+' !';
-    addClickableMsg('npc',npc.emoji,reply);
-    if(S.chatHistory)S.chatHistory.push({role:'assistant',content:reply});
-  }catch(e){
-    removeTyping();
-    addClickableMsg('npc',npc.emoji,'Bonjour '+S.playerName+' !');
+    addClickableMsg('npc', npc.emoji, 'Bonjour ' + S.playerName + ' !');
   }
-  if(sendBtn)sendBtn.disabled=false;
+  if (sendBtn) sendBtn.disabled = false;
 }
 
 async function sendMsg() {
-  const input = document.getElementById('dialInput');
-  const msg = input ? input.value.trim() : '';
+  var input = document.getElementById('dialInput');
+  var msg = input ? input.value.trim() : '';
   if (!msg) return;
   
   addClickableMsg('player', '👤', msg);
@@ -92,48 +150,53 @@ async function sendMsg() {
   await checkSpelling(msg);
   
   showTyping();
-  const sendBtn = document.getElementById('dialSend');
+  var sendBtn = document.getElementById('dialSend');
   if (sendBtn) sendBtn.disabled = true;
   
   try {
-    const npc = S.currentNPC;
-    const loc = S.currentLoc;
-    const si = getScriptInstr();
-    const result = await callAPIWithFallback('/api/dialogue', {
-      npcName: npc.name,
-      npcRole: typeof npc.role === 'object' ? npc.role.fr : npc.role,
-      location: LOC_NAMES[loc.id]?.fr || loc.id,
-      language: LANG_NAMES[S.targetLang],
-      playerName: S.playerName,
-      playerMessage: msg,
-      history: S.chatHistory.slice(-6),
-      systemContext: `Tu es ${S.currentNPC?.name}, ${typeof S.currentNPC?.role==='object'?(S.currentNPC?.role?.fr||S.currentNPC?.role?.en):S.currentNPC?.role}. Réponds UNIQUEMENT en ${LANG_NAMES[S.targetLang]}.${si} RÈGLE: reste dans ton rôle. Si hors-sujet dis: "Revenons à mon domaine." Max 2 phrases.`
-    });
-    removeTyping();
-    const reply = result.reply || `Merci pour votre message !`;
-    addClickableMsg('npc', npc.emoji, reply);
-    if (S.chatHistory) S.chatHistory.push({ role: 'assistant', content: reply });
-    gainXP(5);
+    var npc = S.currentNPC;
+    var loc = S.currentLoc;
+    var si = getScriptInstr();
+    if (typeof callAPIWithFallback === 'function') {
+      var result = await callAPIWithFallback('/api/dialogue', {
+        npcName: npc.name,
+        npcRole: typeof npc.role === 'object' ? npc.role.fr : npc.role,
+        location: LOC_NAMES[loc.id] ? (LOC_NAMES[loc.id].fr || loc.id) : loc.id,
+        language: LANG_NAMES[S.targetLang] || 'français',
+        playerName: S.playerName,
+        playerMessage: msg,
+        history: (S.chatHistory || []).slice(-6),
+        systemContext: 'Tu es ' + S.currentNPC.name + ', ' + (typeof S.currentNPC.role === 'object' ? (S.currentNPC.role.fr || S.currentNPC.role.en) : S.currentNPC.role) + '. Réponds UNIQUEMENT en ' + (LANG_NAMES[S.targetLang] || '') + '.' + si + ' RÈGLE: reste dans ton rôle. Si hors-sujet dis: "Revenons à mon domaine." Max 2 phrases.'
+      });
+      removeTyping();
+      var reply = result.reply || 'Merci pour votre message !';
+      addClickableMsg('npc', npc.emoji, reply);
+      if (S.chatHistory) S.chatHistory.push({ role: 'assistant', content: reply });
+      if (typeof gainXP === 'function') gainXP(5);
+    } else {
+      throw new Error('API not available');
+    }
   } catch (e) {
     removeTyping();
-    addClickableMsg('npc', S.currentNPC?.emoji || '🧑', `Merci pour votre message ! Je vous répondrai bientôt.`);
+    addClickableMsg('npc', S.currentNPC ? S.currentNPC.emoji : '🧑', 'Merci pour votre message ! Je vous répondrai bientôt.');
   }
   if (sendBtn) sendBtn.disabled = false;
 }
 
 async function checkSpelling(text) {
+  if (typeof callAPIWithFallback !== 'function') return;
   try {
-    const result = await callAPIWithFallback('/api/correct', {
+    var result = await callAPIWithFallback('/api/correct', {
       text: text,
       language: LANG_NAMES[S.targetLang] || 'anglais',
       nativeLanguage: LANG_NAMES[S.nativeLang] || 'français'
     });
     
-    const panel = document.getElementById('corrPanel');
-    const corrTitle = document.getElementById('corrTitle');
-    const corrOrig = document.getElementById('corrOrig');
-    const corrFixed = document.getElementById('corrFixed');
-    const corrExplain = document.getElementById('corrExplain');
+    var panel = document.getElementById('corrPanel');
+    var corrTitle = document.getElementById('corrTitle');
+    var corrOrig = document.getElementById('corrOrig');
+    var corrFixed = document.getElementById('corrFixed');
+    var corrExplain = document.getElementById('corrExplain');
     
     if (!panel || !corrTitle || !corrOrig || !corrFixed || !corrExplain) return;
     
@@ -157,9 +220,9 @@ async function checkSpelling(text) {
 }
 
 function underlineLastPlayerMsg(original, corrected) {
-  const msgs = document.querySelectorAll('.msg.player .msg-bubble');
+  var msgs = document.querySelectorAll('.msg.player .msg-bubble');
   if (!msgs.length) return;
-  const last = msgs[msgs.length - 1];
+  var last = msgs[msgs.length - 1];
   if (original !== corrected) {
     last.style.borderBottom = '2px wavy var(--red)';
     last.title = 'Cliquez ✏️ Correction pour voir la correction';
@@ -167,117 +230,125 @@ function underlineLastPlayerMsg(original, corrected) {
 }
 
 async function reqHint() {
-  const last = S.chatHistory?.filter(m => m.role === 'assistant').slice(-1)[0]?.content;
-  if (!last) {
-    showNotif('💡 Aucun message récent pour un indice');
+  var last = S.chatHistory ? S.chatHistory.filter(function(m) { return m.role === 'assistant'; }).slice(-1)[0] : null;
+  if (!last || !last.content) {
+    if (typeof showNotif === 'function') showNotif('💡 Aucun message récent pour un indice');
+    return;
+  }
+  if (typeof callAPIWithFallback !== 'function') {
+    if (typeof showNotif === 'function') showNotif('💡 Essayez de reformuler votre réponse');
     return;
   }
   try {
-    const result = await callAPIWithFallback('/api/dialogue', {
+    var result = await callAPIWithFallback('/api/dialogue', {
       npcName: '', npcRole: '', location: '',
       language: LANG_NAMES[S.nativeLang] || 'français',
       playerName: S.playerName,
-      playerMessage: `Donne un indice court en ${LANG_NAMES[S.nativeLang] || 'français'} pour répondre à: "${last}". Max 1 phrase.`,
+      playerMessage: 'Donne un indice court en ' + (LANG_NAMES[S.nativeLang] || 'français') + ' pour répondre à: "' + last.content + '". Max 1 phrase.',
       history: []
     });
-    showNotif('💡 ' + (result.reply || 'Essayez de reformuler votre réponse'));
+    if (typeof showNotif === 'function') showNotif('💡 ' + (result.reply || 'Essayez de reformuler votre réponse'));
   } catch (e) {
-    showNotif('💡 Essayez de répondre simplement');
+    if (typeof showNotif === 'function') showNotif('💡 Essayez de répondre simplement');
   }
 }
 
 async function reqTranslate() {
-  const last = S.chatHistory?.filter(m => m.role === 'assistant').slice(-1)[0]?.content;
-  if (!last) {
-    showNotif('🔤 Aucun message à traduire');
+  var last = S.chatHistory ? S.chatHistory.filter(function(m) { return m.role === 'assistant'; }).slice(-1)[0] : null;
+  if (!last || !last.content) {
+    if (typeof showNotif === 'function') showNotif('🔤 Aucun message à traduire');
+    return;
+  }
+  if (typeof callAPIWithFallback !== 'function') {
+    if (typeof showNotif === 'function') showNotif('🔤 Traduction non disponible');
     return;
   }
   try {
-    const result = await callAPIWithFallback('/api/translate', {
-      text: last,
+    var result = await callAPIWithFallback('/api/translate', {
+      text: last.content,
       targetLanguage: LANG_NAMES[S.nativeLang] || 'français'
     });
-    showNotif('🔤 ' + (result.translation || last));
+    if (typeof showNotif === 'function') showNotif('🔤 ' + (result.translation || last.content));
   } catch (e) {
-    showNotif('🔤 Traduction non disponible');
+    if (typeof showNotif === 'function') showNotif('🔤 Traduction non disponible');
   }
 }
 
 function toggleVoice() {
   if (!('webkitSpeechRecognition' in window || 'SpeechRecognition' in window)) {
-    showNotif('🎤 Non supporté sur ce navigateur');
+    if (typeof showNotif === 'function') showNotif('🎤 Non supporté sur ce navigateur');
     return;
   }
   if (isRecording) {
     if (recognition) recognition.stop();
     isRecording = false;
-    const voiceBtn = document.getElementById('voiceBtn');
+    var voiceBtn = document.getElementById('voiceBtn');
     if (voiceBtn) {
       voiceBtn.classList.remove('rec');
       voiceBtn.textContent = '🎤 Parler';
     }
     return;
   }
-  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
   recognition = new SR();
-  const lm = { en: 'en-US', fr: 'fr-FR', es: 'es-ES', ht: 'fr-HT', de: 'de-DE', ru: 'ru-RU', zh: 'zh-CN', ja: 'ja-JP' };
+  var lm = { en: 'en-US', fr: 'fr-FR', es: 'es-ES', ht: 'fr-HT', de: 'de-DE', ru: 'ru-RU', zh: 'zh-CN', ja: 'ja-JP' };
   recognition.lang = lm[S.targetLang] || 'en-US';
   recognition.interimResults = false;
-  recognition.onstart = () => {
+  recognition.onstart = function() {
     isRecording = true;
-    const voiceBtn = document.getElementById('voiceBtn');
-    if (voiceBtn) {
-      voiceBtn.classList.add('rec');
-      voiceBtn.textContent = '⏹️ Stop';
+    var vb = document.getElementById('voiceBtn');
+    if (vb) {
+      vb.classList.add('rec');
+      vb.textContent = '⏹️ Stop';
     }
-    showNotif('🎤 Parlez...');
+    if (typeof showNotif === 'function') showNotif('🎤 Parlez...');
   };
-  recognition.onresult = (e) => {
-    const t = e.results[0][0].transcript;
-    const dialInput = document.getElementById('dialInput');
-    if (dialInput) dialInput.value = t;
-    showNotif('✅ "' + t + '"');
+  recognition.onresult = function(e) {
+    var t = e.results[0][0].transcript;
+    var di = document.getElementById('dialInput');
+    if (di) di.value = t;
+    if (typeof showNotif === 'function') showNotif('✅ "' + t + '"');
   };
-  recognition.onerror = () => {
-    showNotif('❌ Erreur micro');
+  recognition.onerror = function() {
+    if (typeof showNotif === 'function') showNotif('❌ Erreur micro');
   };
-  recognition.onend = () => {
+  recognition.onend = function() {
     isRecording = false;
-    const voiceBtn = document.getElementById('voiceBtn');
-    if (voiceBtn) {
-      voiceBtn.classList.remove('rec');
-      voiceBtn.textContent = '🎤 Parler';
+    var vb = document.getElementById('voiceBtn');
+    if (vb) {
+      vb.classList.remove('rec');
+      vb.textContent = '🎤 Parler';
     }
   };
   recognition.start();
 }
 
 function addClickableMsg(type, avatar, text) {
-  const c = document.getElementById('chatMsgs');
+  var c = document.getElementById('chatMsgs');
   if (!c) return;
-  const d = document.createElement('div');
-  d.className = `msg ${type}`;
-  const content = type === 'npc' ? makeClickable(text) : escapeHtml(text);
-  d.innerHTML = `<div class="msg-av">${avatar}</div><div class="msg-bubble">${content}</div>`;
+  var d = document.createElement('div');
+  d.className = 'msg ' + type;
+  var content = type === 'npc' ? makeClickable(text) : escapeHtml(text);
+  d.innerHTML = '<div class="msg-av">' + avatar + '</div><div class="msg-bubble">' + content + '</div>';
   c.appendChild(d);
   c.scrollTop = c.scrollHeight;
 }
 
 function addSysMsg(t) {
-  const c = document.getElementById('chatMsgs');
+  var c = document.getElementById('chatMsgs');
   if (!c) return;
-  const d = document.createElement('div');
+  var d = document.createElement('div');
   d.className = 'msg system';
-  d.innerHTML = `<div class="msg-bubble">${t}</div>`;
+  d.innerHTML = '<div class="msg-bubble">' + t + '</div>';
   c.appendChild(d);
   c.scrollTop = c.scrollHeight;
 }
 
 function makeClickable(text) {
-  return text.split(/(\s+|[,\.!?;:'"()\[\]{}])/g).map(tok => {
+  return text.split(/(\s+|[,\.!?;:'"()\[\]{}])/g).map(function(tok) {
     if (tok.trim() && tok.trim().length > 1 && !/^[,\.!?;:'"()\[\]{}]+$/.test(tok.trim())) {
-      const s = escapeHtml(tok);
-      return `<span class="clickable-word" onclick="lookupWord('${s.replace(/'/g, "\\'")}', event)">${s}</span>`;
+      var s = escapeHtml(tok);
+      return '<span class="clickable-word" onclick="lookupWord(\'' + s.replace(/'/g, "\\'") + '\', event)">' + s + '</span>';
     }
     return escapeHtml(tok);
   }).join('');
@@ -288,28 +359,28 @@ function escapeHtml(t) {
 }
 
 function showTyping() {
-  const c = document.getElementById('chatMsgs');
+  var c = document.getElementById('chatMsgs');
   if (!c) return;
-  const d = document.createElement('div');
+  var d = document.createElement('div');
   d.className = 'msg npc';
   d.id = 'typInd';
-  d.innerHTML = `<div class="msg-av">${S.currentNPC?.emoji || '🧑'}</div><div class="msg-bubble"><div class="typing-ind"><div class="td"></div><div class="td"></div><div class="td"></div></div></div>`;
+  d.innerHTML = '<div class="msg-av">' + (S.currentNPC ? S.currentNPC.emoji : '🧑') + '</div><div class="msg-bubble"><div class="typing-ind"><div class="td"></div><div class="td"></div><div class="td"></div></div></div>';
   c.appendChild(d);
   c.scrollTop = c.scrollHeight;
 }
 
 function removeTyping() {
-  const el = document.getElementById('typInd');
+  var el = document.getElementById('typInd');
   if (el) el.remove();
 }
 
 async function lookupWord(word, event) {
   popupWord = word;
-  const pop = document.getElementById('wordPopup');
-  const wpWord = document.getElementById('wpWord');
-  const wpRoman = document.getElementById('wpRoman');
-  const wpTranslation = document.getElementById('wpTranslation');
-  const wpGrammar = document.getElementById('wpGrammar');
+  var pop = document.getElementById('wordPopup');
+  var wpWord = document.getElementById('wpWord');
+  var wpRoman = document.getElementById('wpRoman');
+  var wpTranslation = document.getElementById('wpTranslation');
+  var wpGrammar = document.getElementById('wpGrammar');
   
   if (!pop || !wpWord || !wpTranslation) return;
   
@@ -318,24 +389,29 @@ async function lookupWord(word, event) {
   wpTranslation.textContent = '...';
   if (wpGrammar) wpGrammar.textContent = '';
   
-  const x = Math.min(event.clientX, window.innerWidth - 290);
-  const y = Math.max(event.clientY - 170, 10);
+  var x = Math.min(event.clientX, window.innerWidth - 290);
+  var y = Math.max(event.clientY - 170, 10);
   pop.style.left = x + 'px';
   pop.style.top = y + 'px';
   pop.classList.add('show');
   
+  if (typeof callAPIWithFallback !== 'function') {
+    if (wpTranslation) wpTranslation.textContent = 'Indisponible';
+    return;
+  }
+  
   try {
-    const result = await callAPIWithFallback('/api/dialogue', {
+    var result = await callAPIWithFallback('/api/dialogue', {
       npcName: '', npcRole: '', location: '',
       language: LANG_NAMES[S.nativeLang] || 'français',
       playerName: S.playerName,
-      playerMessage: `Pour le mot "${word}" en ${LANG_NAMES[S.targetLang]}, donne en ${LANG_NAMES[S.nativeLang] || 'français'}: 1.Traduction 2.Romanisation si applicable 3.Catégorie grammaticale. JSON: {"translation":"...","roman":"...","grammar":"..."}`,
+      playerMessage: 'Pour le mot "' + word + '" en ' + (LANG_NAMES[S.targetLang] || '') + ', donne en ' + (LANG_NAMES[S.nativeLang] || 'français') + ': 1.Traduction 2.Romanisation si applicable 3.Catégorie grammaticale. JSON: {"translation":"...","roman":"...","grammar":"..."}',
       history: []
     });
-    let p;
+    var p;
     try {
       p = JSON.parse((result.reply || '{}').replace(/```json|```/g, '').trim());
-    } catch {
+    } catch(e) {
       p = { translation: result.reply || word, roman: '', grammar: '' };
     }
     if (wpTranslation) wpTranslation.textContent = p.translation || word;
@@ -347,18 +423,16 @@ async function lookupWord(word, event) {
 }
 
 function closeWordPopup() {
-  const pop = document.getElementById('wordPopup');
+  var pop = document.getElementById('wordPopup');
   if (pop) pop.classList.remove('show');
 }
 
 function speakPopupWord() {
   if (popupWord && 'speechSynthesis' in window) {
-    const u = new SpeechSynthesisUtterance(popupWord);
-    const lm = { en: 'en-US', fr: 'fr-FR', es: 'es-ES', ht: 'fr-HT', de: 'de-DE', ru: 'ru-RU', zh: 'zh-CN', ja: 'ja-JP' };
+    var u = new SpeechSynthesisUtterance(popupWord);
+    var lm = { en: 'en-US', fr: 'fr-FR', es: 'es-ES', ht: 'fr-HT', de: 'de-DE', ru: 'ru-RU', zh: 'zh-CN', ja: 'ja-JP' };
     u.lang = lm[S.targetLang] || 'en-US';
     speechSynthesis.speak(u);
-    showNotif('🔊 ' + popupWord);
+    if (typeof showNotif === 'function') showNotif('🔊 ' + popupWord);
   }
-}
-
-// VOCABULAIRE
+                                                                                                                   }
