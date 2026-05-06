@@ -1,20 +1,70 @@
+// data.js - CORRIGÉ (ajout des données manquantes)
 // LinguaVillage — data.js
 // Vocabulaire, phrases, grammaire, lieux, constantes, UI_TEXT
-// window.S défini en PREMIER — toutes les autres fonctions en dépendent
+// window.S est déjà défini par state.js
 
 // =================================================================
-// STATE — défini avant tout le reste
+// CONSTANTES GLOBALES
 // =================================================================
-if (!window.S) {
-  window.S = {
-    playerName:'', nativeLang:'', targetLang:'', scriptPref:'both',
-    xp:0, level:1, currentLoc:null, currentNPC:null,
-    chatHistory:[], currentUI:{}, xpBoostEnd:null
+
+// Langues
+var FLAGS = {
+  fr: '🇫🇷', en: '🇬🇧', es: '🇪🇸', ht: '🇭🇹', de: '🇩🇪',
+  ru: '🇷🇺', zh: '🇨🇳', ja: '🇯🇵'
+};
+
+var LANG_NAMES = {
+  fr: 'Français', en: 'English', es: 'Español', ht: 'Kreyòl',
+  de: 'Deutsch', ru: 'Русский', zh: '中文', ja: '日本語'
+};
+
+// Météo
+var WEATHER_ICONS = {
+  sun: '☀️', rain: '🌧️', snow: '❄️', wind: '💨', night: '🌙'
+};
+
+// Lieux du village
+var LOCATIONS = [
+  { id:'church',   x:0.22, y:0.30, w:0.12, h:0.12, emoji:'⛪', color:'#8a7a60', npcs:[{id:'pastor', name:'Père Antoine', role:{fr:'Pasteur',en:'Pastor',es:'Pastor',ht:'Pastè',de:'Pfarrer',ru:'Пастор',zh:'牧师',ja:'牧師'}, emoji:'⛪'}] },
+  { id:'school',   x:0.78, y:0.30, w:0.12, h:0.12, emoji:'🏫', color:'#6a8ab0', npcs:[{id:'teacher', name:'Mme Dupont', role:{fr:'Professeure',en:'Teacher',es:'Profesora',ht:'Pwofesè',de:'Lehrerin',ru:'Учитель',zh:'老师',ja:'先生'}, emoji:'👩‍🏫'}] },
+  { id:'friends',  x:0.78, y:0.70, w:0.12, h:0.12, emoji:'🤝', color:'#c09090', npcs:[{id:'friend', name:'Léa', role:{fr:'Amie',en:'Friend',es:'Amiga',ht:'Zanmi',de:'Freundin',ru:'Подруга',zh:'朋友',ja:'友達'}, emoji:'👧'}] },
+  { id:'market',   x:0.35, y:0.18, w:0.12, h:0.12, emoji:'🏪', color:'#c0a060', npcs:[{id:'merchant', name:'M. Diallo', role:{fr:'Marchand',en:'Merchant',es:'Comerciante',ht:'Machann',de:'Händler',ru:'Торговец',zh:'商人',ja:'商人'}, emoji:'🧑‍🌾'}] },
+  { id:'tavern',   x:0.65, y:0.18, w:0.12, h:0.12, emoji:'🍺', color:'#8a6040', npcs:[{id:'bartender', name:'Sam', role:{fr:'Barman',en:'Bartender',es:'Camarero',ht:'Baman',de:'Barkeeper',ru:'Бармен',zh:'酒保',ja:'バーテンダー'}, emoji:'🍸'}] },
+  { id:'park',     x:0.65, y:0.82, w:0.12, h:0.12, emoji:'🌳', color:'#5a8a40', npcs:[] },
+  { id:'hospital', x:0.18, y:0.18, w:0.12, h:0.12, emoji:'🏥', color:'#d0e0f0', npcs:[{id:'doctor', name:'Dr. Martin', role:{fr:'Médecin',en:'Doctor',es:'Médico',ht:'Doktè',de:'Arzt',ru:'Врач',zh:'医生',ja:'医者'}, emoji:'👨‍⚕️'},{id:'nurse', name:'Sophie', role:{fr:'Infirmière',en:'Nurse',es:'Enfermera',ht:'Enfimyè',de:'Krankenschwester',ru:'Медсестра',zh:'护士',ja:'看護師'}, emoji:'👩‍⚕️'}] },
+  { id:'station',  x:0.22, y:0.82, w:0.12, h:0.12, emoji:'🚉', color:'#b0a090', npcs:[{id:'officer', name:'Agent Kofi', role:{fr:'Agent',en:'Officer',es:'Oficial',ht:'Ofisye',de:'Beamter',ru:'Офицер',zh:'警官',ja:'警官'}, emoji:'👮'}] },
+  { id:'bank',     x:0.50, y:0.82, w:0.12, h:0.12, emoji:'🏦', color:'#c0c080', npcs:[{id:'banker', name:'M. Dupuis', role:{fr:'Banquier',en:'Banker',es:'Banquero',ht:'Bankye',de:'Bankier',ru:'Банкир',zh:'银行家',ja:'銀行員'}, emoji:'👨‍💼'}] },
+  { id:'police',   x:0.85, y:0.50, w:0.12, h:0.12, emoji:'🚔', color:'#6070a0', npcs:[{id:'officer2', name:'Capitaine Koné', role:{fr:'Policier',en:'Police Officer',es:'Policía',ht:'Polisye',de:'Polizist',ru:'Полицейский',zh:'警察',ja:'警察官'}, emoji:'👮‍♂️'}] },
+  { id:'factory',  x:0.50, y:0.18, w:0.12, h:0.12, emoji:'🏭', color:'#808080', npcs:[{id:'farmer', name:'Papa Joseph', role:{fr:'Agriculteur',en:'Farmer',es:'Agricultor',ht:'Agrikiltè',de:'Bauer',ru:'Фермер',zh:'农民',ja:'農家'}, emoji:'👨‍🌾'}] },
+  { id:'cinema',   x:0.50, y:0.50, w:0.16, h:0.16, emoji:'🎬', color:'#c060c0', npcs:[] },
+];
+
+var LOC_NAMES = {};
+var LOC_DESC = {};
+LOCATIONS.forEach(function(loc) {
+  LOC_NAMES[loc.id] = {
+    fr: loc.id==='church'?'Église':loc.id==='school'?'École':loc.id==='friends'?'Amis':loc.id==='market'?'Marché':loc.id==='tavern'?'Taverne':loc.id==='park'?'Parc':loc.id==='hospital'?'Hôpital':loc.id==='station'?'Gare':loc.id==='bank'?'Banque':loc.id==='police'?'Police':loc.id==='factory'?'Ferme':loc.id==='cinema'?'Cinéma':loc.id,
+    en: loc.id==='church'?'Church':loc.id==='school'?'School':loc.id==='friends'?'Friends':loc.id==='market'?'Market':loc.id==='tavern'?'Tavern':loc.id==='park'?'Park':loc.id==='hospital'?'Hospital':loc.id==='station'?'Station':loc.id==='bank'?'Bank':loc.id==='police'?'Police':loc.id==='factory'?'Farm':loc.id==='cinema'?'Cinema':loc.id,
+    es: loc.id==='church'?'Iglesia':loc.id==='school'?'Escuela':loc.id==='friends'?'Amigos':loc.id==='market'?'Mercado':loc.id==='tavern'?'Taberna':loc.id==='park'?'Parque':loc.id==='hospital'?'Hospital':loc.id==='station'?'Estación':loc.id==='bank'?'Banco':loc.id==='police'?'Policía':loc.id==='factory'?'Granja':loc.id==='cinema'?'Cine':loc.id,
+    ht: loc.id==='church'?'Legliz':loc.id==='school'?'Lekòl':loc.id==='friends'?'Zanmi':loc.id==='market'?'Mache':loc.id==='tavern'?'Tavèn':loc.id==='park'?'Pak':loc.id==='hospital'?'Lopital':loc.id==='station'?'Estasyon':loc.id==='bank'?'Bank':loc.id==='police'?'Polis':loc.id==='factory'?'Fèm':loc.id==='cinema'?'Sinema':loc.id,
+    de: loc.id==='church'?'Kirche':loc.id==='school'?'Schule':loc.id==='friends'?'Freunde':loc.id==='market'?'Markt':loc.id==='tavern'?'Kneipe':loc.id==='park'?'Park':loc.id==='hospital'?'Krankenhaus':loc.id==='station'?'Bahnhof':loc.id==='bank'?'Bank':loc.id==='police'?'Polizei':loc.id==='factory'?'Bauernhof':loc.id==='cinema'?'Kino':loc.id,
+    ru: loc.id==='church'?'Церковь':loc.id==='school'?'Школа':loc.id==='friends'?'Друзья':loc.id==='market'?'Рынок':loc.id==='tavern'?'Таверна':loc.id==='park'?'Парк':loc.id==='hospital'?'Больница':loc.id==='station'?'Вокзал':loc.id==='bank'?'Банк':loc.id==='police'?'Полиция':loc.id==='factory'?'Ферма':loc.id==='cinema'?'Кино':loc.id,
+    zh: loc.id==='church'?'教堂':loc.id==='school'?'学校':loc.id==='friends'?'朋友':loc.id==='market'?'市场':loc.id==='tavern'?'酒馆':loc.id==='park'?'公园':loc.id==='hospital'?'医院':loc.id==='station'?'车站':loc.id==='bank'?'银行':loc.id==='police'?'警察局':loc.id==='factory'?'农场':loc.id==='cinema'?'电影院':loc.id,
+    ja: loc.id==='church'?'教会':loc.id==='school'?'学校':loc.id==='friends'?'友達':loc.id==='market'?'市場':loc.id==='tavern'?'居酒屋':loc.id==='park'?'公園':loc.id==='hospital'?'病院':loc.id==='station'?'駅':loc.id==='bank'?'銀行':loc.id==='police'?'警察署':loc.id==='factory'?'農場':loc.id==='cinema'?'映画館':loc.id
   };
-}
+  LOC_DESC[loc.id] = {
+    fr: loc.id==='church'?'Prière et méditation':loc.id==='school'?'Apprendre et étudier':loc.id==='friends'?'Rencontres amicales':loc.id==='market'?'Acheter et vendre':loc.id==='tavern'?'Boire et discuter':loc.id==='park'?'Se détendre':loc.id==='hospital'?'Se soigner':loc.id==='station'?'Voyager':loc.id==='bank'?'Gérer son argent':loc.id==='police'?'Sécurité':loc.id==='factory'?'Travailler la terre':loc.id==='cinema'?'Regarder des vidéos':'',
+    en: loc.id==='church'?'Prayer & meditation':loc.id==='school'?'Learn & study':loc.id==='friends'?'Friendly meetings':loc.id==='market'?'Buy & sell':loc.id==='tavern'?'Drink & chat':loc.id==='park'?'Relax':loc.id==='hospital'?'Get treatment':loc.id==='station'?'Travel':loc.id==='bank'?'Manage money':loc.id==='police'?'Safety':loc.id==='factory'?'Farm work':loc.id==='cinema'?'Watch videos':''
+  };
+});
+
+// =================================================================
+// STATE — déjà défini par state.js, on référence juste
+// =================================================================
 var S = window.S;
 
-const UI_TEXT = {
+// UI_TEXT
+var UI_TEXT = {
   fr:{sub:'Apprendre en vivant',lbl_native:'🌍 Votre langue maternelle',lbl_name:'✏️ Votre prénom',lbl_target:'🎯 Langue à apprendre',lbl_script:'✍️ Mode d\'écriture',play:'✨ Commencer',menu_title:'Que voulez-vous faire ?',menu_sub:'Choisissez votre mode d\'apprentissage',mb_village:'Village',mb_village_d:'Conversations IA + correcteur temps réel',mb_vocab:'Vocabulaire',mb_vocab_d:'1500 mots essentiels par catégories',mb_phrases:'Phrases & Structures',mb_phrases_d:'1000 phrases du quotidien',mb_grammar:'Grammaire',mb_grammar_d:'6 temps + 500 exemples expliqués',mb_dict:'Dictionnaire',mb_dict_d:'Traduction mot ou phrase complète'},
   ht:{sub:'Aprann pandan w ap viv',lbl_native:'🌍 Lang manman ou',lbl_name:'✏️ Prenon ou',lbl_target:'🎯 Lang ou vle aprann',lbl_script:'✍️ Fason pou ekri',play:'✨ Kòmanse',menu_title:'Kisa ou vle fè?',menu_sub:'Chwazi fason ou vle aprann',mb_village:'Vilaj',mb_village_d:'Konvèsasyon IA + korektè',mb_vocab:'Vokabilè',mb_vocab_d:'1500 mo esansyèl',mb_phrases:'Fraz & Estrikti',mb_phrases_d:'1000 fraz chak jou',mb_grammar:'Gramè',mb_grammar_d:'6 tan + 500 egzanp',mb_dict:'Diksyonè',mb_dict_d:'Tradui mo oswa fraz'},
   en:{sub:'Learn by living',lbl_native:'🌍 Your native language',lbl_name:'✏️ Your first name',lbl_target:'🎯 Language to learn',lbl_script:'✍️ Writing mode',play:'✨ Start',menu_title:'What do you want to do?',menu_sub:'Choose your learning mode',mb_village:'Village',mb_village_d:'AI conversations + real-time corrector',mb_vocab:'Vocabulary',mb_vocab_d:'1500 essential words by category',mb_phrases:'Phrases & Structures',mb_phrases_d:'1000 everyday phrases',mb_grammar:'Grammar',mb_grammar_d:'6 tenses + 500 explained examples',mb_dict:'Dictionary',mb_dict_d:'Translate word or full phrase'},
@@ -26,31 +76,9 @@ const UI_TEXT = {
 };
 
 // =================================================================
-// AFFICHAGE DES ÉCRANS
+// VOCABULARY DATA — 1500 words
 // =================================================================
-function showScreen(id) {
-  // Masquer tous les écrans
-  var allScreens = document.querySelectorAll('.screen');
-  for (var i = 0; i < allScreens.length; i++) {
-    allScreens[i].classList.remove('active');
-  }
-  
-  // Afficher l'écran demandé
-  var target = document.getElementById(id);
-  if (target) {
-    target.classList.add('active');
-  }
-  
-  // Fermer le popup de mot s'il est ouvert
-  if (typeof closeWordPopup === 'function') {
-    closeWordPopup();
-  }
-}
-
-// =================================================================
-// VOCABULARY DATA — 1500 words organized by category
-// =================================================================
-const VOCAB = {
+var VOCAB = {
   verbes:{
     fr:'Verbes essentiels',en:'Essential verbs',es:'Verbos esenciales',ht:'Vèb esansyèl',de:'Wesentliche Verben',ru:'Основные глаголы',zh:'基本动词',ja:'基本動詞',
     icon:'⚡',
@@ -97,1017 +125,80 @@ const VOCAB = {
       {n:'sentir',t:{en:'to feel / smell',es:'sentir',de:'fühlen',ru:'чувствовать (chuvstvovat)',zh:'感觉 (gǎnjué)',ja:'感じる (kanjiru)',ht:'santi'}},
     ]
   },
-  connecteurs:{
-    fr:'Connecteurs logiques',en:'Logical connectors',es:'Conectores lógicos',ht:'Konektè lojik',de:'Logische Konnektoren',ru:'Логические связки',zh:'逻辑连接词',ja:'論理接続詞',
-    icon:'🔗',
-    words:[
-      {n:'mais',t:{en:'but',es:'pero',de:'aber',ru:'но (no)',zh:'但是 (dànshì)',ja:'でも (demo)',ht:'men'}},
-      {n:'et',t:{en:'and',es:'y',de:'und',ru:'и (i)',zh:'和 (hé)',ja:'そして (soshite)',ht:'ak/epi'}},
-      {n:'ou',t:{en:'or',es:'o',de:'oder',ru:'или (ili)',zh:'或者 (huòzhě)',ja:'または (matawa)',ht:'oswa'}},
-      {n:'parce que',t:{en:'because',es:'porque',de:'weil',ru:'потому что (potomu chto)',zh:'因为 (yīnwèi)',ja:'なぜなら (nazenara)',ht:'paske'}},
-      {n:'donc',t:{en:'so / therefore',es:'entonces',de:'also',ru:'поэтому (poetomu)',zh:'所以 (suǒyǐ)',ja:'だから (dakara)',ht:'donk'}},
-      {n:'alors',t:{en:'then / so',es:'entonces',de:'dann',ru:'тогда (togda)',zh:'那么 (nàme)',ja:'それから (sorekara)',ht:'alò'}},
-      {n:'cependant',t:{en:'however',es:'sin embargo',de:'jedoch',ru:'однако (odnako)',zh:'然而 (rán\'ér)',ja:'しかし (shikashi)',ht:'sepandan'}},
-      {n:'si',t:{en:'if',es:'si',de:'wenn/falls',ru:'если (yesli)',zh:'如果 (rúguǒ)',ja:'もし (moshi)',ht:'si'}},
-      {n:'quand',t:{en:'when',es:'cuando',de:'wenn/als',ru:'когда (kogda)',zh:'当...的时候 (dāng...shí)',ja:'ときに (toki ni)',ht:'lè/kan'}},
-      {n:'avant de',t:{en:'before',es:'antes de',de:'bevor',ru:'до того как (do togo kak)',zh:'在...之前 (zài...zhīqián)',ja:'...する前に (...suru mae ni)',ht:'anvan'}},
-      {n:'après',t:{en:'after',es:'después de',de:'nach',ru:'после (posle)',zh:'在...之后 (zài...zhīhòu)',ja:'...の後 (...no ato)',ht:'apre'}},
-      {n:'pendant',t:{en:'during / while',es:'durante',de:'während',ru:'пока (poka)',zh:'在...期间 (zài...qījiān)',ja:'...の間 (...no aida)',ht:'pandan'}},
-      {n:'aussi',t:{en:'also / too',es:'también',de:'auch',ru:'тоже (tozhe)',zh:'也 (yě)',ja:'も (mo)',ht:'tou'}},
-      {n:'surtout',t:{en:'especially / above all',es:'sobre todo',de:'vor allem',ru:'прежде всего (prezhde vsego)',zh:'尤其 (yóuqí)',ja:'特に (toku ni)',ht:'sitou'}},
-      {n:'seulement',t:{en:'only / just',es:'solo',de:'nur',ru:'только (tolko)',zh:'只 (zhǐ)',ja:'だけ (dake)',ht:'sèlman'}},
-      {n:'même',t:{en:'even / same',es:'incluso / mismo',de:'sogar / gleich',ru:'даже (dazhe)',zh:'甚至 (shènzhì)',ja:'でさえ (de sae)',ht:'menm'}},
-      {n:'pourtant',t:{en:'yet / nevertheless',es:'sin embargo',de:'trotzdem',ru:'тем не менее (tem ne meneye)',zh:'尽管如此 (jǐnguǎn rúcǐ)',ja:'それでも (soredemo)',ht:'poutan'}},
-      {n:'d\'abord',t:{en:'first / firstly',es:'primero',de:'zuerst',ru:'сначала (snachala)',zh:'首先 (shǒuxiān)',ja:'まず (mazu)',ht:'premye'}},
-      {n:'ensuite',t:{en:'then / next',es:'luego',de:'dann',ru:'затем (zatem)',zh:'然后 (ránhòu)',ja:'次に (tsugi ni)',ht:'apre sa'}},
-      {n:'enfin',t:{en:'finally / at last',es:'finalmente',de:'schließlich',ru:'наконец (nakonets)',zh:'最后 (zuìhòu)',ja:'最後に (saigo ni)',ht:'finalman'}},
-      {n:'c\'est pourquoi',t:{en:'that\'s why',es:'por eso',de:'deshalb',ru:'вот почему (vot pochemu)',zh:'这就是为什么 (zhè jiùshì wèishénme)',ja:'だからこそ (dakara koso)',ht:'se pou sa'}},
-      {n:'bien que',t:{en:'although',es:'aunque',de:'obwohl',ru:'хотя (khotya)',zh:'虽然 (suīrán)',ja:'だけど (dakedo)',ht:'menm si'}},
-      {n:'sans',t:{en:'without',es:'sin',de:'ohne',ru:'без (bez)',zh:'没有 (méiyǒu)',ja:'なしで (nashi de)',ht:'san'}},
-      {n:'avec',t:{en:'with',es:'con',de:'mit',ru:'с (s)',zh:'和/与 (hé/yǔ)',ja:'と一緒に (to issho ni)',ht:'avèk'}},
-      {n:'grâce à',t:{en:'thanks to',es:'gracias a',de:'dank',ru:'благодаря (blagodarya)',zh:'多亏 (duōkuī)',ja:'おかげで (okage de)',ht:'gras a'}},
-    ]
-  },
   conversation:{
     fr:'Phrases de conversation',en:'Conversation phrases',es:'Frases de conversación',ht:'Fraz konvèsasyon',de:'Gesprächsphrasen',ru:'Разговорные фразы',zh:'会话短语',ja:'会話フレーズ',
     icon:'💬',
     words:[
-      {n:'Bonjour / Salut',t:{en:'Hello / Hi',es:'Hola / Buenos días',de:'Hallo / Guten Tag',ru:'Привет / Здравствуйте (Privet / Zdravstvuyte)',zh:'你好 (Nǐ hǎo)',ja:'こんにちは (Konnichiwa)',ht:'Bonjou / Salut'}},
-      {n:'Au revoir',t:{en:'Goodbye / Bye',es:'Adiós',de:'Auf Wiedersehen',ru:'До свидания (Do svidaniya)',zh:'再见 (Zàijiàn)',ja:'さようなら (Sayōnara)',ht:'Orevwa'}},
-      {n:'Merci',t:{en:'Thank you',es:'Gracias',de:'Danke',ru:'Спасибо (Spasibo)',zh:'谢谢 (Xièxiè)',ja:'ありがとう (Arigatō)',ht:'Mèsi'}},
-      {n:'S\'il vous plaît',t:{en:'Please',es:'Por favor',de:'Bitte',ru:'Пожалуйста (Pozhaluysta)',zh:'请 (Qǐng)',ja:'お願いします (Onegaishimasu)',ht:'Tanpri'}},
-      {n:'Excusez-moi',t:{en:'Excuse me / Sorry',es:'Perdón / Disculpe',de:'Entschuldigung',ru:'Извините (Izvinite)',zh:'对不起 (Duìbuqǐ)',ja:'すみません (Sumimasen)',ht:'Eskize m'}},
-      {n:'Comment allez-vous ?',t:{en:'How are you?',es:'¿Cómo estás?',de:'Wie geht es Ihnen?',ru:'Как дела? (Kak dela?)',zh:'你好吗？(Nǐ hǎo ma?)',ja:'お元気ですか？(O-genki desu ka?)',ht:'Kijan ou ye?'}},
-      {n:'Très bien, merci',t:{en:'Very well, thank you',es:'Muy bien, gracias',de:'Sehr gut, danke',ru:'Очень хорошо, спасибо',zh:'很好，谢谢 (Hěn hǎo, xièxiè)',ja:'元気です、ありがとう',ht:'Trè bien, mèsi'}},
-      {n:'Je ne comprends pas',t:{en:'I don\'t understand',es:'No entiendo',de:'Ich verstehe nicht',ru:'Я не понимаю (Ya ne ponimayu)',zh:'我不明白 (Wǒ bù míngbái)',ja:'わかりません (Wakarimasen)',ht:'Mwen pa konprann'}},
-      {n:'Pouvez-vous répéter ?',t:{en:'Can you repeat?',es:'¿Puede repetir?',de:'Können Sie wiederholen?',ru:'Повторите, пожалуйста',zh:'请再说一遍 (Qǐng zài shuō yī biàn)',ja:'もう一度言ってください',ht:'Repete tanpri'}},
-      {n:'Parlez plus lentement',t:{en:'Speak more slowly',es:'Hable más despacio',de:'Sprechen Sie langsamer',ru:'Говорите медленнее',zh:'请说慢点 (Qǐng shuō màn diǎn)',ja:'ゆっくり話してください',ht:'Pale pi dousman'}},
-      {n:'Je m\'appelle...',t:{en:'My name is...',es:'Me llamo...',de:'Ich heiße...',ru:'Меня зовут... (Menya zovut...)',zh:'我叫... (Wǒ jiào...)',ja:'私の名前は... (Watashi no namae wa...)',ht:'Mwen rele...'}},
-      {n:'D\'où venez-vous ?',t:{en:'Where are you from?',es:'¿De dónde eres?',de:'Woher kommen Sie?',ru:'Откуда вы? (Otkuda vy?)',zh:'你从哪里来？(Nǐ cóng nǎlǐ lái?)',ja:'どこから来ましたか？',ht:'Ki kote ou soti?'}},
-      {n:'Combien ça coûte ?',t:{en:'How much does it cost?',es:'¿Cuánto cuesta?',de:'Wie viel kostet das?',ru:'Сколько это стоит? (Skolko eto stoit?)',zh:'多少钱？(Duōshǎo qián?)',ja:'いくらですか？(Ikura desu ka?)',ht:'Konbyen sa koute?'}},
-      {n:'Où est... ?',t:{en:'Where is...?',es:'¿Dónde está...?',de:'Wo ist...?',ru:'Где находится...? (Gde nakhoditsya...?)',zh:'...在哪里？(...zài nǎlǐ?)',ja:'...はどこですか？',ht:'Ki kote... ye?'}},
-      {n:'Au secours !',t:{en:'Help!',es:'¡Ayuda!',de:'Hilfe!',ru:'Помогите! (Pomogite!)',zh:'救命！(Jiùmìng!)',ja:'助けて！(Tasukete!)',ht:'Ede m!'}},
+      {n:'Bonjour / Salut',t:{en:'Hello / Hi',es:'Hola / Buenos días',de:'Hallo / Guten Tag',ru:'Привет / Здравствуйте',zh:'你好 (Nǐ hǎo)',ja:'こんにちは (Konnichiwa)',ht:'Bonjou / Salut'}},
+      {n:'Au revoir',t:{en:'Goodbye / Bye',es:'Adiós',de:'Auf Wiedersehen',ru:'До свидания',zh:'再见 (Zàijiàn)',ja:'さようなら (Sayōnara)',ht:'Orevwa'}},
+      {n:'Merci',t:{en:'Thank you',es:'Gracias',de:'Danke',ru:'Спасибо',zh:'谢谢 (Xièxiè)',ja:'ありがとう (Arigatō)',ht:'Mèsi'}},
+      {n:'S\'il vous plaît',t:{en:'Please',es:'Por favor',de:'Bitte',ru:'Пожалуйста',zh:'请 (Qǐng)',ja:'お願いします (Onegaishimasu)',ht:'Tanpri'}},
+      {n:'Excusez-moi',t:{en:'Excuse me / Sorry',es:'Perdón / Disculpe',de:'Entschuldigung',ru:'Извините',zh:'对不起 (Duìbuqǐ)',ja:'すみません (Sumimasen)',ht:'Eskize m'}},
+      {n:'Comment allez-vous ?',t:{en:'How are you?',es:'¿Cómo estás?',de:'Wie geht es Ihnen?',ru:'Как дела?',zh:'你好吗？(Nǐ hǎo ma?)',ja:'お元気ですか？',ht:'Kijan ou ye?'}},
+      {n:'Très bien, merci',t:{en:'Very well, thank you',es:'Muy bien, gracias',de:'Sehr gut, danke',ru:'Очень хорошо, спасибо',zh:'很好，谢谢',ja:'元気です、ありがとう',ht:'Trè bien, mèsi'}},
+      {n:'Je ne comprends pas',t:{en:'I don\'t understand',es:'No entiendo',de:'Ich verstehe nicht',ru:'Я не понимаю',zh:'我不明白',ja:'わかりません',ht:'Mwen pa konprann'}},
+      {n:'Pouvez-vous répéter ?',t:{en:'Can you repeat?',es:'¿Puede repetir?',de:'Können Sie wiederholen?',ru:'Повторите, пожалуйста',zh:'请再说一遍',ja:'もう一度言ってください',ht:'Repete tanpri'}},
+      {n:'Parlez plus lentement',t:{en:'Speak more slowly',es:'Hable más despacio',de:'Sprechen Sie langsamer',ru:'Говорите медленнее',zh:'请说慢点',ja:'ゆっくり話してください',ht:'Pale pi dousman'}},
+      {n:'Je m\'appelle...',t:{en:'My name is...',es:'Me llamo...',de:'Ich heiße...',ru:'Меня зовут...',zh:'我叫... (Wǒ jiào...)',ja:'私の名前は...',ht:'Mwen rele...'}},
+      {n:'D\'où venez-vous ?',t:{en:'Where are you from?',es:'¿De dónde eres?',de:'Woher kommen Sie?',ru:'Откуда вы?',zh:'你从哪里来？',ja:'どこから来ましたか？',ht:'Ki kote ou soti?'}},
+      {n:'Combien ça coûte ?',t:{en:'How much does it cost?',es:'¿Cuánto cuesta?',de:'Wie viel kostet das?',ru:'Сколько это стоит?',zh:'多少钱？',ja:'いくらですか？',ht:'Konbyen sa koute?'}},
+      {n:'Où est... ?',t:{en:'Where is...?',es:'¿Dónde está...?',de:'Wo ist...?',ru:'Где находится...?',zh:'...在哪里？',ja:'...はどこですか？',ht:'Ki kote... ye?'}},
+      {n:'Au secours !',t:{en:'Help!',es:'¡Ayuda!',de:'Hilfe!',ru:'Помогите!',zh:'救命！',ja:'助けて！',ht:'Ede m!'}},
     ]
-  },
-    nature_climat: {
-    fr:'Nature et Climat',en:'Nature and Climate',es:'Naturaleza y Clima',ht:'Lanati ak Klima',de:'Natur und Klima',ru:'Priroda i Klimat',zh:'Ziran yu Qihou',ja:'Shizen to Kiko',
-    icon:'🌿',
-    words:[
-      {n:'soleil',t:{en:'sun',es:'sol',de:'Sonne',ru:'solntse',zh:'taiyang',ja:'taiyo',ht:'solèy'}},
-      {n:'lune',t:{en:'moon',es:'luna',de:'Mond',ru:'luna',zh:'yueliang',ja:'tsuki',ht:'lalin'}},
-      {n:'ciel',t:{en:'sky',es:'cielo',de:'Himmel',ru:'nebo',zh:'tiankong',ja:'sora',ht:'syèl'}},
-      {n:'étoile',t:{en:'star',es:'estrella',de:'Stern',ru:'zvezda',zh:'xingxing',ja:'hoshi',ht:'zetwal'}},
-      {n:'pluie',t:{en:'rain',es:'lluvia',de:'Regen',ru:'dozhd',zh:'xiayu',ja:'ame',ht:'lapli'}},
-      {n:'vent',t:{en:'wind',es:'viento',de:'Wind',ru:'veter',zh:'feng',ja:'kaze',ht:'van'}},
-      {n:'mer',t:{en:'sea',es:'mar',de:'Meer',ru:'more',zh:'hai',ja:'umi',ht:'lanmè'}},
-      {n:'montagne',t:{en:'mountain',es:'montaña',de:'Berg',ru:'gora',zh:'shan',ja:'yama',ht:'mòn'}},
-      {n:'arbre',t:{en:'tree',es:'árbol',de:'Baum',ru:'derevo',zh:'shu',ja:'ki',ht:'pyebwa'}},
-      {n:'fleur',t:{en:'flower',es:'flor',de:'Blume',ru:'tsvetok',zh:'hua',ja:'hana',ht:'flè'}},
-      {n:'terre',t:{en:'earth',es:'tierra',de:'Erde',ru:'zemlya',zh:'diqiu',ja:'chikyu',ht:'tè'}},
-      {n:'feu',t:{en:'fire',es:'fuego',de:'Feuer',ru:'ogon',zh:'huo',ja:'hi',ht:'dife'}},
-      {n:'rivière',t:{en:'river',es:'río',de:'Fluss',ru:'reka',zh:'he',ja:'kawa',ht:'rivyè'}},
-      {n:'forêt',t:{en:'forest',es:'bosque',de:'Wald',ru:'les',zh:'senlin',ja:'mori',ht:'fokè'}},
-      {n:'herbe',t:{en:'grass',es:'hierba',de:'Gras',ru:'trava',zh:'cao',ja:'kusa',ht:'gerbe'}},
-    ]
-  },
-  transports: {
-    fr:'Transports',en:'Transport',es:'Transporte',ht:'Transpò',de:'Verkehr',ru:'Transport',zh:'Jiaotong',ja:'Kotsu',
-    icon:'🚲',
-    words:[
-      {n:'avion',t:{en:'plane',es:'avión',de:'Flugzeug',ru:'samolet',zh:'feiji',ja:'hikoki',ht:'avion'}},
-      {n:'bateau',t:{en:'boat',es:'barco',de:'Boot',ru:'lodka',zh:'chuan',ja:'fune',ht:'batiman'}},
-      {n:'vélo',t:{en:'bike',es:'bicicleta',de:'Fahrrad',ru:'velosiped',zh:'zixingche',ja:'jitensha',ht:'bisiklèt'}},
-      {n:'bus',t:{en:'bus',es:'autobús',de:'Bus',ru:'avtobus',zh:'gonggong qiche',ja:'basu',ht:'bis'}},
-      {n:'train',t:{en:'train',es:'tren',de:'Zug',ru:'poezd',zh:'huoche',ja:'densha',ht:'tren'}},
-      {n:'moto',t:{en:'motorcycle',es:'moto',de:'Motorrad',ru:'mototsikl',zh:'motuoche',ja:'otobai',ht:'moto'}},
-      {n:'taxi',t:{en:'taxi',es:'taxi',de:'Taxi',ru:'taksi',zh:'chuzu che',ja:'takushi',ht:'taksi'}},
-      {n:'aéroport',t:{en:'airport',es:'aeropuerto',de:'Flughafen',ru:'aeroport',zh:'jichang',ja:'kuko',ht:'ayopò'}},
-      {n:'gare',t:{en:'station',es:'estación',de:'Bahnhof',ru:'vokzal',zh:'chezhan',ja:'eki',ht:'estasyon'}},
-      {n:'billet',t:{en:'ticket',es:'billete',de:'Ticket',ru:'bilet',zh:'piao',ja:'kippu',ht:'tikè'}},
-      {n:'route',t:{en:'road',es:'carretera',de:'Straße',ru:'doroga',zh:'lu',ja:'michi',ht:'wout'}},
-      {n:'voyage',t:{en:'trip',es:'viaje',de:'Reise',ru:'puteshestvie',zh:'lvxing',ja:'ryoko',ht:'vwayaj'}},
-      {n:'valise',t:{en:'suitcase',es:'maleta',de:'Koffer',ru:'chemodan',zh:'xingli xiang',ja:'sutukesu',ht:'valiz'}},
-      {n:'conduire',t:{en:'to drive',es:'conducir',de:'fahren',ru:'vodit',zh:'jiashi',ja:'unten suru',ht:'kondwi'}},
-      {n:'marcher',t:{en:'to walk',es:'caminar',de:'laufen',ru:'khodit',zh:'sanbu',ja:'aruku',ht:'mache'}},
-    ]
-  },
-  couleurs_formes: {
-    fr:'Couleurs et Formes',en:'Colors and Shapes',es:'Colores y Formas',ht:'Koulè ak Fòm',de:'Farben und Formen',ru:'Tsveta i Formy',zh:'Yanse yu Xingzhuang',ja:'Iro to Katachi',
-    icon:'🌈',
-    words:[
-      {n:'rouge',t:{en:'red',es:'rojo',de:'rot',ru:'krasnyy',zh:'hongse',ja:'aka',ht:'wouj'}},
-      {n:'bleu',t:{en:'blue',es:'azul',de:'blau',ru:'siniy',zh:'lanse',ja:'ao',ht:'ble'}},
-      {n:'vert',t:{en:'green',es:'verde',de:'grün',ru:'zelenyy',zh:'lvse',ja:'midori',ht:'vè'}},
-      {n:'jaune',t:{en:'yellow',es:'amarillo',de:'gelb',ru:'zheltyy',zh:'huangse',ja:'kiiro',ht:'jòn'}},
-      {n:'noir',t:{en:'black',es:'negro',de:'schwarz',ru:'chernyy',zh:'heise',ja:'kuro',ht:'nwa'}},
-      {n:'blanc',t:{en:'white',es:'blanco',de:'weiß',ru:'belyy',zh:'baise',ja:'shiro',ht:'blan'}},
-      {n:'rose',t:{en:'pink',es:'rosa',de:'rosa',ru:'rozovyy',zh:'fense',ja:'pinku',ht:'woz'}},
-      {n:'orange',t:{en:'orange',es:'naranja',de:'orange',ru:'oranzhevyy',zh:'chengse',ja:'orenji',ht:'oran'}},
-      {n:'gris',t:{en:'grey',es:'gris',de:'grau',ru:'seryy',zh:'huise',ja:'haiiro',ht:'gri'}},
-      {n:'marron',t:{en:'brown',es:'marrón',de:'braun',ru:'korichnevyy',zh:'zongse',ja:'chairo',ht:'mawon'}},
-      {n:'cercle',t:{en:'circle',es:'círculo',de:'Kreis',ru:'krug',zh:'yuanquan',ja:'en',ht:'sèk'}},
-      {n:'carré',t:{en:'square',es:'cuadrado',de:'Quadrat',ru:'kvadrat',zh:'zhengfangxing',ja:'shikaku',ht:'kare'}},
-      {n:'ligne',t:{en:'line',es:'línea',de:'Linie',ru:'liniya',zh:'xian',ja:'sen',ht:'liy'}},
-      {n:'point',t:{en:'point',es:'punto',de:'Punkt',ru:'tochka',zh:'dian',ja:'ten',ht:'pwen'}},
-      {n:'triangle',t:{en:'triangle',es:'triángulo',de:'Dreieck',ru:'treugolnik',zh:'sanjiaoxing',ja:'sankaku',ht:'triyang'}},
-    ]
-  },
-  animaux: {
-    fr:'Animaux',en:'Animals',es:'Animales',ht:'Zannimo',de:'Tiere',ru:'Zhivotnye',zh:'Dongwu',ja:'Dobutsu',
-    icon:'🦁',
-    words:[
-      {n:'chien',t:{en:'dog',es:'perro',de:'Hund',ru:'sobaka',zh:'gou',ja:'inu',ht:'chen'}},
-      {n:'chat',t:{en:'cat',es:'gato',de:'Katze',ru:'koshka',zh:'mao',ja:'neko',ht:'chat'}},
-      {n:'oiseau',t:{en:'bird',es:'pájaro',de:'Vogel',ru:'ptitsa',zh:'niao',ja:'tori',ht:'zwazo'}},
-      {n:'cheval',t:{en:'horse',es:'caballo',de:'Pferd',ru:'loshad',zh:'ma',ja:'uma',ht:'chwal'}},
-      {n:'vache',t:{en:'cow',es:'vaca',de:'Kuh',ru:'korova',zh:'niū',ja:'ushi',ht:'vach'}},
-      {n:'cochon',t:{en:'pig',es:'cerdo',de:'Schwein',ru:'svinya',zh:'zhu',ja:'buta',ht:'kochon'}},
-      {n:'lion',t:{en:'lion',es:'león',de:'Löwe',ru:'lev',zh:'shizi',ja:'raion',ht:'lyon'}},
-      {n:'éléphant',t:{en:'elephant',es:'elefante',de:'Elefant',ru:'slon',zh:'daxiang',ja:'zo',ht:'elefan'}},
-      {n:'poisson',t:{en:'fish',es:'pez',de:'Fisch',ru:'ryba',zh:'yu',ja:'sakana',ht:'pwason'}},
-      {n:'serpent',t:{en:'snake',es:'serpiente',de:'Schlange',ru:'zmeya',zh:'she',ja:'hebi',ht:'koulèv'}},
-      {n:'singe',t:{en:'monkey',es:'mono',de:'Affe',ru:'obezyana',zh:'houzi',ja:'saru',ht:'makak'}},
-      {n:'souris',t:{en:'mouse',es:'ratón',de:'Maus',ru:'mysh',zh:'laoshu',ja:'nezumi',ht:'sourit'}},
-      {n:'lapin',t:{en:'rabbit',es:'conejo',de:'Hase',ru:'krolik',zh:'tuzi',ja:'usagi',ht:'lapen'}},
-      {n:'ours',t:{en:'bear',es:'oso',de:'Bär',ru:'medved',zh:'xiong',ja:'kuma',ht:'ous'}},
-      {n:'tigre',t:{en:'tiger',es:'tigre',de:'Tiger',ru:'tigr',zh:'laohu',ja:'tora',ht:'tig'}},
-    ]
-  },
-  vetements: {
-    fr:'Vêtements',en:'Clothing',es:'Ropa',ht:'Rad',de:'Kleidung',ru:'Odezhda',zh:'Yifu',ja:'Fuku',
-    icon:'👕',
-    words:[
-      {n:'chemise',t:{en:'shirt',es:'camisa',de:'Hemd',ru:'rubashka',zh:'chenshan',ja:'shatsu',ht:'chemiz'}},
-      {n:'pantalon',t:{en:'pants',es:'pantalón',de:'Hose',ru:'bryuki',zh:'kuzi',ja:'zubon',ht:'pantalon'}},
-      {n:'robe',t:{en:'dress',es:'vestido',de:'Kleid',ru:'platye',zh:'lian yiqun',ja:'doresu',ht:'wòb'}},
-      {n:'chaussures',t:{en:'shoes',es:'zapatos',de:'Schuhe',ru:'obuv',zh:'xiezi',ja:'kutsu',ht:'soulye'}},
-      {n:'chapeau',t:{en:'hat',es:'sombrero',de:'Hut',ru:'shlyapa',zh:'maozi',ja:'boshi',ht:'chapō'}},
-      {n:'manteau',t:{en:'coat',es:'abrigo',de:'Mantel',ru:'palto',zh:'waitao',ja:'koto',ht:'manto'}},
-      {n:'jupe',t:{en:'skirt',es:'falda',de:'Rock',ru:'yubka',zh:'qunzi',ja:'sukāto',ht:'jip'}},
-      {n:'chaussettes',t:{en:'socks',es:'calcetines',de:'Socken',ru:'noski',zh:'wazi',ja:'kutsushita',ht:'chosèt'}},
-      {n:'sac à main',t:{en:'handbag',es:'bolso',de:'Handtasche',ru:'sumka',zh:'shoutiba',ja:'baggu',ht:'sak'}},
-      {n:'ceinture',t:{en:'belt',es:'cinturón',de:'Gürtel',ru:'remen',zh:'pindai',ja:'beruto',ht:'sentiwon'}},
-      {n:'lunettes',t:{en:'glasses',es:'gafas',de:'Brille',ru:'ochki',zh:'yanjing',ja:'megane',ht:'linèt'}},
-      {n:'montre',t:{en:'watch',es:'reloj',de:'Uhr',ru:'chasy',zh:'shoubiao',ja:'tokei',ht:'mont'}},
-      {n:'gants',t:{en:'gloves',es:'guantes',de:'Handschuhe',ru:'perchatki',zh:'shoutao',ja:'tebukuro',ht:'gan'}},
-      {n:'pyjama',t:{en:'pajamas',es:'pijama',de:'Schlafanzug',ru:'pizhama',zh:'shuiyi',ja:'pajama',ht:'pijama'}},
-      {n:'maillot',t:{en:'swimsuit',es:'traje de baño',de:'Badeanzug',ru:'kupalnik',zh:'yongyi',ja:'mizugi',ht:'mayo'}},
-    ]
-  },
-  technologie: {
-    fr:'Technologie & Bureau',en:'Tech & Office',es:'Tecnología',ht:'Teknoloji',de:'Technologie',ru:'Tekhnologiya',zh:'Keji',ja:'Gijutsu',
-    icon:'💻',
-    words:[
-      {n:'clavier',t:{en:'keyboard',es:'teclado',de:'Tastatur',ru:'klaviatura',zh:'jianpan',ja:'kibodo',ht:'klavye'}},
-      {n:'souris',t:{en:'mouse',es:'ratón',de:'Maus',ru:'myshka',zh:'shubiao',ja:'mausu',ht:'sourit'}},
-      {n:'écran',t:{en:'screen',es:'screen',de:'Bildschirm',ru:'ekran',zh:'pingmu',ja:'gamen',ht:'ekran'}},
-      {n:'batterie',t:{en:'battery',es:'batería',de:'Batterie',ru:'batareya',zh:'dianchi',ja:'batteri',ht:'batri'}},
-      {n:'internet',t:{en:'internet',es:'internet',de:'Internet',ru:'internet',zh:'hulianwang',ja:'intanetto',ht:'entènèt'}},
-      {n:'mot de passe',t:{en:'password',es:'contraseña',de:'Passwort',ru:'parol',zh:'mima',ja:'pasuwado',ht:'motdepas'}},
-      {n:'email',t:{en:'email',es:'correo',de:'E-Mail',ru:'pochta',zh:'youjian',ja:'meru',ht:'imèl'}},
-      {n:'télécharger',t:{en:'download',es:'descargar',de:'herunterladen',ru:'skachat',zh:'xiazai',ja:'daunrodo',ht:'telechaje'}},
-      {n:'site web',t:{en:'website',es:'sitio web',de:'Webseite',ru:'sayt',zh:'wangzhan',ja:'wesaito',ht:'sitwèb'}},
-      {n:'logiciel',t:{en:'software',es:'software',de:'Software',ru:'programma',zh:'ruanjian',ja:'sofutowea',ht:'lojisyèl'}},
-      {n:'imprimante',t:{en:'printer',es:'impresora',de:'Drucker',ru:'printer',zh:'dayinji',ja:'purinta',ht:'enprimant'}},
-      {n:'fichier',t:{en:'file',es:'archivo',de:'Datei',ru:'fayl',zh:'wenjian',ja:'fairu',ht:'fichye'}},
-      {n:'message',t:{en:'message',es:'mensaje',de:'Nachricht',ru:'soobshchenie',zh:'xiaoxi',ja:'messeeji',ht:'mesaj'}},
-      {n:'caméra',t:{en:'camera',es:'cámara',de:'Kamera',ru:'kamera',zh:'xiangji',ja:'kamera',ht:'kamera'}},
-      {n:'réseau',t:{en:'network',es:'red',de:'Netzwerk',ru:'set',zh:'wangluo',ja:'nettowaku',ht:'rezo'}},
-    ]
-  },
-  metiers: {
-    fr:'Métiers',en:'Professions',es:'Profesiones',ht:'Metye',de:'Berufe',ru:'Professii',zh:'Zhiye',ja:'Shigoto',
-    icon:'👨‍🔧',
-    words:[
-      {n:'docteur',t:{en:'doctor',es:'médico',de:'Arzt',ru:'vrach',zh:'yisheng',ja:'isha',ht:'doktè'}},
-      {n:'professeur',t:{en:'teacher',es:'profesor',de:'Lehrer',ru:'uchitel',zh:'laoshi',ja:'sensei',ht:'pwofesè'}},
-      {n:'ingénieur',t:{en:'engineer',es:'ingeniero',de:'Ingenieur',ru:'inzhener',zh:'gongchengshi',ja:'enjinia',ht:'enjenyè'}},
-      {n:'policier',t:{en:'police officer',es:'policía',de:'Polizist',ru:'politseyskiy',zh:'jingcha',ja:'keisatsukan',ht:'polis'}},
-      {n:'cuisinier',t:{en:'cook',es:'cocinero',de:'Koch',ru:'povar',zh:'chushi',ja:'ryorinon',ht:'kizinye'}},
-      {n:'infirmier',t:{en:'nurse',es:'enfermero',de:'Krankenpfleger',ru:'medsestra',zh:'hushi',ja:'kangoshi',ht:'enfimye'}},
-      {n:'artiste',t:{en:'artist',es:'artista',de:'Künstler',ru:'khudozhnik',zh:'yishujia',ja:'geijutsuka',ht:'atis'}},
-      {n:'écrivain',t:{en:'writer',es:'escritor',de:'Schriftsteller',ru:'pisatel',zh:'zuojia',ja:'sakka',ht:'ekriven'}},
-      {n:'vendeur',t:{en:'salesperson',es:'vendedor',de:'Verkäufer',ru:'prodavets',zh:'xiaoshouyuan',ja:'tenin',ht:'vandè'}},
-      {n:'avocat',t:{en:'lawyer',es:'abogado',de:'Anwalt',ru:'advokat',zh:'lvshi',ja:'bengoshi',ht:'avoka'}},
-      {n:'pilote',t:{en:'pilot',es:'piloto',de:'Pilot',ru:'pilot',zh:'feixingyuan',ja:'pairotto',ht:'pilot'}},
-      {n:'agriculteur',t:{en:'farmer',es:'agricultor',de:'Bauer',ru:'fermer',zh:'nongmin',ja:'noka',ht:'agrikiltè'}},
-      {n:'musicien',t:{en:'musician',es:'músico',de:'Musiker',ru:'muzykant',zh:'yinyuejia',ja:'ongakuka',ht:'mizisyen'}},
-      {n:'étudiant',t:{en:'student',es:'estudiante',de:'Student',ru:'student',zh:'xuesheng',ja:'gakusei',ht:'etidyan'}},
-      {n:'secrétaire',t:{en:'secretary',es:'secretario',de:'Sekretär',ru:'sekretar',zh:'mishu',ja:'hisho',ht:'sekretè'}},
-    ]
-  },
-  sante: {
-    fr:'Santé',en:'Health',es:'Salud',ht:'Sante',de:'Gesundheit',ru:'Zdorovye',zh:'Jiankang',ja:'Kenko',
-    icon:'🏥',
-    words:[
-      {n:'médicament',t:{en:'medicine',es:'medicamento',de:'Medikament',ru:'lekarstvo',zh:'yaowu',ja:'kusuri',ht:'medikaman'}},
-      {n:'douleur',t:{en:'pain',es:'dolor',de:'Schmerz',ru:'bol',zh:'tongku',ja:'itami',ht:'doule'}},
-      {n:'malade',t:{en:'sick',es:'enfermo',de:'krank',ru:'bolnoy',zh:'shengbing',ja:'byoki',ht:'malad'}},
-      {n:'fièvre',t:{en:'fever',es:'fiebre',de:'Fieber',ru:'lixoradka',zh:'fashao',ja:'netsu',ht:'lafiev'}},
-      {n:'toux',t:{en:'cough',es:'tos',de:'Husten',ru:'kashel',zh:'kesou',ja:'seki',ht:'tous'}},
-      {n:'sang',t:{en:'blood',es:'sangre',de:'Blut',ru:'krov',zh:'xue',ja:'chi',ht:'san'}},
-      {n:'corps',t:{en:'body',es:'cuerpo',de:'Körper',ru:'telo',zh:'shenti',ja:'karada',ht:'kò'}},
-      {n:'sommeil',t:{en:'sleep',es:'sleep',de:'Schlaf',ru:'son',zh:'shuimian',ja:'suimin',ht:'dòmi'}},
-      {n:'hôpital',t:{en:'hospital',es:'hospital',de:'Krankenhaus',ru:'bolnitsa',zh:'yiyuan',ja:'byoin',ht:'lopital'}},
-      {n:'urgence',t:{en:'emergency',es:'emergencia',de:'Notfall',ru:'skoraya',zh:'jinji',ja:'kinkyu',ht:'ijans'}},
-      {n:'dentiste',t:{en:'dentist',es:'dentista',de:'Zahnarzt',ru:'stomatolog',zh:'yayi',ja:'haisha',ht:'dentis'}},
-      {n:'pharmacie',t:{en:'pharmacy',es:'farmacia',de:'Apotheke',ru:'apteka',zh:'yaodian',ja:'yakkyoku',ht:'famasit'}},
-      {n:'vue',t:{en:'vision',es:'visión',de:'Sicht',ru:'zrenie',zh:'shili',ja:'shikaku',ht:'vi'}},
-      {n:'ouïe',t:{en:'hearing',es:'oído',de:'Gehör',ru:'slukh',zh:'tingli',ja:'chokaku',ht:'ouyi'}},
-      {n:'repos',t:{en:'rest',es:'descanso',de:'Ruhe',ru:'otdykh',zh:'xiuxi',ja:'kyusei',ht:'repo'}},
-    ]
-  },
-  cuisine_outils: {
-    fr:'Cuisine (Ustensiles)',en:'Kitchen (Tools)',es:'Cocina',ht:'Kizin',de:'Küche',ru:'Kukhnya',zh:'Chufang',ja:'Daidiokoro',
-    icon:'🍴',
-    words:[
-      {n:'assiette',t:{en:'plate',es:'plato',de:'Teller',ru:'tarelka',zh:'panzi',ja:'osara',ht:'asit'}},
-      {n:'verre',t:{en:'glass',es:'vaso',de:'Glas',ru:'stakan',zh:'beizi',ja:'koppu',ht:'vè'}},
-      {n:'fourchette',t:{en:'fork',es:'tenedor',de:'Gabel',ru:'vilka',zh:'chazi',ja:'foku',ht:'fouchèt'}},
-      {n:'couteau',t:{en:'knife',es:'cuchillo',de:'Messer',ru:'nozh',zh:'daoping',ja:'naifu',ht:'kouto'}},
-      {n:'cuillère',t:{en:'spoon',es:'cuchara',de:'Löffel',ru:'lozhka',zh:'shaozi',ja:'supun',ht:'kuiyè'}},
-      {n:'bol',t:{en:'bowl',es:'bol',de:'Schüssel',ru:'miska',zh:'wan',ja:'wan',ht:'bòl'}},
-      {n:'poêle',t:{en:'frying pan',es:'sartén',de:'Pfanne',ru:'skovoroda',zh:'pingdigao',ja:'furaipan',ht:'poèl'}},
-      {n:'four',t:{en:'oven',es:'horno',de:'Ofen',ru:'dukhovka',zh:'kaoxiang',ja:'obun',ht:'fou'}},
-      {n:'réfrigérateur',t:{en:'fridge',es:'nevera',de:'Kühlschrank',ru:'kholodilnik',zh:'bingxiang',ja:'reizoko',ht:'frijidè'}},
-      {n:'serviette',t:{en:'napkin',es:'servilleta',de:'Serviette',ru:'salfetka',zh:'canjin',ja:'napukin',ht:'sèvyèt'}},
-      {n:'bouteille',t:{en:'bottle',es:'botella',de:'Flasche',ru:'butylka',zh:'pingzi',ja:'bin',ht:'boutèy'}},
-      {n:'tasse',t:{en:'cup',es:'taza',de:'Tasse',ru:'chashka',zh:'beizi',ja:'kappu',ht:'tas'}},
-      {n:'marmite',t:{en:'pot',es:'olla',de:'Topf',ru:'kastrulya',zh:'guo',ja:'nabe',ht:'mamit'}},
-      {n:'évier',t:{en:'sink',es:'fregadero',de:'Spülbecken',ru:'rakovina',zh:'shuicao',ja:'shinku',ht:'evye'}},
-      {n:'selle',t:{en:'salt shaker',es:'salero',de:'Salzstreuer',ru:'solonka',zh:'yanguan',ja:'shio-ire',ht:'salye'}},
-    ]
-  },
-  emotions: {
-    fr:'Émotions',en:'Emotions',es:'Emociones',ht:'Emosyon',de:'Emotionen',ru:'Emotsii',zh:'qinggan',ja:'kanjo',
-    icon:'🎭',
-    words:[
-      {n:'peur',t:{en:'fear',es:'miedo',de:'Angst',ru:'strakh',zh:'kongju',ja:'kyofu',ht:'pè'}},
-      {n:'colère',t:{en:'anger',es:'ira',de:'Wut',ru:'gnev',zh:'fennu',ja:'ikari',ht:'kòlè'}},
-      {n:'surprise',t:{en:'surprise',es:'sorpresa',de:'Überraschung',ru:'syurpriz',zh:'jingxi',ja:'odoroki',ht:'sipriz'}},
-      {n:'joie',t:{en:'joy',es:'alegría',de:'Freude',ru:'radost',zh:'kuailè',ja:'yorokobi',ht:'kè kontan'}},
-      {n:'ennui',t:{en:'boredom',es:'aburrimiento',de:'Langeweile',ru:'skuka',zh:'wuliao',ja:'taikutsu',ht:'annwi'}},
-      {n:'espoir',t:{en:'hope',es:'esperanza',de:'Hoffnung',ru:'nadezhda',zh:'xiwang',ja:'kibo',ht:'espwa'}},
-      {n:'confiance',t:{en:'trust',es:'confianza',de:'Vertrauen',ru:'doverie',zh:'xinren',ja:'shinrai',ht:'konfyans'}},
-      {n:'honte',t:{en:'shame',es:'vergüenza',de:'Scham',ru:'styd',zh:'xiuchi',ja:'haji',ht:'wont'}},
-      {n:'fierté',t:{en:'pride',es:'orgullo',de:'Stolz',ru:'gordost',zh:'zihao',ja:'hokori',ht:'fyète'}},
-      {n:'amour',t:{en:'love',es:'amor',de:'Liebe',ru:'lyubov',zh:'ai',ja:'ai',ht:'lanmou'}},
-      {n:'jalousie',t:{en:'jealousy',es:'celos',de:'Eifersucht',ru:'revnost',zh:'jidu',ja:'shitto',ht:'jalouzi'}},
-      {n:'courage',t:{en:'courage',es:'coraje',de:'Mut',ru:'muzhestvo',zh:'yongqi',ja:'yuki',ht:'kouraj'}},
-      {n:'calme',t:{en:'calm',es:'calma',de:'Ruhe',ru:'spokoystvie',zh:'pingjing',ja:'reisei',ht:'kalm'}},
-      {n:'stress',t:{en:'stress',es:'estrés',de:'Stress',ru:'stress',zh:'yali',ja:'sutoresu',ht:'estrès'}},
-      {n:'curiosité',t:{en:'curiosity',es:'curiosidad',de:'Neugier',ru:'lyubopytstvo',zh:'haoqixin',ja:'koukishin',ht:'kuryozite'}},
-    ]
-  },
-  loisirs: {
-    fr:'Loisirs',en:'Leisure',es:'Ocio',ht:'Lwazi',de:'Freizeit',ru:'Dosug',zh:'xiuxian',ja:'rejaa',
-    icon:'🎸',
-    words:[
-      {n:'musique',t:{en:'music',es:'música',de:'Musik',ru:'muzyka',zh:'yinyue',ja:'ongaku',ht:'mizik'}},
-      {n:'danse',t:{en:'dance',es:'danza',de:'Tanz',ru:'tanets',zh:'wu',ja:'dansu',ht:'danse'}},
-      {n:'voyage',t:{en:'travel',es:'viaje',de:'Reise',ru:'puteshestvie',zh:'lvxing',ja:'ryoko',ht:'vwayaj'}},
-      {n:'photo',t:{en:'photography',es:'fotografía',de:'Fotografie',ru:'fotografiya',zh:'sheying',ja:'shashin',ht:'foto'}},
-      {n:'dessin',t:{en:'drawing',es:'dibujo',de:'Zeichnung',ru:'risunok',zh:'huihua',ja:'o-kaki',ht:'desen'}},
-      {n:'film',t:{en:'movie',es:'película',de:'Film',ru:'kino',zh:'dianying',ja:'eiga',ht:'fim'}},
-      {n:'jeu',t:{en:'game',es:'juego',de:'Spiel',ru:'igra',zh:'youxi',ja:'gemu',ht:'jwèt'}},
-      {n:'lecture',t:{en:'reading',es:'lectura',de:'Lesen',ru:'chtenie',zh:'yuedu',ja:'dokusho',ht:'lektir'}},
-      {n:'théâtre',t:{en:'theater',es:'teatro',de:'Theater',ru:'teatr',zh:'juyuan',ja:'gekijo',ht:'teat'}},
-      {n:'peinture',t:{en:'painting',es:'pintura',de:'Malerei',ru:'zhivopis',zh:'huihua',ja:'kaiga',ht:'pentire'}},
-      {n:'jardinage',t:{en:'gardening',es:'jardinería',de:'Gärtnern',ru:'sadovodstvo',zh:'yuanyi',ja:'engei',ht:'jadinaj'}},
-      {n:'cuisine',t:{en:'cooking',es:'cocinar',de:'Kochen',ru:'kulinariya',zh:'pengren',ja:'ryori',ht:'kizin'}},
-      {n:'chant',t:{en:'singing',es:'canto',de:'Gesang',ru:'penie',zh:'gechang',ja:'uta',ht:'chante'}},
-      {n:'fête',t:{en:'party',es:'fiesta',de:'Party',ru:'vecherinka',zh:'paidui',ja:'pati',ht:'fèt'}},
-      {n:'sport',t:{en:'sport',es:'deporte',de:'Sport',ru:'sport',zh:'tiyu',ja:'supotsu',ht:'espò'}},
-    ]
-  },
-  sports: {
-    fr:'Sports',en:'Sports',es:'Deportes',ht:'Espò',de:'Sportarten',ru:'Sport',zh:'tiyu',ja:'supotsu',
-    icon:'⚽',
-    words:[
-      {n:'football',t:{en:'soccer',es:'fútbol',de:'Fußball',ru:'futbol',zh:'zuqiu',ja:'sakka',ht:'balonpye'}},
-      {n:'basket',t:{en:'basketball',es:'baloncesto',de:'Basketball',ru:'basketbol',zh:'lanqiu',ja:'basukeboru',ht:'basket'}},
-      {n:'tennis',t:{en:'tennis',es:'tenis',de:'Tennis',ru:'tennis',zh:'wangqiu',ja:'tenisu',ht:'tenis'}},
-      {n:'natation',t:{en:'swimming',es:'natación',de:'Schwimmen',ru:'plavanie',zh:'youyong',ja:'suiei',ht:'najé'}},
-      {n:'course',t:{en:'running',es:'correr',de:'Laufen',ru:'beg',zh:'paobu',ja:'ran-ningu',ht:'kous'}},
-      {n:'vélo',t:{en:'cycling',es:'ciclismo',de:'Radfahren',ru:'velosport',zh:'qixing',ja:'saikuringu',ht:'bisiklèt'}},
-      {n:'boxe',t:{en:'boxing',es:'boxeo',de:'Boxen',ru:'boks',zh:'quanji',ja:'bokushingu',ht:'bòks'}},
-      {n:'yoga',t:{en:'yoga',es:'yoga',de:'Yoga',ru:'yoga',zh:'yuja',ja:'yoga',ht:'yoga'}},
-      {n:'karaté',t:{en:'karate',es:'karate',de:'Karate',ru:'karate',zh:'kongshoudao',ja:'karate',ht:'karate'}},
-      {n:'surf',t:{en:'surfing',es:'surf',de:'Surfen',ru:'serfing',zh:'chonglang',ja:'safin',ht:'sèf'}},
-      {n:'ski',t:{en:'skiing',es:'esquí',de:'Skifahren',ru:'lyzhi',zh:'huaxue',ja:'suki',ht:'ski'}},
-      {n:'gym',t:{en:'gymnastics',es:'gimnasia',de:'Gymnastik',ru:'gimnastika',zh:'ticao',ja:'taiso',ht:'jim'}},
-      {n:'volley',t:{en:'volleyball',es:'voleibol',de:'Volleyball',ru:'voleybol',zh:'paiqiu',ja:'bareboru',ht:'volebòl'}},
-      {n:'danse',t:{en:'dance',es:'danza',de:'Tanz',ru:'tantsy',zh:'wu',ja:'dansu',ht:'danse'}},
-      {n:'marche',t:{en:'walking',es:'caminar',de:'Wandern',ru:'khodba',zh:'tubu',ja:'uokingue',ht:'mache'}},
-    ]
-  },
-  mobilier: {
-    fr:'Mobilier',en:'Furniture',es:'Muebles',ht:'Mèb',de:'Möbel',ru:'Mebel',zh:'Jiaju',ja:'Kagu',
-    icon:'🛋️',
-    words:[
-      {n:'canapé',t:{en:'sofa',es:'sofá',de:'Sofa',ru:'divan',zh:'shafa',ja:'sofa',ht:'kanape'}},
-      {n:'armoire',t:{en:'wardrobe',es:'armario',de:'Schrank',ru:'shkaf',zh:'yigui',ja:'tansu',ht:'plaka'}},
-      {n:'étagère',t:{en:'shelf',es:'estante',de:'Regal',ru:'polka',zh:'jiazi',ja:'tana',ht:'etajè'}},
-      {n:'bureau',t:{en:'desk',es:'escritorio',de:'Schreibtisch',ru:'pismennyy stol',zh:'shuzhuo',ja:'tsukue',ht:'biwo'}},
-      {n:'tapis',t:{en:'rug',es:'alfombra',de:'Teppich',ru:'kover',zh:'ditan',ja:'kagami',ht:'tapi'}},
-      {n:'miroir',t:{en:'mirror',es:'espejo',de:'Spiegel',ru:'zerkalo',zh:'jingzi',ja:'kagami',ht:'miwa'}},
-      {n:'rideau',t:{en:'curtain',es:'cortina',de:'Vorhang',ru:'shtora',zh:'chuanglian',ja:'katen',ht:'rido'}},
-      {n:'lampe',t:{en:'lamp',es:'lámpara',de:'Lampe',ru:'lampa',zh:'deng',ja:'ranpu',ht:'lanp'}},
-      {n:'coussin',t:{en:'cushion',es:'cojín',de:'Kissen',ru:'podushka',zh:'dianzi',ja:'kusshon',ht:'kousen'}},
-      {n:'horloge',t:{en:'clock',es:'reloj',de:'Uhr',ru:'chasy',zh:'zhong',ja:'tokei',ht:'òlòj'}},
-      {n:'tiroir',t:{en:'drawer',es:'cajón',de:'Schublade',ru:'yashchik',zh:'chouti',ja:'hikidashi',ht:'tiwa'}},
-      {n:'évier',t:{en:'sink',es:'fregadero',de:'Waschbecken',ru:'rakovina',zh:'shuicao',ja:'shinku',ht:'evye'}},
-      {n:'douche',t:{en:'shower',es:'ducha',de:'Dusche',ru:'dush',zh:'linyu',ja:'shawa',ht:'douch'}},
-      {n:'toilettes',t:{en:'toilet',es:'baño',de:'Toilette',ru:'tualet',zh:'cesuo',ja:'toire',ht:'twalèt'}},
-      {n:'balcon',t:{en:'balcony',es:'balcón',de:'Balkon',ru:'balkon',zh:'yangtai',ja:'barukoni',ht:'balkon'}},
-    ]
-  },
-  fournitures_bureau: {
-    fr:'Fournitures',en:'Supplies',es:'Suministros',ht:'Ekipman',de:'Bedarf',ru:'Materialy',zh:'Yongpin',ja:'Buhin',
-    icon:'📎',
-    words:[
-      {n:'papier',t:{en:'paper',es:'papel',de:'Papier',ru:'bumaga',zh:'zhi',ja:'kami',ht:'papye'}},
-      {n:'ciseaux',t:{en:'scissors',es:'tijeras',de:'Schere',ru:'nozhnitsy',zh:'jian-dao',ja:'hasami',ht:'sizo'}},
-      {n:'colle',t:{en:'glue',es:'pegamento',de:'Kleber',ru:'kley',zh:'jiaoshui',ja:'nori',ht:'kòl'}},
-      {n:'gomme',t:{en:'eraser',es:'goma',de:'Radiergummi',ru:'lastik',zh:'xiangpi',ja:'keshigomu',ht:'gonm'}},
-      {n:'règle',t:{en:'ruler',es:'regla',de:'Lineal',ru:'lineyka',zh:'chi',ja:'jōgi',ht:'règ'}},
-      {n:'cahier',t:{en:'notebook',es:'cuaderno',de:'Notizbuch',ru:'tetrad',zh:'benzi',ja:'noto',ht:'kayer'}},
-      {n:'classeur',t:{en:'folder',es:'carpeta',de:'Ordner',ru:'papka',zh:'wenjianjia',ja:'fairu',ht:'klasè'}},
-      {n:'agrafeuse',t:{en:'stapler',es:'engrapadora',de:'Tacker',ru:'stepler',zh:'dingshuji',ja:'hotchikisu',ht:'agrafèz'}},
-      {n:'enveloppe',t:{en:'envelope',es:'sobre',de:'Umschlag',ru:'konvert',zh:'xin-feng',ja:'futo',ht:'anvlòp'}},
-      {n:'agenda',t:{en:'planner',es:'agenda',de:'Planer',ru:'ezhednevnik',zh:'richengben',ja:'techo',ht:'ajenda'}},
-      {n:'calculatrice',t:{en:'calculator',es:'calculadora',de:'Rechner',ru:'kalkulyator',zh:'jisuanqi',ja:'dentō',ht:'kalkilatris'}},
-      {n:'étiquette',t:{en:'label',es:'etiqueta',de:'Etikett',ru:'etiketka',zh:'biaoqian',ja:'raberu',ht:'etikèt'}},
-      {n:'tampon',t:{en:'stamp',es:'sello',de:'Stempel',ru:'shtamp',zh:'yinzhang',ja:'hanko',ht:'tenm'}},
-      {n:'poubelle',t:{en:'trash can',es:'basura',de:'Mülleimer',ru:'musorka',zh:'lajitong',ja:'gomibako',ht:'poubèl'}},
-      {n:'crayon',t:{en:'pencil',es:'lápiz',de:'Bleistift',ru:'karandash',zh:'qianbi',ja:'enpitsu',ht:'kreyon'}},
-    ]
-  },
-  outils_travail: {
-    fr:'Outils',en:'Tools',es:'Herramientas',ht:'Zouti',de:'Werkzeuge',ru:'Instrumenty',zh:'Gongju',ja:'Dogu',
-    icon:'🛠️',
-    words:[
-      {n:'marteau',t:{en:'hammer',es:'martillo',de:'Hammer',ru:'molotok',zh:'chuizi',ja:'hanma',ht:'mato'}},
-      {n:'tournevis',t:{en:'screwdriver',es:'destornillador',de:'Schraubendreher',ru:'otvertka',zh:'luosidao',ja:'doraiba',ht:'tounvis'}},
-      {n:'pince',t:{en:'pliers',es:'alicates',de:'Zange',ru:'ploskogubtsy',zh:'qianzi',ja:'penchi',ht:'pince'}},
-      {n:'clou',t:{en:'nail',es:'clavo',de:'Nagel',ru:'gvozd',zh:'dingzi',ja:'kugi',ht:'klou'}},
-      {n:'vis',t:{en:'screw',es:'tornillo',de:'Schraube',ru:'vint',zh:'luosi',ja:'neji',ht:'vis'}},
-      {n:'scie',t:{en:'saw',es:'sierra',de:'Säge',ru:'pila',zh:'juzi',ja:'nokogiri',ht:'si'}},
-      {n:'échelle',t:{en:'ladder',es:'escalera',de:'Leiter',ru:'lestnitsa',zh:'tizi',ja:'hashigo',ht:'echèl'}},
-      {n:'peinture',t:{en:'paint',es:'pintura',de:'Farbe',ru:'kraska',zh:'youqi',ja:'penki',ht:'pentire'}},
-      {n:'pinceau',t:{en:'brush',es:'brush',de:'Pinsel',ru:'kist',zh:'huabi',ja:'fude',ht:'penso'}},
-      {n:'perceuse',t:{en:'drill',es:'taladro',de:'Bohrer',ru:'drel',zh:'zuanji',ja:'doriru',ht:'dril'}},
-      {n:'mesure',t:{en:'tape measure',es:'cinta métrica',de:'Maßband',ru:'ruletka',zh:'juan-chi',ja:'meki',ht:'mizir'}},
-      {n:'casque',t:{en:'helmet',es:'casco',de:'Helm',ru:'shlem',zh:'toukui',ja:'herumetto',ht:'kas'}},
-      {n:'corde',t:{en:'rope',es:'cuerda',de:'Seil',ru:'verevka',zh:'shengzi',ja:'ropu',ht:'kòd'}},
-      {n:'pelle',t:{en:'shovel',es:'pala',de:'Schaufel',ru:'lopata',zh:'chanzi',ja:'shaberu',ht:'pèl'}},
-      {n:'hache',t:{en:'axe',es:'hacha',de:'Axt',ru:'topor',zh:'fuzi',ja:'ono',ht:'hach'}},
-    ]
-  },
-  directions_positions: {
-    fr:'Directions & Positions',en:'Directions & Positions',es:'Direcciones',ht:'Direksyon',de:'Richtungen',ru:'Napravleniya',zh:'Fangxiang',ja:'Hoko',
-    icon:'🧭',
-    words:[
-      {n:'gauche',t:{en:'left',es:'izquierda',de:'links',ru:'levo',zh:'zuobian',ja:'hidari',ht:'gòch'}},
-      {n:'droite',t:{en:'right',es:'derecha',de:'rechts',ru:'pravo',zh:'youbian',ja:'migi',ht:'dwa'}},
-      {n:'haut',t:{en:'up',es:'arriba',de:'oben',ru:'vverkh',zh:'shang',ja:'ue',ht:'anlè'}},
-      {n:'bas',t:{en:'down',es:'abajo',de:'unten',ru:'vniz',zh:'xia',ja:'shita',ht:'anba'}},
-      {n:'devant',t:{en:'in front',es:'delante',de:'vor',ru:'speredi',zh:'qianmian',ja:'mae',ht:'devan'}},
-      {n:'derrière',t:{en:'behind',es:'detrás',de:'hinten',ru:'szadi',zh:'houmian',ja:'ushiro',ht:'dèyè'}},
-      {n:'nord',t:{en:'north',es:'norte',de:'Nord',ru:'sever',zh:'bei',ja:'kita',ht:'nò'}},
-      {n:'sud',t:{en:'south',es:'sur',de:'Süd',ru:'yug',zh:'nan',ja:'minami',ht:'sid'}},
-      {n:'est',t:{en:'east',es:'este',de:'Ost',ru:'vostok',zh:'dong',ja:'higashi',ht:'lès'}},
-      {n:'ouest',t:{en:'west',es:'oeste',de:'West',ru:'zapad',zh:'xi',ja:'nishi',ht:'lwès'}},
-      {n:'milieu',t:{en:'middle',es:'medio',de:'Mitte',ru:'seredina',zh:'zhongjian',ja:'mannaka',ht:'mitan'}},
-      {n:'loin',t:{en:'far',es:'lejos',de:'weit',ru:'daleko',zh:'yuan',ja:'tooi',ht:'lwen'}},
-      {n:'près',t:{en:'near',es:'cerca',de:'nah',ru:'ryadom',zh:'jin',ja:'chikai',ht:'toupre'}},
-      {n:'dedans',t:{en:'inside',es:'dentro',de:'innen',ru:'vnutri',zh:'limian',ja:'naka',ht:'andan'}},
-      {n:'dehors',t:{en:'outside',es:'fuera',de:'außen',ru:'snaruzhi',zh:'waimian',ja:'soto',ht:'deyò'}},
-    ]
-  },
-  matieres_scolaires: {
-    fr:'Matières scolaires',en:'School subjects',es:'Materias',ht:'Matiyè lekòl',de:'Schulfächer',ru:'Shkolnye predmety',zh:'Xueke',ja:'Kamoku',
-    icon:'📚',
-    words:[
-      {n:'mathématiques',t:{en:'math',es:'matemáticas',de:'Mathe',ru:'matematika',zh:'shuxue',ja:'sugaku',ht:'matematik'}},
-      {n:'histoire',t:{en:'history',es:'historia',de:'Geschichte',ru:'istoriya',zh:'lishi',ja:'rekishi',ht:'istwa'}},
-      {n:'géographie',t:{en:'geography',es:'geografía',de:'Erdkunde',ru:'geografiya',zh:'dili',ja:'chiri',ht:'jewografi'}},
-      {n:'sciences',t:{en:'science',es:'ciencias',de:'Wissenschaft',ru:'nauka',zh:'kexue',ja:'kagaku',ht:'syans'}},
-      {n:'langues',t:{en:'languages',es:'idiomas',de:'Sprachen',ru:'yazyki',zh:'yuyan',ja:'gengo',ht:'lang'}},
-      {n:'musique',t:{en:'music',es:'música',de:'Musik',ru:'muzyka',zh:'yinyue',ja:'ongaku',ht:'mizik'}},
-      {n:'art',t:{en:'art',es:'arte',de:'Kunst',ru:'iskusstvo',zh:'yishu',ja:'geijutsu',ht:'la'}},
-      {n:'physique',t:{en:'physics',es:'física',de:'Physik',ru:'fizika',zh:'wuli',ja:'butsuri',ht:'fizik'}},
-      {n:'chimie',t:{en:'chemistry',es:'química',de:'Chemie',ru:'khimiya',zh:'huaxue',ja:'kagaku',ht:'chimis'}},
-      {n:'biologie',t:{en:'biology',es:'biología',de:'Biologie',ru:'biologiya',zh:'shengwuxue',ja:'seibutsugaku',ht:'bioloji'}},
-      {n:'littérature',t:{en:'literature',es:'literatura',de:'Literatur',ru:'literatura',zh:'wenxue',ja:'bungaku',ht:'literati'}},
-      {n:'informatique',t:{en:'computer science',es:'informática',de:'Informatik',ru:'informatika',zh:'jisuanji',ja:'johokagaku',ht:'enfòmatik'}},
-      {n:'philosophie',t:{en:'philosophy',es:'filosofía',de:'Philosophie',ru:'filosofiya',zh:'zhexue',ja:'tetsugaku',ht:'filozofi'}},
-      {n:'examen',t:{en:'exam',es:'examen',de:'Prüfung',ru:'ekzamen',zh:'kaoshi',ja:'shiken',ht:'egzamen'}},
-      {n:'leçon',t:{en:'lesson',es:'lección',de:'Lektion',ru:'urok',zh:'ke',ja:'jugyo',ht:'leson'}},
-    ]
-  },
-  taille_quantite: {
-    fr:'Taille & Quantité',en:'Size & Quantity',es:'Tamaño & Cantidad',ht:'Gwosè & Kantite',de:'Größe & Menge',ru:'Razmer i Kolichestvo',zh:'Daxiao yu Shuliang',ja:'Saizu to Ryō',
-    icon:'⚖️',
-    words:[
-      {n:'beaucoup',t:{en:'a lot',es:'mucho',de:'viel',ru:'mnogo',zh:'henduo',ja:'takusan',ht:'anpil'}},
-      {n:'peu',t:{en:'little',es:'poco',de:'wenig',ru:'malo',zh:'yidian',ja:'sukoshi',ht:'yon ti kras'}},
-      {n:'plus',t:{en:'more',es:'más',de:'mehr',ru:'bolshe',zh:'geng duo',ja:'motto',ht:'plis'}},
-      {n:'moins',t:{en:'less',es:'menos',de:'weniger',ru:'menshe',zh:'shao',ja:'sukunai',ht:'mwens'}},
-      {n:'tout',t:{en:'all',es:'todo',de:'alles',ru:'vse',zh:'suoyou',ja:'zenbu',ht:'tout'}},
-      {n:'rien',t:{en:'nothing',es:'nada',de:'nichts',ru:'nichego',zh:'meiyou',ja:'nanimo',ht:'anyen'}},
-      {n:'moitié',t:{en:'half',es:'mitad',de:'Hälfte',ru:'polovina',zh:'yiban',ja:'hanbun',ht:'mwatye'}},
-      {n:'entier',t:{en:'whole',es:'entero',de:'ganz',ru:'tselyy',zh:'wanzheng',ja:'marugoto',ht:'antye'}},
-      {n:'léger',t:{en:'light',es:'light',de:'leicht',ru:'legkiy',zh:'qing',ja:'karui',ht:'lejè'}},
-      {n:'lourd',t:{en:'heavy',es:'pesado',de:'schwer',ru:'tyazhelyy',zh:'zhong',ja:'omoi',ht:'lou'}},
-      {n:'court',t:{en:'short',es:'corto',de:'kurz',ru:'korotkiy',zh:'duan',ja:'mijikai',ht:'kout'}},
-      {n:'long',t:{en:'long',es:'largo',de:'lang',ru:'dlinnyy',zh:'chang',ja:'nagai',ht:'long'}},
-      {n:'large',t:{en:'wide',es:'ancho',de:'breit',ru:'shirokiy',zh:'kuan',ja:'hiroi',ht:'laj'}},
-      {n:'étroit',t:{en:'narrow',es:'estrecho',de:'eng',ru:'uzkiy',zh:'zhai',ja:'semai',ht:'etwat'}},
-      {n:'vide',t:{en:'empty',es:'vacío',de:'leer',ru:'pustoy',zh:'kong',ja:'kara',ht:'vide'}},
-    ]
-  },
-  apprentissage_autodidacte: {
-    fr:'Apprentissage',en:'Learning',es:'Aprendizaje',ht:'Aprann',de:'Lernen',ru:'Obuchenie',zh:'Xuexi',ja:'Gakushu',
-    icon:'🧠',
-    words:[
-      {n:'objectif',t:{en:'goal',es:'objetivo',de:'Ziel',ru:'tsel',zh:'mubiao',ja:'mokuhyo',ht:'objektif'}},
-      {n:'pratique',t:{en:'practice',es:'práctica',de:'Praxis',ru:'praktika',zh:'shijian',ja:'renshu',ht:'pratik'}},
-      {n:'mémoire',t:{en:'memory',es:'memoria',de:'Gedächtnis',ru:'pamyat',zh:'jiyi',ja:'kioku',ht:'memwa'}},
-      {n:'habitude',t:{en:'habit',es:'hábito',de:'Gewohnheit',ru:'privychka',zh:'xiguan',ja:'shukan',ht:'abitid'}},
-      {n:'progrès',t:{en:'progress',es:'progreso',de:'Fortschritt',ru:'progress',zh:'jinbu',ja:'shinpo',ht:'pwogrè'}},
-      {n:'erreur',t:{en:'mistake',es:'error',de:'Fehler',ru:'oshibka',zh:'cuowu',ja:'machigai',ht:'erè'}},
-      {n:'réussite',t:{en:'success',es:'éxito',de:'Erfolg',ru:'uspekh',zh:'chenggong',ja:'seiko',ht:'siksè'}},
-      {n:'discipline',t:{en:'discipline',es:'disciplina',de:'Disziplin',ru:'distsiplina',zh:'jilv',ja:'kiritsu',ht:'disiplin'}},
-      {n:'curiosité',t:{en:'curiosity',es:'curiosidad',de:'Neugier',ru:'lyubopytstvo',zh:'haoqixin',ja:'koukishin',ht:'kuryozite'}},
-      {n:'source',t:{en:'source',es:'fuente',de:'Quelle',ru:'istochnik',zh:'laiyuan',ja:'shingen',ht:'sous'}},
-      {n:'comprendre',t:{en:'understand',es:'comprender',de:'verstehen',ru:'ponimat',zh:'lijie',ja:'rikai suru',ht:'konprann'}},
-      {n:'recherche',t:{en:'research',es:'investigación',de:'Forschung',ru:'issledovanie',zh:'yanjiu',ja:'kenkyu',ht:'rechèch'}},
-      {n:'lecture',t:{en:'reading',es:'lectura',de:'Lesen',ru:'chtenie',zh:'yuedu',ja:'dokusho',ht:'lektir'}},
-      {n:'écouter',t:{en:'listen',es:'escuchar',de:'hören',ru:'slushat',zh:'ting',ja:'kiku',ht:'koute'}},
-      {n:'répéter',t:{en:'repeat',es:'repetir',de:'wiederholen',ru:'povtoryat',zh:'zhongfu',ja:'kurikaesu',ht:'repete'}},
-    ]
-  },
-  ville_batiments: {
-    fr:'Ville & Bâtiments',en:'City & Buildings',es:'Ciudad',ht:'Vil',de:'Stadt',ru:'Gorod',zh:'Chengshi',ja:'Toshi',
-    icon:'🏙️',
-    words:[
-      {n:'maison',t:{en:'house',es:'casa',de:'Haus',ru:'dom',zh:'fangzi',ja:'ie',ht:'kay'}},
-      {n:'école',t:{en:'school',es:'escuela',de:'Schule',ru:'shkola',zh:'xuexiao',ja:'gakko',ht:'lekòl'}},
-      {n:'banque',t:{en:'bank',es:'banco',de:'Bank',ru:'bank',zh:'yinhang',ja:'ginko',ht:'bank'}},
-      {n:'rue',t:{en:'street',es:'calle',de:'Straße',ru:'ulitsa',zh:'jiedao',ja:'michi',ht:'lari'}},
-      {n:'pont',t:{en:'bridge',es:'puente',de:'Brücke',ru:'most',zh:'qiao',ja:'hashi',ht:'pon'}},
-      {n:'magasin',t:{en:'shop',es:'tienda',de:'Laden',ru:'magazin',zh:'shangdian',ja:'mise',ht:'magazen'}},
-      {n:'église',t:{en:'church',es:'iglesia',de:'Kirche',ru:'tserkov',zh:'jiaotang',ja:'kyokai',ht:'legliz'}},
-      {n:'parc',t:{en:'park',es:'parque',de:'Park',ru:'park',zh:'gongyuan',ja:'koen',ht:'pak'}},
-      {n:'bibliothèque',t:{en:'library',es:'biblioteca',de:'Bibliothek',ru:'biblioteka',zh:'tushuguan',ja:'toshokan',ht:'bibliyotèk'}},
-      {n:'marché',t:{en:'market',es:'mercado',de:'Markt',ru:'rynok',zh:'shichang',ja:'ichiba',ht:'mache'}},
-      {n:'hôtel',t:{en:'hotel',es:'hotel',de:'Hotel',ru:'otel',zh:'jiudian',ja:'hoteru',ht:'otèl'}},
-      {n:'cinéma',t:{en:'cinema',es:'cine',de:'Kino',ru:'kinoteatr',zh:'dianyingyuan',ja:'eigakan',ht:'sinema'}},
-      {n:'musée',t:{en:'museum',es:'museo',de:'Museum',ru:'muzey',zh:'bowuguan',ja:'hakubutsukan',ht:'mize'}},
-      {n:'usine',t:{en:'factory',es:'fábrica',de:'Fabrik',ru:'zavod',zh:'gongchang',ja:'kojo',ht:'izin'}},
-      {n:'bureau',t:{en:'office',es:'oficina',de:'Büro',ru:'ofis',zh:'bangongshi',ja:'jimusho',ht:'biwo'}},
-    ]
-  },
-  meteo: {
-    fr:'Météo',en:'Weather',es:'Clima',ht:'Meteo',de:'Wetter',ru:'Pogoda',zh:'Tianqi',ja:'Tenki',
-    icon:'☁️',
-    words:[
-      {n:'nuage',t:{en:'cloud',es:'nube',de:'Wolke',ru:'oblako',zh:'yun',ja:'kumo',ht:'nyaj'}},
-      {n:'neige',t:{en:'snow',es:'nieve',de:'Schnee',ru:'sneg',zh:'xue',ja:'yuki',ht:'nej'}},
-      {n:'orage',t:{en:'storm',es:'tormenta',de:'Sturm',ru:'groza',zh:'baofengyu',ja:'arashi',ht:'oraj'}},
-      {n:'foudre',t:{en:'lightning',es:'rayo',de:'Blitz',ru:'molniya',zh:'shandian',ja:'kaminari',ht:'kout zèklè'}},
-      {n:'brouillard',t:{en:'fog',es:'niebla',de:'Nebel',ru:'tuman',zh:'wu',ja:'kiri',ht:'bwouya'}},
-      {n:'chaleur',t:{en:'heat',es:'calor',de:'Hitze',ru:'zhara',zh:'renqi',ja:'atsusa',ht:'chalè'}},
-      {n:'froid',t:{en:'cold',es:'frío',de:'Kälte',ru:'kholod',zh:'hanleng',ja:'samusa',ht:'frèt'}},
-      {n:'humidité',t:{en:'humidity',es:'humedad',de:'Feuchtigkeit',ru:'vlazhnost',zh:'shidu',ja:'shitsu',ht:'imidite'}},
-      {n:'glace',t:{en:'ice',es:'hielo',de:'Eis',ru:'led',zh:'bing',ja:'kori',ht:'glas'}},
-      {n:'tempête',t:{en:'tempest',es:'tempestad',de:'Sturm',ru:'shtorm',zh:'baofeng',ja:'arashi',ht:'tanpèt'}},
-      {n:'arc-en-ciel',t:{en:'rainbow',es:'arco iris',de:'Regenbogen',ru:'raduga',zh:'caihong',ja:'niji',ht:'lakansyèl'}},
-      {n:'degré',t:{en:'degree',es:'grado',de:'Grad',ru:'gradus',zh:'du',ja:'do',ht:'degre'}},
-      {n:'prévision',t:{en:'forecast',es:'pronóstico',de:'Vorhersage',ru:'prognoz',zh:'yubao',ja:'yoho',ht:'previzyon'}},
-      {n:'vent',t:{en:'wind',es:'viento',de:'Wind',ru:'veter',zh:'feng',ja:'kaze',ht:'van'}},
-      {n:'ombre',t:{en:'shadow',es:'sombra',de:'Schatten',ru:'ten',zh:'yinying',ja:'kage',ht:'lonbraj'}},
-    ]
-  },
-  urgences_securite: {
-    fr:'Urgences & Sécurité',en:'Emergency & Safety',es:'Emergencias',ht:'Ijans ak Sekirite',de:'Notfall',ru:'Chrezvychaynaya situatsiya',zh:'Jinji',ja:'Kinkyu',
-    icon:'🚨',
-    words:[
-      {n:'aide',t:{en:'help',es:'ayuda',de:'Hilfe',ru:'pomoshch',zh:'bangzhu',ja:'tasuke',ht:'èd'}},
-      {n:'danger',t:{en:'danger',es:'peligro',de:'Gefahr',ru:'opasnost',zh:'weixian',ja:'kiken',ht:'danje'}},
-      {n:'police',t:{en:'police',es:'policía',de:'Polizei',ru:'politsiya',zh:'jingcha',ja:'keisatsu',ht:'polis'}},
-      {n:'accident',t:{en:'accident',es:'accidente',de:'Unfall',ru:'avariya',zh:'shigu',ja:'jiko',ht:'aksidan'}},
-      {n:'feu',t:{en:'fire',es:'fuego',de:'Feuer',ru:'ogon',zh:'huo',ja:'hi',ht:'dife'}},
-      {n:'attention',t:{en:'warning',es:'cuidado',de:'Achtung',ru:'vnimanie',zh:'zhuyi',ja:'chui',ht:'atansyon'}},
-      {n:'vol',t:{en:'theft',es:'robo',de:'Diebstahl',ru:'krazha',zh:'touqie',ja:'tonan',ht:'vòl'}},
-      {n:'blessure',t:{en:'injury',es:'herida',de:'Verletzung',ru:'travma',zh:'shoushang',ja:'kega',ht:'blesi'}},
-      {n:'sortie',t:{en:'exit',es:'salida',de:'Ausgang',ru:'vykhod',zh:'chukou',ja:'deguchi',ht:'soti'}},
-      {n:'perdu',t:{en:'lost',es:'perdido',de:'verloren',ru:'poteryannyy',zh:'mishu',ja:'maigo',ht:'pèdi'}},
-      {n:'médecin',t:{en:'doctor',es:'médico',de:'Arzt',ru:'vrach',zh:'yisheng',ja:'isha',ht:'doktè'}},
-      {n:'poison',t:{en:'poison',es:'veneno',de:'Gift',ru:'yad',zh:'duwu',ja:'doku',ht:'pwazon'}},
-      {n:'sang',t:{en:'blood',es:'sangre',de:'Blut',ru:'krov',zh:'xue',ja:'chi',ht:'san'}},
-      {n:'appel',t:{en:'call',es:'call',de:'Anruf',ru:'zvonok',zh:'dianhua',ja:'denwa',ht:'rele'}},
-      {n:'vrai',t:{en:'true',es:'verdadero',de:'wahr',ru:'pravda',zh:'zhenshi',ja:'shinjitsu',ht:'vre'}},
-    ]
-  },
-  relations_sociales: {
-    fr:'Relations sociales',en:'Social Relations',es:'Relaciones',ht:'Relasyon sosyal',de:'Beziehungen',ru:'Otnosheniya',zh:'Guanxi',ja:'Kankei',
-    icon:'🤝',
-    words:[
-      {n:'nom',t:{en:'name',es:'nombre',de:'Name',ru:'imya',zh:'mingzi',ja:'namae',ht:'non'}},
-      {n:'ami',t:{en:'friend',es:'amigo',de:'Freund',ru:'drug',zh:'pengyou',ja:'tomodachi',ht:'zanmi'}},
-      {n:'voisin',t:{en:'neighbor',es:'vecino',de:'Nachbar',ru:'sosed',zh:'linju',ja:'tonari',ht:'vwazen'}},
-      {n:'collègue',t:{en:'colleague',es:'colega',de:'Kollege',ru:'kollega',zh:'tongshi',ja:'doryo',ht:'koleg'}},
-      {n:'rencontre',t:{en:'meeting',es:'encuentro',de:'Treffen',ru:'vstrecha',zh:'huimian',ja:'deai',ht:'rankont'}},
-      {n:'cadeau',t:{en:'gift',es:'regalo',de:'Geschenk',ru:'podarok',zh:'liwu',ja:'purezento',ht:'kado'}},
-      {n:'promesse',t:{en:'promise',es:'promesa',de:'Versprechen',ru:'obeshchanie',zh:'nuoyan',ja:'yakusoku',ht:'pwomès'}},
-      {n:'mariage',t:{en:'marriage',es:'matrimonio',de:'Hochzeit',ru:'svadba',zh:'hunyin',ja:'kekkon',ht:'maryaj'}},
-      {n:'enfant',t:{en:'child',es:'niño',de:'Kind',ru:'rebenok',zh:'haizi',ja:'kodomo',ht:'timoun'}},
-      {n:'groupe',t:{en:'group',es:'grupo',de:'Gruppe',ru:'gruppa',zh:'qunti',ja:'gurupu',ht:'gwoup'}},
-      {n:'invitation',t:{en:'invitation',es:'invitación',de:'Einladung',ru:'priglashenie',zh:'yaoqing',ja:'shotai',ht:'envitasyon'}},
-      {n:'pardon',t:{en:'sorry',es:'perdón',de:'Entschuldigung',ru:'izvinenie',zh:'duibuqi',ja:'gomen',ht:'padon'}},
-      {n:'merci',t:{en:'thanks',es:'gracias',de:'danke',ru:'spasibo',zh:'xiexie',ja:'arigato',ht:'mesi'}},
-      {n:'bienvenue',t:{en:'welcome',es:'bienvenido',de:'Willkommen',ru:'dobro pozhalovat',zh:'huanying',ja:'kangei',ht:'byenvini'}},
-      {n:'amour',t:{en:'love',es:'amor',de:'Liebe',ru:'lyubov',zh:'ai',ja:'ai',ht:'lanmou'}},
-    ]
-  },
-  temps_calendrier: {
-    fr:'Calendrier & Durée',en:'Calendar & Duration',es:'Calendario',ht:'Kalandriye',de:'Kalender',ru:'Kalendar',zh:'Rili',ja:'Karendaa',
-    icon:'📅',
-    words:[
-      {n:'lundi',t:{en:'monday',es:'lunes',de:'Montag',ru:'ponedelnik',zh:'xingqiyi',ja:'getsu-yobi',ht:'lendi'}},
-      {n:'mardi',t:{en:'tuesday',es:'martes',de:'Dienstag',ru:'vtornik',zh:'xingqier',ja:'ka-yobi',ht:'madi'}},
-      {n:'mercredi',t:{en:'wednesday',es:'miércoles',de:'Mittwoch',ru:'sreda',zh:'xingqisan',ja:'sui-yobi',ht:'mèkredi'}},
-      {n:'jeudi',t:{en:'thursday',es:'jueves',de:'Donnerstag',ru:'chetverg',zh:'xingqisi',ja:'moku-yobi',ht:'jedi'}},
-      {n:'vendredi',t:{en:'friday',es:'viernes',de:'Freitag',ru:'pyatnitsa',zh:'xingqiwu',ja:'kin-yobi',ht:'vandredi'}},
-      {n:'samedi',t:{en:'saturday',es:'sábado',de:'Samstag',ru:'subbota',zh:'xingqili',ja:'do-yobi',ht:'samdi'}},
-      {n:'dimanche',t:{en:'sunday',es:'domingo',de:'Sonntag',ru:'voskresenye',zh:'xingqiri',ja:'nichi-yobi',ht:'dimanch'}},
-      {n:'semaine',t:{en:'week',es:'semana',de:'Woche',ru:'nedelya',zh:'xingqi',ja:'shu',ht:'semèn'}},
-      {n:'mois',t:{en:'month',es:'mes',de:'Monat',ru:'mesyats',zh:'yue',ja:'tsuki',ht:'mwa'}},
-      {n:'année',t:{en:'year',es:'año',de:'Jahr',ru:'god',zh:'nian',ja:'toshi',ht:'ane'}},
-      {n:'saison',t:{en:'season',es:'estación',de:'Jahreszeit',ru:'sezon',zh:'jijie',ja:'kiseitsu',ht:'sezon'}},
-      {n:'printemps',t:{en:'spring',es:'primavera',de:'Frühling',ru:'vesna',zh:'chuntian',ja:'haru',ht:'prentan'}},
-      {n:'été',t:{en:'summer',es:'verano',de:'Sommer',ru:'leto',zh:'xiatian',ja:'natsu',ht:'ete'}},
-      {n:'automne',t:{en:'autumn',es:'otoño',de:'Herbst',ru:'osen',zh:'qiutian',ja:'aki',ht:'otòn'}},
-      {n:'hiver',t:{en:'winter',es:'invierno',de:'Winter',ru:'zima',zh:'dongtian',ja:'fuyu',ht:'ivè'}},
-    ]
-  },
-  actions_quotidiennes: {
-    fr:'Vie Quotidienne',en:'Daily Life',es:'Vida cotidiana',ht:'Lavi chak jou',de:'Alltag',ru:'Povsednevnaya zhizn',zh:'Meiri shenghuo',ja:'Nichijo seikatsu',
-    icon:'🌅',
-    words:[
-      {n:'petit-déjeuner',t:{en:'breakfast',es:'desayuno',de:'Frühstück',ru:'zavtrak',zh:'zaocan',ja:'choshoku',ht:'dejene'}},
-      {n:'déjeuner',t:{en:'lunch',es:'almuerzo',de:'Mittagessen',ru:'obed',zh:'wucan',ja:'chushoku',ht:'dine'}},
-      {n:'dîner',t:{en:'dinner',es:'cena',de:'Abendessen',ru:'uzhin',zh:'wancan',ja:'yushoku',ht:'soupe'}},
-      {n:'douche',t:{en:'shower',es:'ducha',de:'Dusche',ru:'dush',zh:'linyu',ja:'shawa',ht:'douch'}},
-      {n:'sieste',t:{en:'nap',es:'siesta',de:'Nickerchen',ru:'son',zh:'wushui',ja:'hirune',ht:'syès'}},
-      {n:'repos',t:{en:'rest',es:'descanso',de:'Ruhe',ru:'otdykh',zh:'xiuxi',ja:'kyusei',ht:'repo'}},
-      {n:'travail',t:{en:'work',es:'trabajo',de:'Arbeit',ru:'rabota',zh:'gongzuo',ja:'shigoto',ht:'travay'}},
-      {n:'ménage',t:{en:'housework',es:'limpieza',de:'Haushalt',ru:'uborka',zh:'jiwu',ja:'kaji',ht:'menaj'}},
-      {n:'courses',t:{en:'shopping',es:'compras',de:'Einkaufen',ru:'pokupki',zh:'gouwu',ja:'kaimono',ht:'makèt'}},
-      {n:'rendez-vous',t:{en:'appointment',es:'cita',de:'Termin',ru:'vstrecha',zh:'yuehui',ja:'yoyaku',ht:'randevou'}},
-      {n:'sport',t:{en:'exercise',es:'ejercicio',de:'Sport',ru:'uprazhnenie',zh:'yundong',ja:'undo',ht:'espò'}},
-      {n:'lecture',t:{en:'reading',es:'lectura',de:'Lesen',ru:'chtenie',zh:'yuedu',ja:'dokusho',ht:'lektir'}},
-      {n:'cuisine',t:{en:'cooking',es:'cocina',de:'Kochen',ru:'gotovka',zh:'pengren',ja:'ryori',ht:'kizin'}},
-      {n:'promenade',t:{en:'walk',es:'paseo',de:'Spaziergang',ru:'progulka',zh:'sanbu',ja:'sanpo',ht:'pwonmennen'}},
-      {n:'sommeil',t:{en:'sleep',es:'sueño',de:'Schlaf',ru:'son',zh:'shuimian',ja:'suimin',ht:'dòmi'}},
-    ]
-  },
-  salle_de_bain: {
-    fr:'Salle de bain',en:'Bathroom',es:'Baño',ht:'Saly de ben',de:'Badezimmer',ru:'Vannaya',zh:'Yu shi',ja:'Basurumu',
-    icon:'🧼',
-    words:[
-      {n:'savon',t:{en:'soap',es:'jabón',de:'Seife',ru:'mylo',zh:'xiangzao',ja:'sekken',ht:'savon'}},
-      {n:'serviette',t:{en:'towel',es:'toalla',de:'Handtuch',ru:'polotentse',zh:'maojin',ja:'taoru',ht:'sèvyèt'}},
-      {n:'brosse à dents',t:{en:'toothbrush',es:'cepillo de dientes',de:'Zahnbürste',ru:'zubnaya shchetka',zh:'yashua',ja:'haburashi',ht:'bwòs dan'}},
-      {n:'dentifrice',t:{en:'toothpaste',es:'pasta de dientes',de:'Zahnpasta',ru:'zubnaya pasta',zh:'yagao',ja:'nerihamigaki',ht:'patdan'}},
-      {n:'peigne',t:{en:'comb',es:'peine',de:'Kamm',ru:'rascheska',zh:'shuzi',ja:'kushi',ht:'pent'}},
-      {n:'miroir',t:{en:'mirror',es:'espejo',de:'Spiegel',ru:'zerkalo',zh:'jingzi',ja:'kagami',ht:'miwa'}},
-      {n:'shampoing',t:{en:'shampoo',es:'champú',de:'Shampoo',ru:'shampun',zh:'xifalu',ja:'shanpu',ht:'chanpou'}},
-      {n:'rasoir',t:{en:'razor',es:'maquinilla',de:'Rasierer',ru:'britva',zh:'tizhidao',ja:'kamisori',ht:'razywa'}},
-      {n:'parfum',t:{en:'perfume',es:'perfume',de:'Parfüm',ru:'duki',zh:'xiangshui',ja:'kosui',ht:'pafen'}},
-      {n:'papier toilette',t:{en:'toilet paper',es:'papel higiénico',de:'Toilettenpapier',ru:'tualetnaya bumaga',zh:'weishengzhi',ja:'toirettopepa',ht:'papye ijenik'}},
-      {n:'baignoire',t:{en:'bathtub',es:'bañera',de:'Badewanne',ru:'vanna',zh:'yugang',ja:'yubune',ht:'benwa'}},
-      {n:'robinet',t:{en:'tap',es:'grifo',de:'Wasserhahn',ru:'kran',zh:'shuilongtou',ja:'jaguchi',ht:'robinè'}},
-      {n:'maquillage',t:{en:'makeup',es:'maquillaje',de:'Make-up',ru:'makiyazh',zh:'huazhuang',ja:'kesho',ht:'makiyaj'}},
-      {n:'crème',t:{en:'cream',es:'crema',de:'Creme',ru:'krem',zh:'mianshuang',ja:'kurimu',ht:'krèm'}},
-      {n:'douche',t:{en:'shower',es:'ducha',de:'Dusche',ru:'dush',zh:'linyu',ja:'shawa',ht:'douch'}},
-    ]
-  },
-  communication: {
-    fr:'Communication',en:'Communication',es:'Comunicación',ht:'Kominikasyon',de:'Kommunikation',ru:'Svyaz',zh:'Goutong',ja:'Komyunikeshon',
-    icon:'📱',
-    words:[
-      {n:'téléphone',t:{en:'phone',es:'teléfono',de:'Telefon',ru:'telefon',zh:'dianhua',ja:'denwa',ht:'telefòn'}},
-      {n:'lettre',t:{en:'letter',es:'carta',de:'Brief',ru:'pismo',zh:'xin',ja:'tegami',ht:'lèt'}},
-      {n:'email',t:{en:'email',es:'correo',de:'E-Mail',ru:'elektronnaya pochta',zh:'youjian',ja:'meru',ht:'imèl'}},
-      {n:'réseau',t:{en:'network',es:'red',de:'Netzwerk',ru:'set',zh:'wangluo',ja:'nettowaku',ht:'rezo'}},
-      {n:'nouvelles',t:{en:'news',es:'noticias',de:'Nachrichten',ru:'novosti',zh:'xinwen',ja:'nyusu',ht:'nouvèl'}},
-      {n:'langue',t:{en:'language',es:'idioma',de:'Sprache',ru:'yazyk',zh:'yuyan',ja:'gengo',ht:'lang'}},
-      {n:'voix',t:{en:'voice',es:'voz',de:'Stimme',ru:'golos',zh:'shengyin',ja:'koē',ht:'vwa'}},
-      {n:'mot',t:{en:'word',es:'palabra',de:'Wort',ru:'slovo',zh:'zi',ja:'kotoba',ht:'mo'}},
-      {n:'phrase',t:{en:'sentence',es:'frase',de:'Satz',ru:'predlozhenie',zh:'juzi',ja:'bun',ht:'fraz'}},
-      {n:'radio',t:{en:'radio',es:'radio',de:'Radio',ru:'radio',zh:'shouyinji',ja:'rajio',ht:'radyo'}},
-      {n:'télévision',t:{en:'television',es:'televisión',de:'Fernsehen',ru:'televidenie',zh:'dianshi',ja:'terebi',ht:'televizyon'}},
-      {n:'journal',t:{en:'newspaper',es:'periódico',de:'Zeitung',ru:'gazeta',zh:'baozhi',ja:'shinbun',ht:'jounal'}},
-      {n:'internet',t:{en:'internet',es:'internet',de:'Internet',ru:'internet',zh:'hulianwang',ja:'intanetto',ht:'entènèt'}},
-      {n:'opinion',t:{en:'opinion',es:'opinión',de:'Meinung',ru:'mnenie',zh:'yijian',ja:'iken',ht:'opinyon'}},
-      {n:'vérité',t:{en:'truth',es:'verdad',de:'Wahrheit',ru:'pravda',zh:'zhenxiang',ja:'shinjitsu',ht:'verite'}},
-    ]
-  },
-  outils_mesure: {
-    fr:'Mesures',en:'Measurements',es:'Medidas',ht:'Mezi',de:'Maße',ru:'Izmereniya',zh:'Ce lian',ja:'Sokutei',
-    icon:'📏',
-    words:[
-      {n:'poids',t:{en:'weight',es:'peso',de:'Gewicht',ru:'ves',zh:'zhongliang',ja:'jūmyō',ht:'pwa'}},
-      {n:'taille',t:{en:'size',es:'tamaño',de:'Größe',ru:'razmer',zh:'chicun',ja:'saizu',ht:'gwosè'}},
-      {n:'distance',t:{en:'distance',es:'distancia',de:'Entfernung',ru:'rasstoyanie',zh:'juli',ja:'kyori',ht:'distans'}},
-      {n:'hauteur',t:{en:'height',es:'altura',de:'Höhe',ru:'vysota',zh:'gaodu',ja:'takasa',ht:'wotè'}},
-      {n:'vitesse',t:{en:'speed',es:'velocidad',de:'Geschwindigkeit',ru:'skorost',zh:'sudu',ja:'sokudo',ht:'vitès'}},
-      {n:'température',t:{en:'temperature',es:'temperatura',de:'Temperatur',ru:'temperatura',zh:'wendu',ja:'on-do',ht:'tanperati'}},
-      {n:'profondeur',t:{en:'depth',es:'profundidad',de:'Tiefe',ru:'glubina',zh:'shendu',ja:'fukasa',ht:'pwofondè'}},
-      {n:'largeur',t:{en:'width',es:'ancho',de:'Breite',ru:'shirina',zh:'kuandu',ja:'haba',ht:'lajè'}},
-      {n:'volume',t:{en:'volume',es:'volumen',de:'Volumen',ru:'obyom',zh:'tiji',ja:'yoseki',ht:'volim'}},
-      {n:'temps',t:{en:'time',es:'tiempo',de:'Zeit',ru:'vremya',zh:'shijian',ja:'jikan',ht:'tan'}},
-      {n:'angle',t:{en:'angle',es:'ángulo',de:'Winkel',ru:'ugol',zh:'jiaodu',ja:'kaku',ht:'ang'}},
-      {n:'surface',t:{en:'area',es:'superficie',de:'Fläche',ru:'ploshchad',zh:'mianji',ja:'menseki',ht:'sirfas'}},
-      {n:'balance',t:{en:'scale',es:'balanza',de:'Waage',ru:'vesy',zh:'cheng',ja:'hakari',ht:'balans'}},
-      {n:'règle',t:{en:'ruler',es:'regla',de:'Lineal',ru:'lineyka',zh:'chi',ja:'jōgi',ht:'règ'}},
-      {n:'thermomètre',t:{en:'thermometer',es:'termómetro',de:'Thermometer',ru:'termometr',zh:'wenduji',ja:'ongokey',ht:'tèmomèt'}},
-    ]
-  },
-  besoins_sensations: {
-    fr:'Besoins & Sensations',en:'Needs & Feelings',es:'Necesidades',ht:'Bezwen',de:'Bedürfnisse',ru:'Potrebnosti',zh:'Xu yao',ja:'Nizu',
-    icon:'🧘',
-    words:[
-      {n:'faim',t:{en:'hunger',es:'hambre',de:'Hunger',ru:'golod',zh:'jie',ja:'kufuku',ht:'grangou'}},
-      {n:'soif',t:{en:'thirst',es:'sed',de:'Durst',ru:'zhazhda',zh:'kouke',ja:'nodo no kawaki',ht:'swaf'}},
-      {n:'fatigue',t:{en:'fatigue',es:'fatiga',de:'Müdigkeit',ru:'ustalost',zh:'pilao',ja:'tsukare',ht:'fatig'}},
-      {n:'énergie',t:{en:'energy',es:'energía',de:'Energie',ru:'energiya',zh:'nengyuan',ja:'enerugi',ht:'enèji'}},
-      {n:'santé',t:{en:'health',es:'salud',de:'Gesundheit',ru:'zdorovye',zh:'jiankang',ja:'kenko',ht:'sante'}},
-      {n:'sécurité',t:{en:'safety',es:'seguridad',de:'Sicherheit',ru:'bezopasnost',zh:'anquan',ja:'anzen',ht:'sekirite'}},
-      {n:'confort',t:{en:'comfort',es:'comodidad',de:'Komfort',ru:'komfort',zh:'shushi',ja:'kaiteki',ht:'konfò'}},
-      {n:'liberté',t:{en:'freedom',es:'libertad',de:'Freiheit',ru:'svoboda',zh:'ziyou',ja:'jiyu',ht:'libète'}},
-      {n:'paix',t:{en:'peace',es:'paz',de:'Frieden',ru:'mir',zh:'heping',ja:'heiwa',ht:'lapè'}},
-      {n:'force',t:{en:'strength',es:'fuerza',de:'Kraft',ru:'sila',zh:'liliang',ja:'chikara',ht:'fòs'}},
-      {n:'faiblesse',t:{en:'weakness',es:'debilidad',de:'Schwäche',ru:'slabost',zh:'ruodian',ja:'yowami',ht:'feblès'}},
-      {n:'plaisir',t:{en:'pleasure',es:'placer',de:'Vergnügen',ru:'udovolstvie',zh:'kuaile',ja:'yorokobi',ht:'plezi'}},
-      {n:'patience',t:{en:'patience',es:'paciencia',de:'Geduld',ru:'terpenie',zh:'naixin',ja:'ninkai',ht:'pasyans'}},
-      {n:'sommeil',t:{en:'sleep',es:'sueño',de:'Schlaf',ru:'son',zh:'shuimian',ja:'suimin',ht:'dòmi'}},
-      {n:'air',t:{en:'air',es:'aire',de:'Luft',ru:'vozdukh',zh:'kongqi',ja:'kuki',ht:'lè'}},
-    ]
-  },
-  electronique_tech: {
-    fr:'Électronique',en:'Electronics',es:'Electrónica',ht:'Elektwonik',de:'Elektronik',ru:'Elektronika',zh:'Dianzi',ja:'Denshi',
-    icon:'🔌',
-    words:[
-      {n:'courant',t:{en:'current',es:'corriente',de:'Strom',ru:'tok',zh:'dianliu',ja:'denryu',ht:'kouran'}},
-      {n:'fil',t:{en:'wire',es:'cable',de:'Draht',ru:'provod',zh:'dianxian',ja:'densen',ht:'fil'}},
-      {n:'puce',t:{en:'chip',es:'chip',de:'Chip',ru:'chip',zh:'xinpian',ja:'chippu',ht:'chip'}},
-      {n:'capteur',t:{en:'sensor',es:'sensor',de:'Sensor',ru:'datchik',zh:'chuanganqi',ja:'sensa',ht:'kaptè'}},
-      {n:'écran',t:{en:'screen',es:'screen',de:'Bildschirm',ru:'ekran',zh:'pingmu',ja:'gamen',ht:'ekran'}},
-      {n:'bouton',t:{en:'button',es:'botón',de:'Knopf',ru:'knopka',zh:'anniu',ja:'botan',ht:'bouton'}},
-      {n:'lampe',t:{en:'lamp',es:'lámpara',de:'Lampe',ru:'lampa',zh:'deng',ja:'ranpu',ht:'lanp'}},
-      {n:'chargeur',t:{en:'charger',es:'cargador',de:'Ladegerät',ru:'zaryadka',zh:'chongdianqi',ja:'jūdenki',ht:'chajè'}},
-      {n:'données',t:{en:'data',es:'datos',de:'Daten',ru:'dannye',zh:'shuju',ja:'dēta',ht:'done'}},
-      {n:'mémoire',t:{en:'memory',es:'memoria',de:'Speicher',ru:'pamyat',zh:'neicun',ja:'memori',ht:'memwa'}},
-      {n:'signal',t:{en:'signal',es:'señal',de:'Signal',ru:'signal',zh:'xinhao',ja:'shingo',ht:'sinyal'}},
-      {n:'pile',t:{en:'battery',es:'pila',de:'Batterie',ru:'batareyka',zh:'dianchi',ja:'denchi',ht:'pil'}},
-      {n:'prise',t:{en:'socket',es:'enchufe',de:'Steckdose',ru:'rozetka',zh:'chazuo',ja:'konseto',ht:'priz'}},
-      {n:'onde',t:{en:'wave',es:'onda',de:'Welle',ru:'volna',zh:'bo',ja:'nami',ht:'onn'}},
-      {n:'code',t:{en:'code',es:'código',de:'Code',ru:'kod',zh:'daima',ja:'kodo',ht:'kòd'}},
-    ]
-  },
-  concepts_abstraits: {
-    fr:'Concepts Abstraits',en:'Abstract Concepts',es:'Conceptos abstr.',ht:'Konsèp abstrè',de:'Abstrakte Konzepte',ru:'Ponyatiya',zh:'Gainian',ja:'Gainen',
-    icon:'🧩',
-    words:[
-      {n:'idée',t:{en:'idea',es:'idea',de:'Idee',ru:'ideya',zh:'yidie',ja:'aidea',ht:'ide'}},
-      {n:'temps',t:{en:'time',es:'tiempo',de:'Zeit',ru:'vremya',zh:'shijian',ja:'jikan',ht:'tan'}},
-      {n:'raison',t:{en:'reason',es:'razón',de:'Grund',ru:'prichina',zh:'yuanyin',ja:'riyu',ht:'rezon'}},
-      {n:'liberté',t:{en:'freedom',es:'libertad',de:'Freiheit',ru:'svoboda',zh:'ziyou',ja:'jiyu',ht:'libète'}},
-      {n:'justice',t:{en:'justice',es:'justicia',de:'Gerechtigkeit',ru:'spravedlivost',zh:'zhengyi',ja:'seigi',ht:'jistis'}},
-      {n:'vérité',t:{en:'truth',es:'verdad',de:'Wahrheit',ru:'pravda',zh:'zhenxiang',ja:'shinjitsu',ht:'verite'}},
-      {n:'paix',t:{en:'peace',es:'paz',de:'Frieden',ru:'mir',zh:'heping',ja:'heiwa',ht:'lapè'}},
-      {n:'destin',t:{en:'fate',es:'destino',de:'Schicksal',ru:'sudba',zh:'mingyun',ja:'unmei',ht:'desten'}},
-      {n:'âme',t:{en:'soul',es:'alma',de:'Seele',ru:'dusha',zh:'linghun',ja:'tamashii',ht:'nanm'}},
-      {n:'esprit',t:{en:'mind',es:'mente',de:'Geist',ru:'razum',zh:'jingshen',ja:'seishin',ht:'lespri'}},
-      {n:'force',t:{en:'force',es:'fuerza',de:'Kraft',ru:'sila',zh:'liliang',ja:'chikara',ht:'fòs'}},
-      {n:'beauté',t:{en:'beauty',es:'belleza',de:'Schönheit',ru:'krasota',zh:'meili',ja:'utsukushisa',ht:'bote'}},
-      {n:'mort',t:{en:'death',es:'muerte',de:'Tod',ru:'smert',zh:'siwang',ja:'shi',ht:'lanmò'}},
-      {n:'vie',t:{en:'life',es:'vida',de:'Leben',ru:'zhizn',zh:'shenghuo',ja:'seimei',ht:'lavi'}},
-      {n:'choix',t:{en:'choice',es:'opción',de:'Wahl',ru:'vybor',zh:'xuanze',ja:'sentaku',ht:'chwa'}},
-    ]
-  },
-  justice_droit: {
-    fr:'Justice & Droit',en:'Law & Justice',es:'Derecho',ht:'Lwa ak Jistis',de:'Recht',ru:'Pravo',zh:'Falv',ja:'Horitsu',
-    icon:'⚖️',
-    words:[
-      {n:'loi',t:{en:'law',es:'ley',de:'Gesetz',ru:'zakon',zh:'falv',ja:'horitsu',ht:'lwa'}},
-      {n:'juge',t:{en:'judge',es:'juez',de:'Richter',ru:'sudya',zh:'faguan',ja:'saibankan',ht:'jij'}},
-      {n:'prison',t:{en:'prison',es:'prisión',de:'Gefängnis',ru:'tyurma',zh:'jianyuan',ja:'keimusho',ht:'prizon'}},
-      {n:'crime',t:{en:'crime',es:'crimen',de:'Verbrechen',ru:'prestuplenie',zh:'zuixing',ja:'hanzai',ht:'krim'}},
-      {n:'droit',t:{en:'right',es:'derecho',de:'Recht',ru:'pravo',zh:'quanli',ja:'kenri',ht:'dwa'}},
-      {n:'preuve',t:{en:'proof',es:'prueba',de:'Beweis',ru:'dokazatelstvo',zh:'zhengju',ja:'shoko',ht:'prèv'}},
-      {n:'contrat',t:{en:'contract',es:'contrato',de:'Vertrag',ru:'kontrakt',zh:'hetong',ja:'keiyaku',ht:'kontra'}},
-      {n:'témoin',t:{en:'witness',es:'testigo',de:'Zeuge',ru:'svidetel',zh:'zhengren',ja:'shōnin',ht:'temwen'}},
-      {n:'amende',t:{en:'fine',es:'multa',de:'Bußgeld',ru:'shtraf',zh:'fakuan',ja:'bakkin',ht:'amann'}},
-      {n:'règle',t:{en:'rule',es:'regla',de:'Regel',ru:'pravilo',zh:'guize',ja:'kisoku',ht:'règ'}},
-      {n:'ordre',t:{en:'order',es:'orden',de:'Ordnung',ru:'poryadok',zh:'zhixu',ja:'chitsujo',ht:'lòd'}},
-      {n:'coupable',t:{en:'guilty',es:'culpable',de:'schuldig',ru:'vinovnyy',zh:'youzui',ja:'yuzai',ht:'moun ki koupab'}},
-      {n:'innocent',t:{en:'innocent',es:'inocente',de:'unschuldig',ru:'nevinovnyy',zh:'wuzui',ja:'muzai',ht:'inosan'}},
-      {n:'police',t:{en:'police',es:'policía',de:'Polizei',ru:'politsiya',zh:'jingcha',ja:'keisatsu',ht:'polis'}},
-      {n:'avocat',t:{en:'lawyer',es:'abogado',de:'Anwalt',ru:'advokat',zh:'lvshi',ja:'bengoshi',ht:'avoka'}},
-    ]
-  },
-  matieres_textures: {
-    fr:'Matières & Textures',en:'Materials',es:'Materiales',ht:'Matyè',de:'Materialien',ru:'Materialy',zh:'Cailiao',ja:'Zairyo',
-    icon:'🧱',
-    words:[
-      {n:'pierre',t:{en:'stone',es:'piedra',de:'Stein',ru:'kamen',zh:'shitou',ja:'ishi',ht:'wòch'}},
-      {n:'bois',t:{en:'wood',es:'madera',de:'Holz',ru:'derevo',zh:'mu tou',ja:'ki',ht:'bwa'}},
-      {n:'métal',t:{en:'metal',es:'metal',de:'Metall',ru:'metall',zh:'jinshu',ja:'kinzoku',ht:'metal'}},
-      {n:'plastique',t:{en:'plastic',es:'plástico',de:'Plastik',ru:'plastik',zh:'suliao',ja:'purasuchikku',ht:'plastik'}},
-      {n:'verre',t:{en:'glass',es:'vidrio',de:'Glas',ru:'steklo',zh:'boli',ja:'garasu',ht:'vè'}},
-      {n:'tissu',t:{en:'fabric',es:'tela',de:'Stoff',ru:'tkan',zh:'bu',ja:'nuno',ht:'tisi'}},
-      {n:'cuir',t:{en:'leather',es:'cuero',de:'Leder',ru:'kozha',zh:'pige',ja:'kawa',ht:'kwi'}},
-      {n:'papier',t:{en:'paper',es:'papel',de:'Papier',ru:'bumaga',zh:'zhi',ja:'kami',ht:'papye'}},
-      {n:'souple',t:{en:'flexible',es:'flexible',de:'flexibel',ru:'gibkiy',zh:'rouruan',ja:'yuunantsu',ht:'mou'}},
-      {n:'dur',t:{en:'hard',es:'duro',de:'hart',ru:'tverdyy',zh:'ying',ja:'katai',ht:'di'}},
-      {n:'lisse',t:{en:'smooth',es:'liso',de:'glatt',ru:'gladkiy',zh:'guanghua',ja:'nameraka',ht:'lis'}},
-      {n:'rugueux',t:{en:'rough',es:'rugoso',de:'rau',ru:'sherokhovatyy',zh:'caocao',ja:'zara-zara',ht:'rèch'}},
-      {n:'mouillé',t:{en:'wet',es:'mojado',de:'nass',ru:'mokryy',zh:'shi',ja:'nureta',ht:'mouye'}},
-      {n:'sec',t:{en:'dry',es:'seco',de:'trocken',ru:'sukhoy',zh:'gan',ja:'kawaita',ht:'sèk'}},
-      {n:'poussière',t:{en:'dust',es:'polvo',de:'Staub',ru:'pyl',zh:'huichen',ja:'hokori',ht:'pousyè'}},
-    ]
-  },
-  geographie_monde: {
-    fr:'Monde et Espace',en:'World & Space',es:'Mundo y Espacio',ht:'Mond ak Espas',de:'Welt und Weltraum',ru:'Mir i Kosmos',zh:'Shijie yu Yuzhou',ja:'Sekai to Uchu',
-    icon:'🌍',
-    words:[
-      {n:'pays',t:{en:'country',es:'país',de:'Land',ru:'strana',zh:'guojia',ja:'kuni',ht:'peyi'}},
-      {n:'continent',t:{en:'continent',es:'continente',de:'Kontinent',ru:'kontinent',zh:'dalu',ja:'tairiku',ht:'kontinan'}},
-      {n:'île',t:{en:'island',es:'isla',de:'Insel',ru:'ostrov',zh:'dao',ja:'shima',ht:'ile'}},
-      {n:'océan',t:{en:'ocean',es:'océano',de:'Ozean',ru:'okean',zh:'haiyang',ja:'yo',ht:'oseyan'}},
-      {n:'désert',t:{en:'desert',es:'desierto',de:'Wüste',ru:'pustynya',zh:'shamo',ja:'sabaku',ht:'dezè'}},
-      {n:'planète',t:{en:'planet',es:'planeta',de:'Planet',ru:'planeta',zh:'xingxing',ja:'wakusei',ht:'planèt'}},
-      {n:'univers',t:{en:'universe',es:'universo',de:'Universum',ru:'vselennaya',zh:'yuzhou',ja:'uchu',ht:'univè'}},
-      {n:'frontière',t:{en:'border',es:'frontera',de:'Grenze',ru:'granitsa',zh:'bianjie',ja:'kokkyo',ht:'fontyè'}},
-      {n:'capitale',t:{en:'capital',es:'capital',de:'Hauptstadt',ru:'stolitsa',zh:'shoudu',ja:'shuto',ht:'kapital'}},
-      {n:'volcan',t:{en:'volcano',es:'volcán',de:'Vulkan',ru:'vulkan',zh:'huoshan',ja:'kazan',ht:'vòlkan'}},
-      {n:'glacier',t:{en:'glacier',es:'glaciar',de:'Gletscher',ru:'lednik',zh:'bingchuan',ja:'hyoga',ht:'glasye'}},
-      {n:'forêt',t:{en:'jungle',es:'selva',de:'Dschungel',ru:'dzhungli',zh:'conglin',ja:'janguru',ht:'jonp'}},
-      {n:'vallée',t:{en:'valley',es:'valle',de:'Tal',ru:'dolina',zh:'shangu',ja:'tani',ht:'valè'}},
-      {n:'espace',t:{en:'space',es:'espacio',de:'Weltraum',ru:'kosmos',zh:'taikong',ja:'uchu',ht:'espas'}},
-      {n:'atmosphère',t:{en:'atmosphere',es:'atmósfera',de:'Atmosphäre',ru:'atmosfera',zh:'daqiceng',ja:'taiki',ht:'atmosfè'}},
-    ]
-  },
-  pensee_analyse: {
-    fr:'Pensée et Analyse',en:'Thought & Analysis',es:'Pensamiento',ht:'Panse ak Analiz',de:'Denken',ru:'Myshlenie',zh:'Siwei',ja:'Shiko',
-    icon:'🧐',
-    words:[
-      {n:'logique',t:{en:'logic',es:'lógica',de:'Logik',ru:'logika',zh:'luoji',ja:'ronri',ht:'lojik'}},
-      {n:'méthode',t:{en:'method',es:'método',de:'Methode',ru:'metod',zh:'fangfa',ja:'hoho',ht:'metòd'}},
-      {n:'preuve',t:{en:'evidence',es:'evidencia',de:'Beweis',ru:'dokazatelstvo',zh:'zhengju',ja:'shoko',ht:'prèv'}},
-      {n:'doute',t:{en:'doubt',es:'duda',de:'Zweifel',ru:'somnenie',zh:'huaiyi',ja:'gimen',ht:'dout'}},
-      {n:'opinion',t:{en:'opinion',es:'opinión',de:'Meinung',ru:'mnenie',zh:'yijian',ja:'iken',ht:'opinyon'}},
-      {n:'système',t:{en:'system',es:'sistema',de:'System',ru:'sistema',zh:'xitong',ja:'shisutemu',ht:'sistèm'}},
-      {n:'structure',t:{en:'structure',es:'estructura',de:'Struktur',ru:'struktura',zh:'jiegou',ja:'kozo',ht:'strikti'}},
-      {n:'théorie',t:{en:'theory',es:'teoría',de:'Theorie',ru:'teoriya',zh:'lilun',ja:'riron',ht:'teori'}},
-      {n:'réalité',t:{en:'reality',es:'reality',de:'Realität',ru:'realnost',zh:'xianshi',ja:'genjitsu',ht:'reyalite'}},
-      {n:'problème',t:{en:'problem',es:'problema',de:'Problem',ru:'problema',zh:'wenti',ja:'mondai',ht:'pwoblèm'}},
-      {n:'solution',t:{en:'solution',es:'solución',de:'Lösung',ru:'reshenie',zh:'juefang',ja:'kaiketsu',ht:'solisyon'}},
-      {n:'contexte',t:{en:'context',es:'contexto',de:'Kontext',ru:'kontekst',zh:'yu-jing',ja:'bunryaku',ht:'konteks'}},
-      {n:'détail',t:{en:'detail',es:'detalle',de:'Detail',ru:'detal',zh:'xijie',ja:'shosai',ht:'detay'}},
-      {n:'exemple',t:{en:'example',es:'ejemplo',de:'Beispiel',ru:'primer',zh:'lizi',ja:'rei',ht:'egzanp'}},
-      {n:'idée',t:{en:'idea',es:'idea',de:'Idee',ru:'ideya',zh:'zhuyi',ja:'aidea',ht:'ide'}},
-    ]
-  },
-  commerce_finance: {
-    fr:'Commerce et Finance',en:'Trade & Finance',es:'Finanzas',ht:'Komès ak Finans',de:'Finanzen',ru:'Finansy',zh:'Jinrong',ja:'Kinyu',
-    icon:'💰',
-    words:[
-      {n:'argent',t:{en:'money',es:'dinero',de:'Geld',ru:'dengi',zh:'qian',ja:'okane',ht:'lajan'}},
-      {n:'prix',t:{en:'price',es:'precio',de:'Preis',ru:'tsena',zh:'jiage',ja:'kakaku',ht:'pri'}},
-      {n:'achat',t:{en:'purchase',es:'compra',de:'Kauf',ru:'pokupka',zh:'goumai',ja:'konyu',ht:'acha'}},
-      {n:'vente',t:{en:'sale',es:'venta',de:'Verkauf',ru:'prodazha',zh:'xiaoshou',ja:'hanbai',ht:'lavant'}},
-      {n:'marché',t:{en:'market',es:'mercado',de:'Markt',ru:'rynok',zh:'shichang',ja:'ichiba',ht:'mache'}},
-      {n:'banque',t:{en:'bank',es:'banco',de:'Bank',ru:'bank',zh:'yinhang',ja:'ginko',ht:'bank'}},
-      {n:'carte',t:{en:'card',es:'tarjeta',de:'Karte',ru:'karta',zh:'ka',ja:'kado',ht:'kat'}},
-      {n:'dette',t:{en:'debt',es:'deuda',de:'Schulden',ru:'dolg',zh:'zhaiwu',ja:'shakkin',ht:'dèt'}},
-      {n:'investissement',t:{en:'investment',es:'inversión',de:'Investition',ru:'investitsiya',zh:'touzi',ja:'toshi',ht:'envestisman'}},
-      {n:'profit',t:{en:'profit',es:'ganancia',de:'Gewinn',ru:'pribyl',zh:'lirun',ja:'rieku',ht:'pwofi'}},
-      {n:'économie',t:{en:'economy',es:'economía',de:'Wirtschaft',ru:'ekonomika',zh:'jingji',ja:'keizai',ht:'ekonomi'}},
-      {n:'impôt',t:{en:'tax',es:'impuesto',de:'Steuer',ru:'nalog',zh:'shui',ja:'zei',ht:'tak'}},
-      {n:'salaire',t:{en:'salary',es:'salario',de:'Gehalt',ru:'zarplata',zh:'xinshui',ja:'kyuryo',ht:'salè'}},
-      {n:'client',t:{en:'customer',es:'cliente',de:'Kunde',ru:'klient',zh:'kehu',ja:'kyaku',ht:'kliyan'}},
-      {n:'contrat',t:{en:'contract',es:'contrato',de:'Vertrag',ru:'kontrakt',zh:'hetong',ja:'keiyaku',ht:'kontra'}},
-    ]
-  },
-  corps_humain_interne: {
-    fr:'Corps (Interne)',en:'Body (Internal)',es:'Cuerpo interno',ht:'Kò (Andan)',de:'Körper (Intern)',ru:'Vnutrennie organy',zh:'Shenti neibu',ja:'Karada no naibu',
-    icon:'🫀',
-    words:[
-      {n:'cœur',t:{en:'heart',es:'corazón',de:'Herz',ru:'serdtse',zh:'xinzang',ja:'shinzo',ht:'kè'}},
-      {n:'cerveau',t:{en:'brain',es:'cerebro',de:'Gehirn',ru:'mozg',zh:'danǎo',ja:'no',ht:'sèvo'}},
-      {n:'poumon',t:{en:'lung',es:'pulmón',de:'Lunge',ru:'legkoe',zh:'fei',ja:'hai',ht:'poumon'}},
-      {n:'estomac',t:{en:'stomach',es:'estómago',de:'Magen',ru:'zheludok',zh:'wei',ja:'i',ht:'lestomak'}},
-      {n:'os',t:{en:'bone',es:'hueso',de:'Knochen',ru:'kost',zh:'gu tou',ja:'hone',ht:'zo'}},
-      {n:'muscle',t:{en:'muscle',es:'músculo',de:'Muskel',ru:'myshtsa',zh:'jigou',ja:'kin-niku',ht:'misk'}},
-      {n:'sang',t:{en:'blood',es:'sangre',de:'Blut',ru:'krov',zh:'xie',ja:'chi',ht:'san'}},
-      {n:'nerf',t:{en:'nerve',es:'nervio',de:'Nerv',ru:'nerv',zh:'shenjing',ja:'shinkei',ht:'nèf'}},
-      {n:'peau',t:{en:'skin',es:'piel',de:'Haut',ru:'kozha',zh:'pifu',ja:'hifu',ht:'po'}},
-      {n:'gorge',t:{en:'throat',es:'garganta',de:'Hals',ru:'gorlo',zh:'houlong',ja:'nodo',ht:'gòj'}},
-      {n:'dent',t:{en:'tooth',es:'diente',de:'Zahn',ru:'zub',zh:'ya',ja:'ha',ht:'dan'}},
-      {n:'langue',t:{en:'tongue',es:'lengua',de:'Zunge',ru:'yazyk',zh:'she',ja:'shita',ht:'lang'}},
-      {n:'épaule',t:{en:'shoulder',es:'hombro',de:'Schulter',ru:'plecho',zh:'jiabang',ja:'kata',ht:'zepòl'}},
-      {n:'genou',t:{en:'knee',es:'rodilla',de:'Knie',ru:'koleno',zh:'xigai',ja:'hiza',ht:'jenou'}},
-      {n:'dos',t:{en:'back',es:'espalda',de:'Rücken',ru:'spina',zh:'bei',ja:'senaka',ht:'do'}},
-    ]
-  },
-  maison_details: {
-    fr:'Détails Maison',en:'House Details',es:'Detalles casa',ht:'Detay Kay',de:'Hausdetails',ru:'Detali doma',zh:'Fangzi xijie',ja:'Ie no shosai',
+  }
+};
+
+// =================================================================
+// PHRASES DATA
+// =================================================================
+var PHRASES_DATA = {
+  quotidien: {
+    fr:'Vie quotidienne', en:'Daily life', es:'Vida cotidiana', ht:'Lavi chak jou',
     icon:'🏠',
-    words:[
-      {n:'toit',t:{en:'roof',es:'techo',de:'Dach',ru:'krysha',zh:'wuding',ja:'yane',ht:'twati'}},
-      {n:'mur',t:{en:'wall',es:'pared',de:'Wand',ru:'stena',zh:'qiang',ja:'kabe',ht:'mir'}},
-      {n:'sol',t:{en:'floor',es:'suelo',de:'Boden',ru:'pol',zh:'diban',ja:'yuka',ht:'atè'}},
-      {n:'fenêtre',t:{en:'window',es:'ventana',de:'Fenster',ru:'okno',zh:'chuanghu',ja:'mado',ht:'fenèt'}},
-      {n:'porte',t:{en:'door',es:'puerta',de:'Tür',ru:'dver',zh:'men',ja:'doa',ht:'pòt'}},
-      {n:'escalier',t:{en:'stairs',es:'stairs',de:'Treppe',ru:'lestnitsa',zh:'lou-ti',ja:'kaidan',ht:'eskalyè'}},
-      {n:'couloir',t:{en:'hallway',es:'pasillo',de:'Flur',ru:'koridor',zh:'zoulang',ja:'roka',ht:'koulwa'}},
-      {n:'cuisine',t:{en:'kitchen',es:'cocina',de:'Küche',ru:'kukhnya',zh:'chufang',ja:'daidokoro',ht:'kizin'}},
-      {n:'chambre',t:{en:'bedroom',es:'dormitorio',de:'Schlafzimmer',ru:'spalnya',zh:'woshi',ja:'shinshitsu',ht:'chanm'}},
-      {n:'jardin',t:{en:'garden',es:'jardín',de:'Garten',ru:'sad',zh:'huayuan',ja:'niwa',ht:'jadin'}},
-      {n:'garage',t:{en:'garage',es:'garaje',de:'Garage',ru:'garazh',zh:'cheku',ja:'gareji',ht:'garaj'}},
-      {n:'cave',t:{en:'basement',es:'sótano',de:'Keller',ru:'podval',zh:'dixia shi',ja:'chikashitsu',ht:'kav'}},
-      {n:'cheminée',t:{en:'chimney',es:'chimenea',de:'Schornstein',ru:'dymokhod',zh:'yan-cong',ja:'entotsu',ht:'chemine'}},
-      {n:'serrure',t:{en:'lock',es:'cerradura',de:'Schloss',ru:'zamok',zh:'suo',ja:'kagi',ht:'seri'}},
-      {n:'clé',t:{en:'key',es:'key',de:'Schlüssel',ru:'klyuch',zh:'yaoshi',ja:'kagi',ht:'kle'}},
+    items: [
+      {n:'Je me réveille', t:{en:'I wake up', es:'Me despierto', ht:'Mwen reveye', de:'Ich wache auf', ru:'Я просыпаюсь', zh:'我醒来', ja:'起きる'}},
+      {n:'Je prends mon petit-déjeuner', t:{en:'I have breakfast', es:'Desayuno', ht:'Mwen pran dejene', de:'Ich frühstücke', ru:'Я завтракаю', zh:'我吃早餐', ja:'朝食をとる'}},
+      {n:'Je vais au travail', t:{en:'I go to work', es:'Voy al trabajo', ht:'Mwen ale nan travay', de:'Ich gehe zur Arbeit', ru:'Я иду на работу', zh:'我去上班', ja:'仕事に行く'}},
     ]
   },
-  societe_politique: {
-    fr:'Société',en:'Society',es:'Sociedad',ht:'Sosyete',de:'Gesellschaft',ru:'Obshchestvo',zh:'Shehui',ja:'Shakai',
-    icon:'🏛️',
-    words:[
-      {n:'peuple',t:{en:'people',es:'pueblo',de:'Volk',ru:'narod',zh:'renmin',ja:'jinmin',ht:'pèp'}},
-      {n:'gouvernement',t:{en:'government',es:'gobierno',de:'Regierung',ru:'pravitelstvo',zh:'zhengfu',ja:'seifu',ht:'gouvènman'}},
-      {n:'paix',t:{en:'peace',es:'paz',de:'Frieden',ru:'mir',zh:'heping',ja:'heiwa',ht:'lapè'}},
-      {n:'guerre',t:{en:'war',es:'guerra',de:'Krieg',ru:'voyna',zh:'zhanzheng',ja:'senso',ht:'lagè'}},
-      {n:'liberté',t:{en:'freedom',es:'libertad',de:'Freiheit',ru:'svoboda',zh:'ziyou',ja:'jiyu',ht:'libète'}},
-      {n:'loi',t:{en:'law',es:'ley',de:'Gesetz',ru:'zakon',zh:'falv',ja:'horitsu',ht:'lwa'}},
-      {n:'vote',t:{en:'vote',es:'voto',de:'Wahl',ru:'golos',zh:'tou-piao',ja:'tohyo',ht:'vòt'}},
-      {n:'droit',t:{en:'right',es:'derecho',de:'Recht',ru:'pravo',zh:'quanli',ja:'kenri',ht:'dwa'}},
-      {n:'histoire',t:{en:'history',es:'historia',de:'Geschichte',ru:'istoriya',zh:'lishi',ja:'rekishi',ht:'istwa'}},
-      {n:'culture',t:{en:'culture',es:'cultura',de:'Kultur',ru:'kultura',zh:'wenhua',ja:'bunka',ht:'kilti'}},
-      {n:'religion',t:{en:'religion',es:'religión',de:'Religion',ru:'religiya',zh:'zongjiao',ja:'shukyo',ht:'relijyon'}},
-      {n:'citoyen',t:{en:'citizen',es:'ciudadano',de:'Bürger',ru:'grazhdanin',zh:'gongmin',ja:'shimin',ht:'sitwayen'}},
-      {n:'pouvoir',t:{en:'power',es:'power',de:'Macht',ru:'vlast',zh:'quanli',ja:'kenryoku',ht:'pouvwa'}},
-      {n:'frontière',t:{en:'border',es:'frontera',de:'Grenze',ru:'granitsa',zh:'bianjie',ja:'kokkyo',ht:'fontyè'}},
-      {n:'nation',t:{en:'nation',es:'nación',de:'Nation',ru:'natsiya',zh:'minzu',ja:'kokka',ht:'nasyon'}},
-    ]
-  },
-  tech_informatique: {
-    fr:'Tech & Data',en:'Tech & Data',es:'Tecnología',ht:'Teknoloji',de:'Technologie',ru:'Tekhnologii',zh:'Jishu',ja:'Gijutsu',
-    icon:'💻',
-    words:[
-      {n:'ordinateur',t:{en:'computer',es:'computadora',de:'Computer',ru:'kompyuter',zh:'jisuanji',ja:'konpyuta',ht:'òdinatè'}},
-      {n:'logiciel',t:{en:'software',es:'software',de:'Software',ru:'programmnoe obespechenie',zh:'ruanjian',ja:'sofutowea',ht:'lojisyèl'}},
-      {n:'réseau',t:{en:'network',es:'red',de:'Netzwerk',ru:'set',zh:'wangluo',ja:'nettowaku',ht:'rezo'}},
-      {n:'données',t:{en:'data',es:'datos',de:'Daten',ru:'dannye',zh:'shuju',ja:'deta',ht:'done'}},
-      {n:'écran',t:{en:'screen',es:'pantalla',de:'Bildschirm',ru:'ekran',zh:'pingmu',ja:'gamen',ht:'ekran'}},
-      {n:'clavier',t:{en:'keyboard',es:'teclado',de:'Tastatur',ru:'klaviatura',zh:'jianpan',ja:'kibodo',ht:'klavye'}},
-      {n:'souris',t:{en:'mouse',es:'ratón',de:'Maus',ru:'mysh',zh:'shubiao',ja:'mausu',ht:'souris'}},
-      {n:'fichier',t:{en:'file',es:'archivo',de:'Datei',ru:'fayl',zh:'wenjian',ja:'fairu',ht:'fichye'}},
-      {n:'serveur',t:{en:'server',es:'servidor',de:'Server',ru:'server',zh:'fuwuqi',ja:'saba',ht:'sèvè'}},
-      {n:'code',t:{en:'code',es:'código',de:'Code',ru:'kod',zh:'daima',ja:'kodo',ht:'kòd'}},
-      {n:'sécurité',t:{en:'security',es:'seguridad',de:'Sicherheit',ru:'bezopasnost',zh:'anquan',ja:'anzen',ht:'sekirite'}},
-      {n:'vitesse',t:{en:'speed',es:'velocidad',de:'Geschwindigkeit',ru:'skorost',zh:'sudu',ja:'sokudo',ht:'vitès'}},
-      {n:'image',t:{en:'image',es:'imagen',de:'Bild',ru:'izobrazhenie',zh:'tupian',ja:'gazo',ht:'imaj'}},
-      {n:'mémoire',t:{en:'memory',es:'memoria',de:'Speicher',ru:'pamyat',zh:'neicun',ja:'memori',ht:'memwa'}},
-      {n:'système',t:{en:'system',es:'sistema',de:'System',ru:'sistema',zh:'xitong',ja:'shisutemu',ht:'sistèm'}},
-    ]
-  },
-  personnalite_qualites: {
-    fr:'Personnalité',en:'Personality',es:'Personalidad',ht:'Pèsonalite',de:'Persönlichkeit',ru:'Lichnost',zh:'Xingge',ja:'Seikaku',
-    icon:'👤',
-    words:[
-      {n:'intelligent',t:{en:'intelligent',es:'inteligente',de:'intelligent',ru:'umnyy',zh:'congming',ja:'kashikoi',ht:'entelijan'}},
-      {n:'gentil',t:{en:'kind',es:'amable',de:'nett',ru:'dobryy',zh:'qinqie',ja:'shinsetsu',ht:'janti'}},
-      {n:'fort',t:{en:'strong',es:'fuerte',de:'stark',ru:'silnyy',zh:'qiang',ja:'tsuyoi',ht:'fò'}},
-      {n:'patient',t:{en:'patient',es:'paciente',de:'geduldig',ru:'terpelivyy',zh:'naixin',ja:'nintai-zuyoi',ht:'pasyan'}},
-      {n:'honnête',t:{en:'honest',es:'honesto',de:'ehrlich',ru:'chestnyy',zh:'chengshi',ja:'shojiki',ht:'onèt'}},
-      {n:'calme',t:{en:'calm',es:'calma',de:'ruhig',ru:'spokoynyy',zh:'pingjing',ja:'odayaka',ht:'kalm'}},
-      {n:'curieux',t:{en:'curious',es:'curioso',de:'neugierig',ru:'lyubopytnyy',zh:'haoqi',ja:'kokishin',ht:'kuryo'}},
-      {n:'drôle',t:{en:'funny',es:'divertido',de:'lustig',ru:'smeshnoy',zh:'youmo',ja:'omoshiroi',ht:'komik'}},
-      {n:'sérieux',t:{en:'serious',es:'serio',de:'ernst',ru:'seryoznyy',zh:'yansu',ja:'majime',ht:'serye'}},
-      {n:'créatif',t:{en:'creative',es:'creativo',de:'kreativ',ru:'tvorcheskiy',zh:'chuangyi',ja:'sozoteki',ht:'kreyatif'}},
-      {n:'sage',t:{en:'wise',es:'sabio',de:'weise',ru:'mudryy',zh:'mingzhi',ja:'kenman',ht:'saj'}},
-      {n:'brave',t:{en:'brave',es:'valiente',de:'mutig',ru:'smelyy',zh:'yonggan',ja:'yukan',ht:'vanyan'}},
-      {n:'timide',t:{en:'shy',es:'tímido',de:'schüchtern',ru:'zastenchivyy',zh:'haixiu',ja:'uchiki',ht:'timid'}},
-      {n:'fiable',t:{en:'reliable',es:'fiable',de:'zuverlässig',ru:'nadyozhnyy',zh:'keke',ja:'shinrai',ht:'fyab'}},
-      {n:'ambitieux',t:{en:'ambitious',es:'ambicioso',de:'ambitioniert',ru:'ambitsioznyy',zh:'ye-xin',ja:'yashinteki',ht:'anbisye'}},
-    ]
-  },
-  nature_sauvage: {
-    fr:'Nature & Plantes',en:'Nature & Plants',es:'Naturaleza',ht:'Lanati ak Plant',de:'Natur',ru:'Priroda',zh:'Ziran',ja:'Shizen',
-    icon:'🌿',
-    words:[
-      {n:'arbre',t:{en:'tree',es:'árbol',de:'Baum',ru:'derevo',zh:'shu',ja:'ki',ht:'pye bwa'}},
-      {n:'fleur',t:{en:'flower',es:'flor',de:'Blume',ru:'tsvetok',zh:'hua',ja:'hana',ht:'flè'}},
-      {n:'herbe',t:{en:'grass',es:'hierba',de:'Gras',ru:'trava',zh:'cao',ja:'kusa',ht:'zeb'}},
-      {n:'forêt',t:{en:'forest',es:'bosque',de:'Wald',ru:'les',zh:'senlin',ja:'mori',ht:'fokè'}},
-      {n:'rivière',t:{en:'river',es:'río',de:'Fluss',ru:'reka',zh:'he',ja:'kawa',ht:'rivyè'}},
-      {n:'montagne',t:{en:'mountain',es:'montaña',de:'Berg',ru:'gora',zh:'shan',ja:'yama',ht:'mòn'}},
-      {n:'lac',t:{en:'lake',es:'lago',de:'See',ru:'ozero',zh:'hu',ja:'mizuumi',ht:'lak'}},
-      {n:'pierre',t:{en:'stone',es:'piedra',de:'Stein',ru:'kamen',zh:'shitou',ja:'ishi',ht:'wòch'}},
-      {n:'ciel',t:{en:'sky',es:'cielo',de:'Himmel',ru:'nebo',zh:'tiankong',ja:'sora',ht:'syèl'}},
-      {n:'soleil',t:{en:'sun',es:'sol',de:'Sonne',ru:'solntse',zh:'taiyang',ja:'taiyo',ht:'solèy'}},
-      {n:'lune',t:{en:'moon',es:'luna',de:'Mond',ru:'luna',zh:'yue',ja:'tsuki',ht:'lendi'}},
-      {n:'étoile',t:{en:'star',es:'estrella',de:'Stern',ru:'zvezda',zh:'xing',ja:'hoshi',ht:'zetwal'}},
-      {n:'terre',t:{en:'earth',es:'tierra',de:'Erde',ru:'zemlya',zh:'diqiu',ja:'chikyu',ht:'tè'}},
-      {n:'feuille',t:{en:'leaf',es:'hoja',de:'Blatt',ru:'list',zh:'yezi',ja:'ha',ht:'fèy'}},
-      {n:'racine',t:{en:'root',es:'raíz',de:'Wurzel',ru:'koren',zh:'gen',ja:'ne',ht:'rasin'}},
-    ]
-  },
-  evenements_vie: {
-    fr:'Événements',en:'Life Events',es:'Eventos',ht:'Evènman lavi',de:'Lebensereignisse',ru:'Sobytiya',zh:'Shijian',ja:'Dekigoto',
-    icon:'🎉',
-    words:[
-      {n:'naissance',t:{en:'birth',es:'nacimiento',de:'Geburt',ru:'rozhdenie',zh:'chusheng',ja:'tanjo',ht:'nesans'}},
-      {n:'anniversaire',t:{en:'birthday',es:'cumpleaños',de:'Geburtstag',ru:'den rozhdeniya',zh:'shengri',ja:'tanjobi',ht:'fèt'}},
-      {n:'mariage',t:{en:'wedding',es:'boda',de:'Hochzeit',ru:'svadba',zh:'hunli',ja:'kekkonshiki',ht:'maryaj'}},
-      {n:'mort',t:{en:'death',es:'muerte',de:'Tod',ru:'smert',zh:'siwang',ja:'shi',ht:'lanmò'}},
-      {n:'fête',t:{en:'party',es:'fiesta',de:'Feier',ru:'vecherinka',zh:'paidui',ja:'pati',ht:'fèt'}},
-      {n:'diplôme',t:{en:'degree',es:'título',de:'Abschluss',ru:'diplom',zh:'xuewei',ja:'gakui',ht:'diplòm'}},
-      {n:'voyage',t:{en:'trip',es:'viaje',de:'Reise',ru:'puteshestvie',zh:'lvxing',ja:'ryoko',ht:'vwayaj'}},
-      {n:'vacances',t:{en:'vacation',es:'vacaciones',de:'Urlaub',ru:'otpusk',zh:'jiaqi',ja:'kyuka',ht:'vakans'}},
-      {n:'rencontre',t:{en:'meeting',es:'encuentro',de:'Treffen',ru:'vstrecha',zh:'huimian',ja:'deai',ht:'rankont'}},
-      {n:'changement',t:{en:'change',es:'cambio',de:'Veränderung',ru:'peremena',zh:'bianhua',ja:'henka',ht:'chanjman'}},
-      {n:'succès',t:{en:'success',es:'éxito',de:'Erfolg',ru:'uspekh',zh:'chenggong',ja:'seiko',ht:'siksè'}},
-      {n:'échec',t:{en:'failure',es:'fracaso',de:'Fehlschlag',ru:'neudacha',zh:'shibai',ja:'shippai',ht:'echèk'}},
-      {n:'début',t:{en:'beginning',es:'inicio',de:'Anfang',ru:'nachalo',zh:'kaishi',ja:'hajimari',ht:'kòmansman'}},
-      {n:'fin',t:{en:'end',es:'fin',de:'Ende',ru:'konets',zh:'jieshu',ja:'owari',ht:'lafen'}},
-      {n:'souvenir',t:{en:'memory',es:'recuerdo',de:'Erinnerung',ru:'vospominanie',zh:'huiyi',ja:'omoide',ht:'souvni'}},
-    ]
-  },
-  materiaux_objets: {
-    fr:'Matériaux',en:'Materials',es:'Materiales',ht:'Materyo',de:'Materialien',ru:'Materialy',zh:'Cailiao',ja:'Zairyo',
-    icon:'🏗️',
-    words:[
-      {n:'acier',t:{en:'steel',es:'acero',de:'Stahl',ru:'stal',zh:'gang',ja:'hagane',ht:'asye'}},
-      {n:'or',t:{en:'gold',es:'oro',de:'Gold',ru:'zoloto',zh:'jin',ja:'kin',ht:'lò'}},
-      {n:'argent',t:{en:'silver',es:'plata',de:'Silber',ru:'serebro',zh:'yin',ja:'gin',ht:'ajan'}},
-      {n:'fer',t:{en:'iron',es:'hierro',de:'Eisen',ru:'zhelezo',zh:'tie',ja:'tetsu',ht:'fè'}},
-      {n:'coton',t:{en:'cotton',es:'algodón',de:'Baumwolle',ru:'khlopok',zh:'mian',ja:'men',ht:'koton'}},
-      {n:'laine',t:{en:'wool',es:'lana',de:'Wolle',ru:'sherst',zh:'yangmao',ja:'yumo',ht:'lenn'}},
-      {n:'soie',t:{en:'silk',es:'seda',de:'Seide',ru:'sholk',zh:'si',ja:'kinu',ht:'swa'}},
-      {n:'béton',t:{en:'concrete',es:'hormigón',de:'Beton',ru:'beton',zh:'shuiní',ja:'konkurito',ht:'beton'}},
-      {n:'brique',t:{en:'brick',es:'ladrillo',de:'Ziegel',ru:'kirpich',zh:'zhuan',ja:'renga',ht:'brik'}},
-      {n:'caoutchouc',t:{en:'rubber',es:'caucho',de:'Gummi',ru:'rezina',zh:'xiangjiao',ja:'gomu',ht:'kawotchou'}},
-      {n:'poussière',t:{en:'dust',es:'polvo',de:'Staub',ru:'pyl',zh:'huichen',ja:'hokori',ht:'pousyè'}},
-      {n:'boue',t:{en:'mud',es:'lodo',de:'Schlamm',ru:'gryaz',zh:'niba',ja:'doro',ht:'labou'}},
-      {n:'vapeur',t:{en:'steam',es:'vapor',de:'Dampf',ru:'par',zh:'zhengqi',ja:'joki',ht:'vapè'}},
-      {n:'gaz',t:{en:'gas',es:'gas',de:'Gas',ru:'gaz',zh:'qiti',ja:'gasu',ht:'gaz'}},
-      {n:'liquide',t:{en:'liquid',es:'líquido',de:'Flüssigkeit',ru:'zhidkost',zh:'yeti',ja:'ekitai',ht:'likid'}},
-    ]
-  },
-  voyage_transport: {
-    fr:'Voyage',en:'Travel',es:'Viaje',ht:'Vwayaj',de:'Reise',ru:'Puteshestvie',zh:'Lvxing',ja:'Ryoko',
+  voyage: {
+    fr:'Voyage', en:'Travel', es:'Viaje', ht:'Vwayaj',
     icon:'✈️',
-    words:[
-      {n:'billet',t:{en:'ticket',es:'boleto',de:'Ticket',ru:'bilet',zh:'piao',ja:'kippu',ht:'tikè'}},
-      {n:'bagage',t:{en:'luggage',es:'equipaje',de:'Gepäck',ru:'bagazh',zh:'xingli',ja:'nimotsu',ht:'bagaj'}},
-      {n:'passeport',t:{en:'passport',es:'pasaporte',de:'Pass',ru:'pasport',zh:'huzhao',ja:'pasupoto',ht:'pas pò'}},
-      {n:'vol',t:{en:'flight',es:'vuelo',de:'Flug',ru:'polet',zh:'hangban',ja:'fubun',ht:'vòl'}},
-      {n:'train',t:{en:'train',es:'tren',de:'Zug',ru:'poezd',zh:'huoche',ja:'densha',ht:'tren'}},
-      {n:'avion',t:{en:'airplane',es:'avión',de:'Flugzeug',ru:'samolet',zh:'feiji',ja:'hikoki',ht:'avion'}},
-      {n:'bus',t:{en:'bus',es:'autobús',de:'Bus',ru:'avtobus',zh:'gonggong qiche',ja:'basu',ht:'bis'}},
-      {n:'bateau',t:{en:'boat',es:'barco',de:'Boot',ru:'lodka',zh:'chuan',ja:'fune',ht:'batiman'}},
-      {n:'gare',t:{en:'station',es:'estación',de:'Bahnhof',ru:'vokzal',zh:'zhan',ja:'eki',ht:'ga'}},
-      {n:'aéroport',t:{en:'airport',es:'aeropuerto',de:'Flughafen',ru:'aeroport',zh:'jichang',ja:'kuko',ht:'ayewopò'}},
-      {n:'hôtel',t:{en:'hotel',es:'hotel',de:'Hotel',ru:'otel',zh:'jiudian',ja:'hoteru',ht:'otèl'}},
-      {n:'carte',t:{en:'map',es:'mapa',de:'Karte',ru:'karta',zh:'ditu',ja:'chizu',ht:'kat'}},
-      {n:'aventure',t:{en:'adventure',es:'aventura',de:'Abenteuer',ru:'priklyuchenie',zh:'maoxian',ja:'boken',ht:'avantir'}},
-      {n:'guide',t:{en:'guide',es:'guía',de:'Führer',ru:'gid',zh:'zhinan',ja:'gaido',ht:'gid'}},
-      {n:'touriste',t:{en:'tourist',es:'turista',de:'Tourist',ru:'turist',zh:'youke',ja:'kanko-kyaku',ht:'touris'}},
+    items: [
+      {n:'Où est la gare ?', t:{en:'Where is the station?', es:'¿Dónde está la estación?', ht:'Ki kote estasyon an ye?', de:'Wo ist der Bahnhof?', ru:'Где вокзал?', zh:'车站在哪里？', ja:'駅はどこですか？'}},
+      {n:'Je voudrais un billet', t:{en:'I would like a ticket', es:'Quisiera un billete', ht:'Mwen ta renmen yon tikè', de:'Ich hätte gern eine Fahrkarte', ru:'Я бы хотел билет', zh:'我想要一张票', ja:'切符をください'}},
+    ]
+  }
+};
+
+// =================================================================
+// GRAMMAR DATA
+// =================================================================
+var GRAMMAR_DATA = {
+  present: {
+    fr:'Présent', en:'Present tense', es:'Presente', ht:'Prezan',
+    icon:'⏳',
+    formula: {fr:'Sujet + Verbe conjugué + Complément', en:'Subject + Conjugated verb + Object'},
+    explanation: {fr:'Le présent exprime une action qui se déroule maintenant ou une vérité générale.', en:'The present tense expresses an action happening now or a general truth.'},
+    examples: [
+      {n:'Je mange', t:{en:'I eat', es:'Yo como', ht:'Mwen manje', de:'Ich esse', ru:'Я ем', zh:'我吃', ja:'食べる'}},
+      {n:'Tu parles', t:{en:'You speak', es:'Tú hablas', ht:'Ou pale', de:'Du sprichst', ru:'Ты говоришь', zh:'你说', ja:'話す'}},
     ]
   },
-  mots_liaison: {
-    fr:'Liaisons',en:'Connectors',es:'Conectores',ht:'Mo lyon',de:'Verbindungen',ru:'Soyuzy',zh:'Lianjie ci',ja:'Setsuzokushi',
-    icon:'🔗',
-    words:[
-      {n:'et',t:{en:'and',es:'y',de:'und',ru:'i',zh:'he',ja:'to',ht:'ak'}},
-      {n:'mais',t:{en:'but',es:'pero',de:'aber',ru:'no',zh:'danshi',ja:'demo',ht:'men'}},
-      {n:'ou',t:{en:'or',es:'o',de:'oder',ru:'ili',zh:'huozhe',ja:'aruiwa',ht:'oswa'}},
-      {n:'donc',t:{en:'so',es:'entonces',de:'also',ru:'poetomu',zh:'suoyi',ja:'dakara',ht:'donk'}},
-      {n:'parce que',t:{en:'because',es:'porque',de:'weil',ru:'potomu chto',zh:'yinwei',ja:'nazenara',ht:'paske'}},
-      {n:'avec',t:{en:'with',es:'con',de:'mit',ru:'s',zh:'he',ja:'to issho ni',ht:'avèk'}},
-      {n:'sans',t:{en:'without',es:'sin',de:'ohne',ru:'bez',zh:'meiyou',ja:'nashi de',ht:'san'}},
-      {n:'pour',t:{en:'for',es:'para',de:'für',ru:'dlya',zh:'wei',ja:'tame ni',ht:'pou'}},
-      {n:'si',t:{en:'if',es:'si',de:'wenn',ru:'esli',zh:'ruguo',ja:'moshi',ht:'si'}},
-      {n:'alors',t:{en:'then',es:'entonces',de:'dann',ru:'togda',zh:'ranhou',ja:'sorekara',ht:'alò'}},
-      {n:'encore',t:{en:'again',es:'otra vez',de:'wieder',ru:'snova',zh:'zai',ja:'mata',ht:'ankò'}},
-      {n:'aussi',t:{en:'also',es:'también',de:'auch',ru:'takzhe',zh:'ye',ja:'mo',ht:'tou'}},
-      {n:'très',t:{en:'very',es:'muy',de:'sehr',ru:'ochen',zh:'he
+  passe: {
+    fr:'Passé composé', en:'Past tense', es:'Pasado', ht:'Pase',
+    icon:'⏪',
+    formula: {fr:'Sujet + avoir/être + Participe passé', en:'Subject + have/be + Past participle'},
+    explanation: {fr:'Le passé composé exprime une action terminée dans le passé.', en:'The past tense expresses a completed action in the past.'},
+    examples: [
+      {n:'J\'ai mangé', t:{en:'I ate', es:'Yo comí', ht:'Mwen te manje', de:'Ich habe gegessen', ru:'Я поел', zh:'我吃了', ja:'食べた'}},
+    ]
+  }
+};
+
+// =================================================================
+// API
+// =================================================================
+var API = 'https://linguavillage-api--marckensbou2.replit.app';
+
+console.log('✅ LinguaVillage — data.js chargé');
