@@ -1,13 +1,15 @@
+// village.js - CORRIGÉ (bug _onCanvasResize résolu)
 // LinguaVillage — village.js
 // Village canvas, météo, interactions, ouverture des lieux
 // ================================================================
 
 // Variables globales du village
-var canvas = null;
-var ctx = null;
-var tick = 0;
-var currentWeather = 'sun';
-var hoveredLoc = null;
+window.canvas = null;
+window.ctx = null;
+window.tick = 0;
+window.currentWeather = window.currentWeather || 'sun';
+window.hoveredLoc = null;
+window._onCanvasResize = window._onCanvasResize || null;
 
 // ================================================================
 // NAVIGATION VERS LE VILLAGE
@@ -40,6 +42,7 @@ function goVillage() {
   ctx = null;
   tick = 0;
   window._villageLoopRunning = false;
+  window._villageLoopActive = false; // flag d'arrêt pour villageLoop
   
   // Attendre que le DOM soit prêt puis initialiser le canvas
   setTimeout(function() {
@@ -177,12 +180,13 @@ function initCanvas() {
   tick = 0;
   drawVillage();
   
-  // Gérer le redimensionnement de la fenêtre en sécurisant la référence
-  if (typeof window._onCanvasResize === 'function') {
+  // Gérer le redimensionnement de la fenêtre
+  // Supprimer l'ancien écouteur s'il existe
+  if (window._onCanvasResize) {
     window.removeEventListener('resize', window._onCanvasResize);
   }
   
-  // Définir le nouveau gestionnaire directement sur l'objet window
+  // Définir le nouveau gestionnaire et le garder en référence globale
   window._onCanvasResize = function() {
     if (canvas && canvas.parentElement) {
       var r = canvas.parentElement.getBoundingClientRect();
@@ -206,6 +210,7 @@ function initCanvas() {
   // Lancer la boucle d'animation
   if (!window._villageLoopRunning) {
     window._villageLoopRunning = true;
+    window._villageLoopActive = true;
     requestAnimationFrame(villageLoop);
   }
 }
@@ -214,6 +219,7 @@ function initCanvas() {
 // BOUCLE D'ANIMATION
 // ================================================================
 function villageLoop() {
+  if (!window._villageLoopActive) return; // arrêt propre si on quitte le village
   tick++;
   if (typeof updatePlayer === 'function') updatePlayer();
   drawVillage();
@@ -397,7 +403,8 @@ function drawLoc(loc, x, y, w, h, hov) {
   ctx.fillText(loc.emoji, bx, by);
   
   // Nom du lieu
-  var nm = (LOC_NAMES[loc.id] && LOC_NAMES[loc.id][S.nativeLang]) ? LOC_NAMES[loc.id][S.nativeLang] : loc.id;
+  var nativeLang = (window.S && window.S.nativeLang) ? window.S.nativeLang : 'en';
+  var nm = (LOC_NAMES && LOC_NAMES[loc.id] && LOC_NAMES[loc.id][nativeLang]) ? LOC_NAMES[loc.id][nativeLang] : loc.id;
   ctx.font = 'bold ' + Math.max(8, Math.min(w * 0.14, 11)) + 'px Nunito,sans-serif';
   ctx.fillStyle = hov ? '#FFD700' : 'rgba(255,240,200,0.9)';
   ctx.textAlign = 'center';
@@ -428,6 +435,7 @@ function darken(h) {
 // INTERACTIONS SOURIS / TACTILE
 // ================================================================
 function getLocAt(mx, my) {
+  if (!canvas || typeof LOCATIONS === 'undefined') return null;
   var W = canvas.width;
   var H = canvas.height;
   
@@ -448,8 +456,9 @@ function onVillageHover(e) {
   
   var tip = document.getElementById('locTooltip');
   if (loc && tip) {
-    var nm = (LOC_NAMES[loc.id] && LOC_NAMES[loc.id][S.nativeLang]) ? LOC_NAMES[loc.id][S.nativeLang] : loc.id;
-    var ds = (LOC_DESC[loc.id] && LOC_DESC[loc.id][S.nativeLang]) ? LOC_DESC[loc.id][S.nativeLang] : '';
+    var nativeLang = (window.S && window.S.nativeLang) ? window.S.nativeLang : 'en';
+    var nm = (LOC_NAMES[loc.id] && LOC_NAMES[loc.id][nativeLang]) ? LOC_NAMES[loc.id][nativeLang] : loc.id;
+    var ds = (LOC_DESC[loc.id] && LOC_DESC[loc.id][nativeLang]) ? LOC_DESC[loc.id][nativeLang] : '';
     tip.textContent = (WEATHER_ICONS[currentWeather] || '') + ' ' + nm + ' — ' + ds;
     tip.style.left = (loc.x * canvas.width + loc.w * canvas.width / 2) + 'px';
     tip.style.top = (loc.y * canvas.height) + 'px';
@@ -482,7 +491,8 @@ function openLoc(loc) {
   
   var locTitle   = document.getElementById('locTitle');
   var locWeather = document.getElementById('locWeather');
-  var locName = (LOC_NAMES[loc.id] && LOC_NAMES[loc.id][S.nativeLang]) ? LOC_NAMES[loc.id][S.nativeLang] : loc.id;
+  var nativeLang = (window.S && window.S.nativeLang) ? window.S.nativeLang : 'en';
+  var locName = (LOC_NAMES[loc.id] && LOC_NAMES[loc.id][nativeLang]) ? LOC_NAMES[loc.id][nativeLang] : loc.id;
   
   if (locTitle)   locTitle.textContent   = loc.emoji + ' ' + locName;
   if (locWeather) locWeather.textContent = WEATHER_ICONS[currentWeather] || '☀️';
@@ -497,8 +507,8 @@ function openLoc(loc) {
   if (!listEl) return;
   
   listEl.innerHTML = (loc.npcs || []).map(function(npc) {
-    var role = typeof npc.role === 'object' ? (npc.role[S.nativeLang] || npc.role.en) : npc.role;
-    var hint = (LOC_DESC[loc.id] && LOC_DESC[loc.id][S.nativeLang]) ? LOC_DESC[loc.id][S.nativeLang] : '';
+    var role = typeof npc.role === 'object' ? (npc.role[nativeLang] || npc.role.en) : npc.role;
+    var hint = (LOC_DESC[loc.id] && LOC_DESC[loc.id][nativeLang]) ? LOC_DESC[loc.id][nativeLang] : '';
     
     return '<div class="npc-card" onclick="openDialogue(\'' + loc.id + '\',\'' + npc.id + '\')">' +
       '<div class="npc-av">' + npc.emoji + '</div>' +
