@@ -230,14 +230,16 @@ function showDailyQuote(onDone) {
   window._quoteDoneCb = onDone;
   window._currentQuote = q;
 
-  // Afficher l'écran citation (méthode directe compatible)
-  var allScreens = document.querySelectorAll('.screen');
-  for (var j = 0; j < allScreens.length; j++) {
-    allScreens[j].classList.remove('active');
-    allScreens[j].style.display = 'none';
+  // Afficher l'écran citation via showScreen (reset inline styles)
+  if (typeof window.showScreen === 'function') {
+    window.showScreen(screen.id);
+  } else {
+    document.querySelectorAll('.screen').forEach(function(s) {
+      s.classList.remove('active');
+      s.style.display = '';
+    });
+    screen.classList.add('active');
   }
-  screen.classList.add('active');
-  screen.style.display = 'flex';
 }
 
 // ── Traduction ──────────────────────────────────────────────────
@@ -313,9 +315,9 @@ function quoteContinue() {
   var screen = document.getElementById('screen-quote');
   if (screen) {
     screen.classList.remove('active');
-    screen.style.display = 'none';
+    screen.style.display = '';
   }
   if (window._quoteDoneCb) {
     window._quoteDoneCb();
   }
-     }
+}
