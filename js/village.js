@@ -50,18 +50,14 @@ function goVillage() {
   setTimeout(function() {
     var c = document.getElementById('villageCanvas');
     if (c) {
-      // Forcer les dimensions du canvas
-      var parent = c.parentElement;
-      if (parent) {
-        var rect = parent.getBoundingClientRect();
-        c.width = rect.width || window.innerWidth;
-        c.height = rect.height || window.innerHeight;
-      } else {
-        c.width = window.innerWidth;
-        c.height = window.innerHeight;
-      }
-      c.style.width = '100%';
-      c.style.height = '100%';
+      // Toujours utiliser window.innerWidth/Height :
+      // getBoundingClientRect retourne 0 sur un écran position:fixed fraîchement affiché
+      var W = window.innerWidth  || document.documentElement.clientWidth  || 360;
+      var H = window.innerHeight || document.documentElement.clientHeight || 640;
+      c.width  = W;
+      c.height = H;
+      c.style.width  = W + 'px';
+      c.style.height = H + 'px';
       c.style.display = 'block';
     }
     
@@ -155,17 +151,10 @@ function initCanvas() {
   canvas = document.getElementById('villageCanvas');
   if (!canvas) return;
   
-  // Si les dimensions sont à 0, les forcer
+  // Si les dimensions sont à 0, les forcer avec window dimensions
   if (canvas.width === 0 || canvas.height === 0) {
-    var parent = canvas.parentElement;
-    if (parent) {
-      var rect = parent.getBoundingClientRect();
-      canvas.width = rect.width || window.innerWidth;
-      canvas.height = rect.height || window.innerHeight;
-    } else {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
-    }
+    canvas.width  = window.innerWidth  || document.documentElement.clientWidth  || 360;
+    canvas.height = window.innerHeight || document.documentElement.clientHeight || 640;
   }
   
   // S'assurer que le canvas est visible
