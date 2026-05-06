@@ -259,40 +259,17 @@ function startMenu() {
 // _launchMenu — onboarding 1ère fois → citation → screen-menu
 // ================================================================
 function _launchMenu() {
-  function showQuoteThenMenu() {
-    if (typeof showDailyQuote === 'function') {
-      showDailyQuote(function() {
-        // Afficher directement le menu sans applyMenuUI qui peut planter
-        var menuScreen = document.getElementById('screen-menu');
-        if (menuScreen) {
-          // Masquer tous les écrans d'abord
-          var allScreens = document.querySelectorAll('.screen');
-          for (var i = 0; i < allScreens.length; i++) {
-            allScreens[i].classList.remove('active');
-          }
-          // Afficher le menu
-          menuScreen.classList.add('active');
-        }
-      });
-    } else {
-      var menuScreen = document.getElementById('screen-menu');
-      if (menuScreen) {
-        var allScreens = document.querySelectorAll('.screen');
-        for (var i = 0; i < allScreens.length; i++) {
-          allScreens[i].classList.remove('active');
-        }
-        menuScreen.classList.add('active');
-      }
+  // Forcer l'affichage du menu directement, sans citation, sans rien
+  var menuScreen = document.getElementById('screen-menu');
+  if (menuScreen) {
+    var allScreens = document.querySelectorAll('.screen');
+    for (var i = 0; i < allScreens.length; i++) {
+      allScreens[i].classList.remove('active');
     }
-  }
-
-  var isFirstTime = !localStorage.getItem('lv_onboarding_done');
-
-  if (isFirstTime && window.LV_ONBOARDING) {
-    localStorage.setItem('lv_onboarding_done', '1');
-    window.LV_ONBOARDING.show(showQuoteThenMenu);
+    menuScreen.classList.add('active');
+    alert('✅ Menu affiché directement');
   } else {
-    showQuoteThenMenu();
+    alert('❌ screen-menu INTROUVABLE');
   }
 }
 
