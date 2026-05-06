@@ -3,7 +3,7 @@
 // CHARGÉ EN PREMIER — définit window.S et window._LINGUA_HAS_SAVE
 
 // =================================================================
-// INITIALISATION DE window.S (OBLIGATOIRE)
+// INITIALISATION DE window.S (OBLIGATOIRE — doit être fait en premier)
 // =================================================================
 if (!window.S) {
   window.S = {
@@ -11,31 +11,38 @@ if (!window.S) {
     nativeLang: null,
     targetLang: null,
     scriptPref: 'both',
-    xp: 0
+    xp: 0,
+    level: 1,
+    currentLoc: null,
+    currentNPC: null,
+    chatHistory: [],
+    currentUI: {},
+    xpBoostEnd: null
   };
 }
-
 var S = window.S;
 
-// Charger sauvegarde si disponible
+// =================================================================
+// CHARGER LA SAUVEGARDE SI DISPONIBLE
+// =================================================================
+window._LINGUA_HAS_SAVE = false;
 (function(){
   try {
     var saved = localStorage.getItem('linguavillage_save');
     if (saved) {
       var d = JSON.parse(saved);
-      if (d.S) Object.assign(window.S, d.S);
-      window._LINGUA_HAS_SAVE = !!(window.S.playerName && window.S.nativeLang && window.S.targetLang);
-    } else {
-      window._LINGUA_HAS_SAVE = false;
+      if (d.S) {
+        Object.assign(window.S, d.S);
+        window._LINGUA_HAS_SAVE = !!(window.S.playerName && window.S.nativeLang && window.S.targetLang);
+      }
     }
   } catch(e) {
-    console.warn('⚠️ Erreur chargement sauvegarde:', e);
     window._LINGUA_HAS_SAVE = false;
   }
 })();
 
 // =================================================================
-// INIT GLOBAL — S_missions, S_game, BADGES, SURPRISE_VIDEOS
+// INIT GLOBAL — S_missions, S_game
 // =================================================================
 if (!window.S_missions) {
   window.S_missions = { completed:{}, gems:0, badges:[], shield:0, freeHints:0 };
@@ -65,11 +72,12 @@ var G = window.S_game;
       S_missions = window.S_missions;
       G          = window.S_game;
     }
-  } catch(e) {
-    console.warn('⚠️ Erreur chargement missions/game:', e);
-  }
+  } catch(e) {}
 })();
 
+// =================================================================
+// CONSTANTES
+// =================================================================
 var BADGES = [
   {id:'b1', xp:100,  icon:'🌱', fr:'Apprenti',          en:'Apprentice'},
   {id:'b2', xp:300,  icon:'⭐', fr:'Explorateur',       en:'Explorer'},
@@ -128,10 +136,7 @@ function saveGame() {
       timestamp: Date.now()
     };
     localStorage.setItem('linguavillage_save', JSON.stringify(data));
-    console.log('💾 Partie sauvegardée');
-  } catch(e) {
-    console.warn('⚠️ Erreur sauvegarde:', e);
-  }
+  } catch(e) {}
 }
 
 function resetSave() {
@@ -139,10 +144,5 @@ function resetSave() {
     localStorage.removeItem('linguavillage_save');
     localStorage.removeItem('lv_onboarding_done');
     localStorage.removeItem('lv_last_quote_idx');
-    console.log('🗑️ Sauvegarde effacée');
-  } catch(e) {
-    console.warn('⚠️ Erreur reset:', e);
-  }
-}
-
-console.log('✅ save.js chargé — window.S initialisé:', window.S);
+  } catch(e) {}
+   }
