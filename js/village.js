@@ -1,4 +1,3 @@
-// village.js - CORRIGÉ (bug _onCanvasResize résolu)
 // LinguaVillage — village.js
 // Village canvas, météo, interactions, ouverture des lieux
 // ================================================================
@@ -9,7 +8,6 @@ var ctx = null;
 var tick = 0;
 var currentWeather = 'sun';
 var hoveredLoc = null;
-var _onCanvasResize = null; // déclaration locale
 
 // ================================================================
 // NAVIGATION VERS LE VILLAGE
@@ -179,14 +177,13 @@ function initCanvas() {
   tick = 0;
   drawVillage();
   
-  // Gérer le redimensionnement de la fenêtre
-  // Supprimer l'ancien écouteur s'il existe
-  if (_onCanvasResize) {
-    window.removeEventListener('resize', _onCanvasResize);
+  // Gérer le redimensionnement de la fenêtre en sécurisant la référence
+  if (typeof window._onCanvasResize === 'function') {
+    window.removeEventListener('resize', window._onCanvasResize);
   }
   
-  // Définir le nouveau gestionnaire et le garder en référence locale + globale
-  _onCanvasResize = function() {
+  // Définir le nouveau gestionnaire directement sur l'objet window
+  window._onCanvasResize = function() {
     if (canvas && canvas.parentElement) {
       var r = canvas.parentElement.getBoundingClientRect();
       canvas.width = r.width || window.innerWidth;
@@ -194,8 +191,7 @@ function initCanvas() {
       drawVillage();
     }
   };
-  window._onCanvasResize = _onCanvasResize; // pour compatibilité globale si nécessaire
-  window.addEventListener('resize', _onCanvasResize);
+  window.addEventListener('resize', window._onCanvasResize);
   
   // Nettoyer les anciens event listeners de la souris/tactile
   canvas.removeEventListener('click', onVillageClick);
@@ -520,4 +516,4 @@ function openLoc(loc) {
   setTimeout(function() {
     if (typeof openMissionsPanel === 'function') openMissionsPanel(loc.id);
   }, 400);
-    }
+}
