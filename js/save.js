@@ -2,6 +2,19 @@
 // Sauvegarde et restauration de la progression du joueur
 // CHARGÉ EN PREMIER — définit window.S et window._LINGUA_HAS_SAVE
 
+// =================================================================
+// INITIALISATION DE window.S (OBLIGATOIRE)
+// =================================================================
+if (!window.S) {
+  window.S = {
+    playerName: '',
+    nativeLang: null,
+    targetLang: null,
+    scriptPref: 'both',
+    xp: 0
+  };
+}
+
 var S = window.S;
 
 // Charger sauvegarde si disponible
@@ -12,10 +25,16 @@ var S = window.S;
       var d = JSON.parse(saved);
       if (d.S) Object.assign(window.S, d.S);
       window._LINGUA_HAS_SAVE = !!(window.S.playerName && window.S.nativeLang && window.S.targetLang);
+    } else {
+      window._LINGUA_HAS_SAVE = false;
     }
-  } catch(e) {}
+  } catch(e) {
+    console.warn('⚠️ Erreur chargement sauvegarde:', e);
+    window._LINGUA_HAS_SAVE = false;
+  }
 })();
-  // =================================================================
+
+// =================================================================
 // INIT GLOBAL — S_missions, S_game, BADGES, SURPRISE_VIDEOS
 // =================================================================
 if (!window.S_missions) {
@@ -46,7 +65,9 @@ var G = window.S_game;
       S_missions = window.S_missions;
       G          = window.S_game;
     }
-  } catch(e) {}
+  } catch(e) {
+    console.warn('⚠️ Erreur chargement missions/game:', e);
+  }
 })();
 
 var BADGES = [
@@ -96,5 +117,32 @@ var SURPRISE_VIDEOS = {
 };
 
 // =================================================================
-// WELCOME FLOW — dans DOMContentLoaded pour que le DOM existe
+// FONCTIONS DE SAUVEGARDE
 // =================================================================
+function saveGame() {
+  try {
+    var data = {
+      S: window.S,
+      missions: window.S_missions,
+      game: window.S_game,
+      timestamp: Date.now()
+    };
+    localStorage.setItem('linguavillage_save', JSON.stringify(data));
+    console.log('💾 Partie sauvegardée');
+  } catch(e) {
+    console.warn('⚠️ Erreur sauvegarde:', e);
+  }
+}
+
+function resetSave() {
+  try {
+    localStorage.removeItem('linguavillage_save');
+    localStorage.removeItem('lv_onboarding_done');
+    localStorage.removeItem('lv_last_quote_idx');
+    console.log('🗑️ Sauvegarde effacée');
+  } catch(e) {
+    console.warn('⚠️ Erreur reset:', e);
+  }
+}
+
+console.log('✅ save.js chargé — window.S initialisé:', window.S);
