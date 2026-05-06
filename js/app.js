@@ -1,16 +1,11 @@
 // LinguaVillage — app.js
-// Point d'entrée principal : welcome flow + startMenu
-// CHARGÉ EN DERNIER — dépend de tous les autres fichiers
-// ================================================================
+// Version debug ultra-simplifiée
 
 var API = 'https://linguavillage-api--marckensbou2.replit.app';
 
-// ================================================================
-// WELCOME FLOW
-// ================================================================
 window.addEventListener('DOMContentLoaded', function() {
+  alert('🚀 DOMContentLoaded - début');
 
-  // ── Initialisation de sécurité de window.S ──────────────────
   if (!window.S) {
     window.S = {
       nativeLang: null,
@@ -19,45 +14,45 @@ window.addEventListener('DOMContentLoaded', function() {
       scriptPref: 'both',
       xp: 0
     };
+    alert('✅ window.S initialisé');
   }
 
-  // ── Restaurer session si sauvegarde valide ──────────────────
+  // Vérifier si on restaure une session
   if (window._LINGUA_HAS_SAVE && window.S && S.playerName && S.nativeLang && S.targetLang) {
+    alert('🔄 Session restaurée');
     try {
       if (typeof applyUI === 'function') applyUI(S.nativeLang);
-      startMenu();
-      try { if (typeof checkDailyStreak === 'function') checkDailyStreak(); } catch(e) {}
-      return;
-    } catch(e) { console.warn('Restore session failed:', e); }
+    } catch(e) {}
+    startMenu();
+    return;
   }
 
-  // ── 1. Sélection langue maternelle ─────────────────────────
+  alert('📝 Aucune session, affichage welcome screen');
+
+  // S'assurer que le welcome est visible
+  var welcomeScreen = document.getElementById('screen-welcome');
+  if (welcomeScreen) {
+    welcomeScreen.classList.add('active');
+    alert('✅ screen-welcome affiché');
+  } else {
+    alert('❌ screen-welcome INTROUVABLE');
+  }
+
+  // --- Sélection langue maternelle ---
   document.querySelectorAll('.lang-tile[data-native]').forEach(function(t) {
     t.onclick = function() {
-      if (!window.S) {
-        window.S = {
-          nativeLang: null,
-          targetLang: null,
-          playerName: '',
-          scriptPref: 'both',
-          xp: 0
-        };
-      }
+      window.S.nativeLang = this.dataset.native;
+      alert('🌍 Langue maternelle : ' + window.S.nativeLang);
 
       document.querySelectorAll('.lang-tile[data-native]').forEach(function(x) {
         x.classList.remove('active', 'sel');
       });
       this.classList.add('active', 'sel');
 
-      window.S.nativeLang = this.dataset.native;
-
       try { if (typeof applyUI === 'function') applyUI(window.S.nativeLang); } catch(e) {}
 
       var s2 = document.getElementById('step2');
-      if (s2) {
-        s2.style.display = 'block';
-        s2.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      }
+      if (s2) { s2.style.display = 'block'; }
 
       var s3 = document.getElementById('step3');
       var s4 = document.getElementById('step4');
@@ -66,25 +61,18 @@ window.addEventListener('DOMContentLoaded', function() {
       if (s4) s4.style.display = 'none';
       if (pb) { pb.style.display = 'none'; pb.disabled = true; }
 
-      var inp = document.getElementById('inputName');
-      if (inp) {
-        inp.value = '';
-      }
-
       document.querySelectorAll('.lang-tile[data-lang]').forEach(function(o) {
         var same = o.dataset.lang === window.S.nativeLang;
         o.classList.toggle('disabled', same);
-        if (same) {
-          o.classList.remove('active', 'sel');
-        }
+        if (same) o.classList.remove('active', 'sel');
       });
 
-      var inpFocus = document.getElementById('inputName');
-      if (inpFocus) setTimeout(function() { inpFocus.focus(); }, 300);
+      var inp = document.getElementById('inputName');
+      if (inp) { inp.value = ''; setTimeout(function() { inp.focus(); }, 300); }
     };
   });
 
-  // ── 2. Saisie prénom → affiche step3 (langues cibles) ──────
+  // --- Saisie prénom ---
   var inputName = document.getElementById('inputName');
   if (inputName) {
     inputName.addEventListener('input', function() {
@@ -94,15 +82,7 @@ window.addEventListener('DOMContentLoaded', function() {
       var s4 = document.getElementById('step4');
       var pb = document.getElementById('playBtn');
 
-      if (s3) {
-        if (hasValue && hasNative) {
-          s3.style.display = 'block';
-          s3.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        } else {
-          s3.style.display = 'none';
-        }
-      }
-
+      if (s3) s3.style.display = (hasValue && hasNative) ? 'block' : 'none';
       if (s4) s4.style.display = 'none';
       if (pb) { pb.style.display = 'none'; pb.disabled = true; }
 
@@ -113,7 +93,7 @@ window.addEventListener('DOMContentLoaded', function() {
     });
   }
 
-  // ── 3. Sélection langue cible ───────────────────────────────
+  // --- Sélection langue cible ---
   document.querySelectorAll('.lang-tile[data-lang]').forEach(function(t) {
     t.onclick = function() {
       if (this.classList.contains('disabled')) return;
@@ -122,115 +102,68 @@ window.addEventListener('DOMContentLoaded', function() {
         x.classList.remove('active', 'sel');
       });
       this.classList.add('active', 'sel');
-
       window.S.targetLang = this.dataset.lang;
-      var cjk = ['zh', 'ja', 'ru'].indexOf(window.S.targetLang) !== -1;
+      alert('🎯 Langue cible : ' + window.S.targetLang);
 
+      var cjk = ['zh', 'ja', 'ru'].indexOf(window.S.targetLang) !== -1;
       var s4 = document.getElementById('step4');
       var pb = document.getElementById('playBtn');
 
       if (cjk) {
-        if (s4) {
-          s4.style.display = 'block';
-          s4.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        }
-
-        var lb = {
-          zh: { n: '你好',      r: 'Ni hao' },
-          ja: { n: 'こんにちは', r: 'Konnichiwa' },
-          ru: { n: 'Привет',    r: 'Privyet' }
-        };
-        var sn = document.getElementById('sc-n');
-        var sr = document.getElementById('sc-r');
-        if (sn) sn.textContent = lb[window.S.targetLang].n;
-        if (sr) sr.textContent = lb[window.S.targetLang].r;
-
+        if (s4) s4.style.display = 'block';
         window.S.scriptPref = null;
-        document.querySelectorAll('.sc-btn').forEach(function(b) {
-          b.classList.remove('sel', 'active');
-        });
-
+        document.querySelectorAll('.sc-btn').forEach(function(b) { b.classList.remove('sel', 'active'); });
         if (pb) { pb.style.display = 'none'; pb.disabled = true; }
       } else {
         window.S.scriptPref = 'both';
         if (s4) s4.style.display = 'none';
-        if (pb) {
-          pb.style.display = 'block';
-          pb.disabled = false;
-          pb.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        }
+        if (pb) { pb.style.display = 'block'; pb.disabled = false; }
       }
     };
   });
 
-  // ── 3b. Choix script CJK ────────────────────────────────────
+  // --- Choix script CJK ---
   window.selScript = function(pref, btn) {
-    document.querySelectorAll('.sc-btn').forEach(function(b) {
-      b.classList.remove('sel', 'active');
-    });
+    document.querySelectorAll('.sc-btn').forEach(function(b) { b.classList.remove('sel', 'active'); });
     if (btn) btn.classList.add('sel', 'active');
     window.S.scriptPref = pref;
-
     var pb = document.getElementById('playBtn');
-    if (pb) {
-      pb.style.display = 'block';
-      pb.disabled = false;
-      pb.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    }
+    if (pb) { pb.style.display = 'block'; pb.disabled = false; }
   };
 
-  // ── 4. Bouton Commencer ─────────────────────────────────────
+  // --- Bouton Commencer ---
   var playBtn = document.getElementById('playBtn');
   if (playBtn) {
     playBtn.addEventListener('click', function() {
       var nm = document.getElementById('inputName');
-      if (nm) {
-        window.S.playerName = nm.value.trim();
-      } else {
-        window.S.playerName = '';
-      }
+      window.S.playerName = nm ? nm.value.trim() : '';
 
       if (!window.S.playerName || !window.S.nativeLang || !window.S.targetLang) {
-        try {
-          showNotif('Complétez tous les champs !');
-        } catch(e) {
-          alert('Complétez tous les champs !');
-        }
+        alert('⚠️ Champs incomplets');
         return;
       }
 
-      if (['zh', 'ja', 'ru'].indexOf(window.S.targetLang) !== -1 && !window.S.scriptPref) {
-        try {
-          showNotif('Choisissez un mode d\'écriture !');
-        } catch(e) {
-          alert('Choisissez un mode d\'écriture !');
-        }
-        return;
-      }
-
-      try {
-        if (typeof saveGame === 'function') {
-          saveGame();
-        }
-      } catch(e) {}
-
+      alert('✅ Tous les champs OK -> startMenu()');
+      try { if (typeof saveGame === 'function') saveGame(); } catch(e) {}
       startMenu();
     });
   }
 
-}); // fin DOMContentLoaded
+  alert('✅ Welcome flow initialisé');
+});
 
 // ================================================================
-// startMenu — appelée après welcome flow OU restauration session
+// startMenu
 // ================================================================
 function startMenu() {
   alert('📋 startMenu() appelé');
 
   if (!window.S) {
-    alert('❌ window.S est undefined dans startMenu()');
+    alert('❌ window.S undefined');
     return;
   }
 
+  // Mise à jour interface menu
   var menuPlayer = document.getElementById('menuPlayer');
   var menuLang   = document.getElementById('menuLang');
   var menuXP     = document.getElementById('menuXP');
@@ -247,42 +180,29 @@ function startMenu() {
   if (gemDisplay) gemDisplay.textContent = '💎 ' + ((window.S_missions && window.S_missions.gems) || 0);
   if (xpFill)     xpFill.style.width     = ((window.S.xp || 0) % 100) + '%';
 
-  try { if (typeof saveGame     === 'function') saveGame();     } catch(e) {}
-  try { if (typeof updateStreak === 'function') updateStreak(); } catch(e) {}
-  try { if (typeof applyMenuUI  === 'function') applyMenuUI();  } catch(e) {}
+  alert('✅ Interface menu MAJ - affichage direct');
 
-  alert('✅ Interface menu mise à jour, lancement _launchMenu()');
-  _launchMenu();
-}
-
-// ================================================================
-// _launchMenu — onboarding 1ère fois → citation → screen-menu
-// ================================================================
-function _launchMenu() {
-  // Forcer l'affichage du menu directement, sans citation, sans rien
+  // AFFICHER LE MENU DIRECTEMENT
   var menuScreen = document.getElementById('screen-menu');
-  if (menuScreen) {
-    var allScreens = document.querySelectorAll('.screen');
-    for (var i = 0; i < allScreens.length; i++) {
-      allScreens[i].classList.remove('active');
-    }
-    menuScreen.classList.add('active');
-    alert('✅ Menu affiché directement');
-  } else {
+  if (!menuScreen) {
     alert('❌ screen-menu INTROUVABLE');
+    return;
   }
-}
 
-// ================================================================
-// Helpers globaux
-// ================================================================
-function openWordGame() {
-  if (window.LV_WORDGAME) window.LV_WORDGAME.open();
-  else if (typeof showNotif === 'function') showNotif('Jeu de mots non chargé.');
-}
+  alert('✅ screen-menu trouvé');
 
-function resetOnboarding() {
-  localStorage.removeItem('lv_onboarding_done');
-  localStorage.removeItem('lv_last_quote_idx');
-  if (typeof showNotif === 'function') showNotif('Onboarding réinitialisé');
-          }
+  // Masquer TOUS les écrans
+  var allScreens = document.querySelectorAll('.screen');
+  alert('📺 Nombre d\'écrans trouvés : ' + allScreens.length);
+  
+  for (var i = 0; i < allScreens.length; i++) {
+    allScreens[i].classList.remove('active');
+    allScreens[i].style.display = 'none';
+  }
+
+  // Afficher le menu
+  menuScreen.classList.add('active');
+  menuScreen.style.display = 'flex';
+  
+  alert('✅ MENU AFFICHÉ !');
+                                                                   }
