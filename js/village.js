@@ -65,33 +65,6 @@ function goVillage() {
     setWeather(getWeatherForTime());
     updateTime();
 
-    // DEBUG TEMPORAIRE
-var dbg = document.getElementById('debug');
-if (dbg) {
-  var c = document.getElementById('villageCanvas');
-  dbg.style.background = '#e74c3c';
-  dbg.textContent = 'canvas=' + (c ? c.width + 'x' + c.height : 'NULL') 
-    + ' ctx=' + (ctx ? 'OK' : 'NULL')
-    + ' S=' + (window.S ? window.S.targetLang : 'NULL')
-    + ' LOCS=' + (typeof LOCATIONS !== 'undefined' ? LOCATIONS.length : 'UNDEF');
-                 }
-    dbg.textContent += ' | loop=' + window._villageLoopActive
-  + ' weather=' + currentWeather
-  + ' drawOK=' + (typeof drawVillage === 'function')
-  + ' homeOK=' + (typeof drawPlayerHome === 'function')
-  + ' LOCNAMES=' + (typeof LOC_NAMES !== 'undefined' ? 'OK' : 'UNDEF');
-
-    var vs = document.getElementById('screen-village');
-var cs = document.getElementById('villageCanvas');
-dbg.textContent += ' | vsDisplay=' + (vs ? getComputedStyle(vs).display : 'NULL')
-  + ' vsZ=' + (vs ? getComputedStyle(vs).zIndex : '?')
-  + ' csW=' + (cs ? getComputedStyle(cs).width : '?')
-  + ' csH=' + (cs ? getComputedStyle(cs).height : '?')
-  + ' csDisplay=' + (cs ? getComputedStyle(cs).display : '?');
-
-    dbg.textContent += ' | vsH=' + (vs ? getComputedStyle(vs).height : '?')
-  + ' vsOverflow=' + (vs ? getComputedStyle(vs).overflow : '?')
-  + ' canvasTop=' + (cs ? cs.getBoundingClientRect().top : '?');
     
     // Positionner le joueur à la maison
     if (typeof player !== 'undefined') {
