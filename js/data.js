@@ -25,18 +25,18 @@ var WEATHER_ICONS = {
 
 // Lieux du village
 var LOCATIONS = [
-  { id:'church',   x:0.22, y:0.30, w:0.12, h:0.12, emoji:'⛪', color:'#8a7a60', npcs:[{id:'pastor', name:'Père Antoine', role:{fr:'Pasteur',en:'Pastor',es:'Pastor',ht:'Pastè',de:'Pfarrer',ru:'Пастор',zh:'牧师',ja:'牧師'}, emoji:'⛪'}] },
-  { id:'school',   x:0.78, y:0.30, w:0.12, h:0.12, emoji:'🏫', color:'#6a8ab0', npcs:[{id:'teacher', name:'Mme Dupont', role:{fr:'Professeure',en:'Teacher',es:'Profesora',ht:'Pwofesè',de:'Lehrerin',ru:'Учитель',zh:'老师',ja:'先生'}, emoji:'👩‍🏫'}] },
-  { id:'friends',  x:0.78, y:0.70, w:0.12, h:0.12, emoji:'🤝', color:'#c09090', npcs:[{id:'friend', name:'Léa', role:{fr:'Amie',en:'Friend',es:'Amiga',ht:'Zanmi',de:'Freundin',ru:'Подруга',zh:'朋友',ja:'友達'}, emoji:'👧'}] },
-  { id:'market',   x:0.35, y:0.18, w:0.12, h:0.12, emoji:'🏪', color:'#c0a060', npcs:[{id:'merchant', name:'M. Diallo', role:{fr:'Marchand',en:'Merchant',es:'Comerciante',ht:'Machann',de:'Händler',ru:'Торговец',zh:'商人',ja:'商人'}, emoji:'🧑‍🌾'}] },
-  { id:'tavern',   x:0.65, y:0.18, w:0.12, h:0.12, emoji:'🍺', color:'#8a6040', npcs:[{id:'bartender', name:'Sam', role:{fr:'Barman',en:'Bartender',es:'Camarero',ht:'Baman',de:'Barkeeper',ru:'Бармен',zh:'酒保',ja:'バーテンダー'}, emoji:'🍸'}] },
-  { id:'park',     x:0.65, y:0.82, w:0.12, h:0.12, emoji:'🌳', color:'#5a8a40', npcs:[] },
-  { id:'hospital', x:0.18, y:0.18, w:0.12, h:0.12, emoji:'🏥', color:'#d0e0f0', npcs:[{id:'doctor', name:'Dr. Martin', role:{fr:'Médecin',en:'Doctor',es:'Médico',ht:'Doktè',de:'Arzt',ru:'Врач',zh:'医生',ja:'医者'}, emoji:'👨‍⚕️'},{id:'nurse', name:'Sophie', role:{fr:'Infirmière',en:'Nurse',es:'Enfermera',ht:'Enfimyè',de:'Krankenschwester',ru:'Медсестра',zh:'护士',ja:'看護師'}, emoji:'👩‍⚕️'}] },
-  { id:'station',  x:0.22, y:0.82, w:0.12, h:0.12, emoji:'🚉', color:'#b0a090', npcs:[{id:'officer', name:'Agent Kofi', role:{fr:'Agent',en:'Officer',es:'Oficial',ht:'Ofisye',de:'Beamter',ru:'Офицер',zh:'警官',ja:'警官'}, emoji:'👮'}] },
-  { id:'bank',     x:0.50, y:0.82, w:0.12, h:0.12, emoji:'🏦', color:'#c0c080', npcs:[{id:'banker', name:'M. Dupuis', role:{fr:'Banquier',en:'Banker',es:'Banquero',ht:'Bankye',de:'Bankier',ru:'Банкир',zh:'银行家',ja:'銀行員'}, emoji:'👨‍💼'}] },
-  { id:'police',   x:0.85, y:0.50, w:0.12, h:0.12, emoji:'🚔', color:'#6070a0', npcs:[{id:'officer2', name:'Capitaine Koné', role:{fr:'Policier',en:'Police Officer',es:'Policía',ht:'Polisye',de:'Polizist',ru:'Полицейский',zh:'警察',ja:'警察官'}, emoji:'👮‍♂️'}] },
-  { id:'factory',  x:0.50, y:0.18, w:0.12, h:0.12, emoji:'🏭', color:'#808080', npcs:[{id:'farmer', name:'Papa Joseph', role:{fr:'Agriculteur',en:'Farmer',es:'Agricultor',ht:'Agrikiltè',de:'Bauer',ru:'Фермер',zh:'农民',ja:'農家'}, emoji:'👨‍🌾'}] },
-  { id:'cinema',   x:0.50, y:0.50, w:0.16, h:0.16, emoji:'🎬', color:'#c060c0', npcs:[] },
+  { id:'church',   x:0.076, y:0.65,  w:0.12, h:0.12, emoji:'⛪', color:'#8a7a60', npcs:[{id:'pastor',    name:'Père Antoine', role:{fr:'Pasteur',      en:'Pastor',         es:'Pastor',       ht:'Pastè',      de:'Pfarrer',            ru:'Пастор',       zh:'牧师',  ja:'牧師'},  emoji:'⛪'}] },
+  { id:'school',   x:0.44,  y:0.86,  w:0.12, h:0.12, emoji:'🏫', color:'#6a8ab0', npcs:[{id:'teacher',   name:'Mme Dupont',   role:{fr:'Professeure',  en:'Teacher',        es:'Profesora',    ht:'Pwofesè',    de:'Lehrerin',           ru:'Учитель',      zh:'老师',  ja:'先生'},  emoji:'👩‍🏫'}] },
+  { id:'friends',  x:0.242, y:0.242, w:0.12, h:0.12, emoji:'🤝', color:'#c09090', npcs:[{id:'friend',    name:'Léa',          role:{fr:'Amie',         en:'Friend',         es:'Amiga',        ht:'Zanmi',      de:'Freundin',           ru:'Подруга',      zh:'朋友',  ja:'友達'},  emoji:'👧'}] },
+  { id:'market',   x:0.44,  y:0.02,  w:0.12, h:0.12, emoji:'🏪', color:'#c0a060', npcs:[{id:'merchant',  name:'M. Diallo',    role:{fr:'Marchand',     en:'Merchant',       es:'Comerciante',  ht:'Machann',    de:'Händler',            ru:'Торговец',     zh:'商人',  ja:'商人'},  emoji:'🧑‍🌾'}] },
+  { id:'tavern',   x:0.804, y:0.65,  w:0.12, h:0.12, emoji:'🍺', color:'#8a6040', npcs:[{id:'bartender', name:'Sam',          role:{fr:'Barman',       en:'Bartender',      es:'Camarero',     ht:'Baman',      de:'Barkeeper',          ru:'Бармен',       zh:'酒保',  ja:'バーテンダー'}, emoji:'🍸'}] },
+  { id:'park',     x:0.44,  y:0.26,  w:0.12, h:0.12, emoji:'🌳', color:'#5a8a40', npcs:[] },
+  { id:'hospital', x:0.076, y:0.23,  w:0.12, h:0.12, emoji:'🏥', color:'#d0e0f0', npcs:[{id:'doctor',    name:'Dr. Martin',   role:{fr:'Médecin',      en:'Doctor',         es:'Médico',       ht:'Doktè',      de:'Arzt',               ru:'Врач',         zh:'医生',  ja:'医者'},  emoji:'👨‍⚕️'},{id:'nurse', name:'Sophie', role:{fr:'Infirmière',en:'Nurse',es:'Enfermera',ht:'Enfimyè',de:'Krankenschwester',ru:'Медсестра',zh:'护士',ja:'看護師'}, emoji:'👩‍⚕️'}] },
+  { id:'station',  x:0.242, y:0.638, w:0.12, h:0.12, emoji:'🚉', color:'#b0a090', npcs:[{id:'officer',   name:'Agent Kofi',   role:{fr:'Agent',        en:'Officer',        es:'Oficial',      ht:'Ofisye',     de:'Beamter',            ru:'Офицер',       zh:'警官',  ja:'警官'},  emoji:'👮'}] },
+  { id:'bank',     x:0.638, y:0.638, w:0.12, h:0.12, emoji:'🏦', color:'#c0c080', npcs:[{id:'banker',    name:'M. Dupuis',    role:{fr:'Banquier',     en:'Banker',         es:'Banquero',     ht:'Bankye',     de:'Bankier',            ru:'Банкир',       zh:'银行家', ja:'銀行員'}, emoji:'👨‍💼'}] },
+  { id:'police',   x:0.638, y:0.242, w:0.12, h:0.12, emoji:'🚔', color:'#6070a0', npcs:[{id:'officer2',  name:'Cap. Koné',    role:{fr:'Policier',     en:'Police Officer', es:'Policía',      ht:'Polisye',    de:'Polizist',           ru:'Полицейский',  zh:'警察',  ja:'警察官'}, emoji:'👮‍♂️'}] },
+  { id:'factory',  x:0.804, y:0.23,  w:0.12, h:0.12, emoji:'🏭', color:'#808080', npcs:[{id:'farmer',    name:'Papa Joseph',  role:{fr:'Agriculteur',  en:'Farmer',         es:'Agricultor',   ht:'Agrikiltè',  de:'Bauer',              ru:'Фермер',       zh:'农民',  ja:'農家'},  emoji:'👨‍🌾'}] },
+  { id:'cinema',   x:0.44,  y:0.44,  w:0.16, h:0.16, emoji:'🎬', color:'#c060c0', npcs:[] },
 ];
 
 var LOC_NAMES = {};
