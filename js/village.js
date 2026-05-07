@@ -80,6 +80,14 @@ if (dbg) {
   + ' drawOK=' + (typeof drawVillage === 'function')
   + ' homeOK=' + (typeof drawPlayerHome === 'function')
   + ' LOCNAMES=' + (typeof LOC_NAMES !== 'undefined' ? 'OK' : 'UNDEF');
+
+    var vs = document.getElementById('screen-village');
+var cs = document.getElementById('villageCanvas');
+dbg.textContent += ' | vsDisplay=' + (vs ? getComputedStyle(vs).display : 'NULL')
+  + ' vsZ=' + (vs ? getComputedStyle(vs).zIndex : '?')
+  + ' csW=' + (cs ? getComputedStyle(cs).width : '?')
+  + ' csH=' + (cs ? getComputedStyle(cs).height : '?')
+  + ' csDisplay=' + (cs ? getComputedStyle(cs).display : '?');
     
     // Positionner le joueur à la maison
     if (typeof player !== 'undefined') {
