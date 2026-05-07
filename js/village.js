@@ -88,6 +88,10 @@ dbg.textContent += ' | vsDisplay=' + (vs ? getComputedStyle(vs).display : 'NULL'
   + ' csW=' + (cs ? getComputedStyle(cs).width : '?')
   + ' csH=' + (cs ? getComputedStyle(cs).height : '?')
   + ' csDisplay=' + (cs ? getComputedStyle(cs).display : '?');
+
+    dbg.textContent += ' | vsH=' + (vs ? getComputedStyle(vs).height : '?')
+  + ' vsOverflow=' + (vs ? getComputedStyle(vs).overflow : '?')
+  + ' canvasTop=' + (cs ? cs.getBoundingClientRect().top : '?');
     
     // Positionner le joueur à la maison
     if (typeof player !== 'undefined') {
