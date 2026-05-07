@@ -64,6 +64,17 @@ function goVillage() {
     initCanvas();
     setWeather(getWeatherForTime());
     updateTime();
+
+    // DEBUG TEMPORAIRE
+var dbg = document.getElementById('debug');
+if (dbg) {
+  var c = document.getElementById('villageCanvas');
+  dbg.style.background = '#e74c3c';
+  dbg.textContent = 'canvas=' + (c ? c.width + 'x' + c.height : 'NULL') 
+    + ' ctx=' + (ctx ? 'OK' : 'NULL')
+    + ' S=' + (window.S ? window.S.targetLang : 'NULL')
+    + ' LOCS=' + (typeof LOCATIONS !== 'undefined' ? LOCATIONS.length : 'UNDEF');
+                 }
     
     // Positionner le joueur à la maison
     if (typeof player !== 'undefined') {
