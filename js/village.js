@@ -75,6 +75,11 @@ if (dbg) {
     + ' S=' + (window.S ? window.S.targetLang : 'NULL')
     + ' LOCS=' + (typeof LOCATIONS !== 'undefined' ? LOCATIONS.length : 'UNDEF');
                  }
+    dbg.textContent += ' | loop=' + window._villageLoopActive
+  + ' weather=' + currentWeather
+  + ' drawOK=' + (typeof drawVillage === 'function')
+  + ' homeOK=' + (typeof drawPlayerHome === 'function')
+  + ' LOCNAMES=' + (typeof LOC_NAMES !== 'undefined' ? 'OK' : 'UNDEF');
     
     // Positionner le joueur à la maison
     if (typeof player !== 'undefined') {
