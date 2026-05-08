@@ -208,6 +208,143 @@ window.LV_ONBOARDING = (function() {
     },
   };
 
+  // ── Textes UI traduits selon la langue maternelle ──────────
+  const UI_TEXT = {
+    fr: {
+      levelTitle:  lang => `Ton niveau en ${lang}`,
+      levelSub:    'Sois honnête — l\'app adaptera tout pour toi',
+      soundsTitle: lang => `🔊 Sons clés en ${lang}`,
+      soundsSub:   'Ces sons n\'existent pas dans ta langue — apprends-les en premier',
+      wordsTitle:  '📖 10 mots fondamentaux',
+      wordsSub:    'Les majuscules = syllabe accentuée • Prononce à voix haute',
+      structTitle: '🧱 Structure des phrases',
+      structSub:   'Mémorise ce schéma — tout part de là',
+      structLabel: 'Schéma de base',
+      structTip:   '💡 Tu n\'as pas besoin de tout comprendre maintenant.<br>Le village t\'apprendra le reste naturellement.',
+      contSounds:  'Continuer → Les 10 mots essentiels',
+      contWords:   'Continuer → Structure des phrases',
+      enter:       '🏘️ Entrer dans le village !',
+      skip:        'Passer cette étape',
+    },
+    en: {
+      levelTitle:  lang => `Your level in ${lang}`,
+      levelSub:    'Be honest — the app will adapt everything for you',
+      soundsTitle: lang => `🔊 Key sounds in ${lang}`,
+      soundsSub:   'These sounds don\'t exist in your language — learn them first',
+      wordsTitle:  '📖 10 essential words',
+      wordsSub:    'CAPITALS = stressed syllable • Pronounce out loud',
+      structTitle: '🧱 Sentence structure',
+      structSub:   'Memorize this pattern — everything starts here',
+      structLabel: 'Basic pattern',
+      structTip:   '💡 You don\'t need to understand everything now.<br>The village will teach you the rest naturally.',
+      contSounds:  'Continue → The 10 essential words',
+      contWords:   'Continue → Sentence structure',
+      enter:       '🏘️ Enter the village!',
+      skip:        'Skip this step',
+    },
+    es: {
+      levelTitle:  lang => `Tu nivel en ${lang}`,
+      levelSub:    'Sé honesto — la app adaptará todo para ti',
+      soundsTitle: lang => `🔊 Sonidos clave en ${lang}`,
+      soundsSub:   'Estos sonidos no existen en tu idioma — apréndelos primero',
+      wordsTitle:  '📖 10 palabras esenciales',
+      wordsSub:    'MAYÚSCULAS = sílaba acentuada • Pronuncia en voz alta',
+      structTitle: '🧱 Estructura de las frases',
+      structSub:   'Memoriza este esquema — todo empieza aquí',
+      structLabel: 'Esquema básico',
+      structTip:   '💡 No necesitas entender todo ahora.<br>El pueblo te enseñará el resto naturalmente.',
+      contSounds:  'Continuar → Las 10 palabras esenciales',
+      contWords:   'Continuar → Estructura de frases',
+      enter:       '🏘️ ¡Entrar al pueblo!',
+      skip:        'Saltar este paso',
+    },
+    ht: {
+      levelTitle:  lang => `Nivo ou nan ${lang}`,
+      levelSub:    'Swa onèt — app la ap adapte tout pou ou',
+      soundsTitle: lang => `🔊 Son kle nan ${lang}`,
+      soundsSub:   'Son sa yo pa egziste nan lang ou — aprann yo an premye',
+      wordsTitle:  '📖 10 mo fondamantal',
+      wordsSub:    'MAJISKIL = silab akantye • Pwononse fò',
+      structTitle: '🧱 Estrikti fraz',
+      structSub:   'Memorize modèl sa a — tout kòmanse isit la',
+      structLabel: 'Modèl debaz',
+      structTip:   '💡 Ou pa bezwen konprann tout kounye a.<br>Vilaj la ap aprann ou rès la natirèlman.',
+      contSounds:  'Kontinye → 10 mo esansyèl',
+      contWords:   'Kontinye → Estrikti fraz',
+      enter:       '🏘️ Antre nan vilaj la!',
+      skip:        'Sote etap sa a',
+    },
+    de: {
+      levelTitle:  lang => `Dein Niveau in ${lang}`,
+      levelSub:    'Sei ehrlich — die App passt sich dir an',
+      soundsTitle: lang => `🔊 Wichtige Laute auf ${lang}`,
+      soundsSub:   'Diese Laute gibt es in deiner Sprache nicht — lern sie zuerst',
+      wordsTitle:  '📖 10 grundlegende Wörter',
+      wordsSub:    'GROSSBUCHSTABEN = betonte Silbe • Laut aussprechen',
+      structTitle: '🧱 Satzstruktur',
+      structSub:   'Merke dir dieses Muster — alles beginnt hier',
+      structLabel: 'Grundmuster',
+      structTip:   '💡 Du musst nicht alles sofort verstehen.<br>Das Dorf wird dir den Rest auf natürliche Weise beibringen.',
+      contSounds:  'Weiter → Die 10 wichtigsten Wörter',
+      contWords:   'Weiter → Satzstruktur',
+      enter:       '🏘️ Das Dorf betreten!',
+      skip:        'Diesen Schritt überspringen',
+    },
+    ru: {
+      levelTitle:  lang => `Твой уровень в ${lang}`,
+      levelSub:    'Будь честен — приложение адаптируется под тебя',
+      soundsTitle: lang => `🔊 Ключевые звуки в ${lang}`,
+      soundsSub:   'Этих звуков нет в твоём языке — выучи их сначала',
+      wordsTitle:  '📖 10 основных слов',
+      wordsSub:    'ЗАГЛАВНЫЕ = ударный слог • Произноси вслух',
+      structTitle: '🧱 Структура предложений',
+      structSub:   'Запомни эту схему — всё начинается здесь',
+      structLabel: 'Базовая схема',
+      structTip:   '💡 Тебе не нужно понимать всё сейчас.<br>Деревня научит тебя остальному естественным образом.',
+      contSounds:  'Продолжить → 10 основных слов',
+      contWords:   'Продолжить → Структура предложений',
+      enter:       '🏘️ Войти в деревню!',
+      skip:        'Пропустить этот шаг',
+    },
+    zh: {
+      levelTitle:  lang => `你的${lang}水平`,
+      levelSub:    '诚实回答 — 应用将为你量身定制',
+      soundsTitle: lang => `🔊 ${lang}的关键发音`,
+      soundsSub:   '这些发音在你的语言中不存在 — 先学它们',
+      wordsTitle:  '📖 10个基础词汇',
+      wordsSub:    '大写字母 = 重读音节 • 大声朗读',
+      structTitle: '🧱 句子结构',
+      structSub:   '记住这个模式 — 一切从这里开始',
+      structLabel: '基本模式',
+      structTip:   '💡 你现在不需要理解所有内容。<br>村庄会自然地教会你其余的内容。',
+      contSounds:  '继续 → 10个必备词汇',
+      contWords:   '继续 → 句子结构',
+      enter:       '🏘️ 进入村庄！',
+      skip:        '跳过此步骤',
+    },
+    ja: {
+      levelTitle:  lang => `${lang}のレベル`,
+      levelSub:    '正直に答えてください — アプリがあなたに合わせます',
+      soundsTitle: lang => `🔊 ${lang}の重要な発音`,
+      soundsSub:   'これらの音はあなたの言語には存在しません — まず学んでください',
+      wordsTitle:  '📖 10の基本単語',
+      wordsSub:    '大文字 = アクセントのある音節 • 声に出して発音してください',
+      structTitle: '🧱 文の構造',
+      structSub:   'このパターンを覚えてください — すべてはここから始まります',
+      structLabel: '基本パターン',
+      structTip:   '💡 今すべてを理解する必要はありません。<br>村が自然に残りを教えてくれます。',
+      contSounds:  '続ける → 10の必須単語',
+      contWords:   '続ける → 文の構造',
+      enter:       '🏘️ 村に入る！',
+      skip:        'このステップをスキップ',
+    },
+  };
+
+  function _t() {
+    const nl = (window.S && window.S.nativeLang) || 'fr';
+    return UI_TEXT[nl] || UI_TEXT.fr;
+  }
+
   // ── Niveaux ────────────────────────────────────────────────
   const LEVELS = [
     { id:'zero',      label:'Zéro absolu',       desc:'Je ne connais aucun mot.',          icon:'🌱', xpBonus:0  },
@@ -265,15 +402,16 @@ window.LV_ONBOARDING = (function() {
     const lang = (window.S && S.targetLang) || 'fr';
     const flag = (window.FLAGS && FLAGS[lang]) || '';
     const langName = (window.LANG_NAMES && LANG_NAMES[lang]) || lang;
+    const t = _t();
 
     sc.innerHTML = `
       <div style="width:100%;max-width:420px;padding-top:16px;">
         <div style="text-align:center;margin-bottom:24px;">
           <div style="font-size:2.5rem;margin-bottom:8px;">${flag}</div>
           <div style="font-family:'Cinzel',serif;font-size:1.4rem;font-weight:700;
-                      color:#ffd700;margin-bottom:6px;">Ton niveau en ${langName}</div>
+                      color:#ffd700;margin-bottom:6px;">${t.levelTitle(langName)}</div>
           <div style="font-size:0.78rem;color:rgba(255,255,255,0.45);">
-            Sois honnête — l'app adaptera tout pour toi
+            ${t.levelSub}
           </div>
         </div>
 
@@ -297,7 +435,7 @@ window.LV_ONBOARDING = (function() {
           <button onclick="window.LV_ONBOARDING._skip()"
             style="background:none;border:none;color:rgba(255,255,255,0.3);
                    font-size:0.72rem;cursor:pointer;text-decoration:underline;">
-            Passer cette étape
+            ${t.skip}
           </button>
         </div>
       </div>`;
@@ -307,6 +445,7 @@ window.LV_ONBOARDING = (function() {
     const lang = (window.S && S.targetLang) || 'fr';
     const data = FOUNDATIONS[lang] || FOUNDATIONS.fr;
     const langName = (window.LANG_NAMES && LANG_NAMES[lang]) || lang;
+    const t = _t();
 
     sc.innerHTML = `
       <div style="width:100%;max-width:420px;padding-top:12px;">
@@ -317,9 +456,9 @@ window.LV_ONBOARDING = (function() {
         </div>
 
         <div style="font-family:'Cinzel',serif;font-size:1.1rem;font-weight:700;
-                    color:#ffd700;margin-bottom:4px;">🔊 Sons clés en ${langName}</div>
+                    color:#ffd700;margin-bottom:4px;">${t.soundsTitle(langName)}</div>
         <div style="font-size:0.75rem;color:rgba(255,255,255,0.45);margin-bottom:18px;">
-          Ces sons n'existent pas dans ta langue — apprends-les en premier
+          ${t.soundsSub}
         </div>
 
         <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:20px;">
@@ -345,15 +484,15 @@ window.LV_ONBOARDING = (function() {
           style="width:100%;background:linear-gradient(135deg,#a86800,#ffd700);border:none;
                  border-radius:14px;padding:14px;font-family:'Cinzel',serif;
                  font-size:0.95rem;font-weight:700;color:#0a0a0a;cursor:pointer;">
-          Continuer → Les 10 mots essentiels
+          ${t.contSounds}
         </button>
       </div>`;
   }
 
   function _renderWords(sc) {
     const lang = (window.S && S.targetLang) || 'fr';
-    const native = (window.S && S.nativeLang) || 'fr';
     const data = FOUNDATIONS[lang] || FOUNDATIONS.fr;
+    const t = _t();
 
     sc.innerHTML = `
       <div style="width:100%;max-width:420px;padding-top:12px;">
@@ -364,9 +503,9 @@ window.LV_ONBOARDING = (function() {
         </div>
 
         <div style="font-family:'Cinzel',serif;font-size:1.1rem;font-weight:700;
-                    color:#ffd700;margin-bottom:4px;">📖 10 mots fondamentaux</div>
+                    color:#ffd700;margin-bottom:4px;">${t.wordsTitle}</div>
         <div style="font-size:0.75rem;color:rgba(255,255,255,0.45);margin-bottom:14px;">
-          Les majuscules = syllabe accentuée • Prononce à voix haute
+          ${t.wordsSub}
         </div>
 
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:20px;">
@@ -386,7 +525,7 @@ window.LV_ONBOARDING = (function() {
           style="width:100%;background:linear-gradient(135deg,#a86800,#ffd700);border:none;
                  border-radius:14px;padding:14px;font-family:'Cinzel',serif;
                  font-size:0.95rem;font-weight:700;color:#0a0a0a;cursor:pointer;">
-          Continuer → Structure des phrases
+          ${t.contWords}
         </button>
       </div>`;
   }
@@ -395,6 +534,7 @@ window.LV_ONBOARDING = (function() {
     const lang = (window.S && S.targetLang) || 'fr';
     const data = FOUNDATIONS[lang] || FOUNDATIONS.fr;
     const st = data.structure;
+    const t = _t();
 
     sc.innerHTML = `
       <div style="width:100%;max-width:420px;padding-top:12px;">
@@ -403,15 +543,15 @@ window.LV_ONBOARDING = (function() {
         </div>
 
         <div style="font-family:'Cinzel',serif;font-size:1.1rem;font-weight:700;
-                    color:#ffd700;margin-bottom:4px;">🧱 Structure des phrases</div>
+                    color:#ffd700;margin-bottom:4px;">${t.structTitle}</div>
         <div style="font-size:0.75rem;color:rgba(255,255,255,0.45);margin-bottom:18px;">
-          Mémorise ce schéma — tout part de là
+          ${t.structSub}
         </div>
 
         <div style="background:rgba(192,132,252,0.08);border:1px solid rgba(192,132,252,0.25);
                     border-radius:14px;padding:16px;margin-bottom:14px;text-align:center;">
           <div style="font-size:0.7rem;font-weight:800;letter-spacing:0.12em;
-                      text-transform:uppercase;color:#c084fc;margin-bottom:10px;">Schéma de base</div>
+                      text-transform:uppercase;color:#c084fc;margin-bottom:10px;">${t.structLabel}</div>
           <div style="font-size:1rem;font-weight:700;color:#e8e0d0;margin-bottom:14px;">${st.pattern}</div>
           <div style="font-family:'Cinzel',serif;font-size:1.1rem;color:#ffd700;
                       margin-bottom:12px;">${st.example}</div>
@@ -427,8 +567,7 @@ window.LV_ONBOARDING = (function() {
         <div style="background:rgba(255,215,0,0.06);border:1px solid rgba(255,215,0,0.15);
                     border-radius:12px;padding:12px;margin-bottom:20px;font-size:0.78rem;
                     color:rgba(255,255,255,0.6);line-height:1.6;text-align:center;">
-          💡 Tu n'as pas besoin de tout comprendre maintenant.<br>
-          Le village t'apprendra le reste naturellement.
+          ${t.structTip}
         </div>
 
         <button onclick="window.LV_ONBOARDING._finish()"
@@ -436,7 +575,7 @@ window.LV_ONBOARDING = (function() {
                  border-radius:14px;padding:15px;font-family:'Cinzel',serif;
                  font-size:1rem;font-weight:700;color:#0a0a0a;cursor:pointer;
                  box-shadow:0 4px 20px rgba(255,215,0,0.3);">
-          🏘️ Entrer dans le village !
+          ${t.enter}
         </button>
       </div>`;
   }
