@@ -236,12 +236,32 @@ async function searchDict() {
   const showRoman = isCJK && S.scriptPref !== 'native';
   
   try {
-    const prompt = `Pour l'expression "${q}" et la paire de langues ${nl} ↔ ${tl}, agis comme un dictionnaire pédagogique. Réponds UNIQUEMENT avec un JSON valide au format {"translation":"...","roman":"...","grammar":"...","example":"..."}. "translation" = meilleure traduction dans la langue opposée selon le sens le plus courant. "roman" = romanisation si utile, sinon chaîne vide. "grammar" = catégorie grammaticale ou note d'usage très brève. "example" = un exemple court et naturel. Pas de markdown, pas d'explication supplémentaire.`;
-    
-    const resultData = await callAPIWithFallback('/api/dialogue', {
-      npcName: '', npcRole: 'Dictionary', location: 'Dictionary',
-      language: tl, playerName: S.playerName, playerMessage: prompt, history: []
-    });
+    const prompt = `You are a pedagogical dictionary. For the expression "${q}" between ${nl} and ${tl}, reply ONLY with valid JSON (no markdown, no explanation): {"translation":"...","roman":"...","grammar":"...","example":"..."}. "translation" = best translation. "roman" = romanization if useful else empty string. "grammar" = very brief grammatical note. "example" = one short natural example sentence.`;
+
+    let resultData;
+    // Essayer d'abord via callAPIWithFallback si disponible
+    if (typeof callAPIWithFallback === 'function') {
+      try {
+        resultData = await callAPIWithFallback('/api/translate', {
+          word: q, nativeLang: S.nativeLang, targetLang: S.targetLang
+        });
+      } catch(e) { resultData = null; }
+    }
+
+    // Fallback direct vers l'API Anthropic (Claude) si la route /api/translate échoue
+    if (!resultData || !resultData.reply) {
+      const apiResp = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'anthropic-version': '2023-06-01', 'x-api-key': '' },
+        body: JSON.stringify({
+          model: 'claude-haiku-4-5-20251001',
+          max_tokens: 300,
+          messages: [{ role: 'user', content: prompt }]
+        })
+      });
+      const apiData = await apiResp.json();
+      resultData = { reply: (apiData.content && apiData.content[0] && apiData.content[0].text) || '{}' };
+    }
     
     let p;
     try {
