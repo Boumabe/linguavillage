@@ -218,7 +218,7 @@ ${favWords ? `- Réutilise naturellement ces mots que l'apprenant aime : ${favWo
         try {
           const result = await callPNJ(npc, loc, '__OPEN__', []);
           if (typeof removeTyping === 'function') removeTyping();
-          const reply = result.reply || ('Bonjour ' + (S.playerName || '') + ' !');
+          const reply = result.reply || (function(){var gr={fr:'Bonjour',en:'Hello',es:'Hola',ht:'Bonjou',de:'Hallo',ru:'Привет',zh:'你好',ja:'こんにちは'};return (gr[(window.S&&S.targetLang)||'fr']||'Bonjour')+' '+(S.playerName||'')+' !';})();
           if (typeof addClickableMsg === 'function') addClickableMsg('npc', npc.emoji, reply);
           if (S.chatHistory) S.chatHistory.push({ role: 'assistant', content: reply });
           // Sprite neutre à l'ouverture
@@ -226,7 +226,7 @@ ${favWords ? `- Réutilise naturellement ces mots que l'apprenant aime : ${favWo
         } catch(e) {
           if (typeof removeTyping === 'function') removeTyping();
           if (typeof addClickableMsg === 'function')
-            addClickableMsg('npc', npc.emoji, 'Bonjour ' + (S.playerName || '') + ' !');
+            addClickableMsg('npc', npc.emoji, (function(){var gr={fr:'Bonjour',en:'Hello',es:'Hola',ht:'Bonjou',de:'Hallo',ru:'Привет',zh:'你好',ja:'こんにちは'};return (gr[(window.S&&S.targetLang)||'fr']||'Bonjour')+' '+(S.playerName||'')+' !';})());
         }
         if (sendBtn) sendBtn.disabled = false;
       };
@@ -262,7 +262,7 @@ ${favWords ? `- Réutilise naturellement ces mots que l'apprenant aime : ${favWo
         try {
           const result = await callPNJ(npc, loc, msg, S.chatHistory || []);
           if (typeof removeTyping === 'function') removeTyping();
-          const reply = result.reply || 'Merci !';
+          const reply = result.reply || (function(){var fb={fr:'Merci !',en:'Thanks!',es:'Gracias!',ht:'Mèsi!',de:'Danke!',ru:'Спасибо!',zh:'谢谢！',ja:'ありがとう！'};return fb[(window.S&&S.targetLang)||'fr']||'Merci !';})();
 
           // Analyser la réponse
           const { hasCorrection, hasSuccess } = analyzeResponse(reply);
@@ -311,15 +311,16 @@ ${favWords ? `- Réutilise naturellement ces mots que l'apprenant aime : ${favWo
 
   // ── Init : appliquer le patch dès que les fonctions existent ─
   function init() {
-    function tryPatch() {
-      if (window.openDialogue && window.npcOpen && window.sendMsg) {
-        patchDialogue();
-      }
-    }
+    // Exposer patchDialogue globalement pour debug
+    window.LV_PNJ_patch = patchDialogue;
+    // Patch apres que tous les scripts soient charges
     if (document.readyState === 'loading') {
-      window.addEventListener('DOMContentLoaded', function() { setTimeout(tryPatch, 200); });
+      window.addEventListener('DOMContentLoaded', function() {
+        setTimeout(patchDialogue, 150);
+      });
     } else {
-      setTimeout(tryPatch, 200);
+      // Scripts deja charges — patcher immediatement
+      setTimeout(patchDialogue, 150);
     }
   }
 
