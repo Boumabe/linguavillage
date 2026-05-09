@@ -8,6 +8,51 @@
 // =================================================================
 
 // Langues
+
+// =================================================================
+// API — URL globale accessible par tous les fichiers
+// =================================================================
+window.API = window.API || 'https://linguavillage-api--marckensbou2.replit.app';
+
+// Cache et anti-spam
+var _apiCache = {};
+var lastAPICall = 0;
+var MIN_API_INTERVAL = 300;
+
+// Fonction utilitaire API utilisée par dialogue.js, learning.js, quote.js etc.
+async function callAPIWithFallback(endpoint, data, options) {
+  options = options || {};
+  var skipCache = options.skipCache || false;
+  var timeout   = options.timeout || 10000;
+  var cacheKey  = endpoint + JSON.stringify(data);
+
+  if (!skipCache && _apiCache[cacheKey]) return _apiCache[cacheKey];
+
+  var now  = Date.now();
+  var wait = MIN_API_INTERVAL - (now - lastAPICall);
+  if (wait > 0) await new Promise(function(r){ setTimeout(r, wait); });
+  lastAPICall = Date.now();
+
+  var controller = new AbortController();
+  var timer = setTimeout(function(){ controller.abort(); }, timeout);
+  try {
+    var r = await fetch(window.API + endpoint, {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify(data),
+      signal:  controller.signal
+    });
+    clearTimeout(timer);
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    var result = await r.json();
+    _apiCache[cacheKey] = result;
+    return result;
+  } catch(e) {
+    clearTimeout(timer);
+    throw e;
+  }
+}
+
 var FLAGS = {
   fr: '🇫🇷', en: '🇬🇧', es: '🇪🇸', ht: '🇭🇹', de: '🇩🇪',
   ru: '🇷🇺', zh: '🇨🇳', ja: '🇯🇵'
