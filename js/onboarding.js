@@ -15,8 +15,8 @@ window.LV_ONBOARDING = (function() {
     struct_title:   {fr:'Structure des phrases',en:'Sentence structure',es:'Estructura de oraciones',ht:'Estrikti fraz yo',de:'Satzstruktur',ru:'Структура предложений',zh:'句子结构',ja:'文の構造'},
     struct_tip:     {fr:'Tu n\'as pas besoin de tout comprendre maintenant. Le village t\'apprendra le reste naturellement.',en:'You don\'t need to understand everything now. The village will teach you naturally.',es:'No necesitas entender todo ahora. El pueblo te enseñará el resto.',ht:'Ou pa bezwen konprann tout kounye a. Vilaj la ap ensèye ou rès la.',de:'Du musst nicht alles sofort verstehen. Das Dorf wird dich den Rest lehren.',ru:'Не нужно всё понять сейчас. Деревня научит тебя остальному.',zh:'你现在不需要理解所有内容。村庄将自然教会你其余部分。',ja:'今すべてを理解する必要はありません。村が残りを教えてくれます。'},
     enter_btn:      {fr:'Entrer dans le village !',en:'Enter the village!',es:'¡Entrar al pueblo!',ht:'Antre nan vilaj la!',de:'Das Dorf betreten!',ru:'Войти в деревню!',zh:'进入村庄！',ja:'村に入る！'},
-    skip:           {fr:'${_obT('skip')}',en:'Skip this step',es:'Omitir este paso',ht:'Pase etap sa a',de:'Schritt überspringen',ru:'Пропустить шаг',zh:'跳过此步骤',ja:'スキップ'},
-    schema:         {fr:'${_obT('schema')}',en:'Basic pattern',es:'Patrón básico',ht:'Modèl debaz',de:'Grundmuster',ru:'Базовая схема',zh:'基本句型',ja:'基本パターン'},
+    skip:           {fr:'Passer cette étape',en:'Skip this step',es:'Omitir este paso',ht:'Pase etap sa a',de:'Schritt überspringen',ru:'Пропустить шаг',zh:'跳过此步骤',ja:'スキップ'},
+    schema:         {fr:'Schéma de base',en:'Basic pattern',es:'Patrón básico',ht:'Modèl debaz',de:'Grundmuster',ru:'Базovaya schéma',zh:'基本句型',ja:'基本パターン'},
   };
   function _obT(key) {
     var nl = (window.S && S.nativeLang) || 'fr';
