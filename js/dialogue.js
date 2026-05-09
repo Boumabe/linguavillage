@@ -122,7 +122,7 @@ async function npcOpen() {
         systemContext: prompt
       });
       removeTyping();
-      var reply = result.reply || 'Bonjour ' + S.playerName + ' !';
+      var reply = result.reply || (function(){var gr={fr:'Bonjour',en:'Hello',es:'Hola',ht:'Bonjou',de:'Hallo',ru:'Привет',zh:'你好',ja:'こんにちは'};return (gr[(window.S&&S.targetLang)||'fr']||'Bonjour')+' '+(S.playerName||'')+' !';})();
       addClickableMsg('npc', npc.emoji, reply);
       if (S.chatHistory) S.chatHistory.push({role: 'assistant', content: reply});
     } else {
@@ -169,7 +169,7 @@ async function sendMsg() {
         systemContext: 'Tu es ' + S.currentNPC.name + ', ' + (typeof S.currentNPC.role === 'object' ? (S.currentNPC.role.fr || S.currentNPC.role.en) : S.currentNPC.role) + '. Réponds UNIQUEMENT en ' + (LANG_NAMES[S.targetLang] || '') + '.' + si + ' RÈGLE: reste dans ton rôle. Si hors-sujet dis: "Revenons à mon domaine." Max 2 phrases.'
       });
       removeTyping();
-      var reply = result.reply || 'Merci pour votre message !';
+      var reply = result.reply || (function(){var fb={fr:'Merci pour votre message !',en:'Thank you!',es:'Gracias!',ht:'Mèsi!',de:'Danke!',ru:'Спасибо!',zh:'谢谢！',ja:'ありがとう！'};return fb[(window.S&&S.targetLang)||'fr']||'Merci !';})();
       addClickableMsg('npc', npc.emoji, reply);
       if (S.chatHistory) S.chatHistory.push({ role: 'assistant', content: reply });
       if (typeof gainXP === 'function') gainXP(5);
@@ -178,7 +178,7 @@ async function sendMsg() {
     }
   } catch (e) {
     removeTyping();
-    addClickableMsg('npc', S.currentNPC ? S.currentNPC.emoji : '🧑', 'Merci pour votre message ! Je vous répondrai bientôt.');
+    addClickableMsg('npc', S.currentNPC ? S.currentNPC.emoji : '🧑', (function(){var fb={fr:'Merci !',en:'Thanks!',es:'Gracias!',ht:'Mèsi!',de:'Danke!',ru:'Спасибо!',zh:'谢谢！',ja:'ありがとう！'};return fb[(window.S&&S.targetLang)||'fr']||'Merci !';})())
   }
   if (sendBtn) sendBtn.disabled = false;
 }
