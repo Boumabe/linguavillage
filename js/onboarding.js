@@ -5,6 +5,25 @@
 
 window.LV_ONBOARDING = (function() {
 
+  var OB_LABELS = {
+    level_title:    {fr:'Ton niveau en',en:'Your level in',es:'Tu nivel en',ht:'Nivo ou nan',de:'Dein Niveau in',ru:'Твой уровень в',zh:'你在以下语言的水平',ja:'あなたのレベル'},
+    level_subtitle: {fr:'Sois honnête — l\'app adaptera tout pour toi',en:'Be honest — the app will adapt for you',es:'Sé honesto — la app se adaptará para ti',ht:'Soyez honnête — app la ap adapte pou ou',de:'Sei ehrlich — die App passt sich für dich an',ru:'Будь честен — приложение адаптируется',zh:'诚实作答，应用将为你调整',ja:'正直に答えてください'},
+    sounds_title:   {fr:'Sons clés en',en:'Key sounds in',es:'Sonidos clave en',ht:'Son kle nan',de:'Schlüssellaute in',ru:'Ключевые звуки в',zh:'关键发音',ja:'重要な音'},
+    sounds_sub:     {fr:'Ces sons n\'existent pas dans ta langue',en:'These sounds don\'t exist in your language',es:'Estos sonidos no existen en tu idioma',ht:'Son sa yo pa egziste nan lang ou',de:'Diese Laute gibt es nicht in deiner Sprache',ru:'Этих звуков нет в твоём языке',zh:'这些发音在你的语言中不存在',ja:'これらの音はあなたの言語にありません'},
+    words_title:    {fr:'10 mots fondamentaux',en:'10 fundamental words',es:'10 palabras fundamentales',ht:'10 mo fondamantal',de:'10 grundlegende Wörter',ru:'10 основных слов',zh:'10个基础词汇',ja:'10個の基礎単語'},
+    words_sub:      {fr:'Les majuscules = syllabe accentuée',en:'Uppercase = stressed syllable',es:'Mayúsculas = sílaba acentuada',ht:'Majiskil = silab aksan',de:'Großbuchstaben = betonte Silbe',ru:'Заглавные = ударный слог',zh:'大写=重音音节',ja:'大文字=強勢音節'},
+    struct_title:   {fr:'Structure des phrases',en:'Sentence structure',es:'Estructura de oraciones',ht:'Estrikti fraz yo',de:'Satzstruktur',ru:'Структура предложений',zh:'句子结构',ja:'文の構造'},
+    struct_tip:     {fr:'Tu n\'as pas besoin de tout comprendre maintenant. Le village t\'apprendra le reste naturellement.',en:'You don\'t need to understand everything now. The village will teach you naturally.',es:'No necesitas entender todo ahora. El pueblo te enseñará el resto.',ht:'Ou pa bezwen konprann tout kounye a. Vilaj la ap ensèye ou rès la.',de:'Du musst nicht alles sofort verstehen. Das Dorf wird dich den Rest lehren.',ru:'Не нужно всё понять сейчас. Деревня научит тебя остальному.',zh:'你现在不需要理解所有内容。村庄将自然教会你其余部分。',ja:'今すべてを理解する必要はありません。村が残りを教えてくれます。'},
+    enter_btn:      {fr:'Entrer dans le village !',en:'Enter the village!',es:'¡Entrar al pueblo!',ht:'Antre nan vilaj la!',de:'Das Dorf betreten!',ru:'Войти в деревню!',zh:'进入村庄！',ja:'村に入る！'},
+    skip:           {fr:'${_obT('skip')}',en:'Skip this step',es:'Omitir este paso',ht:'Pase etap sa a',de:'Schritt überspringen',ru:'Пропустить шаг',zh:'跳过此步骤',ja:'スキップ'},
+    schema:         {fr:'${_obT('schema')}',en:'Basic pattern',es:'Patrón básico',ht:'Modèl debaz',de:'Grundmuster',ru:'Базовая схема',zh:'基本句型',ja:'基本パターン'},
+  };
+  function _obT(key) {
+    var nl = (window.S && S.nativeLang) || 'fr';
+    return (OB_LABELS[key] && (OB_LABELS[key][nl] || OB_LABELS[key]['fr'])) || key;
+  }
+
+
   // ── Données fondations par langue ──────────────────────────
   const FOUNDATIONS = {
     fr: {
@@ -216,13 +235,13 @@ window.LV_ONBOARDING = (function() {
       soundsTitle: lang => `🔊 Sons clés en ${lang}`,
       soundsSub:   'Ces sons n\'existent pas dans ta langue — apprends-les en premier',
       wordsTitle:  '📖 10 mots fondamentaux',
-      wordsSub:    'Les majuscules = syllabe accentuée • Prononce à voix haute',
+      wordsSub:    'Majuscules = syllabe accentuée • Prononce à voix haute',
       structTitle: '🧱 Structure des phrases',
-      structSub:   'Mémorise ce schéma — tout part de là',
+      structSub:   '',
       structLabel: 'Schéma de base',
       structTip:   '💡 Tu n\'as pas besoin de tout comprendre maintenant.<br>Le village t\'apprendra le reste naturellement.',
-      contSounds:  'Continuer → Les 10 mots essentiels',
-      contWords:   'Continuer → Structure des phrases',
+      contSounds:  'Continuer →',
+      contWords:   'Continuer →',
       enter:       '🏘️ Entrer dans le village !',
       skip:        'Passer cette étape',
     },
