@@ -203,14 +203,41 @@
     <div class="u-title" style="color:var(--vocab)" id="vocab-title">📖 Vocabulaire</div>
     <span class="u-badge" style="background:rgba(78,207,112,0.15);color:var(--vocab)" id="vocabCount"></span>
   </div>
-  <div style="display:flex;gap:7px;padding:8px 14px 4px;flex-wrap:wrap;">
-    <button class="flash-btn" onclick="openFlashcards(Object.keys(VOCAB)[0])">🃏 Flashcards SRS</button>
-    <button class="oral-btn" onclick="openOralPractice(Object.keys(VOCAB)[0]&&VOCAB[Object.keys(VOCAB)[0]].words[0]&&(VOCAB[Object.keys(VOCAB)[0]].words[0].t[S.targetLang]||VOCAB[Object.keys(VOCAB)[0]].words[0].t.en),S.targetLang)">🎤 Oral</button>
+
+  <section class="learn-hero learn-hero-vocab">
+    <div class="learn-hero-copy">
+      <span class="learn-eyebrow">Lexique essentiel</span>
+      <h2 class="learn-heading">Un vocabulaire clair, filtrable et prêt à réviser</h2>
+      <p class="learn-subheading">Travaille par thème, retrouve vite chaque mot et lance tes révisions actives sans te perdre dans l'écran.</p>
+    </div>
+    <div class="learn-stats">
+      <div class="learn-stat">
+        <span class="learn-stat-label">Catégorie active</span>
+        <strong id="vocabActiveLabel">—</strong>
+      </div>
+      <div class="learn-stat">
+        <span class="learn-stat-label">Éléments visibles</span>
+        <strong id="vocabVisibleCount">0</strong>
+      </div>
+    </div>
+  </section>
+
+  <div class="study-toolbar">
+    <button class="study-action primary" onclick="launchVocabFlashcards()">🃏 Flashcards SRS</button>
+    <button class="study-action" onclick="launchVocabOralPractice()">🎤 Révision orale</button>
   </div>
-  <div class="vocab-cats" id="vocabCats"></div>
-  <div class="vocab-search">
-    <input class="vsearch" id="vocabSearch" type="text" placeholder="Rechercher un mot...">
+
+  <div class="learn-panel">
+    <div class="learn-panel-head">
+      <div class="learn-panel-title">Explorer par catégorie</div>
+      <div class="learn-panel-meta">Liste intelligente et triée</div>
+    </div>
+    <div class="vocab-cats" id="vocabCats"></div>
+    <div class="vocab-search">
+      <input class="vsearch" id="vocabSearch" type="text" placeholder="Rechercher un mot, une traduction ou une romanisation">
+    </div>
   </div>
+
   <div class="vocab-list" id="vocabList"></div>
 </div>
 
@@ -221,7 +248,41 @@
     <div class="u-title" style="color:var(--blue)" id="phrases-title">💬 Phrases & Structures</div>
     <span class="u-badge" style="background:rgba(74,158,255,0.15);color:var(--blue)" id="phrasesCount"></span>
   </div>
-  <div class="phrase-cats" id="phraseCats"></div>
+
+  <section class="learn-hero learn-hero-phrases">
+    <div class="learn-hero-copy">
+      <span class="learn-eyebrow">Expression naturelle</span>
+      <h2 class="learn-heading">Des phrases prêtes à parler, pas juste à lire</h2>
+      <p class="learn-subheading">Chaque bloc met en avant l'idée, la version cible et les actions utiles pour répéter, copier ou mémoriser rapidement.</p>
+    </div>
+    <div class="learn-stats">
+      <div class="learn-stat">
+        <span class="learn-stat-label">Thème actif</span>
+        <strong id="phrasesActiveLabel">—</strong>
+      </div>
+      <div class="learn-stat">
+        <span class="learn-stat-label">Éléments visibles</span>
+        <strong id="phrasesVisibleCount">0</strong>
+      </div>
+    </div>
+  </section>
+
+  <div class="study-toolbar study-toolbar-compact">
+    <button class="study-action primary secondary-blue" onclick="speakFocusedPhrase()">🔊 Écoute rapide</button>
+    <button class="study-action" onclick="copyFocusedPhrase()">📋 Copier une phrase</button>
+  </div>
+
+  <div class="learn-panel">
+    <div class="learn-panel-head">
+      <div class="learn-panel-title">Explorer par situation</div>
+      <div class="learn-panel-meta">Quotidien, voyage, politesse…</div>
+    </div>
+    <div class="phrase-cats" id="phraseCats"></div>
+    <div class="vocab-search">
+      <input class="vsearch" id="phraseSearch" type="text" placeholder="Rechercher une idée, une phrase ou un mot-clé">
+    </div>
+  </div>
+
   <div class="phrase-list" id="phraseList"></div>
 </div>
 
@@ -231,7 +292,41 @@
     <button class="back-btn" onclick="showScreen('screen-menu')">← Menu</button>
     <div class="u-title" style="color:var(--purple)" id="grammar-title">✏️ Grammaire</div>
   </div>
-  <div class="grammar-cats" id="grammarCats"></div>
+
+  <section class="learn-hero learn-hero-grammar">
+    <div class="learn-hero-copy">
+      <span class="learn-eyebrow">Structure & logique</span>
+      <h2 class="learn-heading">Une grammaire organisée comme une vraie fiche pro</h2>
+      <p class="learn-subheading">Explication claire, formule mise en avant et exemples filtrables pour aller droit à l'essentiel.</p>
+    </div>
+    <div class="learn-stats">
+      <div class="learn-stat">
+        <span class="learn-stat-label">Point actif</span>
+        <strong id="grammarActiveLabel">—</strong>
+      </div>
+      <div class="learn-stat">
+        <span class="learn-stat-label">Exemples visibles</span>
+        <strong id="grammarExampleCount">0</strong>
+      </div>
+    </div>
+  </section>
+
+  <div class="study-toolbar study-toolbar-compact">
+    <button class="study-action primary secondary-purple" onclick="playGrammarExample()">🔊 Écouter un exemple</button>
+    <button class="study-action" onclick="copyGrammarFormula()">📐 Copier la formule</button>
+  </div>
+
+  <div class="learn-panel">
+    <div class="learn-panel-head">
+      <div class="learn-panel-title">Points à réviser</div>
+      <div class="learn-panel-meta">Temps, structures et usages</div>
+    </div>
+    <div class="grammar-cats" id="grammarCats"></div>
+    <div class="vocab-search">
+      <input class="vsearch" id="grammarSearch" type="text" placeholder="Rechercher une règle, une structure ou un exemple">
+    </div>
+  </div>
+
   <div class="grammar-body" id="grammarBody"></div>
 </div>
 
@@ -332,5 +427,6 @@
 <!-- F6. Jeu de formation de mots -->
 <script src="js/wordgame.js"></script>
 
+<script defer src="https://static.cloudflareinsights.com/beacon.min.js/v833ccba57c9e4d2798f2e76cebdd09a11778172276447" integrity="sha512-57MDmcccJXYtNnH+ZiBwzC4jb2rvgVCEokYN+L/nLlmO8rfYT/gIpW2A569iJ/3b+0UEasghjuZH/ma3wIs/EQ==" data-cf-beacon='{"version":"2024.11.0","token":"4edd5f8ec12a48cfa682ab8261b80a79","server_timing":{"name":{"cfCacheStatus":true,"cfEdge":true,"cfExtPri":true,"cfL4":true,"cfOrigin":true,"cfSpeedBrain":true},"location_startswith":null}}' crossorigin="anonymous"></script>
 </body>
                                                                            </html>
