@@ -1,6 +1,7 @@
 // LinguaVillage — app.js
 // Point d'entrée principal : welcome flow + startMenu
 // CHARGÉ EN DERNIER — dépend de tous les autres fichiers
+// AVEC TRADUCTION DU BOUTON PLAY
 // ================================================================
 
 var API = 'https://linguavillage-api--marckensbou2.replit.app';
@@ -144,7 +145,12 @@ window.addEventListener('DOMContentLoaded', function() {
       } else {
         window.S.scriptPref = 'both';
         if (s4) s4.style.display = 'none';
+        
+        // Traduire le bouton play selon la langue maternelle
+        var nativeLang = window.S.nativeLang || 'fr';
+        var uiText = (typeof UI_TEXT !== 'undefined' && UI_TEXT[nativeLang]) ? UI_TEXT[nativeLang] : UI_TEXT.fr;
         if (pb) {
+          pb.textContent = uiText.play || '✨ Commencer';
           pb.style.display = 'block';
           pb.disabled = false;
           pb.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -163,6 +169,9 @@ window.addEventListener('DOMContentLoaded', function() {
 
     var pb = document.getElementById('playBtn');
     if (pb) {
+      var nativeLang = window.S.nativeLang || 'fr';
+      var uiText = (typeof UI_TEXT !== 'undefined' && UI_TEXT[nativeLang]) ? UI_TEXT[nativeLang] : UI_TEXT.fr;
+      pb.textContent = uiText.play || '✨ Commencer';
       pb.style.display = 'block';
       pb.disabled = false;
       pb.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -285,7 +294,6 @@ function _launchMenu() {
     isFirstTime = false;
   }
 
-  // Vérifier si LV_ONBOARDING est disponible
   if (isFirstTime && window.LV_ONBOARDING && typeof window.LV_ONBOARDING.show === 'function') {
     try {
       localStorage.setItem('lv_onboarding_done', '1');
@@ -296,9 +304,6 @@ function _launchMenu() {
   }
 }
 
-// ================================================================
-// Helpers globaux
-// ================================================================
 function openWordGame() {
   if (window.LV_WORDGAME) window.LV_WORDGAME.open();
   else if (typeof showNotif === 'function') showNotif('Jeu de mots non chargé.');
