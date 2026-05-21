@@ -1,4 +1,4 @@
-// village.js — PREMIUM EDITION
+// village.js — PREMIUM EDITION (CORRIGÉ - FICHIER COMPLET)
 // LinguaVillage — Village circulaire parfaitement aligné
 // ================================================================
 
@@ -13,19 +13,16 @@ window._onCanvasResize = window._onCanvasResize || null;
 // CONFIGURATION PREMIUM DU VILLAGE
 // ================================================================
 window.VILLAGE_CONFIG = {
-  // Rayons des cercles (proportion du min(width,height)/2)
   rings: [
-    { radius: 0.10, color: 'rgba(160,130,80,0.35)', width: 2.5 },   // Noyau
-    { radius: 0.20, color: 'rgba(160,130,80,0.30)', width: 2.0 },   // Anneau 1
-    { radius: 0.32, color: 'rgba(160,130,80,0.28)', width: 1.8 },   // Anneau 2
-    { radius: 0.46, color: 'rgba(160,130,80,0.25)', width: 1.5 },   // Anneau 3
+    { radius: 0.10, color: 'rgba(160,130,80,0.35)', width: 2.5 },
+    { radius: 0.20, color: 'rgba(160,130,80,0.30)', width: 2.0 },
+    { radius: 0.32, color: 'rgba(160,130,80,0.28)', width: 1.8 },
+    { radius: 0.46, color: 'rgba(160,130,80,0.25)', width: 1.5 },
   ],
-  // Animation
   bobAmplitude: 2.5,
   bobSpeed: 0.025,
   hoverScale: 1.15,
   hoverGlow: 'rgba(255,215,0,0.4)',
-  // Effets atmosphériques
   particleCount: 30,
   starCount: 60,
 };
@@ -36,7 +33,6 @@ window.VILLAGE_CONFIG = {
 function goVillage() {
   if (!window.S) return;
 
-  // HUD
   var hudPlayer = document.getElementById('hudPlayer');
   var hudLang   = document.getElementById('hudLang');
   var hudXP     = document.getElementById('hudXP');
@@ -45,7 +41,6 @@ function goVillage() {
   if (hudLang)   hudLang.textContent   = (FLAGS[S.targetLang]||'') + ' ' + (LANG_NAMES[S.targetLang]||'');
   if (hudXP)     hudXP.textContent     = (S.xp||0) + ' XP';
 
-  // Afficher écran
   if (typeof window.showScreen === 'function') {
     window.showScreen('screen-village');
   } else {
@@ -57,7 +52,6 @@ function goVillage() {
     if (vs) vs.classList.add('active');
   }
 
-  // Reset canvas
   canvas = null;
   ctx = null;
   tick = 0;
@@ -97,9 +91,6 @@ function goVillage() {
   window._timeUpdateInterval = setInterval(updateTime, 30000);
 }
 
-// ================================================================
-// MÉTÉO
-// ================================================================
 function getWeatherForTime() {
   var h = new Date().getHours();
   if (h >= 21 || h < 6) return 'night';
@@ -155,14 +146,10 @@ function updateTime() {
   }
 }
 
-// ================================================================
-// INITIALISATION CANVAS PREMIUM
-// ================================================================
 function initCanvas() {
   canvas = document.getElementById('villageCanvas');
   if (!canvas) return;
 
-  // HD Retina support
   var dpr = window.devicePixelRatio || 1;
   var rect = canvas.getBoundingClientRect();
 
@@ -172,14 +159,11 @@ function initCanvas() {
   }
 
   canvas.style.display = 'block';
-
   ctx = canvas.getContext('2d');
   if (!ctx) return;
 
-  // Scale pour HD
   ctx.scale(dpr, dpr);
 
-  // Fond immédiat
   var W = canvas.width / dpr;
   var H = canvas.height / dpr;
   ctx.fillStyle = '#0a0a14';
@@ -188,7 +172,6 @@ function initCanvas() {
   tick = 0;
   drawVillage();
 
-  // Resize handler
   if (window._onCanvasResize) {
     window.removeEventListener('resize', window._onCanvasResize);
   }
@@ -199,7 +182,6 @@ function initCanvas() {
       var newDpr = window.devicePixelRatio || 1;
       canvas.width = (r.width || window.innerWidth) * newDpr;
       canvas.height = (r.height || window.innerHeight) * newDpr;
-      // Reset scale
       var newCtx = canvas.getContext('2d');
       newCtx.scale(newDpr, newDpr);
       drawVillage();
@@ -207,7 +189,6 @@ function initCanvas() {
   };
   window.addEventListener('resize', window._onCanvasResize);
 
-  // Events
   canvas.removeEventListener('click', onVillageClick);
   canvas.removeEventListener('mousemove', onVillageHover);
   canvas.removeEventListener('touchstart', onVillageTouch);
@@ -216,7 +197,6 @@ function initCanvas() {
   canvas.addEventListener('mousemove', onVillageHover);
   canvas.addEventListener('touchstart', onVillageTouch, { passive: true });
 
-  // Loop
   if (!window._villageLoopRunning) {
     window._villageLoopRunning = true;
     window._villageLoopActive = true;
@@ -224,9 +204,6 @@ function initCanvas() {
   }
 }
 
-// ================================================================
-// BOUCLE D'ANIMATION
-// ================================================================
 function villageLoop() {
   if (!window._villageLoopActive) return;
   tick++;
@@ -235,9 +212,6 @@ function villageLoop() {
   requestAnimationFrame(villageLoop);
 }
 
-// ================================================================
-// DESSIN DU VILLAGE PREMIUM
-// ================================================================
 function drawVillage() {
   if (!canvas || !ctx) return;
 
@@ -253,7 +227,6 @@ function drawVillage() {
   var night = currentWeather === 'night';
   var cfg = window.VILLAGE_CONFIG;
 
-  // ---- Fond de ciel premium ----
   var sky = ctx.createRadialGradient(cx, cy * 0.3, 0, cx, cy, minDim * 0.6);
   if (night) {
     sky.addColorStop(0, '#0a0a1e');
@@ -270,29 +243,16 @@ function drawVillage() {
   ctx.fillStyle = sky;
   ctx.fillRect(0, 0, W, H);
 
-  // ---- Étoiles (nuit) ----
-  if (night) {
-    drawStars(cx, cy, minDim);
-  }
-
-  // ---- Lune ou soleil ----
+  if (night) drawStars(cx, cy, minDim);
   drawCelestialBody(W, H, night);
-
-  // ---- Sol / Herbe avec gradient radial premium ----
   drawGround(cx, cy, minDim, night);
-
-  // ---- Cercles concentriques (anneaux du village) ----
   drawRings(cx, cy, minDim, cfg.rings);
-
-  // ---- Chemins connecteurs ----
   drawConnectors(cx, cy, minDim);
 
-  // ---- Maison du joueur (centre) ----
   if (typeof drawPlayerHome === 'function') {
     drawPlayerHome(cx, cy, minDim * 0.08);
   }
 
-  // ---- Lieux alignés sur les cercles ----
   if (typeof LOCATIONS !== 'undefined') {
     LOCATIONS.forEach(function(loc) {
       var bob = Math.sin(tick * cfg.bobSpeed + loc.x * 10) * cfg.bobAmplitude;
@@ -301,31 +261,23 @@ function drawVillage() {
     });
   }
 
-  // ---- Ligne de marche du joueur ----
   if (typeof player !== 'undefined' && player.dest) {
     drawPlayerPath(cx, cy, minDim);
   }
 
-  // ---- Personnage ----
   if (typeof drawPlayerCharacter === 'function') {
     drawPlayerCharacter(W, H);
   }
 
-  // ---- Effet météo global ----
   if (currentWeather === 'rain') {
     ctx.fillStyle = 'rgba(0,15,30,0.08)';
     ctx.fillRect(0, 0, W, H);
   }
 
-  // ---- Particules atmosphériques ----
   if (!night && currentWeather === 'sun') {
     drawAtmosphericParticles(W, H);
   }
 }
-
-// ================================================================
-// SOUS-FONCTIONS DE RENDU PREMIUM
-// ================================================================
 
 function drawStars(cx, cy, minDim) {
   var count = window.VILLAGE_CONFIG.starCount;
@@ -347,7 +299,6 @@ function drawCelestialBody(W, H, night) {
   var y = H * 0.12;
 
   if (night) {
-    // Lune avec glow
     var moonGlow = ctx.createRadialGradient(x, y, 0, x, y, 40);
     moonGlow.addColorStop(0, 'rgba(240,230,160,0.3)');
     moonGlow.addColorStop(1, 'rgba(240,230,160,0)');
@@ -359,7 +310,6 @@ function drawCelestialBody(W, H, night) {
     ctx.fillStyle = '#f0e6a0';
     ctx.fill();
 
-    // Cratères
     ctx.beginPath();
     ctx.arc(x - 4, y - 2, 3, 0, Math.PI * 2);
     ctx.fillStyle = 'rgba(200,190,140,0.3)';
@@ -369,7 +319,6 @@ function drawCelestialBody(W, H, night) {
     ctx.fillStyle = 'rgba(200,190,140,0.2)';
     ctx.fill();
   } else {
-    // Soleil avec rayons
     var sunColor = currentWeather === 'rain' ? '#8a98a8' : '#ffe8a0';
     var sunGlow = ctx.createRadialGradient(x, y, 0, x, y, 50);
     sunGlow.addColorStop(0, 'rgba(255,230,160,0.25)');
@@ -382,7 +331,6 @@ function drawCelestialBody(W, H, night) {
     ctx.fillStyle = sunColor;
     ctx.fill();
 
-    // Rayons
     if (currentWeather !== 'rain') {
       for (var r = 0; r < 8; r++) {
         var angle = (r / 8) * Math.PI * 2 + tick * 0.005;
@@ -421,15 +369,12 @@ function drawGround(cx, cy, minDim, night) {
 function drawRings(cx, cy, minDim, rings) {
   rings.forEach(function(ring) {
     var r = minDim * ring.radius;
-
-    // Glow sous l'anneau
     ctx.beginPath();
     ctx.arc(cx, cy, r, 0, Math.PI * 2);
     ctx.strokeStyle = ring.color;
     ctx.lineWidth = ring.width;
     ctx.stroke();
 
-    // Ligne intérieure plus claire
     ctx.beginPath();
     ctx.arc(cx, cy, r - 1, 0, Math.PI * 2);
     ctx.strokeStyle = 'rgba(200,170,100,0.15)';
@@ -445,9 +390,8 @@ function drawConnectors(cx, cy, minDim) {
   ctx.lineWidth = 1;
   ctx.setLineDash([3, 6]);
 
-  // Connecter chaque lieu au centre
   LOCATIONS.forEach(function(loc) {
-    if (loc.id === 'cinema') return; // Cinéma est au centre
+    if (loc.id === 'cinema') return;
     var lx = cx + (loc.x + loc.w/2 - 0.5) * minDim;
     var ly = cy + (loc.y + loc.h/2 - 0.5) * minDim;
 
@@ -460,9 +404,6 @@ function drawConnectors(cx, cy, minDim) {
   ctx.setLineDash([]);
 }
 
-// ================================================================
-// DESSIN D'UN LIEU PREMIUM
-// ================================================================
 function drawLocPremium(loc, cx, cy, minDim, bob, isHovered) {
   if (!ctx) return;
 
@@ -471,22 +412,17 @@ function drawLocPremium(loc, cx, cy, minDim, bob, isHovered) {
   var size = baseSize * scale;
   var r = size * 0.5;
 
-  // Position absolue sur le canvas
   var bx = cx + (loc.x + loc.w/2 - 0.5) * minDim;
   var by = cy + (loc.y + loc.h/2 - 0.5) * minDim + bob;
 
   var night = currentWeather === 'night';
 
-  // Ombre portée dynamique
-  var shadowOffset = isHovered ? 6 : 3;
-  var shadowBlur = isHovered ? 15 : 8;
   ctx.save();
   ctx.shadowColor = 'rgba(0,0,0,0.4)';
-  ctx.shadowBlur = shadowBlur;
-  ctx.shadowOffsetX = shadowOffset;
-  ctx.shadowOffsetY = shadowOffset + 2;
+  ctx.shadowBlur = isHovered ? 15 : 8;
+  ctx.shadowOffsetX = isHovered ? 6 : 3;
+  ctx.shadowOffsetY = (isHovered ? 6 : 3) + 2;
 
-  // Glow au hover
   if (isHovered) {
     var glow = ctx.createRadialGradient(bx, by, r * 0.8, bx, by, r * 1.8);
     glow.addColorStop(0, window.VILLAGE_CONFIG.hoverGlow);
@@ -497,7 +433,6 @@ function drawLocPremium(loc, cx, cy, minDim, bob, isHovered) {
     ctx.fill();
   }
 
-  // Cercle principal avec gradient
   var grad = ctx.createRadialGradient(bx - r*0.3, by - r*0.3, 0, bx, by, r);
   var baseColor = loc.color;
 
@@ -515,7 +450,6 @@ function drawLocPremium(loc, cx, cy, minDim, bob, isHovered) {
   ctx.fill();
   ctx.restore();
 
-  // Bordure
   ctx.beginPath();
   ctx.arc(bx, by, r, 0, Math.PI * 2);
   if (isHovered) {
@@ -533,14 +467,12 @@ function drawLocPremium(loc, cx, cy, minDim, bob, isHovered) {
   ctx.shadowColor = 'transparent';
   ctx.shadowBlur = 0;
 
-  // Lumières la nuit
   if (night) {
     ctx.fillStyle = 'rgba(255,220,120,0.7)';
     var winSize = r * 0.18;
     ctx.fillRect(bx - r * 0.25, by - r * 0.1, winSize, winSize);
     ctx.fillRect(bx + r * 0.08, by - r * 0.1, winSize, winSize);
 
-    // Glow des fenêtres
     ctx.shadowColor = 'rgba(255,220,120,0.5)';
     ctx.shadowBlur = 8;
     ctx.fillRect(bx - r * 0.25, by - r * 0.1, winSize, winSize);
@@ -549,13 +481,11 @@ function drawLocPremium(loc, cx, cy, minDim, bob, isHovered) {
     ctx.shadowBlur = 0;
   }
 
-  // Emoji du lieu
   ctx.font = (size * 0.42) + 'px serif';
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
   ctx.fillText(loc.emoji, bx, by);
 
-  // Nom du lieu
   var nativeLang = (window.S && window.S.nativeLang) ? window.S.nativeLang : 'en';
   var nm = (LOC_NAMES && LOC_NAMES[loc.id] && LOC_NAMES[loc.id][nativeLang]) ? LOC_NAMES[loc.id][nativeLang] : loc.id;
 
@@ -564,14 +494,12 @@ function drawLocPremium(loc, cx, cy, minDim, bob, isHovered) {
   ctx.textAlign = 'center';
   ctx.textBaseline = 'top';
 
-  // Ombre du texte
   ctx.shadowColor = 'rgba(0,0,0,0.6)';
   ctx.shadowBlur = 4;
   ctx.fillText(nm, bx, by + r + 6);
   ctx.shadowColor = 'transparent';
   ctx.shadowBlur = 0;
 
-  // Badge "NEW" pour le cinéma
   if (loc.id === 'cinema') {
     ctx.beginPath();
     ctx.arc(bx + r * 0.7, by - r * 0.7, r * 0.22, 0, Math.PI * 2);
@@ -602,7 +530,6 @@ function drawPlayerPath(cx, cy, minDim) {
   ctx.stroke();
   ctx.setLineDash([]);
 
-  // Point de destination pulsant
   var pulse = 0.5 + 0.5 * Math.sin(tick * 0.1);
   ctx.beginPath();
   ctx.arc(dx, dy, 4 + pulse * 3, 0, Math.PI * 2);
@@ -625,9 +552,6 @@ function drawAtmosphericParticles(W, H) {
   }
 }
 
-// ================================================================
-// UTILITAIRES COULEURS PREMIUM
-// ================================================================
 function hexA(h, a) {
   var r = parseInt(h.slice(1, 3), 16);
   var g = parseInt(h.slice(3, 5), 16);
@@ -653,9 +577,6 @@ function lighten(h, amount) {
   return '#' + parts.join('');
 }
 
-// ================================================================
-// INTERACTIONS SOURIS / TACTILE
-// ================================================================
 function getLocAt(mx, my) {
   if (!canvas || typeof LOCATIONS === 'undefined') return null;
   var dpr = window.devicePixelRatio || 1;
@@ -671,7 +592,7 @@ function getLocAt(mx, my) {
     var r = Math.min(loc.w * minDim, loc.h * minDim) * 0.5;
     var dx = mx - bx;
     var dy = my - by;
-    return dx * dx + dy * dy <= r * r * 1.2; // Zone légèrement plus grande pour le touch
+    return dx * dx + dy * dy <= r * r * 1.2;
   });
 }
 
@@ -679,10 +600,7 @@ function onVillageHover(e) {
   var rect = canvas.getBoundingClientRect();
   var loc = getLocAt(e.clientX - rect.left, e.clientY - rect.top);
 
-  var prevHover = hoveredLoc;
   hoveredLoc = loc ? loc.id : null;
-
-  // Changer curseur
   canvas.style.cursor = loc ? 'pointer' : 'default';
 
   var tip = document.getElementById('locTooltip');
@@ -701,4 +619,114 @@ function onVillageHover(e) {
   }
 }
 
-function onVillageClick
+function onVillageClick(e) {
+  var rect = canvas.getBoundingClientRect();
+  var loc = getLocAt(e.clientX - rect.left, e.clientY - rect.top);
+  if (!loc) return;
+
+  var xpReq = LOC_XP_REQUIREMENTS ? (LOC_XP_REQUIREMENTS[loc.id] || 0) : 0;
+  if ((S.xp||0) < xpReq) {
+    showNotif('🔒 ' + ((LOC_NAMES[loc.id]&&LOC_NAMES[loc.id][S.nativeLang||'fr'])||loc.id) + ' — ' + xpReq + ' XP requis');
+    return;
+  }
+
+  var goToLoc = function() {
+    if (typeof playerGoHome === 'function') playerGoHome();
+    if (typeof showScreen === 'function') {
+      showScreen('screen-location');
+    } else {
+      document.querySelectorAll('.screen').forEach(function(s) {
+        s.classList.remove('active');
+        s.style.display = '';
+      });
+      var sl = document.getElementById('screen-location');
+      if (sl) sl.classList.add('active');
+    }
+    if (typeof loadLocation === 'function') loadLocation(loc.id);
+  };
+
+  if (typeof startPlayerWalk === 'function') {
+    var destX = loc.x + loc.w/2;
+    var destY = loc.y + loc.h/2;
+    startPlayerWalk(destX, destY, (LOC_NAMES[loc.id]?LOC_NAMES[loc.id][S.nativeLang||'fr']:loc.id), goToLoc);
+  } else {
+    goToLoc();
+  }
+}
+
+function onVillageTouch(e) {
+  e.preventDefault();
+  var rect = canvas.getBoundingClientRect();
+  var t = e.touches[0];
+  var loc = getLocAt(t.clientX - rect.left, t.clientY - rect.top);
+  if (!loc) return;
+
+  var xpReq = LOC_XP_REQUIREMENTS ? (LOC_XP_REQUIREMENTS[loc.id] || 0) : 0;
+  if ((S.xp||0) < xpReq) {
+    showNotif('🔒 ' + ((LOC_NAMES[loc.id]&&LOC_NAMES[loc.id][S.nativeLang||'fr'])||loc.id) + ' — ' + xpReq + ' XP requis');
+    return;
+  }
+
+  var goToLoc = function() {
+    if (typeof playerGoHome === 'function') playerGoHome();
+    if (typeof showScreen === 'function') {
+      showScreen('screen-location');
+    } else {
+      document.querySelectorAll('.screen').forEach(function(s) {
+        s.classList.remove('active');
+        s.style.display = '';
+      });
+      var sl = document.getElementById('screen-location');
+      if (sl) sl.classList.add('active');
+    }
+    if (typeof loadLocation === 'function') loadLocation(loc.id);
+  };
+
+  if (typeof startPlayerWalk === 'function') {
+    var destX = loc.x + loc.w/2;
+    var destY = loc.y + loc.h/2;
+    startPlayerWalk(destX, destY, (LOC_NAMES[loc.id]?LOC_NAMES[loc.id][S.nativeLang||'fr']:loc.id), goToLoc);
+  } else {
+    goToLoc();
+  }
+}
+
+var LOC_XP_REQUIREMENTS = {
+  church:   0, school:  0, friends: 0,
+  market:   50, tavern:  50, park:    50,
+  hospital: 150, bank:    150, station: 150,
+  police:   300, factory: 300, cinema:  400,
+};
+
+function loadLocation(locId) {
+  var loc = LOCATIONS.find(function(l) { return l.id === locId; });
+  if (!loc) return;
+
+  var titleEl = document.getElementById('locTitle');
+  if (titleEl) titleEl.textContent = (LOC_NAMES[loc.id] ? LOC_NAMES[loc.id][S.nativeLang||'fr'] : loc.id);
+
+  var weatherEl = document.getElementById('locWeather');
+  if (weatherEl) weatherEl.textContent = WEATHER_ICONS[currentWeather] || '';
+
+  var npcList = document.getElementById('npcList');
+  if (!npcList) return;
+
+  if (!loc.npcs || loc.npcs.length === 0) {
+    npcList.innerHTML = '<div class="npc-card"><div class="npc-avatar">🏠</div><div class="npc-info"><div class="npc-name">Personne ici</div><div class="npc-role">Reviens plus tard...</div></div></div>';
+    return;
+  }
+
+  npcList.innerHTML = loc.npcs.map(function(npc) {
+    var role = typeof npc.role === 'object' ? (npc.role[S.nativeLang||'fr'] || npc.role.en) : npc.role;
+    return '<div class="npc-card" onclick="openDialogue(\'' + loc.id + '\', \'' + npc.id + '\')">' +
+      '<div class="npc-avatar">' + npc.emoji + '</div>' +
+      '<div class="npc-info">' +
+      '<div class="npc-name">' + npc.name + '</div>' +
+      '<div class="npc-role">' + role + '</div>' +
+      '</div>' +
+      '<div class="npc-go">💬</div>' +
+      '</div>';
+  }).join('');
+
+  if (typeof openMissionsPanel === 'function') openMissionsPanel(loc.id);
+  }
