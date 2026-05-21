@@ -1,3 +1,4 @@
+
 // LinguaVillage — wordgame.js
 // Mini-jeu : aligner des lettres pour former un mot dans la langue cible
 // Difficulté adaptative, collection personnelle, mots favoris dans les PNJ
@@ -97,6 +98,15 @@ window.LV_WORDGAME = (function() {
     if (typeof showScreen === 'function') showScreen('screen-menu');
   }
 
+  // Nouvelle fonction pour retourner au menu principal
+  function goToMenu() {
+    _state.active = false;
+    const sc = document.getElementById('screen-wordgame');
+    if (sc) sc.style.display = 'none';
+    if (typeof showScreen === 'function') showScreen('screen-menu');
+    if (typeof showNotif === 'function') showNotif('🏠 Retour au menu principal');
+  }
+
   // ── Construire l'écran ───────────────────────────────────────
   function _buildScreen() {
     let sc = document.getElementById('screen-wordgame');
@@ -127,7 +137,11 @@ window.LV_WORDGAME = (function() {
         <button onclick="window.LV_WORDGAME.close()"
           style="background:transparent;border:1px solid rgba(255,255,255,0.12);
                  color:rgba(232,224,208,0.5);padding:5px 12px;border-radius:8px;
-                 font-size:0.72rem;font-weight:700;cursor:pointer;">← Menu</button>
+                 font-size:0.72rem;font-weight:700;cursor:pointer;">← Jeu</button>
+        <button onclick="window.LV_WORDGAME.goToMenu()"
+          style="background:transparent;border:1px solid rgba(78,207,112,0.3);
+                 color:#4ecf70;padding:5px 12px;border-radius:8px;
+                 font-size:0.72rem;font-weight:700;cursor:pointer;">🏠 Menu</button>
         <div style="font-family:'Cinzel',serif;font-size:0.9rem;font-weight:700;
                     color:#ffd700;flex:1;">🔤 Jeu de mots ${langFlag}</div>
         <div id="wg-score-display"
@@ -472,7 +486,7 @@ window.LV_WORDGAME = (function() {
   })();
 
   return {
-    open, close, check, skip,
+    open, close, goToMenu, check, skip,
     selectLetter, clearLast, clearAll,
     addFav, _removeAt,
     get state() { return _state; },
