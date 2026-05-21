@@ -1,6 +1,7 @@
 // LinguaVillage — quote.js
 // Citations et proverbes dans la langue cible
 // Affiché à chaque démarrage avant l'interface principale
+// AVEC TRADUCTION DES BOUTONS
 // ================================================================
 
 var QUOTES = {
@@ -73,14 +74,12 @@ var QUOTES = {
     { text: "书山有路勤为径。", author: "谚语", roman: "Shū shān yǒu lù qín wéi jìng." }
   ],
   ja: [
-    { text: "七転び八起き", author: "日本のことわざ", roman: "Nana korobi ya oki — Tombe sept fois, relève-toi huit." },
-    { text: "継続は力なり", author: "ことわざ", roman: "Keizoku wa chikara nari — La persévérance est la force." },
-    { text: "一期一会", author: "茶道の精神", roman: "Ichi-go ichi-e — Une rencontre unique dans une vie." },
-    { text: "急がば回れ", author: "ことわざ", roman: "Isogaba maware — Si tu es pressé, fais le tour." },
-    { text: "知は力なり", author: "ベーコン", roman: "Chi wa chikara nari — Le savoir est le pouvoir." },
-    { text: "明日は明日の風が吹く", author: "ことわざ", roman: "Ashita wa ashita no kaze ga fuku." },
-    { text: "習うより慣れよ", author: "ことわざ", roman: "Narau yori nareyo — S'habituer plutôt qu'apprendre." },
-    { text: "百聞は一見に如かず", author: "ことわざ", roman: "Hyakubun wa ikken ni shikazu — Voir une fois vaut mieux qu'entendre cent fois." }
+    { text: "七転び八起き", author: "日本のことわざ", roman: "Nana korobi ya oki" },
+    { text: "継続は力なり", author: "ことわざ", roman: "Keizoku wa chikara nari" },
+    { text: "一期一会", author: "茶道の精神", roman: "Ichi-go ichi-e" },
+    { text: "急がば回れ", author: "ことわざ", roman: "Isogaba maware" },
+    { text: "知は力なり", author: "ベーコン", roman: "Chi wa chikara nari" },
+    { text: "明日は明日の風が吹く", author: "ことわざ", roman: "Ashita wa ashita no kaze ga fuku" }
   ],
   ht: [
     { text: "Petit pa petit, zwazo fè nich li.", author: "Pwovèb ayisyen" },
@@ -89,12 +88,10 @@ var QUOTES = {
     { text: "Tout moun se moun.", author: "Ekspresyon ayisyen" },
     { text: "Chak jou se yon nouvo chans.", author: "Pwovèb" },
     { text: "Konesans se pouvwa.", author: "Pwovèb" },
-    { text: "Pale franse pa vle di lespri.", author: "Pwovèb ayisyen" },
-    { text: "Men anpil chay pa lou.", author: "Pwovèb ayisyen" }
+    { text: "Pale franse pa vle di lespri.", author: "Pwovèb ayisyen" }
   ]
 };
 
-// ── Favoris ────────────────────────────────────────────────────
 function loadFavoriteQuotes() {
   try {
     return JSON.parse(localStorage.getItem('lv_fav_quotes') || '[]');
@@ -122,11 +119,18 @@ function saveFavoriteQuote(quote) {
   }
 }
 
-// ── Affichage de la citation ────────────────────────────────────
 function showDailyQuote(onDone) {
   var lang = (window.S && S.targetLang) || 'fr';
+  var nativeLang = (window.S && S.nativeLang) || 'fr';
   var pool = QUOTES[lang] || QUOTES['fr'];
   var isCJK = (lang === 'zh' || lang === 'ja' || lang === 'ru');
+
+  // Récupérer les traductions UI
+  var uiText = (typeof UI_TEXT !== 'undefined' && UI_TEXT[nativeLang]) ? UI_TEXT[nativeLang] : UI_TEXT.fr;
+  var translateBtnText = uiText.translate || '🌐 Traduire';
+  var favoriteBtnText = uiText.favorite || '⭐ Favoris';
+  var skipBtnText = uiText.skip || '⏭ Passer';
+  var enterBtnText = uiText.enter_village || '🏘️ Entrer dans le village';
 
   var lastIdx = parseInt(localStorage.getItem('lv_last_quote_idx') || '-1');
   var idx;
@@ -148,7 +152,7 @@ function showDailyQuote(onDone) {
 
   var langNames = { fr:'Français', es:'Español', en:'English', de:'Deutsch', ru:'Русский', zh:'中文', ja:'日本語', ht:'Kreyòl' };
   var langName = langNames[lang] || lang;
-  var flag = (window.FLAGS && FLAGS[lang]) || '';
+  var flag = (typeof FLAGS !== 'undefined' && FLAGS[lang]) || '';
 
   var romanBlock = '';
   if (isCJK && q.roman) {
@@ -165,8 +169,7 @@ function showDailyQuote(onDone) {
     '  <div style="font-size:0.72rem;font-weight:800;letter-spacing:0.15em;text-transform:uppercase;' +
     '              color:rgba(255,215,0,0.6);border:1px solid rgba(255,215,0,0.2);' +
     '              padding:4px 14px;border-radius:20px;">' +
-    '    ' + flag + ' ' + langName + ' — Proverbe du jour' +
-    '  </div>' +
+    '    ' + flag + ' ' + langName + ' — ' + uiText.proverb_of_day + '</div>' +
     '  <div style="text-align:center;">' +
     '    <div id="quote-text" style="font-family:\'Cinzel\',serif;font-size:clamp(1.1rem,4vw,1.5rem);' +
     '                                 font-weight:700;color:#fff;line-height:1.5;margin-bottom:14px;' +
@@ -187,17 +190,17 @@ function showDailyQuote(onDone) {
     '    <button onclick="quoteTranslate()" id="quote-btn-translate"' +
     '      style="flex:1;background:rgba(74,158,255,0.1);border:1px solid rgba(74,158,255,0.3);' +
     '             color:#4a9eff;padding:11px 8px;border-radius:12px;font-weight:800;font-size:0.8rem;cursor:pointer;">' +
-    '      🌐 Traduire' +
+    '      ' + translateBtnText +
     '    </button>' +
     '    <button onclick="quoteFavorite()"' +
     '      style="flex:1;background:rgba(255,215,0,0.08);border:1px solid rgba(255,215,0,0.2);' +
     '             color:#ffd700;padding:11px 8px;border-radius:12px;font-weight:800;font-size:0.8rem;cursor:pointer;">' +
-    '      ⭐ Favoris' +
+    '      ' + favoriteBtnText +
     '    </button>' +
     '    <button onclick="quoteNext()"' +
     '      style="flex:1;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);' +
     '             color:rgba(232,224,208,0.7);padding:11px 8px;border-radius:12px;font-weight:800;font-size:0.8rem;cursor:pointer;">' +
-    '      ⏭ Passer' +
+    '      ' + skipBtnText +
     '    </button>' +
     '  </div>' +
     '  <button onclick="quoteContinue()"' +
@@ -206,7 +209,7 @@ function showDailyQuote(onDone) {
     '           font-size:1rem;font-weight:700;color:#0a0a0a;letter-spacing:0.05em;' +
     '           box-shadow:0 4px 20px rgba(255,215,0,0.3);cursor:pointer;' +
     '           transition:all 0.2s;">' +
-    '    ▶ Entrer dans le village' +
+    '    ' + enterBtnText +
     '  </button>' +
     '  <div style="font-size:0.65rem;color:rgba(255,255,255,0.2);text-align:center;">' +
     '    LinguaVillage — Apprendre en vivant' +
@@ -230,7 +233,6 @@ function showDailyQuote(onDone) {
   window._quoteDoneCb = onDone;
   window._currentQuote = q;
 
-  // Afficher l'écran citation via showScreen (reset inline styles)
   if (typeof window.showScreen === 'function') {
     window.showScreen(screen.id);
   } else {
@@ -242,7 +244,6 @@ function showDailyQuote(onDone) {
   }
 }
 
-// ── Traduction ──────────────────────────────────────────────────
 function quoteTranslate() {
   var q = window._currentQuote;
   if (!q) return;
@@ -255,21 +256,11 @@ function quoteTranslate() {
   }
 
   var nativeLang = (window.S && S.nativeLang) || 'fr';
-  var nativeNames = {
-    fr: 'français',
-    en: 'anglais',
-    es: 'espagnol',
-    ht: 'créole haïtien',
-    de: 'allemand',
-    ru: 'russe',
-    zh: 'mandarin',
-    ja: 'japonais'
-  };
+  var nativeNames = { fr:'français', en:'anglais', es:'espagnol', ht:'créole haïtien', de:'allemand', ru:'russe', zh:'mandarin', ja:'japonais' };
 
   if (btn) btn.textContent = '⏳ Traduction...';
 
-  var prompt = 'Traduis ce proverbe en ' + (nativeNames[nativeLang] || nativeLang) +
-    ' et explique-le brièvement (1 phrase): "' + q.text + '"';
+  var prompt = 'Traduis ce proverbe en ' + (nativeNames[nativeLang] || nativeLang) + ' et explique-le brièvement (1 phrase): "' + q.text + '"';
 
   fetch(window.API + '/api/dialogue', {
     method: 'POST',
@@ -297,20 +288,17 @@ function quoteTranslate() {
   });
 }
 
-// ── Favoris ─────────────────────────────────────────────────────
 function quoteFavorite() {
   var q = window._currentQuote;
   if (q) saveFavoriteQuote(q);
 }
 
-// ── Proverbe suivant ────────────────────────────────────────────
 function quoteNext() {
   if (window._quoteDoneCb !== undefined) {
     showDailyQuote(window._quoteDoneCb);
   }
 }
 
-// ── Continuer vers le menu ──────────────────────────────────────
 function quoteContinue() {
   var screen = document.getElementById('screen-quote');
   if (screen) {
@@ -320,4 +308,4 @@ function quoteContinue() {
   if (window._quoteDoneCb) {
     window._quoteDoneCb();
   }
-}
+     }
