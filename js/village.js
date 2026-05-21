@@ -1,5 +1,5 @@
-// village.js — VERSION CORRIGÉE (drawVillage définie avant appel)
-// LinguaVillage — Village circulaire parfaitement aligné
+// village.js — VERSION COMPLÈTE ET AUTONOME
+// LinguaVillage — Village circulaire pour mobile
 // ================================================================
 
 window.canvas = null;
@@ -7,10 +7,9 @@ window.ctx = null;
 window.tick = 0;
 window.currentWeather = window.currentWeather || 'sun';
 window.hoveredLoc = null;
-window._onCanvasResize = window._onCanvasResize || null;
 
 // ================================================================
-// DONNÉES DES LIEUX (intégrées directement)
+// DONNÉES DES LIEUX
 // ================================================================
 var VILLAGE_LOCATIONS = [
   { id:'cinema',   x:0.50, y:0.50, emoji:'🎬', color:'#c060c0', name:'Cinéma' },
@@ -27,19 +26,52 @@ var VILLAGE_LOCATIONS = [
   { id:'school',   x:0.65, y:0.15, emoji:'🏫', color:'#6a8ab0', name:'École' }
 ];
 
-// Exporter pour les autres fonctions
+// Exporter pour compatibilité
 if (typeof window.LOCATIONS === 'undefined') {
   window.LOCATIONS = VILLAGE_LOCATIONS;
 }
-if (typeof window.LOC_NAMES === 'undefined') {
-  window.LOC_NAMES = {};
-  VILLAGE_LOCATIONS.forEach(function(loc) {
-    window.LOC_NAMES[loc.id] = { fr: loc.name, en: loc.name };
-  });
+
+// ================================================================
+// FONCTIONS UTILITAIRES (définies en premier)
+// ================================================================
+function lightenColor(color, amount) {
+  if (!color || color.length < 7) return '#888888';
+  var r = parseInt(color.slice(1, 3), 16);
+  var g = parseInt(color.slice(3, 5), 16);
+  var b = parseInt(color.slice(5, 7), 16);
+  r = Math.min(255, Math.max(0, r + amount));
+  g = Math.min(255, Math.max(0, g + amount));
+  b = Math.min(255, Math.max(0, b + amount));
+  return '#' + r.toString(16).padStart(2, '0') + 
+              g.toString(16).padStart(2, '0') + 
+              b.toString(16).padStart(2, '0');
+}
+
+function darkenColor(color) {
+  return lightenColor(color, -40);
+}
+
+function getLocationName(locId) {
+  var nativeLang = (window.S && window.S.nativeLang) ? window.S.nativeLang : 'fr';
+  var names = {
+    cinema: { fr: 'Cinéma', en: 'Cinema', es: 'Cine', ht: 'Sinema', de: 'Kino', ru: 'Кино', zh: '电影院', ja: '映画館' },
+    market: { fr: 'Marché', en: 'Market', es: 'Mercado', ht: 'Mache', de: 'Markt', ru: 'Рынок', zh: '市场', ja: '市場' },
+    park: { fr: 'Parc', en: 'Park', es: 'Parque', ht: 'Pak', de: 'Park', ru: 'Парк', zh: '公园', ja: '公園' },
+    friends: { fr: 'Amis', en: 'Friends', es: 'Amigos', ht: 'Zanmi', de: 'Freunde', ru: 'Друзья', zh: '朋友', ja: '友達' },
+    police: { fr: 'Police', en: 'Police', es: 'Policía', ht: 'Polis', de: 'Polizei', ru: 'Полиция', zh: '警察', ja: '警察' },
+    station: { fr: 'Gare', en: 'Station', es: 'Estación', ht: 'Estasyon', de: 'Bahnhof', ru: 'Вокзал', zh: '车站', ja: '駅' },
+    bank: { fr: 'Banque', en: 'Bank', es: 'Banco', ht: 'Bank', de: 'Bank', ru: 'Банк', zh: '银行', ja: '銀行' },
+    hospital: { fr: 'Hôpital', en: 'Hospital', es: 'Hospital', ht: 'Lopital', de: 'Krankenhaus', ru: 'Больница', zh: '医院', ja: '病院' },
+    church: { fr: 'Église', en: 'Church', es: 'Iglesia', ht: 'Legliz', de: 'Kirche', ru: 'Церковь', zh: '教堂', ja: '教会' },
+    tavern: { fr: 'Taverne', en: 'Tavern', es: 'Taberna', ht: 'Tavèn', de: 'Kneipe', ru: 'Таверна', zh: '酒馆', ja: '居酒屋' },
+    factory: { fr: 'Ferme', en: 'Farm', es: 'Granja', ht: 'Fèm', de: 'Bauernhof', ru: 'Ферма', zh: '农场', ja: '農場' },
+    school: { fr: 'École', en: 'School', es: 'Escuela', ht: 'Lekòl', de: 'Schule', ru: 'Школа', zh: '学校', ja: '学校' }
+  };
+  return (names[locId] && names[locId][nativeLang]) || (names[locId] && names[locId].en) || locId;
 }
 
 // ================================================================
-// FONCTION DE DESSIN (définie en PREMIER)
+// DESSIN DU VILLAGE
 // ================================================================
 function drawVillage() {
   if (!window.canvas || !window.ctx) return;
@@ -121,15 +153,16 @@ function drawVillage() {
   ctx.strokeStyle = 'rgba(200,170,100,0.15)';
   ctx.lineWidth = 1;
   ctx.setLineDash([3, 5]);
-  VILLAGE_LOCATIONS.forEach(function(loc) {
-    if (loc.id === 'cinema') return;
-    var lx = cx + (loc.x - 0.5) * minDim;
-    var ly = cy + (loc.y - 0.5) * minDim;
+  for (var li = 0; li < VILLAGE_LOCATIONS.length; li++) {
+    var locPath = VILLAGE_LOCATIONS[li];
+    if (locPath.id === 'cinema') continue;
+    var lx = cx + (locPath.x - 0.5) * minDim;
+    var ly = cy + (locPath.y - 0.5) * minDim;
     ctx.beginPath();
     ctx.moveTo(cx, cy);
     ctx.lineTo(lx, ly);
     ctx.stroke();
-  });
+  }
   ctx.setLineDash([]);
 
   // Maison centrale
@@ -229,41 +262,6 @@ function drawVillage() {
 }
 
 // ================================================================
-// FONCTIONS UTILITAIRES
-// ================================================================
-function lightenColor(color, amount) {
-  if (!color || color.length < 7) return '#888888';
-  var r = parseInt(color.slice(1, 3), 16);
-  var g = parseInt(color.slice(3, 5), 16);
-  var b = parseInt(color.slice(5, 7), 16);
-  r = Math.min(255, r + amount);
-  g = Math.min(255, g + amount);
-  b = Math.min(255, b + amount);
-  return '#' + r.toString(16).padStart(2, '0') + 
-              g.toString(16).padStart(2, '0') + 
-              b.toString(16).padStart(2, '0');
-}
-
-function getLocationName(locId) {
-  var nativeLang = (window.S && window.S.nativeLang) ? window.S.nativeLang : 'fr';
-  var names = {
-    cinema: { fr: 'Cinéma', en: 'Cinema', es: 'Cine', ht: 'Sinema', de: 'Kino', ru: 'Кино', zh: '电影院', ja: '映画館' },
-    market: { fr: 'Marché', en: 'Market', es: 'Mercado', ht: 'Mache', de: 'Markt', ru: 'Рынок', zh: '市场', ja: '市場' },
-    park: { fr: 'Parc', en: 'Park', es: 'Parque', ht: 'Pak', de: 'Park', ru: 'Парк', zh: '公园', ja: '公園' },
-    friends: { fr: 'Amis', en: 'Friends', es: 'Amigos', ht: 'Zanmi', de: 'Freunde', ru: 'Друзья', zh: '朋友', ja: '友達' },
-    police: { fr: 'Police', en: 'Police', es: 'Policía', ht: 'Polis', de: 'Polizei', ru: 'Полиция', zh: '警察', ja: '警察' },
-    station: { fr: 'Gare', en: 'Station', es: 'Estación', ht: 'Estasyon', de: 'Bahnhof', ru: 'Вокзал', zh: '车站', ja: '駅' },
-    bank: { fr: 'Banque', en: 'Bank', es: 'Banco', ht: 'Bank', de: 'Bank', ru: 'Банк', zh: '银行', ja: '銀行' },
-    hospital: { fr: 'Hôpital', en: 'Hospital', es: 'Hospital', ht: 'Lopital', de: 'Krankenhaus', ru: 'Больница', zh: '医院', ja: '病院' },
-    church: { fr: 'Église', en: 'Church', es: 'Iglesia', ht: 'Legliz', de: 'Kirche', ru: 'Церковь', zh: '教堂', ja: '教会' },
-    tavern: { fr: 'Taverne', en: 'Tavern', es: 'Taberna', ht: 'Tavèn', de: 'Kneipe', ru: 'Таверна', zh: '酒馆', ja: '居酒屋' },
-    factory: { fr: 'Ferme', en: 'Farm', es: 'Granja', ht: 'Fèm', de: 'Bauernhof', ru: 'Ферма', zh: '农场', ja: '農場' },
-    school: { fr: 'École', en: 'School', es: 'Escuela', ht: 'Lekòl', de: 'Schule', ru: 'Школа', zh: '学校', ja: '学校' }
-  };
-  return (names[locId] && names[locId][nativeLang]) || (names[locId] && names[locId].en) || locId;
-}
-
-// ================================================================
 // INTERACTIONS
 // ================================================================
 function getLocAt(mx, my) {
@@ -298,7 +296,6 @@ function getLocAt(mx, my) {
 function onVillageClick(e) {
   var loc = getLocAt(e.clientX, e.clientY);
   if (!loc) return;
-  console.log('Clic sur:', loc.name);
   if (typeof showNotif === 'function') showNotif('📍 ' + getLocationName(loc.id));
 }
 
@@ -307,7 +304,6 @@ function onVillageTouch(e) {
   var touch = e.touches[0];
   var loc = getLocAt(touch.clientX, touch.clientY);
   if (!loc) return;
-  console.log('Touch sur:', loc.name);
   if (typeof showNotif === 'function') showNotif('📍 ' + getLocationName(loc.id));
 }
 
@@ -323,14 +319,16 @@ function onVillageHover(e) {
 function getWeatherForTime() {
   var h = new Date().getHours();
   if (h >= 21 || h < 6) return 'night';
-  var weathers = ['sun', 'sun', 'rain', 'wind', 'snow'];
-  return weathers[Math.floor(Math.random() * weathers.length)];
+  return 'sun';
 }
 
 function setWeather(w) {
   window.currentWeather = w;
   var hudWeather = document.getElementById('hudWeather');
-  if (hudWeather) hudWeather.textContent = WEATHER_ICONS && WEATHER_ICONS[w] ? WEATHER_ICONS[w] : '☀️';
+  if (hudWeather) {
+    var icons = { sun: '☀️', rain: '🌧️', snow: '❄️', wind: '💨', night: '🌙' };
+    hudWeather.textContent = icons[w] || '☀️';
+  }
   buildWeatherFX(w);
 }
 
@@ -411,6 +409,9 @@ function initCanvas() {
   }, 100);
 
   // Attacher les événements
+  canvasEl.removeEventListener('click', onVillageClick);
+  canvasEl.removeEventListener('mousemove', onVillageHover);
+  canvasEl.removeEventListener('touchstart', onVillageTouch);
   canvasEl.addEventListener('click', onVillageClick);
   canvasEl.addEventListener('mousemove', onVillageHover);
   canvasEl.addEventListener('touchstart', onVillageTouch, { passive: false });
@@ -428,14 +429,16 @@ function goVillage() {
   var hudXP = document.getElementById('hudXP');
   
   if (hudPlayer) hudPlayer.textContent = '👤 ' + (window.S.playerName || '');
-  if (hudLang && typeof FLAGS !== 'undefined') {
-    hudLang.textContent = (FLAGS[window.S.targetLang] || '') + ' ' + (LANG_NAMES ? (LANG_NAMES[window.S.targetLang] || '') : '');
+  if (hudLang && typeof window.FLAGS !== 'undefined') {
+    var flag = window.FLAGS[window.S.targetLang] || '';
+    var langName = (window.LANG_NAMES && window.LANG_NAMES[window.S.targetLang]) || window.S.targetLang || '';
+    hudLang.textContent = flag + ' ' + langName;
   }
   if (hudXP) hudXP.textContent = (window.S.xp || 0) + ' XP';
 
   // Afficher l'écran
-  if (typeof showScreen === 'function') {
-    showScreen('screen-village');
+  if (typeof window.showScreen === 'function') {
+    window.showScreen('screen-village');
   } else {
     document.querySelectorAll('.screen').forEach(function(s) {
       s.classList.remove('active');
@@ -461,9 +464,9 @@ function goVillage() {
   }, 200);
 }
 
-// Nettoyer l'intervalle si nécessaire
+// Nettoyer l'intervalle
 window.addEventListener('beforeunload', function() {
   if (window._villageInterval) clearInterval(window._villageInterval);
 });
 
-console.log('✅ village.js chargé - drawVillage définie');
+console.log('✅ village.js chargé - Version autonome');
