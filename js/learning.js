@@ -1,5 +1,6 @@
 // LinguaVillage — learning.js
-// Vocabulaire, phrases, grammaire, dictionnaire, CEFR
+// Vocabulaire, phrases, grammaire, dictionnaire, CEFR, profil enrichi
+// ================================================================
 
 const LEARNING_STATE = window.LEARNING_STATE || (window.LEARNING_STATE = {
   vocabCat: null,
@@ -434,17 +435,17 @@ if (document.readyState === 'loading') {
   setTimeout(ensureLearningBindings, 0);
 }
 
-// DICTIONNAIRE// DICTIONNAIRE
+// =================================================================
+// DICTIONNAIRE
+// =================================================================
 function openDict() {
   dictFromScreen = document.querySelector('.screen.active')?.id || 'screen-menu';
   showScreen('screen-dict');
-  
   const input = document.getElementById('dictInput');
   if (input) {
     input.focus();
     if (popupWord && !input.value.trim()) input.value = popupWord;
   }
-  
   const result = document.getElementById('dictResult');
   if (result && !result.innerHTML.trim()) {
     result.innerHTML = '<div class="dict-empty"><div class="dict-empty-icon">📚</div>Entrez un mot ou une expression</div>';
@@ -455,29 +456,22 @@ async function searchDict() {
   const input = document.getElementById('dictInput');
   const result = document.getElementById('dictResult');
   if (!input || !result) return;
-  
   const q = input.value.trim();
   if (!q) {
     result.innerHTML = '<div class="dict-empty"><div class="dict-empty-icon">📚</div>Entrez un mot ou une expression</div>';
     return;
   }
-  
   if (dictHistory[0] !== q) {
     dictHistory = [q].concat(dictHistory.filter(item => item !== q)).slice(0, 10);
   }
-  
   result.innerHTML = '<div class="dict-empty"><div class="dict-empty-icon">⏳</div>Recherche en cours...</div>';
-  
   const nl = LANG_NAMES[S.nativeLang] || 'français';
   const tl = LANG_NAMES[S.targetLang] || 'anglais';
   const isCJK = ['zh', 'ja', 'ru'].includes(S.targetLang);
   const showRoman = isCJK && S.scriptPref !== 'native';
-  
   try {
     const prompt = `You are a pedagogical dictionary. For the expression "${q}" between ${nl} and ${tl}, reply ONLY with valid JSON (no markdown, no explanation): {"translation":"...","roman":"...","grammar":"...","example":"..."}. "translation" = best translation. "roman" = romanization if useful else empty string. "grammar" = very brief grammatical note. "example" = one short natural example sentence.`;
-
     let resultData;
-    // Essayer d'abord via callAPIWithFallback si disponible
     if (typeof callAPIWithFallback === 'function') {
       try {
         resultData = await callAPIWithFallback('/api/translate', {
@@ -485,8 +479,6 @@ async function searchDict() {
         });
       } catch(e) { resultData = null; }
     }
-
-    // Fallback direct vers l'API Anthropic (Claude) si la route /api/translate échoue
     if (!resultData || !resultData.reply) {
       const apiResp = await fetch('https://api.anthropic.com/v1/messages', {
         method: 'POST',
@@ -500,20 +492,17 @@ async function searchDict() {
       const apiData = await apiResp.json();
       resultData = { reply: (apiData.content && apiData.content[0] && apiData.content[0].text) || '{}' };
     }
-    
     let p;
     try {
       p = JSON.parse((resultData.reply || '{}').replace(/```json|```/g, '').trim());
     } catch {
       p = { translation: resultData.reply || q, roman: '', grammar: '', example: '' };
     }
-    
     const hist = dictHistory.slice(1, 9);
     const translation = escapeHtml(p.translation || q);
     const roman = escapeHtml(p.roman || '');
     const grammar = escapeHtml(p.grammar || '');
     const example = escapeHtml(p.example || '');
-    
     let histHTML = '';
     if (hist.length) {
       histHTML = '<div style="font-size:0.65rem;color:var(--dim);letter-spacing:2px;text-transform:uppercase;margin:15px 0 8px 0">Historique</div>'
@@ -521,7 +510,6 @@ async function searchDict() {
         + hist.map(h => `<span class="dict-chip" onclick="searchDictWord('${escapeHtml(h).replace(/'/g, "\\'")}')">${escapeHtml(h)}</span>`).join('')
         + '</div>';
     }
-    
     result.innerHTML = '<div class="dict-card">'
       + '<div style="font-size:0.68rem;color:var(--dim);margin-bottom:5px">"' + escapeHtml(q) + '"</div>'
       + '<div class="dict-word">' + translation + '</div>'
@@ -531,7 +519,6 @@ async function searchDict() {
       + '<button class="dict-listen-btn" onclick="speakW(\'' + translation.replace(/'/g, "\\'") + '\')">🔊 Écouter</button>'
       + '</div>'
       + histHTML;
-      
   } catch (e) {
     console.warn('Dictionary search failed:', e);
     result.innerHTML = '<div class="dict-empty"><div class="dict-empty-icon">❌</div>Indisponible pour le moment</div>';
@@ -554,15 +541,15 @@ function closeDictBack() {
   showScreen('screen-menu');
 }
 
+// =================================================================
 // INDICATEUR CEFR
+// =================================================================
 function addCEFRIndicator() {
   const hud = document.querySelector('.village-hud');
   if (!hud) return;
   if (document.getElementById('cefrIndicator')) return;
-  
   const totalXP = S.xp || 0;
   let currentLevel = "A1", nextLevel = "A2", progressPercent = 0, levelColor = "#4ecf70", levelIcon = "🌱";
-  
   if (totalXP < 300) {
     currentLevel = "A1"; nextLevel = "A2";
     progressPercent = Math.min(100, Math.floor((totalXP / 300) * 100));
@@ -583,7 +570,6 @@ function addCEFRIndicator() {
     currentLevel = "C1"; nextLevel = null;
     progressPercent = 100; levelColor = "#ff6b6b"; levelIcon = "🏅";
   }
-  
   const indicator = document.createElement('div');
   indicator.id = 'cefrIndicator';
   indicator.style.cssText = `display: flex; align-items: center; gap: 6px; background: rgba(0,0,0,0.5); padding: 2px 8px; border-radius: 20px; margin-left: auto; margin-right: 8px; font-size: 0.7rem; cursor: pointer;`;
@@ -599,9 +585,6 @@ function addCEFRIndicator() {
   hud.appendChild(indicator);
 }
 
-// =================================================================
-// ÉTAT MISSIONS & BOUTIQUE
-// =================================================================
 // =================================================================
 // ZONES DU MONDE
 // =================================================================
@@ -622,5 +605,23 @@ function hexToRgb(hex) {
 }
 
 // =================================================================
-// STREAK
+// PROFIL ENRICHIE (mots favoris / difficiles)
 // =================================================================
+function loadProfileData() {
+  if (!window.LV_MEMORY) return;
+  var favWords = LV_MEMORY.get('favoriteWords') || [];
+  var weakWords = LV_MEMORY.get('weakWords') || [];
+  var masteredCount = (LV_MEMORY.get('masteredWords') || []).length;
+  var totalMessages = LV_MEMORY.get('totalMessages') || 0;
+  var sessions = LV_MEMORY.get('sessionsCount') || 0;
+  var favContainer = document.getElementById('favWordsList');
+  var weakContainer = document.getElementById('weakWordsList');
+  var masteredEl = document.getElementById('profileMasteredCount');
+  var messagesEl = document.getElementById('profileMessages');
+  var sessionsEl = document.getElementById('profileSessions');
+  if (favContainer) favContainer.innerHTML = favWords.slice(0,10).map(f => `<span class="fav-tag" style="display:inline-block;background:rgba(78,207,112,0.12);padding:4px 8px;border-radius:12px;margin:2px;font-size:0.7rem;">${escapeHtml(f.word)}</span>`).join('') || 'Aucun favori';
+  if (weakContainer) weakContainer.innerHTML = weakWords.slice(0,10).map(w => `<span class="weak-tag" style="display:inline-block;background:rgba(255,107,107,0.12);padding:4px 8px;border-radius:12px;margin:2px;font-size:0.7rem;">${escapeHtml(w)}</span>`).join('') || 'Aucun mot difficile';
+  if (masteredEl) masteredEl.textContent = masteredCount;
+  if (messagesEl) messagesEl.textContent = totalMessages;
+  if (sessionsEl) sessionsEl.textContent = sessions;
+  }
