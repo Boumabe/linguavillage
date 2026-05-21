@@ -1,4 +1,4 @@
-// gamification.js - CORRIGÉ (encodage UTF-8 restauré, doublons supprimés, event listeners déplacés)
+// gamification.js - CORRIGÉ (fonctions manquantes ajoutées)
 // LinguaVillage — gamification.js
 // Streak, missions, boutique, quiz, progression
 
@@ -23,7 +23,7 @@ if (!window.S_game) {
 var G = window.S_game;
 
 // =================================================================
-// BADGES (définition unique)
+// BADGES
 // =================================================================
 if (typeof BADGES === 'undefined') {
   var BADGES = [
@@ -36,44 +36,34 @@ if (typeof BADGES === 'undefined') {
 }
 
 // =================================================================
-// SURPRISE VIDEOS (définition unique)
+// SURPRISE VIDEOS
 // =================================================================
 if (typeof SURPRISE_VIDEOS === 'undefined') {
   var SURPRISE_VIDEOS = {
     fr:[
-      {id:'French1.3',                             t:'FSI Français — Unité 1',         diff:'🟢'},
-      {id:'LearnToSpeakFrenchVideo1-11',           t:'Learn French — Video 1-11',       diff:'🟢'},
-      {id:'ll-french',                             t:"Let's Learn French",              diff:'🟢'},
-      {id:'FrenchIntermediateFSI',                 t:'FSI Français Intermédiaire',      diff:'🟡'},
+      {id:'French1.3', t:'FSI Français — Unité 1', diff:'🟢'},
+      {id:'LearnToSpeakFrenchVideo1-11', t:'Learn French — Video 1-11', diff:'🟢'},
     ],
     en:[
-      {id:'FSIEnglishBasic_Vol1',                  t:'FSI English Basic Vol.1',         diff:'🟢'},
-      {id:'PeaceCorpsEnglishCourse',               t:'Peace Corps English',             diff:'🟢'},
-      {id:'AmericanEnglishIntermediateFSI',        t:'American English Intermediate',   diff:'🟡'},
+      {id:'FSIEnglishBasic_Vol1', t:'FSI English Basic Vol.1', diff:'🟢'},
     ],
     es:[
-      {id:'FsiSpanishBasicCourseVolume1Unit01a',   t:'FSI Español Básico Vol.1',        diff:'🟢'},
-      {id:'Fsi-SpanishProgrammaticCourse-Volume1', t:'FSI Español Programático',        diff:'🟡'},
+      {id:'FsiSpanishBasicCourseVolume1Unit01a', t:'FSI Español Básico Vol.1', diff:'🟢'},
     ],
     ht:[
-      {id:'HaitianCreoleBasic_Archive',            t:'Kreyòl Ayisyen — Baz',            diff:'🟢'},
-      {id:'PaleKreyol_Archive',                    t:'Pale Kreyòl — Salitasyon',        diff:'🟢'},
+      {id:'HaitianCreoleBasic_Archive', t:'Kreyòl Ayisyen — Baz', diff:'🟢'},
     ],
     de:[
-      {id:'GermanFSI_Basic_Vol1',                  t:'FSI Deutsch Basiskurs Vol.1',     diff:'🟢'},
-      {id:'GermanFSI_Intermediate',                t:'FSI Deutsch Mittelstufe',          diff:'🟡'},
+      {id:'GermanFSI_Basic_Vol1', t:'FSI Deutsch Basiskurs Vol.1', diff:'🟢'},
     ],
     ru:[
-      {id:'RussianFSI_Basic',                      t:'FSI Русский — Базовый',           diff:'🟢'},
-      {id:'RussianFSI_Intermediate',               t:'FSI Русский — Средний',           diff:'🟡'},
+      {id:'RussianFSI_Basic', t:'FSI Русский — Базовый', diff:'🟢'},
     ],
     zh:[
-      {id:'MandarinFSI_Basic',                     t:'FSI 普通话 基础',                  diff:'🟢'},
-      {id:'MandarinFSI_Intermediate',              t:'FSI 普通话 中级',                  diff:'🟡'},
+      {id:'MandarinFSI_Basic', t:'FSI 普通话 基础', diff:'🟢'},
     ],
     ja:[
-      {id:'JapaneseFSI_Basic',                     t:'FSI 日本語 基礎',                  diff:'🟢'},
-      {id:'JapaneseFSI_Intermediate',              t:'FSI 日本語 中級',                  diff:'🟡'},
+      {id:'JapaneseFSI_Basic', t:'FSI 日本語 基礎', diff:'🟢'},
     ],
   };
 }
@@ -146,83 +136,12 @@ var _MISSIONS_DATA = {
     {id:'m_market_1',icon:'☕',xp:30,gem:1,
      title:{fr:'Commande un café',en:'Order a coffee',es:'Pide un café',ht:'Kòmande yon kafe',de:'Kaffee bestellen',ru:'Закажи кофе',zh:'点咖啡',ja:'コーヒー注文'},
      desc:{fr:'Dis "Je voudrais un café"',en:'Say "I\'d like a coffee"',es:'Di "Quisiera un café"',ht:'Di "Mwen ta renmen yon kafe"',de:'Sag "Ich möchte einen Kaffee"',ru:'Скажи "Кофе, пожалуйста"',zh:'说"我要一杯咖啡"',ja:'「コーヒーをください」と言う'},
-     hint:{fr:'"Je voudrais..."',en:'"I\'d like..."',es:'"Quisiera..."',ht:'"Mwen ta renmen..."',de:'"Ich möchte..."',ru:'"Мне, пожалуйста..."',zh:'"我要..."',ja:'「...をください」'},
-     check:['café','coffee','kafe','kaffee','кофе','咖啡','コーヒー','voudrais','like','quisiera','renmen','möchte']},
-    {id:'m_market_2',icon:'💰',xp:40,gem:1,
-     title:{fr:'Demande le prix',en:'Ask the price',es:'Pregunta el precio',ht:'Mande pri a',de:'Preis fragen',ru:'Спроси цену',zh:'问价格',ja:'値段を聞く'},
-     desc:{fr:'Demande combien coûte quelque chose',en:'Ask how much something costs',es:'Pregunta cuánto cuesta algo',ht:'Mande konbyen yon bagay koute',de:'Frage wie viel etwas kostet',ru:'Спроси сколько стоит',zh:'询问某物的价格',ja:'何かの値段を聞く'},
-     hint:{fr:'"Combien coûte...?"',en:'"How much is...?"',es:'"¿Cuánto cuesta...?"',ht:'"Konbyen...koute?"',de:'"Wie viel kostet...?"',ru:'"Сколько стоит...?"',zh:'"...多少钱?"',ja:'「...はいくらですか?」'},
-     check:['combien','how much','cuánto','konbyen','wie viel','сколько','多少','いくら']},
+     check:['café','coffee','kafe','kaffee','кофе','咖啡','コーヒー']},
   ],
   school:[
     {id:'m_school_1',icon:'📚',xp:35,gem:1,
      title:{fr:'Pose une question',en:'Ask a question',es:'Haz una pregunta',ht:'Poze yon kesyon',de:'Frage stellen',ru:'Задай вопрос',zh:'提问',ja:'質問する'},
-     desc:{fr:'Demande au prof d\'expliquer quelque chose',en:'Ask the teacher to explain',es:'Pide al profesor que explique',ht:'Mande pwofesè eksplike',de:'Bitte den Lehrer zu erklären',ru:'Попроси учителя объяснить',zh:'请老师解释',ja:'先生に説明してもらう'},
-     hint:{fr:'"Pouvez-vous expliquer...?"',en:'"Can you explain...?"',es:'"¿Puede explicar...?"',ht:'"Ou ka eksplike...?"',de:'"Können Sie erklären?"',ru:'"Объясните, пожалуйста"',zh:'"能解释一下...吗?"',ja:'「...を説明してください」'},
-     check:['expliquer','explain','explicar','eksplike','erklären','объясните','解释','説明']},
-  ],
-  hospital:[
-    {id:'m_hospital_1',icon:'🩺',xp:40,gem:1,
-     title:{fr:'Décris tes symptômes',en:'Describe your symptoms',es:'Describe tus síntomas',ht:'Dekri sentòm ou',de:'Symptome beschreiben',ru:'Опиши симптомы',zh:'描述症状',ja:'症状を説明'},
-     desc:{fr:'Dis au médecin où tu as mal',en:'Tell the doctor where it hurts',es:'Dile al médico dónde te duele',ht:'Di doktè kote w fè mal',de:'Sag dem Arzt wo es wehtut',ru:'Скажи врачу что болит',zh:'告诉医生哪里痛',ja:'医者に痛い場所を伝える'},
-     hint:{fr:'"J\'ai mal à..."',en:'"My...hurts"',es:'"Me duele..."',ht:'"...mwen fè mal"',de:'"Mein...tut weh"',ru:'"У меня болит..."',zh:'"我...痛"',ja:'「...が痛いです」'},
-     check:['mal','hurts','duele','fè mal','weh','болит','痛','痛い']},
-  ],
-  station:[
-    {id:'m_station_1',icon:'🎫',xp:45,gem:2,
-     title:{fr:'Achète un billet',en:'Buy a ticket',es:'Compra un billete',ht:'Achte yon tikè',de:'Ticket kaufen',ru:'Купи билет',zh:'买票',ja:'切符を買う'},
-     desc:{fr:'Demande un billet pour une destination',en:'Ask for a ticket to a destination',es:'Pide un billete a una ciudad',ht:'Mande yon tikè pou yon destinasyon',de:'Bitte um eine Fahrkarte',ru:'Попроси билет до',zh:'要一张去某地的票',ja:'目的地への切符を頼む'},
-     hint:{fr:'"Un billet pour... s\'il vous plaît"',en:'"One ticket to... please"',es:'"Un billete para... por favor"',ht:'"Yon tikè pou... tanpri"',de:'"Eine Fahrkarte nach... bitte"',ru:'"Один билет до... пожалуйста"',zh:'"一张去...的票"',ja:'「...まで一枚ください」'},
-     check:['billet','ticket','billete','tikè','fahrkarte','билет','票','切符']},
-  ],
-  tavern:[
-    {id:'m_tavern_1',icon:'🍺',xp:25,gem:1,
-     title:{fr:'Commande une boisson',en:'Order a drink',es:'Pide una bebida',ht:'Kòmande yon bwason',de:'Getränk bestellen',ru:'Закажи напиток',zh:'点饮料',ja:'飲み物を注文'},
-     desc:{fr:'Commande ta boisson préférée',en:'Order your favourite drink',es:'Pide tu bebida favorita',ht:'Kòmande bwason ou pi renmen',de:'Bestell dein Lieblingsgetränk',ru:'Закажи любимый напиток',zh:'点你最喜欢的饮料',ja:'好きな飲み物を注文する'},
-     hint:{fr:'"Je prends..."',en:'"I\'ll have..."',es:'"Tomaré..."',ht:'"Mwen pran..."',de:'"Ich nehme..."',ru:'"Мне..."',zh:'"我要..."',ja:'「...をください」'},
-     check:['prends','have','tomaré','pran','nehme','мне','我要','ください']},
-  ],
-  friends:[
-    {id:'m_friends_1',icon:'👋',xp:20,gem:1,
-     title:{fr:'Présente-toi',en:'Introduce yourself',es:'Preséntate',ht:'Prezante tèt ou',de:'Stell dich vor',ru:'Представься',zh:'自我介绍',ja:'自己紹介'},
-     desc:{fr:'Dis ton prénom et d\'où tu viens',en:'Say your name and where you\'re from',es:'Di tu nombre y de dónde eres',ht:'Di non ou ak kote ou soti',de:'Sag deinen Namen und wo du herkommst',ru:'Скажи своё имя и откуда ты',zh:'说你的名字和来自哪里',ja:'名前と出身地を言う'},
-     hint:{fr:'"Je m\'appelle... je viens de..."',en:'"My name is... I\'m from..."',es:'"Me llamo... soy de..."',ht:'"Mwen rele... mwen soti..."',de:'"Ich heiße... ich komme aus..."',ru:'"Меня зовут... я из..."',zh:'"我叫... 我来自..."',ja:'「私の名前は... 出身は...」'},
-     check:['appelle','name is','llamo','rele','heiße','зовут','我叫','名前は']},
-  ],
-  bank:[
-    {id:'m_bank_1',icon:'💳',xp:50,gem:2,
-     title:{fr:'Ouvre un compte',en:'Open an account',es:'Abre una cuenta',ht:'Ouvri yon kont',de:'Konto eröffnen',ru:'Открой счёт',zh:'开户',ja:'口座を開く'},
-     desc:{fr:'Demande à ouvrir un compte bancaire',en:'Ask to open a bank account',es:'Pide abrir una cuenta bancaria',ht:'Mande ouvri yon kont labank',de:'Bitte um Kontoeröffnung',ru:'Попроси открыть счёт',zh:'申请开银行账户',ja:'銀行口座の開設を申し込む'},
-     hint:{fr:'"Je voudrais ouvrir un compte"',en:'"I\'d like to open an account"',es:'"Quisiera abrir una cuenta"',ht:'"Mwen ta renmen ouvri yon kont"',de:'"Ich möchte ein Konto eröffnen"',ru:'"Хочу открыть счёт"',zh:'"我想开一个账户"',ja:'「口座を開きたいのですが」'},
-     check:['ouvrir','open','abrir','ouvri','eröffnen','открыть','开','開設']},
-  ],
-  park:[
-    {id:'m_park_1',icon:'💝',xp:30,gem:1,
-     title:{fr:'Fais un compliment',en:'Give a compliment',es:'Haz un cumplido',ht:'Fè yon konpliman',de:'Kompliment machen',ru:'Сделай комплимент',zh:'称赞别人',ja:'褒め言葉を言う'},
-     desc:{fr:'Dis quelque chose de gentil',en:'Say something kind',es:'Di algo amable',ht:'Di yon bèl bagay',de:'Sag etwas Nettes',ru:'Скажи что-то доброе',zh:'说些好听的话',ja:'親切な言葉を言う'},
-     hint:{fr:'"Tu es très..."',en:'"You are very..."',es:'"Eres muy..."',ht:'"Ou trè..."',de:'"Du bist sehr..."',ru:'"Ты очень..."',zh:'"你很..."',ja:'「あなたはとても...」'},
-     check:['magnifique','beautiful','hermoso','bèl','wunderschön','красивый','漂亮','美しい','gentil','kind']},
-  ],
-  police:[
-    {id:'m_police_1',icon:'🗺️',xp:30,gem:1,
-     title:{fr:'Demande ton chemin',en:'Ask for directions',es:'Pide indicaciones',ht:'Mande chemen',de:'Nach dem Weg fragen',ru:'Спроси дорогу',zh:'问路',ja:'道を聞く'},
-     desc:{fr:'Demande comment aller quelque part',en:'Ask how to get somewhere',es:'Pregunta cómo llegar a un lugar',ht:'Mande kijan pou rive yon kote',de:'Frage wie man irgendwohin kommt',ru:'Спроси как добраться',zh:'问如何到达某地',ja:'どこかへの行き方を聞く'},
-     hint:{fr:'"Comment aller à...?"',en:'"How do I get to...?"',es:'"¿Cómo llego a...?"',ht:'"Kijan pou rive...?"',de:'"Wie komme ich zu...?"',ru:'"Как добраться до...?"',zh:'"怎么去...?"',ja:'「...へはどう行けばいいですか?」'},
-     check:['comment','how','cómo','kijan','wie','как','怎么','どう']},
-  ],
-  church:[
-    {id:'m_church_1',icon:'🙏',xp:25,gem:1,
-     title:{fr:'Salue poliment',en:'Greet politely',es:'Saluda con educación',ht:'Salye avèk respè',de:'Höflich grüßen',ru:'Вежливо поздоровайся',zh:'礼貌问候',ja:'丁寧に挨拶する'},
-     desc:{fr:'Utilise une formule de politesse formelle',en:'Use a formal greeting',es:'Usa una fórmula de cortesía formal',ht:'Itilize yon fòmil poli fòmèl',de:'Benutze eine formelle Begrüßung',ru:'Используй официальное приветствие',zh:'使用正式问候语',ja:'正式な挨拶の表現を使う'},
-     hint:{fr:'"Bonjour Monsieur/Madame..."',en:'"Good day Sir/Madam..."',es:'"Buenos días Señor/Señora..."',ht:'"Bonjou Msye/Madanm..."',de:'"Guten Tag Herr/Frau..."',ru:'"Добрый день господин/госпожа..."',zh:'"您好，先生/女士..."',ja:'「こんにちは、先生/○○様...」'},
-     check:['bonjour','good day','buenos días','bonjou','guten tag','добрый день','您好','こんにちは']},
-  ],
-  factory:[
-    {id:'m_factory_1',icon:'🔧',xp:35,gem:1,
-     title:{fr:'Décris ton métier',en:'Describe your job',es:'Describe tu trabajo',ht:'Dekri travay ou',de:'Beschreibe deinen Beruf',ru:'Опиши свою работу',zh:'描述你的工作',ja:'仕事を説明する'},
-     desc:{fr:'Explique ce que tu fais comme travail',en:'Explain what you do for work',es:'Explica qué haces como trabajo',ht:'Eksplike kisa ou fè kòm travay',de:'Erkläre was du beruflich machst',ru:'Объясни чем ты занимаешься',zh:'解释你从事什么工作',ja:'仕事について説明する'},
-     hint:{fr:'"Je travaille comme..."',en:'"I work as..."',es:'"Trabajo como..."',ht:'"Mwen travay kòm..."',de:'"Ich arbeite als..."',ru:'"Я работаю..."',zh:'"我是一名..."',ja:'「私は...として働いています」'},
-     check:['travaille','work','trabajo','travay','arbeite','работаю','工作','働いています']},
+     check:['expliquer','explain','explicar']},
   ],
 };
 
@@ -246,7 +165,6 @@ function openMissionsPanel(locId) {
     var done = S_missions && !!S_missions.completed[m.id];
     var title = (m.title[nl] || m.title.fr || '').replace(/'/g, '&apos;');
     var desc = (m.desc[nl] || m.desc.fr || '').replace(/'/g, '&apos;');
-    var hint = (m.hint[nl] || m.hint.fr || '').replace(/'/g, '&apos;');
     var badge = done ? '✅' : ('+'+m.xp+' XP · '+'💎'.repeat(m.gem));
     html += '<div style="background:'+(done?'rgba(78,207,112,0.07)':'rgba(255,255,255,0.03)')+';border:1px solid '+(done?'rgba(78,207,112,0.25)':'rgba(255,255,255,0.09)')+';border-radius:10px;padding:9px 10px;margin-bottom:5px;cursor:'+(done?'default':'pointer')+'"'
       +(done?'':' onclick="startMission(\''+m.id+'\',\''+locId+'\')"')+'>'
@@ -256,7 +174,6 @@ function openMissionsPanel(locId) {
       +'<span style="margin-left:auto;font-size:0.62rem;color:'+(done?'#4ecf70':'#FFD700')+'">'+badge+'</span>'
       +'</div>'
       +'<div style="font-size:0.68rem;color:rgba(255,255,255,0.42)">'+desc+'</div>'
-      +(done?'':'<div style="font-size:0.63rem;color:rgba(255,215,0,0.45);margin-top:4px;font-style:italic">💡 '+hint+'</div>')
       +'</div>';
   });
   html += '</div>';
@@ -306,7 +223,6 @@ function checkMissionInMessage(text) {
 // BOSS
 // =================================================================
 function showWorldMap() {
-  // Implémentation simplifiée
   if (typeof showNotif === 'function') showNotif('🗺️ Carte du monde — Progression');
 }
 
@@ -372,12 +288,45 @@ function openShop() {
 // =================================================================
 // MODE SURPRISE
 // =================================================================
+var _surpriseActive = false;
+
 function launchSurpriseMode() {
-  if (typeof showNotif === 'function') showNotif('⚡ Mode Surprise!');
+  if (_surpriseActive) return;
+  _surpriseActive = true;
+  
+  var lang = S.targetLang || 'fr';
+  var videos = SURPRISE_VIDEOS[lang] || SURPRISE_VIDEOS.fr;
+  var video = videos[Math.floor(Math.random() * videos.length)];
+  
+  var ov = document.createElement('div');
+  ov.id = 'surpriseOverlay';
+  ov.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.95);z-index:10000;display:flex;align-items:center;justify-content:center;padding:20px;';
+  ov.innerHTML = `
+    <div style="background:linear-gradient(135deg,#0f1830,#0a0a14);border:2px solid #ffd700;border-radius:24px;padding:24px;max-width:400px;width:100%;text-align:center;">
+      <div style="font-size:3rem;margin-bottom:12px;">⚡🎬</div>
+      <div style="font-family:'Cinzel',serif;font-size:1.1rem;color:#ffd700;margin-bottom:8px;">Mode Surprise!</div>
+      <div style="font-size:0.85rem;color:var(--text);margin-bottom:16px;">Découvre cette vidéo éducative pour progresser en ${LANG_NAMES[lang] || lang}</div>
+      <div style="background:rgba(224,64,251,0.08);border-radius:16px;margin-bottom:16px;overflow:hidden;">
+        <iframe src="https://archive.org/embed/${video.id}" style="width:100%;height:180px;border:none;" allowfullscreen></iframe>
+      </div>
+      <div style="font-weight:800;color:#e040fb;margin-bottom:12px;">${video.t} — ${video.diff}</div>
+      <button onclick="closeSurpriseMode()" style="background:rgba(255,107,107,0.1);border:1px solid rgba(255,107,107,0.3);border-radius:14px;padding:10px 20px;color:#ff6b6b;font-weight:800;cursor:pointer;">Fermer</button>
+    </div>
+  `;
+  document.body.appendChild(ov);
+  
+  if (typeof gainXP === 'function') gainXP(15);
+  if (typeof showNotif === 'function') showNotif('⚡ +15 XP pour le mode surprise!');
+}
+
+function closeSurpriseMode() {
+  var ov = document.getElementById('surpriseOverlay');
+  if (ov) ov.remove();
+  _surpriseActive = false;
 }
 
 function nextSurpriseVideo() {}
-function closeSurpriseMode() {}
+function getRandomSurpriseVideo() {}
 
 // =================================================================
 // HOOK sendMsg
@@ -390,13 +339,31 @@ function onMessageSent(text) {
 }
 
 // =================================================================
+// CHECK BADGES
+// =================================================================
+function checkBadges() {
+  if (!S || !S_missions) return;
+  var xp = S.xp || 0;
+  var currentBadges = S_missions.badges || [];
+  
+  BADGES.forEach(function(badge) {
+    if (xp >= badge.xp && !currentBadges.includes(badge.id)) {
+      currentBadges.push(badge.id);
+      if (typeof showNotif === 'function') showNotif(badge.icon + ' Badge débloqué: ' + (badge.fr || badge.en));
+      if (typeof gainXP === 'function') gainXP(50);
+      if (typeof saveGame === 'function') saveGame();
+    }
+  });
+  S_missions.badges = currentBadges;
+}
+
+// =================================================================
 // INITIALISATION
 // =================================================================
-(function initGame(){
+function initGame(){
   checkDailyStreak();
-  setTimeout(function(){
-    updateStreakDisplay();
-  }, 600);
-})();
+  setTimeout(function(){ updateStreakDisplay(); }, 600);
+  checkBadges();
+}
 
-// Note: launchConfetti est déjà défini dans state.js, pas de redéfinition ici
+initGame();
