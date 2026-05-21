@@ -1,11 +1,11 @@
 {
   "name": "LinguaVillage",
   "short_name": "LinguaVillage",
-  "description": "Apprendre les langues en explorant un village",
+  "description": "Apprendre les langues en explorant un village — IA conversationnelle, vocabulaire, grammaire, et mini-jeux",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#1a1008",
-  "theme_color": "#FFD700",
+  "background_color": "#07090f",
+  "theme_color": "#ffd700",
   "orientation": "portrait",
   "icons": [
     {
@@ -25,5 +25,21 @@
     }
   ],
   "categories": ["education", "games"],
-  "lang": "fr"
+  "lang": "fr",
+  "shortcuts": [
+    {
+      "name": "Village",
+      "short_name": "Village",
+      "description": "Conversations avec les PNJ",
+      "url": "/?village=true",
+      "icons": [{ "src": "https://raw.githubusercontent.com/twitter/twemoji/master/assets/72x72/1f3d8.png", "sizes": "72x72" }]
+    },
+    {
+      "name": "Vocabulaire",
+      "short_name": "Vocab",
+      "description": "Mots et flashcards",
+      "url": "/?vocab=true",
+      "icons": [{ "src": "https://raw.githubusercontent.com/twitter/twemoji/master/assets/72x72/1f4d6.png", "sizes": "72x72" }]
+    }
+  ]
 }
