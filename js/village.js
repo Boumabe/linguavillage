@@ -1,7 +1,6 @@
-// village.js - ENTIÈREMENT CORRIGÉ ET ADAPTÉ AUX TABLEAUX DE DATA NATIVES
-// LinguaVillage — village.js
-// Village canvas, météo, interactions et distribution des cercles synchro
-// ===============================================================================
+// village.js — PREMIUM EDITION
+// LinguaVillage — Village circulaire parfaitement aligné
+// ================================================================
 
 window.canvas = null;
 window.ctx = null;
@@ -10,456 +9,696 @@ window.currentWeather = window.currentWeather || 'sun';
 window.hoveredLoc = null;
 window._onCanvasResize = window._onCanvasResize || null;
 
-// Facteur d'adaptation de la matrice d'affichage
-let villageScale = 1;
-const baseWidth = 360;
-const baseHeight = 740;
-
-// Configuration de la grille géométrique ( recentrage Y ajusté à 390 pour un meilleur équilibre )
-const VILLAGE_LAYOUT = {
-  centerX: 180,
-  centerY: 390,
-  radii: {
-    inner: 65,    // Cercle 1
-    middle: 125,  // Cercle 2
-    outer: 185    // Cercle 3
-  }
+// ================================================================
+// CONFIGURATION PREMIUM DU VILLAGE
+// ================================================================
+window.VILLAGE_CONFIG = {
+  // Rayons des cercles (proportion du min(width,height)/2)
+  rings: [
+    { radius: 0.10, color: 'rgba(160,130,80,0.35)', width: 2.5 },   // Noyau
+    { radius: 0.20, color: 'rgba(160,130,80,0.30)', width: 2.0 },   // Anneau 1
+    { radius: 0.32, color: 'rgba(160,130,80,0.28)', width: 1.8 },   // Anneau 2
+    { radius: 0.46, color: 'rgba(160,130,80,0.25)', width: 1.5 },   // Anneau 3
+  ],
+  // Animation
+  bobAmplitude: 2.5,
+  bobSpeed: 0.025,
+  hoverScale: 1.15,
+  hoverGlow: 'rgba(255,215,0,0.4)',
+  // Effets atmosphériques
+  particleCount: 30,
+  starCount: 60,
 };
 
-/**
- * Point d'entrée de la vue Village
- */
+// ================================================================
+// NAVIGATION VERS LE VILLAGE
+// ================================================================
 function goVillage() {
   if (!window.S) return;
 
-  // Affichage de l'écran principal du village
+  // HUD
+  var hudPlayer = document.getElementById('hudPlayer');
+  var hudLang   = document.getElementById('hudLang');
+  var hudXP     = document.getElementById('hudXP');
+
+  if (hudPlayer) hudPlayer.textContent = '👤 ' + S.playerName;
+  if (hudLang)   hudLang.textContent   = (FLAGS[S.targetLang]||'') + ' ' + (LANG_NAMES[S.targetLang]||'');
+  if (hudXP)     hudXP.textContent     = (S.xp||0) + ' XP';
+
+  // Afficher écran
   if (typeof window.showScreen === 'function') {
     window.showScreen('screen-village');
   } else {
     document.querySelectorAll('.screen').forEach(function(s) {
       s.classList.remove('active');
-      s.style.display = 'none';
+      s.style.display = '';
     });
-    var sv = document.getElementById('screen-village');
-    if (sv) { sv.classList.add('active'); sv.style.display = 'flex'; }
+    var vs = document.getElementById('screen-village');
+    if (vs) vs.classList.add('active');
   }
 
-  // Lancement du moteur d'affichage du village
-  initVillageEngine();
+  // Reset canvas
+  canvas = null;
+  ctx = null;
+  tick = 0;
+  window._villageLoopRunning = false;
+  window._villageLoopActive = false;
+
+  setTimeout(function() {
+    var c = document.getElementById('villageCanvas');
+    if (c) {
+      var W = window.innerWidth  || document.documentElement.clientWidth  || 360;
+      var H = window.innerHeight || document.documentElement.clientHeight || 640;
+      c.width  = W;
+      c.height = H;
+      c.style.width  = W + 'px';
+      c.style.height = H + 'px';
+      c.style.display = 'block';
+    }
+
+    initCanvas();
+    setWeather(getWeatherForTime());
+    updateTime();
+
+    if (typeof player !== 'undefined') {
+      player.x = HOME.x;
+      player.y = HOME.y;
+      player.dest = null;
+      player.walking = false;
+      player.currentLoc = 'home';
+    }
+
+    setTimeout(function() {
+      if (typeof addCEFRIndicator === 'function') addCEFRIndicator();
+    }, 100);
+  }, 300);
+
+  if (window._timeUpdateInterval) clearInterval(window._timeUpdateInterval);
+  window._timeUpdateInterval = setInterval(updateTime, 30000);
 }
 
-/**
- * Démarre et lie les composants du village
- */
-function initVillageEngine() {
-  window.canvas = document.getElementById("villageCanvas");
-  if (!window.canvas) return;
-  window.ctx = window.canvas.getContext("2d");
-
-  // Création dynamique sécurisée du calque HTML des icônes
-  let elementsContainer = document.getElementById("village-elements-container");
-  if (!elementsContainer) {
-    elementsContainer = document.createElement("div");
-    elementsContainer.id = "village-elements-container";
-    window.canvas.parentNode.insertBefore(elementsContainer, window.canvas.nextSibling);
-  }
-
-  // Injection du HUD moderne et accessible
-  setupProfessionalHUD();
-
-  // Premier calcul des dimensions
-  resizeVillagePro();
-
-  // Attachement de la fonction adaptative globale au redimensionnement
-  window._onCanvasResize = resizeVillagePro;
-  window.addEventListener("resize", resizeVillagePro);
-
-  // Instanciation des icônes de lieux
-  buildVillageNodes();
-
-  // Démarrage de l'animation en tâche de fond (cercles et pluie)
-  startVillageAnimationLoop();
+// ================================================================
+// MÉTÉO
+// ================================================================
+function getWeatherForTime() {
+  var h = new Date().getHours();
+  if (h >= 21 || h < 6) return 'night';
+  var weathers = ['sun', 'sun', 'rain', 'wind', 'snow'];
+  return weathers[Math.floor(Math.random() * weathers.length)];
 }
 
-/**
- * Construit l'en-tête utilisateur et sa barre d'outils tactile optimisée
- */
-function setupProfessionalHUD() {
-  var hud = document.querySelector(".village-hud");
-  if (!hud) return;
+function setWeather(w) {
+  currentWeather = w;
+  var hudWeather = document.getElementById('hudWeather');
+  if (hudWeather) hudWeather.textContent = WEATHER_ICONS[w] || '☀️';
+  buildWeatherFX(w);
+}
 
-  // Rendu de l'architecture du HUD
-  hud.innerHTML = `
-    <div class="village-hud-top">
-      <div class="hud-profile-group">
-        <span class="hud-player" id="hudPlayer">👤 --</span>
-        <span class="hud-lang" id="hudLang">--</span>
-      </div>
-      <div class="hud-stats-group">
-        <span class="hud-weather" id="hudWeather">☀️</span>
-        <span class="hud-time" id="hudTime">12:00</span>
-        <span id="streakDisplay">🔥 <span id="streakVal">0</span></span>
-        <span id="hudXP">0 XP</span>
-      </div>
-    </div>
-    <div class="hud-btns">
-      <button class="hud-btn-menu" id="hudBtnMenu">← Menu</button>
-      <button class="hud-btn-action" data-action="stats" title="Statistiques">📊</button>
-      <button class="hud-btn-action" data-action="badge" title="Badges">🏆</button>
-      <button class="hud-btn-action" data-action="review" title="Révision">⚡</button>
-      <button class="hud-btn-action" data-action="shop" title="Boutique">🏪</button>
-      <button class="hud-btn-action" data-action="reminders" title="Notifications">🔔</button>
-    </div>
-  `;
+function buildWeatherFX(w) {
+  var o = document.getElementById('weatherOverlay');
+  if (!o) return;
+  o.innerHTML = '';
 
-  // Événement du bouton Menu de retour
-  var btnMenu = document.getElementById('hudBtnMenu');
-  if (btnMenu) {
-    btnMenu.onclick = function() {
-      if (typeof window.showScreen === 'function') window.showScreen('screen-menu');
-    };
+  if (w === 'rain') {
+    for (var i = 0; i < 60; i++) {
+      var d = document.createElement('div');
+      d.className = 'rain-drop';
+      d.style.cssText = 'left:' + (Math.random() * 110 - 5) + '%;' +
+        'height:' + (60 + Math.random() * 80) + 'px;' +
+        'top:-' + (60 + Math.random() * 80) + 'px;' +
+        'animation-duration:' + (0.4 + Math.random() * 0.4) + 's;' +
+        'animation-delay:' + (Math.random() * 2) + 's;' +
+        'opacity:' + (0.3 + Math.random() * 0.4);
+      o.appendChild(d);
+    }
+  } else if (w === 'snow') {
+    for (var j = 0; j < 40; j++) {
+      var f = document.createElement('div');
+      f.className = 'snow-flake';
+      f.textContent = '❄';
+      f.style.cssText = 'left:' + (Math.random() * 100) + '%;' +
+        'font-size:' + (8 + Math.random() * 10) + 'px;' +
+        'animation-duration:' + (3 + Math.random() * 4) + 's;' +
+        'animation-delay:' + (Math.random() * 5) + 's;' +
+        'opacity:' + (0.5 + Math.random() * 0.4);
+      o.appendChild(f);
+    }
+  }
+}
+
+function updateTime() {
+  var n = new Date();
+  var hudTime = document.getElementById('hudTime');
+  if (hudTime) {
+    hudTime.textContent = n.getHours().toString().padStart(2, '0') + ':' + 
+                          n.getMinutes().toString().padStart(2, '0');
+  }
+}
+
+// ================================================================
+// INITIALISATION CANVAS PREMIUM
+// ================================================================
+function initCanvas() {
+  canvas = document.getElementById('villageCanvas');
+  if (!canvas) return;
+
+  // HD Retina support
+  var dpr = window.devicePixelRatio || 1;
+  var rect = canvas.getBoundingClientRect();
+
+  if (canvas.width === 0 || canvas.height === 0) {
+    canvas.width  = (window.innerWidth  || document.documentElement.clientWidth  || 360) * dpr;
+    canvas.height = (window.innerHeight || document.documentElement.clientHeight || 640) * dpr;
   }
 
-  // Liaison des boutons d'actions aux fonctions globales existantes
-  hud.querySelectorAll('.hud-btn-action').forEach(function(btn) {
-    btn.onclick = function() {
-      var act = btn.getAttribute('data-action');
-      if (act === 'stats' && typeof window.showStats === 'function') window.showStats();
-      else if (act === 'badge' && typeof window.showBadges === 'function') window.showBadges();
-      else if (act === 'review' && typeof window.openReviewQuick === 'function') window.openReviewQuick();
-      else if (act === 'shop' && typeof window.openShop === 'function') window.openShop();
-      else if (act === 'reminders' && typeof window.openReminderSettings === 'function') window.openReminderSettings();
-      else {
-        if (typeof window.showNotif === 'function') window.showNotif("Bientôt disponible");
+  canvas.style.display = 'block';
+
+  ctx = canvas.getContext('2d');
+  if (!ctx) return;
+
+  // Scale pour HD
+  ctx.scale(dpr, dpr);
+
+  // Fond immédiat
+  var W = canvas.width / dpr;
+  var H = canvas.height / dpr;
+  ctx.fillStyle = '#0a0a14';
+  ctx.fillRect(0, 0, W, H);
+
+  tick = 0;
+  drawVillage();
+
+  // Resize handler
+  if (window._onCanvasResize) {
+    window.removeEventListener('resize', window._onCanvasResize);
+  }
+
+  window._onCanvasResize = function() {
+    if (canvas && canvas.parentElement) {
+      var r = canvas.parentElement.getBoundingClientRect();
+      var newDpr = window.devicePixelRatio || 1;
+      canvas.width = (r.width || window.innerWidth) * newDpr;
+      canvas.height = (r.height || window.innerHeight) * newDpr;
+      // Reset scale
+      var newCtx = canvas.getContext('2d');
+      newCtx.scale(newDpr, newDpr);
+      drawVillage();
+    }
+  };
+  window.addEventListener('resize', window._onCanvasResize);
+
+  // Events
+  canvas.removeEventListener('click', onVillageClick);
+  canvas.removeEventListener('mousemove', onVillageHover);
+  canvas.removeEventListener('touchstart', onVillageTouch);
+
+  canvas.addEventListener('click', onVillageClick);
+  canvas.addEventListener('mousemove', onVillageHover);
+  canvas.addEventListener('touchstart', onVillageTouch, { passive: true });
+
+  // Loop
+  if (!window._villageLoopRunning) {
+    window._villageLoopRunning = true;
+    window._villageLoopActive = true;
+    requestAnimationFrame(villageLoop);
+  }
+}
+
+// ================================================================
+// BOUCLE D'ANIMATION
+// ================================================================
+function villageLoop() {
+  if (!window._villageLoopActive) return;
+  tick++;
+  if (typeof updatePlayer === 'function') updatePlayer();
+  drawVillage();
+  requestAnimationFrame(villageLoop);
+}
+
+// ================================================================
+// DESSIN DU VILLAGE PREMIUM
+// ================================================================
+function drawVillage() {
+  if (!canvas || !ctx) return;
+
+  var dpr = window.devicePixelRatio || 1;
+  var W = canvas.width / dpr;
+  var H = canvas.height / dpr;
+
+  if (W === 0 || H === 0) return;
+
+  var cx = W * 0.5;
+  var cy = H * 0.5;
+  var minDim = Math.min(W, H);
+  var night = currentWeather === 'night';
+  var cfg = window.VILLAGE_CONFIG;
+
+  // ---- Fond de ciel premium ----
+  var sky = ctx.createRadialGradient(cx, cy * 0.3, 0, cx, cy, minDim * 0.6);
+  if (night) {
+    sky.addColorStop(0, '#0a0a1e');
+    sky.addColorStop(0.5, '#050510');
+    sky.addColorStop(1, '#020208');
+  } else if (currentWeather === 'rain') {
+    sky.addColorStop(0, '#1a2535');
+    sky.addColorStop(1, '#0d1418');
+  } else {
+    sky.addColorStop(0, '#1a2a1a');
+    sky.addColorStop(0.5, '#0f1f0f');
+    sky.addColorStop(1, '#0a140a');
+  }
+  ctx.fillStyle = sky;
+  ctx.fillRect(0, 0, W, H);
+
+  // ---- Étoiles (nuit) ----
+  if (night) {
+    drawStars(cx, cy, minDim);
+  }
+
+  // ---- Lune ou soleil ----
+  drawCelestialBody(W, H, night);
+
+  // ---- Sol / Herbe avec gradient radial premium ----
+  drawGround(cx, cy, minDim, night);
+
+  // ---- Cercles concentriques (anneaux du village) ----
+  drawRings(cx, cy, minDim, cfg.rings);
+
+  // ---- Chemins connecteurs ----
+  drawConnectors(cx, cy, minDim);
+
+  // ---- Maison du joueur (centre) ----
+  if (typeof drawPlayerHome === 'function') {
+    drawPlayerHome(cx, cy, minDim * 0.08);
+  }
+
+  // ---- Lieux alignés sur les cercles ----
+  if (typeof LOCATIONS !== 'undefined') {
+    LOCATIONS.forEach(function(loc) {
+      var bob = Math.sin(tick * cfg.bobSpeed + loc.x * 10) * cfg.bobAmplitude;
+      var isHovered = hoveredLoc === loc.id;
+      drawLocPremium(loc, cx, cy, minDim, bob, isHovered);
+    });
+  }
+
+  // ---- Ligne de marche du joueur ----
+  if (typeof player !== 'undefined' && player.dest) {
+    drawPlayerPath(cx, cy, minDim);
+  }
+
+  // ---- Personnage ----
+  if (typeof drawPlayerCharacter === 'function') {
+    drawPlayerCharacter(W, H);
+  }
+
+  // ---- Effet météo global ----
+  if (currentWeather === 'rain') {
+    ctx.fillStyle = 'rgba(0,15,30,0.08)';
+    ctx.fillRect(0, 0, W, H);
+  }
+
+  // ---- Particules atmosphériques ----
+  if (!night && currentWeather === 'sun') {
+    drawAtmosphericParticles(W, H);
+  }
+}
+
+// ================================================================
+// SOUS-FONCTIONS DE RENDU PREMIUM
+// ================================================================
+
+function drawStars(cx, cy, minDim) {
+  var count = window.VILLAGE_CONFIG.starCount;
+  for (var i = 0; i < count; i++) {
+    var sx = (Math.sin(i * 437.1) * 0.5 + 0.5) * canvas.width / (window.devicePixelRatio || 1);
+    var sy = (Math.sin(i * 293.3) * 0.5 + 0.5) * (canvas.height / (window.devicePixelRatio || 1)) * 0.45;
+    var twinkle = 0.3 + 0.7 * Math.sin(tick * 0.02 + i * 0.5);
+    var size = 0.5 + Math.sin(i * 127) * 0.5;
+
+    ctx.beginPath();
+    ctx.arc(sx, sy, size, 0, Math.PI * 2);
+    ctx.fillStyle = 'rgba(255,255,220,' + twinkle + ')';
+    ctx.fill();
+  }
+}
+
+function drawCelestialBody(W, H, night) {
+  var x = W * 0.85;
+  var y = H * 0.12;
+
+  if (night) {
+    // Lune avec glow
+    var moonGlow = ctx.createRadialGradient(x, y, 0, x, y, 40);
+    moonGlow.addColorStop(0, 'rgba(240,230,160,0.3)');
+    moonGlow.addColorStop(1, 'rgba(240,230,160,0)');
+    ctx.fillStyle = moonGlow;
+    ctx.fillRect(x - 40, y - 40, 80, 80);
+
+    ctx.beginPath();
+    ctx.arc(x, y, 16, 0, Math.PI * 2);
+    ctx.fillStyle = '#f0e6a0';
+    ctx.fill();
+
+    // Cratères
+    ctx.beginPath();
+    ctx.arc(x - 4, y - 2, 3, 0, Math.PI * 2);
+    ctx.fillStyle = 'rgba(200,190,140,0.3)';
+    ctx.fill();
+    ctx.beginPath();
+    ctx.arc(x + 5, y + 3, 2, 0, Math.PI * 2);
+    ctx.fillStyle = 'rgba(200,190,140,0.2)';
+    ctx.fill();
+  } else {
+    // Soleil avec rayons
+    var sunColor = currentWeather === 'rain' ? '#8a98a8' : '#ffe8a0';
+    var sunGlow = ctx.createRadialGradient(x, y, 0, x, y, 50);
+    sunGlow.addColorStop(0, 'rgba(255,230,160,0.25)');
+    sunGlow.addColorStop(1, 'rgba(255,230,160,0)');
+    ctx.fillStyle = sunGlow;
+    ctx.fillRect(x - 50, y - 50, 100, 100);
+
+    ctx.beginPath();
+    ctx.arc(x, y, 20, 0, Math.PI * 2);
+    ctx.fillStyle = sunColor;
+    ctx.fill();
+
+    // Rayons
+    if (currentWeather !== 'rain') {
+      for (var r = 0; r < 8; r++) {
+        var angle = (r / 8) * Math.PI * 2 + tick * 0.005;
+        ctx.beginPath();
+        ctx.moveTo(x + Math.cos(angle) * 24, y + Math.sin(angle) * 24);
+        ctx.lineTo(x + Math.cos(angle) * 32, y + Math.sin(angle) * 32);
+        ctx.strokeStyle = 'rgba(255,230,160,0.3)';
+        ctx.lineWidth = 2;
+        ctx.stroke();
       }
-    };
-  });
-
-  // Remplissage avec les données en cache du joueur
-  syncHUDValues();
-}
-
-/**
- * Hydrate le contenu textuel du HUD avec des verrous anti-crash (fallbacks)
- */
-function syncHUDValues() {
-  if (!window.S) return;
-  
-  var hp = document.getElementById('hudPlayer');
-  var hl = document.getElementById('hudLang');
-  var hx = document.getElementById('hudXP');
-  var sv = document.getElementById('streakVal');
-  var hw = document.getElementById('hudWeather');
-
-  if (hp) hp.textContent = '👤 ' + (window.S.playerName || 'Player');
-  if (hl) {
-    var flg = (window.FLAGS && window.FLAGS[window.S.targetLang]) ? window.FLAGS[window.S.targetLang] : '';
-    var nme = (window.LANG_NAMES && window.LANG_NAMES[window.S.targetLang]) ? window.LANG_NAMES[window.S.targetLang] : (window.S.targetLang || 'JA');
-    hl.textContent = flg + ' ' + nme.toUpperCase();
-  }
-  if (hx) hx.textContent = (window.S.xp || 0) + ' XP';
-  if (sv) sv.textContent = window.S.streak || 0;
-  if (hw) {
-    var icons = window.WEATHER_ICONS || { sun: '☀️', rain: '🌧️', night: '🌙', storm: '⚡' };
-    hw.textContent = icons[window.currentWeather] || '☀️';
-  }
-}
-
-/**
- * Recalcule la matrice d'adaptation écran
- */
-function resizeVillagePro() {
-  if (!window.canvas) return;
-  var container = window.canvas.parentElement;
-  var w = container.clientWidth;
-  var h = container.clientHeight;
-
-  window.canvas.width = w;
-  window.canvas.height = h;
-
-  // Calcul du ratio d'adaptation d'échelle
-  villageScale = Math.min(w / baseWidth, h / baseHeight);
-
-  // Déplacer les nodes au pixel près
-  repositionAllNodes();
-}
-
-/**
- * Résout l'emplacement absolu sur l'écran d'après un type de rayon et un angle
- */
-function calculateNodeCoordinates(rayType, angleDegrees) {
-  var angleRad = (angleDegrees - 90) * Math.PI / 180; // Alignement nord
-  var radiusValue = VILLAGE_LAYOUT.radii[rayType] || VILLAGE_LAYOUT.radii.middle;
-
-  // Emplacement sur la matrice virtuelle
-  var localX = VILLAGE_LAYOUT.centerX + radiusValue * Math.cos(angleRad);
-  var localY = VILLAGE_LAYOUT.centerY + radiusValue * Math.sin(angleRad);
-
-  // Projection réelle sur les dimensions physiques de l'écran
-  var realCenterX = window.canvas.width / 2;
-  var realCenterY = window.canvas.height / 2;
-
-  var x = realCenterX + (localX - VILLAGE_LAYOUT.centerX) * villageScale;
-  var y = realCenterY + (localY - VILLAGE_LAYOUT.centerY) * villageScale;
-
-  return { x: x, y: y };
-}
-
-/**
- * Parcourt ton tableau natif de localisations et génère les éléments HTML
- */
-function buildVillageNodes() {
-  var container = document.getElementById("village-elements-container");
-  if (!container) return;
-  container.innerHTML = ""; 
-
-  if (!window.VILLAGE_DATA || !window.VILLAGE_DATA.locations) {
-    console.error("VILLAGE_DATA introuvable.");
-    return;
-  }
-
-  var nativeLang = (window.S && window.S.nativeLang) ? window.S.nativeLang : 'en';
-
-  // Utilisation directe du format tableau .forEach natif de ton data.js
-  window.VILLAGE_DATA.locations.forEach(function(loc) {
-    var node = document.createElement("div");
-    node.className = "village-node";
-    node.setAttribute("data-loc", loc.id);
-
-    var locName = (window.LOC_NAMES && window.LOC_NAMES[loc.id] && window.LOC_NAMES[loc.id][nativeLang]) 
-                  ? window.LOC_NAMES[loc.id][nativeLang] 
-                  : loc.id;
-
-    node.innerHTML = `
-      <div class="node-bubble">
-        <span class="node-icon">${loc.emoji || '🏠'}</span>
-        ${loc.available !== false ? '<div class="node-badge"></div>' : ''}
-      </div>
-      <div class="node-label">${locName}</div>
-    `;
-
-    // Lien avec ton système d'ouverture d'origine
-    node.onclick = function() {
-      openLocation(loc);
-    };
-
-    node.onmouseenter = function() { showLocationTooltip(locName, node); };
-    node.onmouseleave = function() { hideLocationTooltip(); };
-
-    container.appendChild(node);
-  });
-
-  repositionAllNodes();
-}
-
-/**
- * Aligne au pixel près chaque icône HTML sur la ligne de repère correspondante du Canvas
- */
-function repositionAllNodes() {
-  if (!window.VILLAGE_DATA || !window.VILLAGE_DATA.locations) return;
-
-  window.VILLAGE_DATA.locations.forEach(function(loc) {
-    var node = document.querySelector(`.village-node[data-loc="${loc.id}"]`);
-    if (!node) return;
-
-    var rayType = "middle";
-    var angle = 0;
-
-    // Répartition équilibrée de ton catalogue de maisons sur les 3 anneaux
-    if (loc.id === "cinema")      { rayType = "inner";  angle = 0; }
-    else if (loc.id === "pak")     { rayType = "inner";  angle = 180; } 
-    else if (loc.id === "zanmi")   { rayType = "middle"; angle = -45; }
-    else if (loc.id === "polis")   { rayType = "middle"; angle = 45; }
-    else if (loc.id === "lopital") { rayType = "outer";  angle = -120; }
-    else if (loc.id === "fem")     { rayType = "outer";  angle = 120; }
-    else if (loc.id === "legliz")  { rayType = "outer";  angle = -50; }
-    else if (loc.id === "estasyon") { rayType = "middle"; angle = -135; }
-    else if (loc.id === "bank")    { rayType = "middle"; angle = 135; }
-    else if (loc.id === "taven")   { rayType = "outer";  angle = 50; }
-    else if (loc.id === "lekol")   { rayType = "outer";  angle = 180; }
-
-    var coords = calculateNodeCoordinates(rayType, angle);
-
-    node.style.left = coords.x + "px";
-    node.style.top = coords.y + "px";
-  });
-}
-
-function showLocationTooltip(text, targetNode) {
-  var tooltip = document.getElementById("locTooltip");
-  if (!tooltip) {
-    tooltip = document.createElement("div");
-    tooltip.id = "locTooltip";
-    tooltip.className = "loc-tooltip";
-    document.body.appendChild(tooltip);
-  }
-  tooltip.textContent = text;
-
-  var rect = targetNode.getBoundingClientRect();
-  tooltip.style.left = (rect.left + rect.width / 2) + "px";
-  tooltip.style.top = rect.top + "px";
-  tooltip.classList.add("active");
-}
-
-function hideLocationTooltip() {
-  var tooltip = document.getElementById("locTooltip");
-  if (tooltip) tooltip.classList.remove("active");
-}
-
-/**
- * Dessine les axes radiaux et les cercles concentriques marrons parfaits sur le Canvas
- */
-function drawVillageCanvasBackground() {
-  if (!window.ctx || !window.canvas) return;
-
-  var w = window.canvas.width;
-  var h = window.canvas.height;
-
-  window.ctx.clearRect(0, 0, w, h);
-
-  var realCenterX = w / 2;
-  var realCenterY = h / 2;
-
-  var r1 = VILLAGE_LAYOUT.radii.inner * villageScale;
-  var r2 = VILLAGE_LAYOUT.radii.middle * villageScale;
-  var r3 = VILLAGE_LAYOUT.radii.outer * villageScale;
-
-  // Dessin des cercles
-  window.ctx.strokeStyle = "rgba(139, 94, 60, 0.45)"; 
-  window.ctx.lineWidth = Math.max(1.5, 2 * villageScale);
-  window.ctx.setLineDash([]);
-
-  [r1, r2, r3].forEach(function(radius) {
-    window.ctx.beginPath();
-    window.ctx.arc(realCenterX, realCenterY, radius, 0, Math.PI * 2);
-    window.ctx.stroke();
-  });
-
-  // Dessin des axes directeurs (Lignes radiales de repère)
-  var structuralAngles = [0, 45, 90, 135, 180, 225, 270, 315];
-  window.ctx.strokeStyle = "rgba(139, 94, 60, 0.2)";
-  window.ctx.lineWidth = Math.max(1, 1 * villageScale);
-
-  structuralAngles.forEach(function(angleDeg) {
-    var angleRad = angleDeg * Math.PI / 180;
-    window.ctx.beginPath();
-    window.ctx.moveTo(realCenterX, realCenterY);
-    window.ctx.lineTo(
-      realCenterX + r3 * Math.cos(angleRad),
-      realCenterY + r3 * Math.sin(angleRad)
-    );
-    window.ctx.stroke();
-  });
-
-  window.tick++;
-  if (window.currentWeather === 'rain' || window.currentWeather === 'storm') {
-    renderAdvancedRainDrops(w, h);
-  }
-}
-
-/**
- * Effet de pluie fluide
- */
-var rainDataStore = [];
-function renderAdvancedRainDrops(w, h) {
-  window.ctx.strokeStyle = "rgba(174, 219, 255, 0.25)";
-  window.ctx.lineWidth = 1;
-
-  if (rainDataStore.length === 0) {
-    for (var i = 0; i < 40; i++) {
-      rainDataStore.push({
-        x: Math.random() * w,
-        y: Math.random() * h,
-        len: Math.random() * 12 + 10,
-        speed: Math.random() * 6 + 10
-      });
     }
   }
+}
 
-  rainDataStore.forEach(function(drop) {
-    window.ctx.beginPath();
-    window.ctx.moveTo(drop.x, drop.y);
-    window.ctx.lineTo(drop.x - 0.5, drop.y + drop.len);
-    window.ctx.stroke();
+function drawGround(cx, cy, minDim, night) {
+  var ground = ctx.createRadialGradient(cx, cy, 0, cx, cy, minDim * 0.55);
+  if (currentWeather === 'snow') {
+    ground.addColorStop(0, '#c8d0d8');
+    ground.addColorStop(0.6, '#a8b0b8');
+    ground.addColorStop(1, '#889098');
+  } else if (night) {
+    ground.addColorStop(0, '#1a2a1a');
+    ground.addColorStop(0.6, '#0f1a0f');
+    ground.addColorStop(1, '#0a0f0a');
+  } else {
+    ground.addColorStop(0, '#2d5a2d');
+    ground.addColorStop(0.5, '#1e3d1a');
+    ground.addColorStop(1, '#0f1f0a');
+  }
+  ctx.fillStyle = ground;
+  var W = canvas.width / (window.devicePixelRatio || 1);
+  var H = canvas.height / (window.devicePixelRatio || 1);
+  ctx.fillRect(0, 0, W, H);
+}
 
-    drop.y += drop.speed;
-    if (drop.y > h) {
-      drop.y = -drop.len;
-      drop.x = Math.random() * w;
-    }
+function drawRings(cx, cy, minDim, rings) {
+  rings.forEach(function(ring) {
+    var r = minDim * ring.radius;
+
+    // Glow sous l'anneau
+    ctx.beginPath();
+    ctx.arc(cx, cy, r, 0, Math.PI * 2);
+    ctx.strokeStyle = ring.color;
+    ctx.lineWidth = ring.width;
+    ctx.stroke();
+
+    // Ligne intérieure plus claire
+    ctx.beginPath();
+    ctx.arc(cx, cy, r - 1, 0, Math.PI * 2);
+    ctx.strokeStyle = 'rgba(200,170,100,0.15)';
+    ctx.lineWidth = 0.5;
+    ctx.stroke();
   });
 }
 
-/**
- * Boucle d'actualisation de la scène
- */
-var villageLoopAnimationId = null;
-function startVillageAnimationLoop() {
-  if (villageLoopAnimationId) cancelAnimationFrame(villageLoopAnimationId);
+function drawConnectors(cx, cy, minDim) {
+  if (!LOCATIONS) return;
 
-  function animationFrameLoop() {
-    drawVillageCanvasBackground();
-    villageLoopAnimationId = requestAnimationFrame(animationFrameLoop);
-  }
-  animationFrameLoop();
+  ctx.strokeStyle = 'rgba(160,130,80,0.12)';
+  ctx.lineWidth = 1;
+  ctx.setLineDash([3, 6]);
+
+  // Connecter chaque lieu au centre
+  LOCATIONS.forEach(function(loc) {
+    if (loc.id === 'cinema') return; // Cinéma est au centre
+    var lx = cx + (loc.x + loc.w/2 - 0.5) * minDim;
+    var ly = cy + (loc.y + loc.h/2 - 0.5) * minDim;
+
+    ctx.beginPath();
+    ctx.moveTo(cx, cy);
+    ctx.lineTo(lx, ly);
+    ctx.stroke();
+  });
+
+  ctx.setLineDash([]);
 }
 
-/**
- * Panneau d'action PNJ d'origine re-connecté
- */
-function openLocation(loc) {
-  if (!loc) return;
-  
-  var panel = document.getElementById('villagePanel');
-  var locTitle = document.getElementById('locTitle');
-  var locWeather = document.getElementById('locWeather');
-  
-  var nativeLang = (window.S && window.S.nativeLang) ? window.S.nativeLang : 'en';
-  var locName = (window.LOC_NAMES && window.LOC_NAMES[loc.id] && window.LOC_NAMES[loc.id][nativeLang]) 
-                ? window.LOC_NAMES[loc.id][nativeLang] 
-                : loc.id;
-  
-  if (locTitle) locTitle.textContent = (loc.emoji || '🏠') + ' ' + locName;
-  if (locWeather) {
-    var icons = window.WEATHER_ICONS || { sun: '☀️', rain: '🌧️', night: '🌙', storm: '⚡' };
-    locWeather.textContent = icons[window.currentWeather] || '☀️';
+// ================================================================
+// DESSIN D'UN LIEU PREMIUM
+// ================================================================
+function drawLocPremium(loc, cx, cy, minDim, bob, isHovered) {
+  if (!ctx) return;
+
+  var scale = isHovered ? window.VILLAGE_CONFIG.hoverScale : 1.0;
+  var baseSize = Math.min(loc.w * minDim, loc.h * minDim);
+  var size = baseSize * scale;
+  var r = size * 0.5;
+
+  // Position absolue sur le canvas
+  var bx = cx + (loc.x + loc.w/2 - 0.5) * minDim;
+  var by = cy + (loc.y + loc.h/2 - 0.5) * minDim + bob;
+
+  var night = currentWeather === 'night';
+
+  // Ombre portée dynamique
+  var shadowOffset = isHovered ? 6 : 3;
+  var shadowBlur = isHovered ? 15 : 8;
+  ctx.save();
+  ctx.shadowColor = 'rgba(0,0,0,0.4)';
+  ctx.shadowBlur = shadowBlur;
+  ctx.shadowOffsetX = shadowOffset;
+  ctx.shadowOffsetY = shadowOffset + 2;
+
+  // Glow au hover
+  if (isHovered) {
+    var glow = ctx.createRadialGradient(bx, by, r * 0.8, bx, by, r * 1.8);
+    glow.addColorStop(0, window.VILLAGE_CONFIG.hoverGlow);
+    glow.addColorStop(1, 'rgba(255,215,0,0)');
+    ctx.fillStyle = glow;
+    ctx.beginPath();
+    ctx.arc(bx, by, r * 1.8, 0, Math.PI * 2);
+    ctx.fill();
   }
-  
+
+  // Cercle principal avec gradient
+  var grad = ctx.createRadialGradient(bx - r*0.3, by - r*0.3, 0, bx, by, r);
+  var baseColor = loc.color;
+
+  if (isHovered) {
+    grad.addColorStop(0, lighten(baseColor, 30));
+    grad.addColorStop(1, baseColor);
+  } else {
+    grad.addColorStop(0, lighten(baseColor, 15));
+    grad.addColorStop(1, baseColor);
+  }
+
+  ctx.beginPath();
+  ctx.arc(bx, by, r, 0, Math.PI * 2);
+  ctx.fillStyle = grad;
+  ctx.fill();
+  ctx.restore();
+
+  // Bordure
+  ctx.beginPath();
+  ctx.arc(bx, by, r, 0, Math.PI * 2);
+  if (isHovered) {
+    ctx.strokeStyle = '#FFD700';
+    ctx.lineWidth = 3;
+    ctx.shadowColor = '#FFD700';
+    ctx.shadowBlur = 10;
+  } else {
+    ctx.strokeStyle = hexA(darken(loc.color), 0.8);
+    ctx.lineWidth = 2;
+    ctx.shadowColor = 'transparent';
+    ctx.shadowBlur = 0;
+  }
+  ctx.stroke();
+  ctx.shadowColor = 'transparent';
+  ctx.shadowBlur = 0;
+
+  // Lumières la nuit
+  if (night) {
+    ctx.fillStyle = 'rgba(255,220,120,0.7)';
+    var winSize = r * 0.18;
+    ctx.fillRect(bx - r * 0.25, by - r * 0.1, winSize, winSize);
+    ctx.fillRect(bx + r * 0.08, by - r * 0.1, winSize, winSize);
+
+    // Glow des fenêtres
+    ctx.shadowColor = 'rgba(255,220,120,0.5)';
+    ctx.shadowBlur = 8;
+    ctx.fillRect(bx - r * 0.25, by - r * 0.1, winSize, winSize);
+    ctx.fillRect(bx + r * 0.08, by - r * 0.1, winSize, winSize);
+    ctx.shadowColor = 'transparent';
+    ctx.shadowBlur = 0;
+  }
+
+  // Emoji du lieu
+  ctx.font = (size * 0.42) + 'px serif';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText(loc.emoji, bx, by);
+
+  // Nom du lieu
+  var nativeLang = (window.S && window.S.nativeLang) ? window.S.nativeLang : 'en';
+  var nm = (LOC_NAMES && LOC_NAMES[loc.id] && LOC_NAMES[loc.id][nativeLang]) ? LOC_NAMES[loc.id][nativeLang] : loc.id;
+
+  ctx.font = 'bold ' + Math.max(9, Math.min(size * 0.16, 12)) + 'px Nunito,sans-serif';
+  ctx.fillStyle = isHovered ? '#FFD700' : 'rgba(255,245,220,0.95)';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'top';
+
+  // Ombre du texte
+  ctx.shadowColor = 'rgba(0,0,0,0.6)';
+  ctx.shadowBlur = 4;
+  ctx.fillText(nm, bx, by + r + 6);
+  ctx.shadowColor = 'transparent';
+  ctx.shadowBlur = 0;
+
+  // Badge "NEW" pour le cinéma
   if (loc.id === 'cinema') {
-    if (typeof window.openCinema === 'function') window.openCinema();
-    return;
-  }
-  
-  var listEl = document.getElementById('npcList');
-  if (!listEl) return;
-  
-  listEl.innerHTML = (loc.npcs || []).map(function(npc) {
-    var role = typeof npc.role === 'object' ? (npc.role[nativeLang] || npc.role.en) : npc.role;
-    return `
-      <div class="npc-card" onclick="closeVillagePanel(); openDialogue('${loc.id}','${npc.id}')">
-        <div class="npc-av">${npc.emoji || '👤'}</div>
-        <div class="npc-info">
-          <div class="npc-name">${npc.name}</div>
-          <div class="npc-role">${role}</div>
-        </div>
-        <div class="npc-go">➔</div>
-      </div>
-    `;
-  }).join('');
-  
-  if (panel) {
-    panel.style.display = 'flex';
-    setTimeout(function() { panel.classList.add('active'); }, 10);
+    ctx.beginPath();
+    ctx.arc(bx + r * 0.7, by - r * 0.7, r * 0.22, 0, Math.PI * 2);
+    ctx.fillStyle = '#e040fb';
+    ctx.fill();
+    ctx.font = (size * 0.14) + 'px Nunito';
+    ctx.fillStyle = '#fff';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText('▶', bx + r * 0.7, by - r * 0.7);
   }
 }
 
-function closeVillagePanel() {
-  var panel = document.getElementById('villagePanel');
-  if (!panel) return;
-  panel.classList.remove('active');
-  setTimeout(function() { panel.style.display = 'none'; }, 300);
+function drawPlayerPath(cx, cy, minDim) {
+  if (!player || !player.dest) return;
+
+  var px = cx + (player.x - 0.5) * minDim;
+  var py = cy + (player.y - 0.5) * minDim;
+  var dx = cx + (player.dest.x - 0.5) * minDim;
+  var dy = cy + (player.dest.y - 0.5) * minDim;
+
+  ctx.beginPath();
+  ctx.moveTo(px, py);
+  ctx.lineTo(dx, dy);
+  ctx.strokeStyle = 'rgba(255,215,0,0.25)';
+  ctx.lineWidth = 2;
+  ctx.setLineDash([5, 8]);
+  ctx.stroke();
+  ctx.setLineDash([]);
+
+  // Point de destination pulsant
+  var pulse = 0.5 + 0.5 * Math.sin(tick * 0.1);
+  ctx.beginPath();
+  ctx.arc(dx, dy, 4 + pulse * 3, 0, Math.PI * 2);
+  ctx.fillStyle = 'rgba(255,215,0,' + (0.3 + pulse * 0.3) + ')';
+  ctx.fill();
 }
 
-// Liaisons d'exécution globales
-window.goVillage = goVillage;
-window.closeVillagePanel = closeVillagePanel;
+function drawAtmosphericParticles(W, H) {
+  var count = window.VILLAGE_CONFIG.particleCount;
+  for (var i = 0; i < count; i++) {
+    var px = (Math.sin(i * 137.3 + tick * 0.008) * 0.5 + 0.5) * W;
+    var py = (Math.cos(i * 97.1 + tick * 0.006) * 0.5 + 0.5) * H;
+    var alpha = 0.1 + 0.1 * Math.sin(tick * 0.02 + i);
+    var size = 0.5 + Math.sin(i * 53.7) * 0.5;
+
+    ctx.beginPath();
+    ctx.arc(px, py, size, 0, Math.PI * 2);
+    ctx.fillStyle = 'rgba(255,255,200,' + alpha + ')';
+    ctx.fill();
+  }
+}
+
+// ================================================================
+// UTILITAIRES COULEURS PREMIUM
+// ================================================================
+function hexA(h, a) {
+  var r = parseInt(h.slice(1, 3), 16);
+  var g = parseInt(h.slice(3, 5), 16);
+  var b = parseInt(h.slice(5, 7), 16);
+  return 'rgba(' + r + ',' + g + ',' + b + ',' + a + ')';
+}
+
+function darken(h) {
+  var parts = [1, 3, 5].map(function(i) {
+    return Math.max(0, parseInt(h.slice(i, i + 2), 16) - 50)
+      .toString(16)
+      .padStart(2, '0');
+  });
+  return '#' + parts.join('');
+}
+
+function lighten(h, amount) {
+  var parts = [1, 3, 5].map(function(i) {
+    return Math.min(255, parseInt(h.slice(i, i + 2), 16) + amount)
+      .toString(16)
+      .padStart(2, '0');
+  });
+  return '#' + parts.join('');
+}
+
+// ================================================================
+// INTERACTIONS SOURIS / TACTILE
+// ================================================================
+function getLocAt(mx, my) {
+  if (!canvas || typeof LOCATIONS === 'undefined') return null;
+  var dpr = window.devicePixelRatio || 1;
+  var W = canvas.width / dpr;
+  var H = canvas.height / dpr;
+  var cx = W * 0.5;
+  var cy = H * 0.5;
+  var minDim = Math.min(W, H);
+
+  return LOCATIONS.find(function(loc) {
+    var bx = cx + (loc.x + loc.w/2 - 0.5) * minDim;
+    var by = cy + (loc.y + loc.h/2 - 0.5) * minDim;
+    var r = Math.min(loc.w * minDim, loc.h * minDim) * 0.5;
+    var dx = mx - bx;
+    var dy = my - by;
+    return dx * dx + dy * dy <= r * r * 1.2; // Zone légèrement plus grande pour le touch
+  });
+}
+
+function onVillageHover(e) {
+  var rect = canvas.getBoundingClientRect();
+  var loc = getLocAt(e.clientX - rect.left, e.clientY - rect.top);
+
+  var prevHover = hoveredLoc;
+  hoveredLoc = loc ? loc.id : null;
+
+  // Changer curseur
+  canvas.style.cursor = loc ? 'pointer' : 'default';
+
+  var tip = document.getElementById('locTooltip');
+  if (loc && tip) {
+    var nativeLang = (window.S && window.S.nativeLang) ? window.S.nativeLang : 'en';
+    var nm = (LOC_NAMES[loc.id] && LOC_NAMES[loc.id][nativeLang]) ? LOC_NAMES[loc.id][nativeLang] : loc.id;
+    var ds = (LOC_DESC[loc.id] && LOC_DESC[loc.id][nativeLang]) ? LOC_DESC[loc.id][nativeLang] : '';
+    var weather = WEATHER_ICONS[currentWeather] || '';
+    tip.innerHTML = '<strong style="color:var(--gold)">' + weather + ' ' + nm + '</strong>' + 
+                    (ds ? '<br><span style="color:var(--dim);font-size:0.78rem">' + ds + '</span>' : '');
+    tip.style.left = (loc.x * canvas.width/(window.devicePixelRatio||1) + loc.w * canvas.width/(window.devicePixelRatio||1) / 2) + 'px';
+    tip.style.top = (loc.y * canvas.height/(window.devicePixelRatio||1)) + 'px';
+    tip.classList.add('show');
+  } else if (tip) {
+    tip.classList.remove('show');
+  }
+}
+
+function onVillageClick
