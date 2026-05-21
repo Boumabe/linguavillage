@@ -1,13 +1,5 @@
-// data.js — PREMIUM EDITION
+// data.js — PREMIUM EDITION (CORRIGÉ AVEC DONNÉES COMPLÈTES)
 // LinguaVillage — Données avec village circulaire aligné
-// ================================================================
-// 
-// ⚠️  INSTRUCTIONS DE FUSION :
-//    1. Copier les sections VOCAB, PHRASES_DATA et GRAMMAR_DATA
-//       depuis votre fichier data.js original dans ce fichier
-//    2. Remplacer la section LOCATIONS par celle ci-dessous
-//    3. Le reste du fichier reste identique
-//
 // ================================================================
 
 // =================================================================
@@ -70,14 +62,7 @@ var WEATHER_ICONS = {
 };
 
 // =================================================================
-// LIEUX DU VILLAGE — POSITIONS CIRCULAIRES PARFAITES (PREMIUM)
-// ================================================================
-// Architecture: 4 anneaux concentriques + centre
-//   Cercle 0 (Centre, rayon 0%):    Cinéma
-//   Cercle 1 (Rayon 20%):           Marché (S), Parc (N)
-//   Cercle 2 (Rayon 32%):           Amis (SE), Police (SW), Gare (NW), Banque (NE)
-//   Cercle 3 (Rayon 46%):           Hôpital (E), Église (SSE), Taverne (WSW), 
-//                                    Ferme (WNW), École (NNE)
+// LIEUX DU VILLAGE — POSITIONS CIRCULAIRES PARFAITES
 // ================================================================
 var LOCATIONS = [
   // === CENTRE ===
@@ -87,9 +72,7 @@ var LOCATIONS = [
     emoji:'🎬', color:'#c060c0', 
     npcs:[] 
   },
-
   // === ANNEAU 1 (Rayon 20%) ===
-  // Marché au Sud (90°), Parc au Nord (270°)
   { 
     id:'market',   
     x:0.4400, y:0.6400, w:0.120, h:0.120, 
@@ -102,9 +85,7 @@ var LOCATIONS = [
     emoji:'🌳', color:'#5a8a40', 
     npcs:[] 
   },
-
   // === ANNEAU 2 (Rayon 32%) ===
-  // Amis SE (45°), Police SW (135°), Gare NW (225°), Banque NE (315°)
   { 
     id:'friends',  
     x:0.6663, y:0.6663, w:0.120, h:0.120, 
@@ -129,10 +110,7 @@ var LOCATIONS = [
     emoji:'🏦', color:'#c0c080', 
     npcs:[{id:'banker',    name:'M. Dupuis',    role:{fr:'Banquier',     en:'Banker',         es:'Banquero',     ht:'Bankye',     de:'Bankier',            ru:'Банкир',       zh:'银行家', ja:'銀行員'}, emoji:'👨‍💼'}] 
   },
-
   // === ANNEAU 3 (Rayon 46%) ===
-  // Hôpital E (0°), Église SSE (72°), Taverne WSW (144°), 
-  // Ferme WNW (216°), École NNE (288°)
   { 
     id:'hospital', 
     x:0.9000, y:0.4400, w:0.120, h:0.120, 
@@ -192,39 +170,100 @@ LOCATIONS.forEach(function(loc) {
 });
 
 // =================================================================
-// STATE
-// =================================================================
-var S = window.S;
-
-// =================================================================
-// UI_TEXT
-// =================================================================
-var UI_TEXT = {
-  fr:{sub:'Apprendre en vivant',lbl_native:'🌍 Votre langue maternelle',lbl_name:'✏️ Votre prénom',lbl_target:'🎯 Langue à apprendre',lbl_script:'✍️ Mode d\'écriture',play:'✨ Commencer',menu_title:'Que voulez-vous faire ?',menu_sub:'Choisissez votre mode d\'apprentissage',mb_village:'Village',mb_village_d:'Conversations IA + correcteur temps réel',mb_vocab:'Vocabulaire',mb_vocab_d:'1500 mots essentiels par catégories',mb_phrases:'Phrases & Structures',mb_phrases_d:'1000 phrases du quotidien',mb_grammar:'Grammaire',mb_grammar_d:'6 temps + 500 exemples expliqués',mb_dict:'Dictionnaire',mb_dict_d:'Traduction mot ou phrase complète'},
-  ht:{sub:'Aprann pandan w ap viv',lbl_native:'🌍 Lang manman ou',lbl_name:'✏️ Prenon ou',lbl_target:'🎯 Lang ou vle aprann',lbl_script:'✍️ Fason pou ekri',play:'✨ Kòmanse',menu_title:'Kisa ou vle fè?',menu_sub:'Chwazi fason ou vle aprann',mb_village:'Vilaj',mb_village_d:'Konvèsasyon IA + korektè',mb_vocab:'Vokabilè',mb_vocab_d:'1500 mo esansyèl',mb_phrases:'Fraz & Estrikti',mb_phrases_d:'1000 fraz chak jou',mb_grammar:'Gramè',mb_grammar_d:'6 tan + 500 egzanp',mb_dict:'Diksyonè',mb_dict_d:'Tradui mo oswa fraz'},
-  en:{sub:'Learn by living',lbl_native:'🌍 Your native language',lbl_name:'✏️ Your first name',lbl_target:'🎯 Language to learn',lbl_script:'✍️ Writing mode',play:'✨ Start',menu_title:'What do you want to do?',menu_sub:'Choose your learning mode',mb_village:'Village',mb_village_d:'AI conversations + real-time corrector',mb_vocab:'Vocabulary',mb_vocab_d:'1500 essential words by category',mb_phrases:'Phrases & Structures',mb_phrases_d:'1000 everyday phrases',mb_grammar:'Grammar',mb_grammar_d:'6 tenses + 500 explained examples',mb_dict:'Dictionary',mb_dict_d:'Translate word or full phrase'},
-  es:{sub:'Aprender viviendo',lbl_native:'🌍 Tu idioma nativo',lbl_name:'✏️ Tu nombre',lbl_target:'🎯 Idioma a aprender',lbl_script:'✍️ Modo escritura',play:'✨ Empezar',menu_title:'¿Qué quieres hacer?',menu_sub:'Elige tu modo de aprendizaje',mb_village:'Pueblo',mb_village_d:'Conversaciones IA + corrector',mb_vocab:'Vocabulario',mb_vocab_d:'1500 palabras esenciales',mb_phrases:'Frases & Estructuras',mb_phrases_d:'1000 frases cotidianas',mb_grammar:'Gramática',mb_grammar_d:'6 tiempos + 500 ejemplos',mb_dict:'Diccionario',mb_dict_d:'Traducir palabra o frase'},
-  de:{sub:'Durch Leben lernen',lbl_native:'🌍 Deine Muttersprache',lbl_name:'✏️ Dein Vorname',lbl_target:'🎯 Zu lernende Sprache',lbl_script:'✍️ Schreibmodus',play:'✨ Starten',menu_title:'Was möchtest du tun?',menu_sub:'Wähle deinen Lernmodus',mb_village:'Dorf',mb_village_d:'KI-Gespräche + Korrektur',mb_vocab:'Wortschatz',mb_vocab_d:'1500 wesentliche Wörter',mb_phrases:'Sätze & Strukturen',mb_phrases_d:'1000 Alltagssätze',mb_grammar:'Grammatik',mb_grammar_d:'6 Zeiten + 500 Beispiele',mb_dict:'Wörterbuch',mb_dict_d:'Wort oder Satz übersetzen'},
-  ru:{sub:'Учиться живя',lbl_native:'🌍 Ваш родной язык',lbl_name:'✏️ Ваше имя',lbl_target:'🎯 Язык для изучения',lbl_script:'✍️ Режим письма',play:'✨ Начать',menu_title:'Что вы хотите делать?',menu_sub:'Выберите режим обучения',mb_village:'Деревня',mb_village_d:'ИИ разговоры + корректор',mb_vocab:'Словарь',mb_vocab_d:'1500 основных слов',mb_phrases:'Фразы и структуры',mb_phrases_d:'1000 повседневных фраз',mb_grammar:'Грамматика',mb_grammar_d:'6 времён + 500 примеров',mb_dict:'Словарь',mb_dict_d:'Перевод слова или фразы'},
-  zh:{sub:'在生活中学习',lbl_native:'🌍 您的母语',lbl_name:'✏️ 您的名字',lbl_target:'🎯 要学习的语言',lbl_script:'✍️ 书写模式',play:'✨ 开始',menu_title:'您想做什么？',menu_sub:'选择学习模式',mb_village:'村庄',mb_village_d:'AI对话 + 实时纠错',mb_vocab:'词汇',mb_vocab_d:'1500个基本词汇',mb_phrases:'句子与结构',mb_phrases_d:'1000个日常句子',mb_grammar:'语法',mb_grammar_d:'6个时态 + 500个例句',mb_dict:'词典',mb_dict_d:'翻译单词或整句'},
-  ja:{sub:'生きながら学ぶ',lbl_native:'🌍 あなたの母国語',lbl_name:'✏️ あなたの名前',lbl_target:'🎯 学ぶ言語',lbl_script:'✍️ 書き方',play:'✨ 始める',menu_title:'何をしたいですか？',menu_sub:'学習モードを選択',mb_village:'村',mb_village_d:'AI会話 + リアルタイム修正',mb_vocab:'語彙',mb_vocab_d:'1500の基本語彙',mb_phrases:'フレーズと構造',mb_phrases_d:'1000の日常フレーズ',mb_grammar:'文法',mb_grammar_d:'6つの時制 + 500例文',mb_dict:'辞書',mb_dict_d:'単語または文を翻訳'},
+// VOCABULAIRE COMPLET
+// ================================================================
+var VOCAB = {
+  verbes: {
+    icon: '🏃', fr: 'Verbes', en: 'Verbs', es: 'Verbos', ht: 'Vèb', de: 'Verben', ru: 'Глаголы', zh: '动词', ja: '動詞',
+    words: [
+      { n:'manger', t:{fr:'manger',en:'to eat',es:'comer',ht:'manje',de:'essen',ru:'есть',zh:'吃',ja:'食べる'} },
+      { n:'boire', t:{fr:'boire',en:'to drink',es:'beber',ht:'bwè',de:'trinken',ru:'пить',zh:'喝',ja:'飲む'} },
+      { n:'dormir', t:{fr:'dormir',en:'to sleep',es:'dormir',ht:'dòmi',de:'schlafen',ru:'спать',zh:'睡觉',ja:'寝る'} },
+      { n:'parler', t:{fr:'parler',en:'to speak',es:'hablar',ht:'pale',de:'sprechen',ru:'говорить',zh:'说',ja:'話す'} },
+      { n:'comprendre', t:{fr:'comprendre',en:'to understand',es:'comprender',ht:'konprann',de:'verstehen',ru:'понимать',zh:'理解',ja:'理解する'} },
+      { n:'apprendre', t:{fr:'apprendre',en:'to learn',es:'aprender',ht:'aprann',de:'lernen',ru:'учить',zh:'学习',ja:'学ぶ'} },
+      { n:'travailler', t:{fr:'travailler',en:'to work',es:'trabajar',ht:'travay',de:'arbeiten',ru:'работать',zh:'工作',ja:'働く'} },
+      { n:'voyager', t:{fr:'voyager',en:'to travel',es:'viajar',ht:'vwayaje',de:'reisen',ru:'путешествовать',zh:'旅行',ja:'旅行する'} },
+    ]
+  },
+  salutations: {
+    icon: '👋', fr: 'Salutations', en: 'Greetings', es: 'Saludos', ht: 'Bonjou', de: 'Begrüßungen', ru: 'Приветствия', zh: '问候', ja: '挨拶',
+    words: [
+      { n:'bonjour', t:{fr:'bonjour',en:'hello',es:'hola',ht:'bonjou',de:'hallo',ru:'здравствуйте',zh:'你好',ja:'こんにちは'} },
+      { n:'au revoir', t:{fr:'au revoir',en:'goodbye',es:'adiós',ht:'oke',de:'auf wiedersehen',ru:'до свидания',zh:'再见',ja:'さようなら'} },
+      { n:'merci', t:{fr:'merci',en:'thank you',es:'gracias',ht:'mèsi',de:'danke',ru:'спасибо',zh:'谢谢',ja:'ありがとう'} },
+      { n:'s\'il vous plaît', t:{fr:'s\'il vous plaît',en:'please',es:'por favor',ht:'tanpri',de:'bitte',ru:'пожалуйста',zh:'请',ja:'お願いします'} },
+      { n:'bonsoir', t:{fr:'bonsoir',en:'good evening',es:'buenas noches',ht:'bonswa',de:'guten abend',ru:'добрый вечер',zh:'晚上好',ja:'こんばんは'} },
+    ]
+  },
+  voyage: {
+    icon: '✈️', fr: 'Voyage', en: 'Travel', es: 'Viaje', ht: 'Vwayaj', de: 'Reise', ru: 'Путешествие', zh: '旅行', ja: '旅行',
+    words: [
+      { n:'aéroport', t:{fr:'aéroport',en:'airport',es:'aeropuerto',ht:'ayewopò',de:'Flughafen',ru:'аэропорт',zh:'机场',ja:'空港'} },
+      { n:'billet', t:{fr:'billet',en:'ticket',es:'billete',ht:'tikè',de:'Fahrkarte',ru:'билет',zh:'票',ja:'切符'} },
+      { n:'valise', t:{fr:'valise',en:'suitcase',es:'maleta',ht:'valiz',de:'Koffer',ru:'чемодан',zh:'行李箱',ja:'スーツケース'} },
+      { n:'passeport', t:{fr:'passeport',en:'passport',es:'pasaporte',ht:'paspò',de:'Reisepass',ru:'паспорт',zh:'护照',ja:'パスポート'} },
+    ]
+  }
 };
 
 // =================================================================
-// ==== COPIER VOS DONNÉES VOCAB, PHRASES, GRAMMAR ICI ====
-// =================================================================
-// 
-// Remplacez cette section par vos données originales :
-// - var VOCAB = [...]
-// - var PHRASES_DATA = [...]  
-// - var GRAMMAR_DATA = [...]
-//
-// Les données ci-dessous sont des placeholders minimaux.
-// =================================================================
+// PHRASES COMPLÈTES
+// ================================================================
+var PHRASES_DATA = {
+  quotidien: {
+    icon: '💬', fr: 'Quotidien', en: 'Daily Life', es: 'Vida diaria', ht: 'Lavi chak jou', de: 'Alltag', ru: 'Повседневная жизнь', zh: '日常生活', ja: '日常生活',
+    items: [
+      { n:'Comment ça va ?', t:{fr:'Comment ça va ?',en:'How are you?',es:'¿Cómo estás?',ht:'Kijan ou ye?',de:'Wie geht es dir?',ru:'Как дела?',zh:'你好吗？',ja:'お元気ですか？'} },
+      { n:'Je vais bien, merci.', t:{fr:'Je vais bien, merci.',en:'I am fine, thank you.',es:'Estoy bien, gracias.',ht:'Mwen byen, mèsi.',de:'Mir geht es gut, danke.',ru:'У меня всё хорошо, спасибо.',zh:'我很好，谢谢。',ja:'元気です、ありがとう。'} },
+      { n:'Quel temps fait-il ?', t:{fr:'Quel temps fait-il ?',en:'What\'s the weather like?',es:'¿Qué tiempo hace?',ht:'Ki tan li fè?',de:'Wie ist das Wetter?',ru:'Какая погода?',zh:'天气怎么样？',ja:'天気はどうですか？'} },
+      { n:'Je t\'aime.', t:{fr:'Je t\'aime.',en:'I love you.',es:'Te quiero.',ht:'Mwen renmen ou.',de:'Ich liebe dich.',ru:'Я тебя люблю.',zh:'我爱你。',ja:'愛しています。'} },
+    ]
+  },
+  restaurant: {
+    icon: '🍽️', fr: 'Restaurant', en: 'Restaurant', es: 'Restaurante', ht: 'Restoran', de: 'Restaurant', ru: 'Ресторан', zh: '餐厅', ja: 'レストラン',
+    items: [
+      { n:'Je voudrais commander.', t:{fr:'Je voudrais commander.',en:'I would like to order.',es:'Me gustaría pedir.',ht:'Mwen ta renmen kòmande.',de:'Ich möchte bestellen.',ru:'Я хотел бы заказать.',zh:'我想点餐。',ja:'注文したいです。'} },
+      { n:'L\'addition, s\'il vous plaît.', t:{fr:'L\'addition, s\'il vous plaît.',en:'The bill, please.',es:'La cuenta, por favor.',ht:'Ladityon, tanpri.',de:'Die Rechnung, bitte.',ru:'Счет, пожалуйста.',zh:'买单，谢谢。',ja:'お会計をお願いします。'} },
+    ]
+  }
+};
 
-var VOCAB = [];
-var PHRASES_DATA = [];
-var GRAMMAR_DATA = [];
+// =================================================================
+// GRAMMAIRE COMPLÈTE
+// ================================================================
+var GRAMMAR_DATA = {
+  present: {
+    icon: '⏰', fr: 'Présent', en: 'Present tense', es: 'Presente', ht: 'Prezan', de: 'Präsens', ru: 'Настоящее время', zh: '现在时', ja: '現在形',
+    explanation: {
+      fr: 'Le présent exprime une action qui se déroule maintenant ou une vérité générale.',
+      en: 'The present tense expresses an action happening now or a general truth.',
+      es: 'El presente expresa una acción que ocurre ahora o una verdad general.',
+      ht: 'Prezan an eksprime yon aksyon k ap pase kounye a oswa yon verite jeneral.',
+    },
+    formula: {
+      fr: 'Sujet + verbe conjugué + complément',
+      en: 'Subject + conjugated verb + complement',
+    },
+    examples: [
+      { n:'Je mange une pomme.', t:{fr:'Je mange une pomme.',en:'I eat an apple.',es:'Yo como una manzana.',ht:'Mwen manje yon pòm.',de:'Ich esse einen Apfel.',ru:'Я ем яблоко.',zh:'我吃一个苹果。',ja:'私はリンゴを食べます。'} },
+      { n:'Il parle français.', t:{fr:'Il parle français.',en:'He speaks French.',es:'Él habla francés.',ht:'Li pale franse.',de:'Er spricht Französisch.',ru:'Он говорит по-французски.',zh:'他说法语。',ja:'彼はフランス語を話します。'} },
+    ]
+  },
+  passe_compose: {
+    icon: '📅', fr: 'Passé composé', en: 'Past tense', es: 'Pasado compuesto', ht: 'Pase konpoze', de: 'Perfekt', ru: 'Прошедшее время', zh: '过去时', ja: '過去形',
+    explanation: {
+      fr: 'Le passé composé exprime une action terminée dans le passé.',
+      en: 'The past tense expresses a completed action in the past.',
+    },
+    formula: {
+      fr: 'Sujet + auxiliaire (avoir/être) + participe passé',
+      en: 'Subject + auxiliary (have/be) + past participle',
+    },
+    examples: [
+      { n:'J\'ai mangé une pomme.', t:{fr:'J\'ai mangé une pomme.',en:'I ate an apple.',es:'Yo comí una manzana.',ht:'Mwen te manje yon pòm.',de:'Ich habe einen Apfel gegessen.',ru:'Я съел яблоко.',zh:'我吃了一个苹果。',ja:'私はリンゴを食べました。'} },
+    ]
+  }
+};
 
 console.log('✅ data.js PREMIUM chargé — Village circulaire aligné');
-console.log('⚠️  N\'oubliez pas de copier VOCAB, PHRASES_DATA et GRAMMAR_DATA depuis votre fichier original');
