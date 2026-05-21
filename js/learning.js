@@ -1,76 +1,248 @@
 // LinguaVillage — learning.js
 // Vocabulaire, phrases, grammaire, dictionnaire, CEFR
 
+const LEARNING_STATE = window.LEARNING_STATE || (window.LEARNING_STATE = {
+  vocabCat: null,
+  phraseCat: null,
+  grammarCat: null,
+  bindingsReady: false
+});
+
+function normalizeStudyText(value) {
+  return (value || '')
+    .toString()
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '');
+}
+
+function getLocalizedStudyLabel(obj, fallback) {
+  if (!obj) return fallback || '';
+  return obj[S.nativeLang] || obj.fr || obj.en || fallback || '';
+}
+
+function parseLearningTarget(target) {
+  const raw = target || '';
+  const match = raw.match(/^(.*?)\s*\(([^)]+)\)\s*$/);
+  const chars = match ? match[1].trim() : raw.trim();
+  const roman = match ? match[2].trim() : '';
+  return {
+    raw,
+    chars,
+    roman,
+    speakText: chars || raw
+  };
+}
+
+function ensureLearningBindings() {
+  if (LEARNING_STATE.bindingsReady) return;
+
+  const vocabSearch = document.getElementById('vocabSearch');
+  if (vocabSearch) {
+    vocabSearch.addEventListener('input', function() {
+      loadVocab(LEARNING_STATE.vocabCat || Object.keys(VOCAB || {})[0]);
+    });
+  }
+
+  const phraseSearch = document.getElementById('phraseSearch');
+  if (phraseSearch) {
+    phraseSearch.addEventListener('input', function() {
+      loadPhrases(LEARNING_STATE.phraseCat || Object.keys(PHRASES_DATA || {})[0]);
+    });
+  }
+
+  const grammarSearch = document.getElementById('grammarSearch');
+  if (grammarSearch) {
+    grammarSearch.addEventListener('input', function() {
+      loadGrammar(LEARNING_STATE.grammarCat || Object.keys(GRAMMAR_DATA || {})[0]);
+    });
+  }
+
+  LEARNING_STATE.bindingsReady = true;
+}
+
+function renderLearningEmptyState(icon, title, text) {
+  return '<div class="learn-empty">'
+    + '<div class="learn-empty-icon">' + icon + '</div>'
+    + '<div class="learn-empty-title">' + title + '</div>'
+    + '<div class="learn-empty-text">' + text + '</div>'
+    + '</div>';
+}
+
+function launchVocabFlashcards() {
+  const key = LEARNING_STATE.vocabCat || Object.keys(VOCAB || {})[0];
+  if (key && typeof openFlashcards === 'function') {
+    openFlashcards(key);
+  } else {
+    showNotif('🃏 Flashcards indisponibles pour le moment');
+  }
+}
+
+function launchVocabOralPractice() {
+  const key = LEARNING_STATE.vocabCat || Object.keys(VOCAB || {})[0];
+  const cat = key && VOCAB ? VOCAB[key] : null;
+  const first = cat && cat.words && cat.words[0];
+  const target = first && (first.t[S.targetLang] || first.t.en || '');
+  const parsed = parseLearningTarget(target);
+  if (parsed.speakText && typeof openOralPractice === 'function') {
+    openOralPractice(parsed.speakText, S.targetLang);
+  } else {
+    showNotif('🎤 Révision orale indisponible');
+  }
+}
+
+function getCurrentPhrasePool() {
+  const key = LEARNING_STATE.phraseCat || Object.keys(PHRASES_DATA || {})[0];
+  const cat = key && PHRASES_DATA ? PHRASES_DATA[key] : null;
+  if (!cat || !cat.items) return [];
+  const query = normalizeStudyText((document.getElementById('phraseSearch') || {}).value || '');
+  return cat.items.filter(function(item) {
+    if (!query) return true;
+    const target = item.t[S.targetLang] || item.t.en || '';
+    const parsed = parseLearningTarget(target);
+    const nativeText = item.t[S.nativeLang] || item.t.en || item.n || '';
+    return [nativeText, parsed.chars, parsed.roman, target].some(function(value) {
+      return normalizeStudyText(value).includes(query);
+    });
+  });
+}
+
+function speakFocusedPhrase() {
+  const pool = getCurrentPhrasePool();
+  if (!pool.length) {
+    showNotif('🔍 Aucune phrase disponible avec ce filtre');
+    return;
+  }
+  const phrase = pool[0];
+  const target = phrase.t[S.targetLang] || phrase.t.en || '';
+  speakW(parseLearningTarget(target).speakText);
+}
+
+function copyFocusedPhrase() {
+  const pool = getCurrentPhrasePool();
+  if (!pool.length) {
+    showNotif('🔍 Aucune phrase à copier');
+    return;
+  }
+  const phrase = pool[0];
+  const target = phrase.t[S.targetLang] || phrase.t.en || '';
+  copyPhrase(parseLearningTarget(target).chars || target);
+}
+
+function getCurrentGrammarCategory() {
+  const key = LEARNING_STATE.grammarCat || Object.keys(GRAMMAR_DATA || {})[0];
+  return key && GRAMMAR_DATA ? GRAMMAR_DATA[key] : null;
+}
+
+function playGrammarExample() {
+  const cat = getCurrentGrammarCategory();
+  if (!cat || !cat.examples || !cat.examples.length) {
+    showNotif('🔊 Aucun exemple disponible');
+    return;
+  }
+  const query = normalizeStudyText((document.getElementById('grammarSearch') || {}).value || '');
+  const example = cat.examples.find(function(ex) {
+    if (!query) return true;
+    const target = ex.t[S.targetLang] || ex.t.en || '';
+    const nativeText = ex.t[S.nativeLang] || ex.t.en || ex.n || '';
+    return [target, nativeText].some(function(value) {
+      return normalizeStudyText(value).includes(query);
+    });
+  }) || cat.examples[0];
+  const target = example.t[S.targetLang] || example.t.en || '';
+  speakW(parseLearningTarget(target).speakText);
+}
+
+function copyGrammarFormula() {
+  const cat = getCurrentGrammarCategory();
+  if (!cat || !cat.formula) {
+    showNotif('📐 Aucune formule disponible');
+    return;
+  }
+  const formula = cat.formula[S.targetLang] || cat.formula.en || cat.formula.fr || '';
+  if (!formula) {
+    showNotif('📐 Aucune formule disponible');
+    return;
+  }
+  copyPhrase(formula);
+}
+
 function loadVocab(catKey) {
-  const cats = Object.keys(VOCAB);
+  ensureLearningBindings();
+
+  const cats = Object.keys(VOCAB || {});
+  if (!cats.length) return;
+  LEARNING_STATE.vocabCat = catKey || LEARNING_STATE.vocabCat || cats[0];
+  const activeKey = VOCAB[LEARNING_STATE.vocabCat] ? LEARNING_STATE.vocabCat : cats[0];
+  LEARNING_STATE.vocabCat = activeKey;
+
   const catsBar = document.getElementById('vocabCats');
   if (catsBar) {
-    catsBar.innerHTML = cats.map(k => {
-      const a = k === catKey ? ' active' : '';
+    catsBar.innerHTML = cats.map(function(k) {
+      const a = k === activeKey ? ' active' : '';
       const icon = VOCAB[k].icon || '📖';
-      const label = VOCAB[k][S.nativeLang] || VOCAB[k].fr;
-      return `<button class="vcat${a}" onclick="loadVocab('${k}')">${icon} ${label}</button>`;
+      const label = getLocalizedStudyLabel(VOCAB[k], k);
+      const count = (VOCAB[k].words || []).length;
+      return '<button class="vcat' + a + '" onclick="loadVocab(\'' + k + '\')">'
+        + '<span>' + icon + ' ' + escapeHtml(label) + '</span>'
+        + '<span class="cat-count">' + count + '</span>'
+        + '</button>';
     }).join('');
   }
 
-  const cat = VOCAB[catKey];
+  const cat = VOCAB[activeKey];
   if (!cat) return;
 
-  const searchInput = document.getElementById('vocabSearch');
-  const search = searchInput ? searchInput.value.toLowerCase() : '';
-  const words = cat.words.filter(w =>
-    !search ||
-    (w.t[S.nativeLang] || w.n || '').toLowerCase().includes(search) ||
-    (w.t[S.targetLang] || '').toLowerCase().includes(search)
-  );
+  const search = normalizeStudyText((document.getElementById('vocabSearch') || {}).value || '');
+  const words = (cat.words || []).filter(function(w) {
+    if (!search) return true;
+    const target = w.t[S.targetLang] || w.t.en || '';
+    const parsed = parseLearningTarget(target);
+    const nativeText = w.t[S.nativeLang] || w.t.en || w.n || '';
+    return [nativeText, parsed.chars, parsed.roman, target].some(function(value) {
+      return normalizeStudyText(value).includes(search);
+    });
+  });
 
   const vocabCount = document.getElementById('vocabCount');
   if (vocabCount) vocabCount.textContent = words.length + ' mots';
+  const vocabActiveLabel = document.getElementById('vocabActiveLabel');
+  if (vocabActiveLabel) vocabActiveLabel.textContent = getLocalizedStudyLabel(cat, activeKey);
+  const vocabVisibleCount = document.getElementById('vocabVisibleCount');
+  if (vocabVisibleCount) vocabVisibleCount.textContent = String(words.length);
 
-  const isCJK = ['zh','ja','ru'].includes(S.targetLang);
+  const isCJK = ['zh', 'ja', 'ru'].includes(S.targetLang);
+  const showRoman = isCJK && S.scriptPref !== 'native';
+  const showNative = !isCJK || S.scriptPref !== 'roman';
 
   const vocabList = document.getElementById('vocabList');
   if (!vocabList) return;
 
-  vocabList.innerHTML = words.map(w => {
+  if (!words.length) {
+    vocabList.innerHTML = renderLearningEmptyState('🔎', 'Aucun mot trouvé', 'Essaie un autre mot-clé ou change de catégorie.');
+    return;
+  }
+
+  const label = getLocalizedStudyLabel(cat, activeKey);
+  vocabList.innerHTML = words.map(function(w, index) {
     const nativeText = w.t[S.nativeLang] || w.t.en || w.n || '';
     const target = w.t[S.targetLang] || w.t.en || '';
-
-    let charsHtml = '', romanHtml = '';
-
-    if (isCJK) {
-      // Format: "你好 (Nǐ hǎo)" ou "быть (byt)"
-      const m = target.match(/^(.*?)\s*\(([^)]+)\)\s*$/);
-      const chars = m ? m[1].trim() : target;
-      const roman = m ? m[2].trim() : '';
-      if (S.scriptPref !== 'roman' && chars) {
-        charsHtml = `<span class="vi-word">${escapeHtml(chars)}</span>`;
-      }
-      if (S.scriptPref !== 'native' && roman) {
-        romanHtml = `<span class="vi-roman">${escapeHtml(roman)}</span>`;
-      }
-      // Si pas de romanisation dans les données, afficher les chars seuls
-      if (!roman && chars) {
-        charsHtml = `<span class="vi-word">${escapeHtml(chars)}</span>`;
-        romanHtml = '';
-      }
-    } else {
-      // Langues normales (fr, en, es, ht, de) : afficher directement la traduction
-      charsHtml = `<span class="vi-word">${escapeHtml(target)}</span>`;
-      romanHtml = '';
-    }
-
-    const speakText = (target.match(/^(.*?)\s*\(([^)]+)\)\s*$/) || [,'',target])[1].trim() || target;
-    return `
-      <div class="vocab-item">
-        <span class="vi-native">${escapeHtml(nativeText)}</span>
-        <span class="vi-target">
-          ${charsHtml}
-          ${romanHtml}
-        </span>
-        <button class="vi-listen" onclick="speakW('${escapeHtml(speakText).replace(/'/g, "\\'")}')">🔊</button>
-        <button class="oral-btn" onclick="openOralPractice('${escapeHtml(speakText).replace(/'/g, "\\'")}')">🎤</button>
-      </div>`;
+    const parsed = parseLearningTarget(target);
+    const charsHtml = showNative && parsed.chars ? '<span class="vi-word">' + escapeHtml(parsed.chars) + '</span>' : '';
+    const romanHtml = showRoman && parsed.roman ? '<span class="vi-roman">' + escapeHtml(parsed.roman) + '</span>' : '';
+    const fallbackTarget = !charsHtml && !romanHtml ? '<span class="vi-word">' + escapeHtml(target) + '</span>' : '';
+    const order = String(index + 1).padStart(2, '0');
+    return '<article class="vocab-item">'
+      + '<div class="vi-main">'
+      + '<div class="vi-meta"><span class="vi-kicker">Mot-clé</span><span class="vi-chip">' + escapeHtml(label) + ' · ' + order + '</span></div>'
+      + '<div class="vi-native">' + escapeHtml(nativeText) + '</div>'
+      + '<div class="vi-target">' + charsHtml + romanHtml + fallbackTarget + '</div>'
+      + '</div>'
+      + '<div class="vi-actions">'
+      + '<button class="vi-listen" onclick="speakW(\'' + escapeHtml(parsed.speakText).replace(/'/g, "\\'") + '\')">🔊 Écouter</button>'
+      + '<button class="vi-listen vi-practice" onclick="openOralPractice(\'' + escapeHtml(parsed.speakText).replace(/'/g, "\\'") + '\')">🎤 Oral</button>'
+      + '</div>'
+      + '</article>';
   }).join('');
 }
 
@@ -84,55 +256,87 @@ function speakW(w) {
   showNotif('🔊 ' + w);
 }
 
-// PHRASES
 function loadPhrases(catKey) {
-  const cats = Object.keys(PHRASES_DATA);
+  ensureLearningBindings();
+
+  const cats = Object.keys(PHRASES_DATA || {});
+  if (!cats.length) return;
+  LEARNING_STATE.phraseCat = catKey || LEARNING_STATE.phraseCat || cats[0];
+  const activeKey = PHRASES_DATA[LEARNING_STATE.phraseCat] ? LEARNING_STATE.phraseCat : cats[0];
+  LEARNING_STATE.phraseCat = activeKey;
+
   const phraseCats = document.getElementById('phraseCats');
   if (phraseCats) {
-    phraseCats.innerHTML = cats.map(k => {
-      const a = k === catKey ? ' active' : '';
-      const icon = PHRASES_DATA[k].icon || '';
-      const label = PHRASES_DATA[k][S.nativeLang] || PHRASES_DATA[k].fr;
-      return `<button class="pcat${a}" onclick="loadPhrases('${k}')">${icon} ${label}</button>`;
+    phraseCats.innerHTML = cats.map(function(k) {
+      const a = k === activeKey ? ' active' : '';
+      const icon = PHRASES_DATA[k].icon || '💬';
+      const label = getLocalizedStudyLabel(PHRASES_DATA[k], k);
+      const count = (PHRASES_DATA[k].items || []).length;
+      return '<button class="pcat' + a + '" onclick="loadPhrases(\'' + k + '\')">'
+        + '<span>' + icon + ' ' + escapeHtml(label) + '</span>'
+        + '<span class="cat-count">' + count + '</span>'
+        + '</button>';
     }).join('');
   }
-  
-  const cat = PHRASES_DATA[catKey];
+
+  const cat = PHRASES_DATA[activeKey];
   if (!cat) return;
-  
-  const phraseList = document.getElementById('phraseList');
+
+  const query = normalizeStudyText((document.getElementById('phraseSearch') || {}).value || '');
+  const items = (cat.items || []).filter(function(p) {
+    if (!query) return true;
+    const target = p.t[S.targetLang] || p.t.en || '';
+    const parsed = parseLearningTarget(target);
+    const nativeText = p.t[S.nativeLang] || p.t.en || p.n || '';
+    return [nativeText, parsed.chars, parsed.roman, target].some(function(value) {
+      return normalizeStudyText(value).includes(query);
+    });
+  });
+
   const phrasesCount = document.getElementById('phrasesCount');
-  if (phrasesCount) phrasesCount.textContent = cat.items.length + ' phrases';
-  
+  if (phrasesCount) phrasesCount.textContent = items.length + ' phrases';
+  const phrasesActiveLabel = document.getElementById('phrasesActiveLabel');
+  if (phrasesActiveLabel) phrasesActiveLabel.textContent = getLocalizedStudyLabel(cat, activeKey);
+  const phrasesVisibleCount = document.getElementById('phrasesVisibleCount');
+  if (phrasesVisibleCount) phrasesVisibleCount.textContent = String(items.length);
+
   const isCJK = ['zh', 'ja', 'ru'].includes(S.targetLang);
   const showRoman = isCJK && S.scriptPref !== 'native';
   const showNative = !isCJK || S.scriptPref !== 'roman';
-  
-  if (phraseList) {
-    phraseList.innerHTML = cat.items.map(p => {
-      const target = p.t[S.targetLang] || p.t.en || '';
-      const match = target.match(/^(.*)\s*\(([^)]+)\)\s*$/);
-      const chars = match ? match[1] : target;
-      const roman = match ? match[2] : '';
-      const romanHtml = (showRoman && roman) ? `<div class="pi-roman">${roman}</div>` : '';
-      const nativeText = p.t[S.nativeLang] || p.t.en || p.n || '';
-      return `
-        <div class="phrase-item">
-          <div class="pi-native">${escapeHtml(nativeText)}</div>
-          <div class="pi-target">${showNative ? escapeHtml(chars) : target}</div>
-          ${romanHtml}
-          <div class="pi-actions">
-            <button class="pi-btn" onclick="speakW('${escapeHtml(chars).replace(/'/g, "\\'")}')">🔊</button>
-            <button class="pi-btn" onclick="copyPhrase('${escapeHtml(chars).replace(/'/g, "\\'")}')">📋</button>
-          </div>
-        </div>`;
-    }).join('');
+
+  const phraseList = document.getElementById('phraseList');
+  if (!phraseList) return;
+  if (!items.length) {
+    phraseList.innerHTML = renderLearningEmptyState('💬', 'Aucune phrase trouvée', 'Essaie un autre mot-clé pour retrouver une expression utile.');
+    return;
   }
+
+  phraseList.innerHTML = items.map(function(p, index) {
+    const target = p.t[S.targetLang] || p.t.en || '';
+    const parsed = parseLearningTarget(target);
+    const nativeText = p.t[S.nativeLang] || p.t.en || p.n || '';
+    const romanHtml = (showRoman && parsed.roman) ? '<div class="pi-roman">' + escapeHtml(parsed.roman) + '</div>' : '';
+    const targetText = showNative ? escapeHtml(parsed.chars || target) : escapeHtml(target);
+    return '<article class="phrase-item">'
+      + '<div class="pi-head"><span class="pi-kicker">Phrase utile</span><span class="pi-index">#' + String(index + 1).padStart(2, '0') + '</span></div>'
+      + '<div class="pi-native">' + escapeHtml(nativeText) + '</div>'
+      + '<div class="pi-target">' + targetText + '</div>'
+      + romanHtml
+      + '<div class="pi-actions">'
+      + '<button class="pi-btn" onclick="speakW(\'' + escapeHtml(parsed.speakText).replace(/'/g, "\\'") + '\')">🔊 Écouter</button>'
+      + '<button class="pi-btn" onclick="copyPhrase(\'' + escapeHtml(parsed.chars || target).replace(/'/g, "\\'") + '\')">📋 Copier</button>'
+      + '</div>'
+      + '</article>';
+  }).join('');
 }
 
 function copyPhrase(t) {
   if (navigator.clipboard) {
-    navigator.clipboard.writeText(t).then(() => showNotif('📋 Copié !')).catch(() => showNotif('❌ Erreur'));
+    navigator.clipboard.writeText(t).then(function() {
+      showNotif('📋 Copié !');
+    }).catch(function() {
+      showNotif('❌ Erreur');
+    });
   } else {
     const ta = document.createElement('textarea');
     ta.value = t;
@@ -144,59 +348,93 @@ function copyPhrase(t) {
   }
 }
 
-// GRAMMAIRE
 function loadGrammar(catKey) {
-  const cats = Object.keys(GRAMMAR_DATA);
+  ensureLearningBindings();
+
+  const cats = Object.keys(GRAMMAR_DATA || {});
+  if (!cats.length) return;
+  LEARNING_STATE.grammarCat = catKey || LEARNING_STATE.grammarCat || cats[0];
+  const activeKey = GRAMMAR_DATA[LEARNING_STATE.grammarCat] ? LEARNING_STATE.grammarCat : cats[0];
+  LEARNING_STATE.grammarCat = activeKey;
+
   const grammarCats = document.getElementById('grammarCats');
   if (grammarCats) {
-    grammarCats.innerHTML = cats.map(k => {
-      const a = k === catKey ? ' active' : '';
-      const icon = GRAMMAR_DATA[k].icon || '';
-      const label = GRAMMAR_DATA[k][S.nativeLang] || GRAMMAR_DATA[k].fr;
-      return `<button class="gcat${a}" onclick="loadGrammar('${k}')">${icon} ${label}</button>`;
+    grammarCats.innerHTML = cats.map(function(k) {
+      const a = k === activeKey ? ' active' : '';
+      const icon = GRAMMAR_DATA[k].icon || '✏️';
+      const label = getLocalizedStudyLabel(GRAMMAR_DATA[k], k);
+      const count = (GRAMMAR_DATA[k].examples || []).length;
+      return '<button class="gcat' + a + '" onclick="loadGrammar(\'' + k + '\')">'
+        + '<span>' + icon + ' ' + escapeHtml(label) + '</span>'
+        + '<span class="cat-count">' + count + '</span>'
+        + '</button>';
     }).join('');
   }
-  
-  const cat = GRAMMAR_DATA[catKey];
+
+  const cat = GRAMMAR_DATA[activeKey];
   if (!cat) return;
-  
-  const grammarBody = document.getElementById('grammarBody');
-  if (!grammarBody) return;
-  
+
   const nl = S.nativeLang;
   const tl = S.targetLang;
   const isCJK = ['zh', 'ja', 'ru'].includes(tl);
   const showRoman = isCJK && S.scriptPref !== 'native';
   const showNative = !isCJK || S.scriptPref !== 'roman';
-  
-  const expl = cat.explanation ? (cat.explanation[nl] || cat.explanation.fr || '') : '';
+  const query = normalizeStudyText((document.getElementById('grammarSearch') || {}).value || '');
+
+  const expl = cat.explanation ? (cat.explanation[nl] || cat.explanation.fr || cat.explanation.en || '') : '';
   const formula = cat.formula ? (cat.formula[tl] || cat.formula.en || cat.formula.fr || '') : '';
-  const examples = cat.examples || [];
-  
-  var gramRowsHTML = examples.map(function(ex) {
-    var target = ex.t[tl] || ex.t.en || '';
-    var match  = target.match(/^(.*)\s*\(([^)]+)\)\s*$/);
-    var chars  = match ? match[1] : target;
-    var roman  = match ? match[2] : '';
-    var romanSpan = (showRoman && roman) ? '<span class="roman">'+roman+'</span>' : '';
-    var nativeText = ex.t[nl] || ex.t.en || ex.n || '';
-    return '<div class="gram-ex">'
-      + '<span class="gram-ex-native">'+escapeHtml(nativeText)+'</span>'
-      + '<span class="gram-ex-target">'
-      + (showNative ? escapeHtml(chars) : target) + ' ' + romanSpan
-      + '<button onclick="speakW(\''+escapeHtml(chars).replace(/\'/g,"\\\'")+'\')">&#128266;</button>'
-      + '</span></div>';
-  }).join('');
-  var formulaHTML = formula ? '<div class="gram-formula">'+formula+'</div>' : '';
-  grammarBody.innerHTML = '<div class="gram-section">'
-    + '<div class="gram-title">'+(cat.icon||'')+' '+(cat[nl]||cat.fr||'')+'</div>'
-    + '<div class="gram-explanation">'+expl+'</div>'
-    + formulaHTML
-    + '<div class="gram-examples">'+gramRowsHTML+'</div>'
-    + '</div>';
+  const allExamples = cat.examples || [];
+  const examples = allExamples.filter(function(ex) {
+    if (!query) return true;
+    const target = ex.t[tl] || ex.t.en || '';
+    const parsed = parseLearningTarget(target);
+    const nativeText = ex.t[nl] || ex.t.en || ex.n || '';
+    return [nativeText, parsed.chars, parsed.roman, expl, formula].some(function(value) {
+      return normalizeStudyText(value).includes(query);
+    });
+  });
+
+  const grammarActiveLabel = document.getElementById('grammarActiveLabel');
+  if (grammarActiveLabel) grammarActiveLabel.textContent = getLocalizedStudyLabel(cat, activeKey);
+  const grammarExampleCount = document.getElementById('grammarExampleCount');
+  if (grammarExampleCount) grammarExampleCount.textContent = String(examples.length);
+
+  const grammarBody = document.getElementById('grammarBody');
+  if (!grammarBody) return;
+
+  const examplesHTML = examples.length ? examples.map(function(ex, index) {
+    const target = ex.t[tl] || ex.t.en || '';
+    const parsed = parseLearningTarget(target);
+    const nativeText = ex.t[nl] || ex.t.en || ex.n || '';
+    const romanHTML = (showRoman && parsed.roman) ? '<div class="roman">' + escapeHtml(parsed.roman) + '</div>' : '';
+    const targetHTML = showNative ? escapeHtml(parsed.chars || target) : escapeHtml(target);
+    return '<article class="gram-ex">'
+      + '<div class="gram-ex-head"><span class="gram-ex-index">Exemple ' + String(index + 1).padStart(2, '0') + '</span>'
+      + '<button class="gram-audio" onclick="speakW(\'' + escapeHtml(parsed.speakText).replace(/'/g, "\\'") + '\')">🔊 Écouter</button></div>'
+      + '<div class="gram-ex-native">' + escapeHtml(nativeText) + '</div>'
+      + '<div class="gram-ex-target">' + targetHTML + '</div>'
+      + romanHTML
+      + '</article>';
+  }).join('') : renderLearningEmptyState('📐', 'Aucun exemple trouvé', 'Change le mot-clé ou la catégorie pour afficher d’autres exemples.');
+
+  grammarBody.innerHTML = '<section class="gram-section">'
+    + '<div class="gram-topbar">'
+    + '<div><div class="gram-kicker">Point de grammaire</div><div class="gram-title">' + escapeHtml((cat.icon || '') + ' ' + getLocalizedStudyLabel(cat, activeKey)) + '</div></div>'
+    + '<div class="gram-tag">' + examples.length + ' exemples</div>'
+    + '</div>'
+    + '<div class="gram-card"><div class="gram-card-label">Explication simple</div><div class="gram-explanation">' + escapeHtml(expl) + '</div></div>'
+    + (formula ? '<div class="gram-card gram-formula-card"><div class="gram-card-label">Formule à retenir</div><div class="gram-formula">' + escapeHtml(formula) + '</div></div>' : '')
+    + '<div class="gram-card"><div class="gram-card-label">Exemples guidés</div><div class="gram-examples">' + examplesHTML + '</div></div>'
+    + '</section>';
 }
 
-// DICTIONNAIRE
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', ensureLearningBindings);
+} else {
+  setTimeout(ensureLearningBindings, 0);
+}
+
+// DICTIONNAIRE// DICTIONNAIRE
 function openDict() {
   dictFromScreen = document.querySelector('.screen.active')?.id || 'screen-menu';
   showScreen('screen-dict');
