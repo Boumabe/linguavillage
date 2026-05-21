@@ -216,7 +216,6 @@ window.addEventListener('DOMContentLoaded', function() {
 function startMenu() {
   if (!window.S) return;
 
-  // Nettoyer le localStorage au cas où il serait corrompu
   try {
     var testLS = localStorage.getItem('linguavillage_save');
     if (testLS) {
@@ -257,14 +256,10 @@ function startMenu() {
 // ================================================================
 // _launchMenu — onboarding 1ère fois → citation → screen-menu
 // ================================================================
-// ================================================================
-// showScreen — navigation globale entre écrans
-// NE PAS utiliser style.display inline : laisser le CSS gérer via .active
-// ================================================================
 window.showScreen = function(id) {
   document.querySelectorAll('.screen').forEach(function(s) {
     s.classList.remove('active');
-    s.style.display = ''; // reset inline pour laisser le CSS prendre le relais
+    s.style.display = '';
   });
   var target = document.getElementById(id);
   if (target) {
@@ -283,7 +278,6 @@ function _launchMenu() {
     }
   }
 
-  // Vérifier si localStorage est accessible
   var isFirstTime = true;
   try {
     isFirstTime = !localStorage.getItem('lv_onboarding_done');
@@ -291,7 +285,8 @@ function _launchMenu() {
     isFirstTime = false;
   }
 
-  if (isFirstTime && window.LV_ONBOARDING) {
+  // Vérifier si LV_ONBOARDING est disponible
+  if (isFirstTime && window.LV_ONBOARDING && typeof window.LV_ONBOARDING.show === 'function') {
     try {
       localStorage.setItem('lv_onboarding_done', '1');
     } catch(e) {}
@@ -313,4 +308,4 @@ function resetOnboarding() {
   try { localStorage.removeItem('lv_onboarding_done'); } catch(e) {}
   try { localStorage.removeItem('lv_last_quote_idx'); } catch(e) {}
   if (typeof showNotif === 'function') showNotif('Onboarding réinitialisé');
-        }
+      }
