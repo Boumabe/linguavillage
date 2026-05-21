@@ -185,6 +185,15 @@ function drawVillage() {
     ctx.fillText(window.S.playerName, cx, cy + homeR + 8);
   }
 
+  
+// Ajoutez :
+var streak = (window.G && window.G.streak) || 0;
+if (streak > 0) {
+  ctx.font = 'bold ' + Math.max(10, homeR * 0.8) + 'px Nunito';
+  ctx.fillStyle = '#ff9f43';
+  ctx.fillText('🔥 ' + streak, cx + homeR + 8, cy - homeR - 4);
+}
+
   // Dessiner tous les lieux
   for (var i = 0; i < VILLAGE_LOCATIONS.length; i++) {
     var loc = VILLAGE_LOCATIONS[i];
