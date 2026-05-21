@@ -1,5 +1,5 @@
 // LinguaVillage — app.js
-// Version simplifiée – flux direct, pas d’animation parasite
+// Version sans activation immédiate – menu après proverbe uniquement
 // ================================================================
 
 var API = 'https://linguavillage-api--marckensbou2.replit.app';
@@ -26,7 +26,7 @@ window.addEventListener('DOMContentLoaded', function() {
     } catch(e) { console.warn('Restore failed:', e); }
   }
 
-  // Configuration des sélections (inchangée, mais sans animation)
+  // Configuration des sélections (inchangée)
   const nativeTiles = document.querySelectorAll('.lang-tile[data-native]');
   const targetTiles = document.querySelectorAll('.lang-tile[data-lang]');
   const step2 = document.getElementById('step2');
@@ -215,21 +215,8 @@ function _launchMenu() {
     showQuoteThenMenu();
   }
 
-  // Activation immédiate (premier dialogue) pour les nouveaux utilisateurs seulement
-  setTimeout(() => {
-    if (localStorage.getItem('lv_activated')) return;
-    if (typeof LOCATIONS !== 'undefined') {
-      const friendsLoc = LOCATIONS.find(l => l.id === 'friends');
-      if (friendsLoc && friendsLoc.npcs && friendsLoc.npcs[0]) {
-        openDialogue('friends', friendsLoc.npcs[0].id);
-        localStorage.setItem('lv_activated', '1');
-        showNotif('🎉 Bienvenue ! Commence par parler à ' + friendsLoc.npcs[0].name + '.');
-      } else if (typeof openFlashcards === 'function') {
-        openFlashcards('salutations');
-        localStorage.setItem('lv_activated', '1');
-      }
-    }
-  }, 2000);
+  // PLUS AUCUNE ACTIVATION AUTOMATIQUE (dialogue ou flashcards)
+  // L'utilisateur arrive directement sur le menu après le proverbe.
 }
 
 function openWordGame() {
@@ -241,4 +228,4 @@ function resetOnboarding() {
   try { localStorage.removeItem('lv_onboarding_done'); } catch(e) {}
   try { localStorage.removeItem('lv_last_quote_idx'); } catch(e) {}
   showNotif('Onboarding réinitialisé');
-    }
+          }
