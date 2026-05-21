@@ -1,6 +1,5 @@
-// dialogue.js - CORRIGÉ (event listeners déplacés dans DOMContentLoaded)
-// LinguaVillage — dialogue.js
-// Dialogues NPC, IA, correcteur, popup mots, voix
+// dialogue.js - VERSION COMPLÈTE (avec updateWeeklyProgress)
+// ================================================================
 
 var dictFromScreen = null;
 var dictMode = 'word';
@@ -9,25 +8,19 @@ var isRecording = false;
 var recognition = null;
 var popupWord = '';
 
-// Initialiser les event listeners au chargement du DOM
 document.addEventListener('DOMContentLoaded', function() {
-  // Dialogue input - Entrée clavier
   var dialInput = document.getElementById('dialInput');
   if (dialInput) {
     dialInput.addEventListener('keydown', function(e) {
       if (e.key === 'Enter' && typeof sendMsg === 'function') sendMsg();
     });
   }
-  
-  // Dict input - Entrée clavier
   var dictInput = document.getElementById('dictInput');
   if (dictInput) {
     dictInput.addEventListener('keydown', function(e) {
       if (e.key === 'Enter' && typeof searchDict === 'function') searchDict();
     });
   }
-  
-  // Vocab search
   var vocabSearch = document.getElementById('vocabSearch');
   if (vocabSearch) {
     vocabSearch.addEventListener('input', function() {
@@ -39,8 +32,6 @@ document.addEventListener('DOMContentLoaded', function() {
       }
     });
   }
-  
-  // Fermer popup mot au clic extérieur
   document.addEventListener('click', function(e) {
     var pop = document.getElementById('wordPopup');
     if (pop && pop.classList.contains('show') && !pop.contains(e.target) && !e.target.classList.contains('clickable-word')) {
@@ -59,6 +50,9 @@ function openDialogue(locId, npcId) {
   S.currentNPC = npc;
   S.currentLoc = loc;
   S.chatHistory = [];
+  
+  // 👇 AJOUT : incrémenter le compteur "parler à un PNJ" pour les défis hebdomadaires
+  if (typeof updateWeeklyProgress === 'function') updateWeeklyProgress('talk_npc', 1);
   
   var role = typeof npc.role === 'object' ? (npc.role[S.nativeLang] || npc.role.en) : npc.role;
   var dialAv = document.getElementById('dialAv');
@@ -191,15 +185,12 @@ async function checkSpelling(text) {
       language: LANG_NAMES[S.targetLang] || 'anglais',
       nativeLanguage: LANG_NAMES[S.nativeLang] || 'français'
     });
-    
     var panel = document.getElementById('corrPanel');
     var corrTitle = document.getElementById('corrTitle');
     var corrOrig = document.getElementById('corrOrig');
     var corrFixed = document.getElementById('corrFixed');
     var corrExplain = document.getElementById('corrExplain');
-    
     if (!panel || !corrTitle || !corrOrig || !corrFixed || !corrExplain) return;
-    
     if (result.correct) {
       panel.className = 'correction-panel ok show';
       corrTitle.textContent = '✅ CORRECT';
@@ -381,25 +372,20 @@ async function lookupWord(word, event) {
   var wpRoman = document.getElementById('wpRoman');
   var wpTranslation = document.getElementById('wpTranslation');
   var wpGrammar = document.getElementById('wpGrammar');
-  
   if (!pop || !wpWord || !wpTranslation) return;
-  
   wpWord.textContent = word;
   if (wpRoman) wpRoman.textContent = '';
   wpTranslation.textContent = '...';
   if (wpGrammar) wpGrammar.textContent = '';
-  
   var x = Math.min(event.clientX, window.innerWidth - 290);
   var y = Math.max(event.clientY - 170, 10);
   pop.style.left = x + 'px';
   pop.style.top = y + 'px';
   pop.classList.add('show');
-  
   if (typeof callAPIWithFallback !== 'function') {
     if (wpTranslation) wpTranslation.textContent = 'Indisponible';
     return;
   }
-  
   try {
     var result = await callAPIWithFallback('/api/dialogue', {
       npcName: '', npcRole: '', location: '',
@@ -435,4 +421,4 @@ function speakPopupWord() {
     speechSynthesis.speak(u);
     if (typeof showNotif === 'function') showNotif('🔊 ' + popupWord);
   }
-                                                                                                                   }
+             }
