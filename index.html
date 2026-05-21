@@ -1,4 +1,4 @@
-<!-- index.html - Corrigé -->
+<!-- index.html - Version Corrigée -->
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -79,7 +79,7 @@
   <div class="menu-header">
     <span class="menu-player" id="menuPlayer">👤</span>
     <span class="menu-lang" id="menuLang"></span>
-    <button onclick="showProgression()" style="background:rgba(255,215,0,0.1);border:1px solid var(--border);color:var(--gold);padding:3px 10px;border-radius:15px;font-size:0.7rem;font-weight:800;cursor:pointer;font-family:Nunito,sans-serif;display:flex;align-items:center;gap:4px;"><span id="gemDisplay">💎 0</span> · 📊</button>
+    <button onclick="showProgression()" style="background:rgba(255,215,0,0.1);border:1px solid var(--border);color:var(--gold);padding:3px 10px;border-radius:15px;font-size:0.7rem;font-weight:800;cursor:pointer;display:flex;align-items:center;gap:4px;"><span id="gemDisplay">💎 0</span> · 📊</button>
     <div class="menu-xp">
       <span class="menu-xp-label" id="menuXP">0 XP</span>
       <div class="xp-bar-bg"><div class="xp-bar-fill" id="xpFill"></div></div>
@@ -386,47 +386,51 @@
 <!-- 2. Données : vocabulaire, lieux, constantes -->
 <script src="js/data.js"></script>
 
-<!-- 3. Citations et proverbes du jour -->
-<script src="js/quote.js"></script>
-
-<!-- 4. Joueur : maison, personnage animé, marche -->
+<!-- 3. Joueur : maison, personnage animé, marche -->
 <script src="js/player.js"></script>
 
-<!-- 5. Village : canvas, météo, interactions -->
+<!-- 4. Village : canvas, météo, interactions -->
 <script src="js/village.js"></script>
 
-<!-- 6. Dialogue : NPC, IA, correcteur, popup mots -->
+<!-- 5. Mémoire personnalisée -->
+<script src="js/memory.js"></script>
+
+<!-- 6. Phonèmes adaptés à la langue maternelle -->
+<script src="js/phonemes.js"></script>
+
+<!-- 7. Sprites PNJ animés SVG -->
+<script src="js/sprites.js"></script>
+
+<!-- 8. PNJ vivant IA (patch dialogue) -->
+<script src="js/pnj.js"></script>
+
+<!-- 9. Dialogue : NPC, IA, correcteur, popup mots -->
 <script src="js/dialogue.js"></script>
 
-<!-- 7. Apprentissage : vocab, phrases, grammaire, dict -->
-<script src="js/learning.js"></script>
-
-<!-- 8. Gamification : missions, boutique, quiz, streak -->
+<!-- 10. Gamification : missions, boutique, quiz, streak -->
 <script src="js/gamification.js"></script>
 
-<!-- 9. Cinéma : vidéos Internet Archive par langue -->
+<!-- 11. Apprentissage : vocab, phrases, grammaire, dict -->
+<script src="js/learning.js"></script>
+
+<!-- 12. Cinéma : vidéos Internet Archive par langue -->
 <script src="js/cinema.js"></script>
 
-<!-- 10. Avancé : oral, flashcards, stats, rappels -->
+<!-- 13. Avancé : oral, flashcards, stats, rappels -->
 <script src="js/advanced.js"></script>
 
-<!-- 11. App : point d'entrée, welcome flow, startMenu -->
-<script src="js/app.js"></script>
+<!-- 14. Citations et proverbes du jour -->
+<script src="js/quote.js"></script>
 
-<!-- ═══ Nouvelles fonctionnalités v2 ═══════════════════════ -->
-<!-- F1. Mémoire personnalisée (chargée tôt) -->
-<script src="js/memory.js"></script>
-<!-- F2. Phonèmes adaptés à la langue maternelle -->
-<script src="js/phonemes.js"></script>
-<!-- F3. PNJ vivant IA (patch dialogue) -->
-<script src="js/pnj.js"></script>
-<!-- F4. Sprites PNJ animés SVG -->
-<script src="js/sprites.js"></script>
-<!-- F5. Porte d'entrée zéro -->
+<!-- 15. Porte d'entrée zéro (onboarding) -->
 <script src="js/onboarding.js"></script>
-<!-- F6. Jeu de formation de mots -->
+
+<!-- 16. Jeu de formation de mots -->
 <script src="js/wordgame.js"></script>
+
+<!-- 17. App : point d'entrée, welcome flow, startMenu -->
+<script src="js/app.js"></script>
 
 <script defer src="https://static.cloudflareinsights.com/beacon.min.js/v833ccba57c9e4d2798f2e76cebdd09a11778172276447" integrity="sha512-57MDmcccJXYtNnH+ZiBwzC4jb2rvgVCEokYN+L/nLlmO8rfYT/gIpW2A569iJ/3b+0UEasghjuZH/ma3wIs/EQ==" data-cf-beacon='{"version":"2024.11.0","token":"4edd5f8ec12a48cfa682ab8261b80a79","server_timing":{"name":{"cfCacheStatus":true,"cfEdge":true,"cfExtPri":true,"cfL4":true,"cfOrigin":true,"cfSpeedBrain":true},"location_startswith":null}}' crossorigin="anonymous"></script>
 </body>
-                                                                           </html>
+  </html>
