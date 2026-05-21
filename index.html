@@ -1,89 +1,126 @@
-<!-- index.html - Version Premium (ajout bouton invite et profil enrichi) -->
+<!-- index.html – Version minimaliste mais fonctionnelle -->
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<meta name="theme-color" content="#0a0a14">
-<meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<link rel="manifest" href="manifest.json">
-<title>LinguaVillage</title>
-<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/styles.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>LinguaVillage</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css">
+  <style>
+    /* Styles de secours pour l'écran d'accueil */
+    #screen-welcome {
+      background: radial-gradient(ellipse at 50% 30%, #0d1a2e 0%, #07090f 70%);
+      display: flex !important;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .welcome-form {
+      width: 100%;
+      max-width: 420px;
+      background: rgba(15,21,32,0.85);
+      border-radius: 16px;
+      padding: 20px;
+      backdrop-filter: blur(8px);
+    }
+    .lang-tile {
+      display: inline-block;
+      margin: 5px;
+      padding: 8px;
+      background: rgba(255,255,255,0.1);
+      border-radius: 10px;
+      cursor: pointer;
+    }
+    .lang-tile.active {
+      background: gold;
+      color: black;
+    }
+    .flabel {
+      color: gold;
+      margin-bottom: 8px;
+    }
+    .finput {
+      width: 100%;
+      padding: 10px;
+      margin: 5px 0;
+    }
+    .play-btn {
+      background: gold;
+      border: none;
+      padding: 12px;
+      width: 100%;
+      font-weight: bold;
+      border-radius: 25px;
+      margin-top: 15px;
+    }
+  </style>
 </head>
 <body>
-<div id="debug" style="position:fixed;top:0;left:0;right:0;background:#4ecf70;color:#0a0a14;font-size:11px;padding:2px 6px;z-index:99999;font-family:monospace;">✅ Chargement...</div>
+<div id="debug" style="background: #4ecf70; padding: 4px; font-family: monospace;">✅ Chargement...</div>
 <div id="notif"></div>
-<div id="wordPopup">...</div>
-<div id="weatherOverlay"></div>
 
-<!-- ====== S1: WELCOME ====== (inchangé) -->
-<div class="screen active" id="screen-welcome">...</div>
+<!-- ÉCRAN D'ACCUEIL (WELCOME) -->
+<div class="screen active" id="screen-welcome">
+  <div class="welcome-form">
+    <div class="logo">🏘️ LinguaVillage</div>
+    <div class="logo-sub" id="ws-sub">Apprendre en vivant</div>
 
-<!-- ====== S2: MAIN MENU ====== -->
-<div class="screen" id="screen-menu">
-  <div class="menu-header">...</div>
-  <div class="menu-content">
-    <div class="menu-title" id="menu-title-text">Que voulez-vous faire ?</div>
-    <div class="menu-subtitle" id="menu-sub-text">Choisissez votre mode d'apprentissage</div>
-    <div class="menu-btns">...</div>
-    <!-- Boutons existants -->
-    <button class="menu-dict-btn" onclick="inviteFriend()" style="border-color:rgba(78,207,112,0.3);margin-top:8px;">
-      <div class="menu-dict-icon">🤝</div>
-      <div class="menu-dict-text">
-        <div class="menu-dict-title">Inviter un ami</div>
-        <div class="menu-dict-sub">Parrainage & récompenses</div>
+    <!-- Langue maternelle -->
+    <div>
+      <div class="flabel" id="lbl-native">🌍 Votre langue maternelle</div>
+      <div id="nativeGrid">
+        <div class="lang-tile" data-native="fr">🇫🇷 Français</div>
+        <div class="lang-tile" data-native="ht">🇭🇹 Kreyòl</div>
+        <div class="lang-tile" data-native="en">🇬🇧 English</div>
+        <div class="lang-tile" data-native="es">🇪🇸 Español</div>
+        <div class="lang-tile" data-native="de">🇩🇪 Deutsch</div>
+        <div class="lang-tile" data-native="ru">🇷🇺 Русский</div>
+        <div class="lang-tile" data-native="zh">🇨🇳 中文</div>
+        <div class="lang-tile" data-native="ja">🇯🇵 日本語</div>
       </div>
-      <span style="color:var(--green);">›</span>
-    </button>
-    <button class="menu-dict-btn" onclick="openWordGame()" style="border-color:rgba(192,132,252,0.3);margin-top:8px;">...</button>
+    </div>
+
+    <!-- Prénom (caché initialement) -->
+    <div id="step2" style="display:none">
+      <div class="flabel" id="lbl-name">✏️ Votre prénom</div>
+      <input class="finput" id="inputName" type="text" maxlength="20" placeholder="ex: Marie">
+    </div>
+
+    <!-- Langue à apprendre (caché initialement) -->
+    <div id="step3" style="display:none">
+      <div class="flabel" id="lbl-target">🎯 Langue à apprendre</div>
+      <div id="targetGrid">
+        <div class="lang-tile" data-lang="en">🇬🇧 English</div>
+        <div class="lang-tile" data-lang="fr">🇫🇷 Français</div>
+        <div class="lang-tile" data-lang="es">🇪🇸 Español</div>
+        <div class="lang-tile" data-lang="ht">🇭🇹 Kreyòl</div>
+        <div class="lang-tile" data-lang="de">🇩🇪 Deutsch</div>
+        <div class="lang-tile" data-lang="ru">🇷🇺 Русский</div>
+        <div class="lang-tile" data-lang="zh">🇨🇳 中文</div>
+        <div class="lang-tile" data-lang="ja">🇯🇵 日本語</div>
+      </div>
+    </div>
+
+    <!-- Écriture pour langues spécifiques (caché) -->
+    <div id="step4" style="display:none">
+      <div class="flabel" id="lbl-script">✍️ Mode d'écriture</div>
+      <div class="script-row">
+        <div class="sc-btn" onclick="selScript('native',this)"><span id="sc-n">你好</span><br><small>Caractères</small></div>
+        <div class="sc-btn" onclick="selScript('roman',this)"><span id="sc-r">Nǐ hǎo</span><br><small>Lettres latines</small></div>
+        <div class="sc-btn" onclick="selScript('both',this)"><span>両方</span><br><small>Les deux</small></div>
+      </div>
+    </div>
+
+    <button class="play-btn" id="playBtn" style="display:none" disabled>✨ Commencer</button>
   </div>
 </div>
 
-<!-- ====== S3: VILLAGE ====== (inchangé) -->
-<div class="screen" id="screen-village">...</div>
+<!-- Autres écrans (menu, village, etc.) – à conserver mais on les laisse vides pour l'instant -->
+<div class="screen" id="screen-menu"></div>
+<div class="screen" id="screen-village"></div>
+<!-- ... tous les autres écrans que vous aviez ... -->
 
-<!-- ====== S4: LOCATION ====== (inchangé) -->
-<div class="screen" id="screen-location">...</div>
-
-<!-- ====== S5: DIALOGUE ====== (inchangé) -->
-<div class="screen" id="screen-dialogue">...</div>
-
-<!-- ====== S6: VOCABULAIRE ====== (inchangé) -->
-<div class="screen" id="screen-vocab">...</div>
-
-<!-- ====== S7: PHRASES ====== (inchangé) -->
-<div class="screen" id="screen-phrases">...</div>
-
-<!-- ====== S8: GRAMMAIRE ====== (inchangé) -->
-<div class="screen" id="screen-grammar">...</div>
-
-<!-- ====== S9: DICTIONARY ====== (inchangé) -->
-<div class="screen" id="screen-dict">...</div>
-
-<!-- ====== S10: CINEMA ====== (inchangé) -->
-<div class="screen" id="screen-cinema">...</div>
-
-<!-- ====== S11: PROFILE (ajout des sections favoris et mots difficiles) ====== -->
-<div class="screen" id="screen-profile">
-  <div class="u-header">...</div>
-  <div class="profile-header">...</div>
-  <div class="profile-stats">...</div>
-  <div class="achievements">...</div>
-  <div class="settings">...</div>
-  <!-- Nouveaux blocs -->
-  <div class="profile-section">
-    <div class="ach-title">⭐ Mots favoris</div>
-    <div id="favWordsList" class="fav-words-list"></div>
-  </div>
-  <div class="profile-section">
-    <div class="ach-title">⚠️ Mots difficiles</div>
-    <div id="weakWordsList" class="weak-words-list"></div>
-  </div>
-</div>
-
-<!-- Scripts (même ordre que précédemment) -->
 <script src="js/state.js"></script>
 <script src="js/save.js"></script>
 <script src="js/data.js"></script>
@@ -102,6 +139,5 @@
 <script src="js/onboarding.js"></script>
 <script src="js/wordgame.js"></script>
 <script src="js/app.js"></script>
-
 </body>
-</html>
+  </html>
