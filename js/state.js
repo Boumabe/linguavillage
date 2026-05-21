@@ -1,4 +1,4 @@
-// state.js - CORRIGÉ (chargé en premier)
+// state.js - VERSION CORRIGÉE (chargé en premier)
 // LinguaVillage — state.js
 // CHARGÉ EN TOUT PREMIER dans index.html (avant data.js)
 // Définit : window.S, showScreen, applyUI, showNotif, gainXP, saveGame,
@@ -23,18 +23,22 @@ window.S = window.S || {
 };
 var S = window.S;
 
+// Cache API et intervalles
+window.apiCache = window.apiCache || new Map();
+window._lastAPICall = 0;
+window.MIN_API_INTERVAL = 500;
+
 // =================================================================
 // 2. NAVIGATION — showScreen
 // =================================================================
 window.showScreen = function(id) {
   document.querySelectorAll('.screen').forEach(function(s) {
     s.classList.remove('active');
-    s.style.display = 'none';
+    s.style.display = '';
   });
   var el = document.getElementById(id);
   if (el) {
     el.classList.add('active');
-    el.style.display = 'flex';
   }
 };
 
@@ -110,10 +114,10 @@ window.showNotif = function(msg, duration) {
   var el = document.getElementById('notif');
   if (!el) return;
   el.textContent = msg;
-  el.className = 'notif show';
+  el.classList.add('show');
   clearTimeout(window._notifTimer);
   window._notifTimer = setTimeout(function() {
-    el.className = 'notif';
+    el.classList.remove('show');
   }, duration || 2800);
 };
 
@@ -149,6 +153,7 @@ window.saveGame = function() {
       S       : window.S,
       missions: window.S_missions,
       game    : window.S_game,
+      timestamp: Date.now()
     };
     localStorage.setItem('linguavillage_save', JSON.stringify(data));
   } catch(e) {
@@ -205,13 +210,13 @@ window.launchConfetti = function() {
 // 9. API AVEC FALLBACK — callAPIWithFallback
 // =================================================================
 window.callAPIWithFallback = async function(endpoint, payload) {
-  var base = window.API || '';
+  var base = window.API || 'https://linguavillage-api--marckensbou2.replit.app';
   var url  = base + endpoint;
 
   // Throttle
   var now = Date.now();
-  if (window._lastAPICall && (now - window._lastAPICall) < (window.MIN_API_INTERVAL || 1000)) {
-    await new Promise(function(r) { setTimeout(r, window.MIN_API_INTERVAL || 1000); });
+  if (window._lastAPICall && (now - window._lastAPICall) < window.MIN_API_INTERVAL) {
+    await new Promise(function(r) { setTimeout(r, window.MIN_API_INTERVAL - (now - window._lastAPICall)); });
   }
   window._lastAPICall = Date.now();
 
@@ -221,17 +226,23 @@ window.callAPIWithFallback = async function(endpoint, payload) {
     return window.apiCache.get(cacheKey);
   }
 
-  var resp = await fetch(url, {
-    method : 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body   : JSON.stringify(payload),
-  });
+  try {
+    var resp = await fetch(url, {
+      method : 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body   : JSON.stringify(payload),
+    });
 
-  if (!resp.ok) throw new Error('API ' + resp.status);
-  var data = await resp.json();
+    if (!resp.ok) throw new Error('API ' + resp.status);
+    var data = await resp.json();
 
-  if (window.apiCache) window.apiCache.set(cacheKey, data);
-  return data;
+    if (window.apiCache) window.apiCache.set(cacheKey, data);
+    return data;
+  } catch(e) {
+    console.warn('API call failed:', e);
+    // Fallback simple
+    return { reply: 'Désolé, service temporairement indisponible. Réessaie plus tard.' };
+  }
 };
 
 // =================================================================
