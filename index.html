@@ -15,6 +15,11 @@
     .screen { display: none; position: fixed; inset: 0; overflow-y: auto; background: #090c14; flex-direction: column; }
     .screen.active { display: flex; }
     #screen-welcome { background: radial-gradient(ellipse at 50% 30%, #0d1a2e 0%, #07090f 70%); align-items: center; justify-content: center; padding: 20px; }
+    /* Village screen : colonne stricte, pas de scroll, canvas remplit le reste */
+    #screen-village { overflow: hidden !important; display: none; flex-direction: column; }
+    #screen-village.active { display: flex; }
+    #screen-village #villageCanvas { display: block; flex: 1 1 0; min-height: 0; width: 100% !important; }
+    #screen-welcome { background: radial-gradient(ellipse at 50% 30%, #0d1a2e 0%, #07090f 70%); align-items: center; justify-content: center; padding: 20px; }
     .welcome-form { width: 100%; max-width: 420px; background: rgba(15,21,32,0.85); border-radius: 16px; padding: 20px; backdrop-filter: blur(8px); }
     .logo { font-family: 'Cinzel', serif; font-size: 1.8rem; font-weight: 900; color: #ffd700; text-align: center; margin-bottom: 4px; }
     .logo-sub { font-size: 0.9rem; color: rgba(232,224,208,0.45); text-align: center; margin-bottom: 28px; }
