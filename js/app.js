@@ -1,9 +1,10 @@
 // LinguaVillage — app.js
-// Flux complet : inscription → onboarding → proverbe → menu
+// Flux : inscription → onboarding (niveau, sons, mots, structure) → proverbe → menu
 // ================================================================
 
 var API = 'https://linguavillage-api--marckensbou2.replit.app';
 
+// Initialisation au chargement
 window.addEventListener('DOMContentLoaded', function() {
   if (!window.S) {
     window.S = {
@@ -16,18 +17,18 @@ window.addEventListener('DOMContentLoaded', function() {
     };
   }
 
-  // Restaurer session existante (déjà enregistré)
+  // Restaurer une session existante (déjà enregistrée)
   if (window._LINGUA_HAS_SAVE && window.S && S.playerName && S.nativeLang && S.targetLang) {
     try {
       if (typeof applyUI === 'function') applyUI(S.nativeLang);
-      // Si déjà passé par onboarding, on va directement au menu après le proverbe
-      startMenuAfterOnboarding();
+      // L'utilisateur a déjà fait l'onboarding, on va directement au proverbe puis menu
+      showQuoteThenMenu();
       try { if (typeof checkDailyStreak === 'function') checkDailyStreak(); } catch(e) {}
       return;
     } catch(e) { console.warn('Restore failed:', e); }
   }
 
-  // Configuration des sélections (langues, prénom, etc.)
+  // Gestion de la sélection des langues et du prénom (identique à avant)
   const nativeTiles = document.querySelectorAll('.lang-tile[data-native]');
   const targetTiles = document.querySelectorAll('.lang-tile[data-lang]');
   const step2 = document.getElementById('step2');
@@ -143,7 +144,7 @@ window.addEventListener('DOMContentLoaded', function() {
       }
       window.S.playerName = name;
       try { if (typeof saveGame === 'function') saveGame(); } catch(e) {}
-      // Lancer l'onboarding
+      // Démarrer l'onboarding
       startOnboarding();
     });
   }
@@ -186,12 +187,12 @@ function startMenu() {
   // Sauvegarder que l'onboarding est fait
   try { localStorage.setItem('lv_onboarding_done', '1'); } catch(e) {}
 
-  // Mise à jour des éléments du menu
+  // Mettre à jour les éléments du menu
   const menuPlayer = document.getElementById('menuPlayer');
   const menuLang = document.getElementById('menuLang');
   const menuXP = document.getElementById('menuXP');
   const gemDisplay = document.getElementById('gemDisplay');
-  const xpFill = document.getElementById('xpFill');
+  const xpFill = document.getElementById('xpFill'); // optionnel
 
   if (menuPlayer) menuPlayer.textContent = '👤 ' + (window.S.playerName || 'Joueur');
   if (menuLang) {
@@ -201,21 +202,13 @@ function startMenu() {
   }
   if (menuXP) menuXP.textContent = (window.S.xp || 0) + ' XP';
   if (gemDisplay) gemDisplay.textContent = '💎 ' + ((window.S_missions && window.S_missions.gems) || 0);
-  if (xpFill) xpFill.style.width = ((window.S.xp || 0) % 100) + '%';
 
+  // Sauvegarder la progression
   try { if (typeof saveGame === 'function') saveGame(); } catch(e) {}
   try { if (typeof updateStreak === 'function') updateStreak(); } catch(e) {}
 
   // Afficher l'écran du menu
   showScreen('screen-menu');
-}
-
-// -----------------------------------------------------------------
-// Pour les utilisateurs existants (reprise de session)
-// -----------------------------------------------------------------
-function startMenuAfterOnboarding() {
-  // S'il y a déjà un onboarding fait, on passe directement au proverbe puis menu
-  showQuoteThenMenu();
 }
 
 // -----------------------------------------------------------------
@@ -242,4 +235,4 @@ function resetOnboarding() {
   try { localStorage.removeItem('lv_onboarding_done'); } catch(e) {}
   try { localStorage.removeItem('lv_last_quote_idx'); } catch(e) {}
   showNotif('Onboarding réinitialisé');
-    }
+        }
