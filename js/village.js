@@ -322,13 +322,11 @@ function drawVillage() {
   var cx = W * 0.5;
   var cy = H * 0.5;
 
-  // minDim limité pour que le ring le plus extérieur (rayon 0.46) + les bâtiments (taille ~0.17)
-  // tiennent entièrement dans l'écran avec une marge de sécurité de 10px de chaque côté.
-  // Rayon max utilisable = 0.5 - marge relative
-  // On veut : (0.46 + 0.09) * minDim <= min(W,H)/2 - 10
-  // Soit minDim <= (min(W,H)/2 - 10) / 0.55  ≈ min(W,H) * 0.88
+  // minDim limité pour que tout le village tienne dans l'écran mobile.
+  // Plafond de 320px pour éviter le débordement sur écrans portait étroits.
+  // Marge de 40px de chaque côté pour une vraie respiration visuelle.
   var rawMin = Math.min(W, H);
-  var minDim = Math.min(rawMin * 0.88, W - 20, H - 20);
+  var minDim = Math.min(rawMin * 0.75, W - 40, H - 40, 320);
 
   var night = currentWeather === 'night';
   var cfg = window.VILLAGE_CONFIG;
@@ -704,7 +702,7 @@ function getLocAt(mx, my) {
   var cx = W * 0.5;
   var cy = H * 0.5;
   var rawMin = Math.min(W, H);
-  var minDim = Math.min(rawMin * 0.88, W - 20, H - 20);
+  var minDim = Math.min(rawMin * 0.75, W - 40, H - 40, 320);
 
   return LOCATIONS.find(function(loc) {
     var centerX = (loc._ringX !== undefined) ? loc._ringX : (loc.x + loc.w / 2);
@@ -744,7 +742,8 @@ function onVillageHover(e) {
     var cH = canvas.height / dpr;
     var cx = cW * 0.5;
     var cy = cH * 0.5;
-    var minDim = Math.min(cW, cH);
+    var rawMin = Math.min(cW, cH);
+    var minDim = Math.min(rawMin * 0.75, cW - 40, cH - 40, 320);
     var centerX = (loc._ringX !== undefined) ? loc._ringX : (loc.x + loc.w / 2);
     var centerY = (loc._ringY !== undefined) ? loc._ringY : (loc.y + loc.h / 2);
     tip.style.left = (cx + (centerX - 0.5) * minDim) + 'px';
