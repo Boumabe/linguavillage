@@ -1,84 +1,86 @@
-// LinguaVillage — player.js
-// Système joueur : maison, personnage animé, marche d'un lieu à l'autre
-// Modifier ici pour changer l'apparence ou la vitesse du personnage
+// player.js – gestion du joueur dans le village
+window.player = { x: 0.5, y: 0.5, dest: null, walking: false, currentLoc: 'home' };
+window.HOME = { x: 0.5, y: 0.5 };
 
-const HOME = { x:0.50, y:0.50 };
-const player = {
-  x:HOME.x, y:HOME.y,
-  dest:null, destName:'', onArrival:null,
-  walking:false, speed:0.005, currentLoc:'home'
+window.startPlayerWalk = function(destX, destY, locName, callback) {
+  player.dest = { x: destX, y: destY, callback, name: locName };
+  player.walking = true;
 };
-function startPlayerWalk(destX,destY,destName,onArrival){
-  var dx=destX-player.x, dy=destY-player.y;
-  if(Math.sqrt(dx*dx+dy*dy)<0.04){ if(onArrival)onArrival(); return; }
-  player.dest={x:destX,y:destY}; player.destName=destName;
-  player.onArrival=onArrival; player.walking=true;
-}
-function updatePlayer(){
-  if(!player.dest)return;
-  var dx=player.dest.x-player.x, dy=player.dest.y-player.y;
-  var dist=Math.sqrt(dx*dx+dy*dy);
-  if(dist<player.speed*1.5){
-    player.x=player.dest.x; player.y=player.dest.y;
-    player.dest=null; player.walking=false;
-    var cb=player.onArrival; player.onArrival=null;
-    if(cb)cb();
-  } else { player.x+=(dx/dist)*player.speed; player.y+=(dy/dist)*player.speed; }
-}
-function playerGoHome(){
-  startPlayerWalk(HOME.x,HOME.y,'Maison',function(){ player.currentLoc='home'; });
-}
-function roundRect(x,y,w,h,r){
-  ctx.beginPath();
-  ctx.moveTo(x+r,y); ctx.lineTo(x+w-r,y); ctx.arcTo(x+w,y,x+w,y+r,r);
-  ctx.lineTo(x+w,y+h-r); ctx.arcTo(x+w,y+h,x+w-r,y+h,r);
-  ctx.lineTo(x+r,y+h); ctx.arcTo(x,y+h,x,y+h-r,r);
-  ctx.lineTo(x,y+r); ctx.arcTo(x,y,x+r,y,r);
-  ctx.closePath();
-}
-function drawPlayerHome(cx,cy,W){
-  var hw=W*0.10, hh=W*0.10;
-  var hx=cx-hw/2, hy=cy-hh/2;
-  if(player.currentLoc==='home'){
-    var pulse=0.5+0.5*Math.sin(tick*0.05);
-    ctx.beginPath(); ctx.arc(cx,cy,hw*0.75,0,Math.PI*2);
-    ctx.fillStyle='rgba(255,215,0,'+(0.05+0.05*pulse)+')'; ctx.fill();
+
+window.updatePlayer = function() {
+  if (!player.walking || !player.dest) return;
+  const dx = player.dest.x - player.x;
+  const dy = player.dest.y - player.y;
+  const dist = Math.hypot(dx, dy);
+  if (dist < 0.02) {
+    player.x = player.dest.x;
+    player.y = player.dest.y;
+    player.walking = false;
+    if (player.dest.callback) player.dest.callback();
+    player.dest = null;
+  } else {
+    const step = Math.min(0.03, dist);
+    player.x += (dx / dist) * step;
+    player.y += (dy / dist) * step;
   }
-  ctx.fillStyle='#2a1a0a'; ctx.fillRect(hx,hy,hw,hh);
-  ctx.strokeStyle='#c0a060'; ctx.lineWidth=2; ctx.strokeRect(hx,hy,hw,hh);
+};
+
+window.playerGoHome = function() {
+  player.x = HOME.x;
+  player.y = HOME.y;
+  player.dest = null;
+  player.walking = false;
+};
+
+window.drawPlayerHome = function(cx, cy, size) {
+  if (!window.ctx) return;
+  ctx.save();
+  ctx.shadowBlur = 0;
+  ctx.fillStyle = '#8B5A2B';
   ctx.beginPath();
-  ctx.moveTo(hx-3,hy); ctx.lineTo(cx,hy-hh*0.55); ctx.lineTo(hx+hw+3,hy);
-  ctx.fillStyle='#7a3a10'; ctx.fill();
-  ctx.strokeStyle='#c07030'; ctx.lineWidth=1.5; ctx.stroke();
-  var lit=player.currentLoc==='home'?'rgba(255,230,100,0.85)':'rgba(255,200,80,0.3)';
-  ctx.fillStyle=lit;
-  ctx.fillRect(hx+hw*0.15,hy+hh*0.18,hw*0.27,hh*0.27);
-  ctx.fillRect(hx+hw*0.55,hy+hh*0.18,hw*0.27,hh*0.27);
-  ctx.fillStyle='#5a3010'; ctx.fillRect(hx+hw*0.35,hy+hh*0.52,hw*0.30,hh*0.48);
-  ctx.font='bold '+Math.max(9,W*0.024)+'px Nunito,sans-serif';
-  ctx.textAlign='center'; ctx.textBaseline='middle';
-  ctx.fillStyle='rgba(255,215,0,0.95)';
-  ctx.fillText('🏠 '+(window.S&&S.playerName||''),cx,hy-hh*0.72);
-}
-function drawPlayerCharacter(W,H){
-  var px=player.x*W, py=player.y*H;
-  var r=Math.max(13,W*0.034);
-  var bob=player.walking?Math.sin(tick*0.25)*3:0;
-  ctx.beginPath(); ctx.ellipse(px,py+r+2,r*0.55,r*0.18,0,0,Math.PI*2);
-  ctx.fillStyle='rgba(0,0,0,0.3)'; ctx.fill();
-  ctx.beginPath(); ctx.arc(px,py+bob,r,0,Math.PI*2);
-  ctx.fillStyle='rgba(255,215,0,0.12)'; ctx.fill();
-  ctx.strokeStyle='#ffd700'; ctx.lineWidth=2; ctx.stroke();
-  ctx.font=r*1.3+'px serif';
-  ctx.textAlign='center'; ctx.textBaseline='middle';
-  ctx.fillText('🧑',px,py+bob);
-  if(player.walking&&player.destName){
-    var txt='→ '+player.destName;
-    ctx.font='bold '+Math.max(8,W*0.022)+'px Nunito,sans-serif';
-    var tw=ctx.measureText(txt).width;
-    var bx=px-tw/2-7, by=py+bob-r-24, bw=tw+14, bh=19;
-    ctx.fillStyle='rgba(7,9,15,0.88)';
-    roundRect(bx,by,bw,bh,6); ctx.fill();
-    ctx.fillStyle='#ffd700'; ctx.fillText(txt,px,by+9.5);
+  ctx.rect(cx - size/2, cy - size/3, size, size*0.6);
+  ctx.fill();
+  ctx.fillStyle = '#D2691E';
+  ctx.beginPath();
+  ctx.moveTo(cx - size/1.5, cy - size/3);
+  ctx.lineTo(cx, cy - size);
+  ctx.lineTo(cx + size/1.5, cy - size/3);
+  ctx.fill();
+  ctx.fillStyle = '#FFD700';
+  ctx.beginPath();
+  ctx.rect(cx - size/8, cy - size/8, size/4, size/4);
+  ctx.fill();
+  ctx.restore();
+};
+
+window.drawPlayerCharacter = function(W, H) {
+  if (!window.ctx) return;
+  const cx = W/2, cy = H/2;
+  const minDim = Math.min(W, H);
+  const px = cx + (player.x - 0.5) * minDim;
+  const py = cy + (player.y - 0.5) * minDim;
+  ctx.beginPath();
+  ctx.arc(px, py, 10, 0, 2*Math.PI);
+  ctx.fillStyle = '#FFD966';
+  ctx.fill();
+  ctx.fillStyle = '#000';
+  ctx.font = '16px "Segoe UI Emoji"';
+  ctx.fillText('🧑', px-8, py+6);
+  if (player.walking && player.dest) {
+    ctx.beginPath();
+    ctx.moveTo(px, py);
+    const dx = player.dest.x - player.x;
+    const dy = player.dest.y - player.y;
+    const angle = Math.atan2(dy, dx);
+    const ex = px + Math.cos(angle) * 15;
+    const ey = py + Math.sin(angle) * 15;
+    ctx.lineTo(ex, ey);
+    ctx.strokeStyle = '#FFD700';
+    ctx.lineWidth = 2;
+    ctx.setLineDash([4, 6]);
+    ctx.stroke();
+    ctx.setLineDash([]);
   }
-}
+};
+
+console.log("✅ player.js chargé");
