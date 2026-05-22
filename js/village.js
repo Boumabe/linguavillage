@@ -116,23 +116,38 @@ function goVillage() {
   window._villageLoopRunning = false;
   window._villageLoopActive = false;
 
+  // On attend que le DOM soit rendu pour mesurer les vraies dimensions
   setTimeout(function() {
     var c = document.getElementById('villageCanvas');
-    if (c) {
-      var dpr = window.devicePixelRatio || 1;
-      // Mesure la hauteur réelle du HUD pour ne pas le déborder
-      var hud = document.querySelector('.village-hud');
-      var hudH = hud ? hud.getBoundingClientRect().height : 48;
-      var W = window.innerWidth  || document.documentElement.clientWidth  || 360;
-      var H = (window.innerHeight || document.documentElement.clientHeight || 640) - hudH;
-      c.width  = Math.round(W * dpr);
-      c.height = Math.round(H * dpr);
-      c.style.width  = W + 'px';
-      c.style.height = H + 'px';
-      c.style.display = 'block';
-      c.style.position = 'relative';
-      c.style.top = '0';
-    }
+    if (!c) { initCanvas(); setWeather(getWeatherForTime()); updateTime(); return; }
+
+    var dpr = window.devicePixelRatio || 1;
+
+    // Méthode fiable : mesurer le container parent du canvas
+    // Le screen-village est en flex-column, le canvas doit prendre l'espace restant après le HUD
+    var screenEl = document.getElementById('screen-village');
+    var hud = document.querySelector('.village-hud');
+
+    // Force le canvas à prendre tout l'espace disponible via CSS
+    c.style.display = 'block';
+    c.style.position = 'relative';
+    c.style.flexShrink = '0';
+
+    // Sur mobile, window.innerHeight peut inclure la barre URL.
+    // visualViewport.height donne la vraie hauteur visible.
+    var visH = (window.visualViewport ? window.visualViewport.height : null)
+               || window.innerHeight
+               || 640;
+    var hudH = hud ? hud.getBoundingClientRect().height : 56;
+    var W    = (window.visualViewport ? window.visualViewport.width : null)
+               || window.innerWidth
+               || 360;
+    var H    = Math.max(200, visH - hudH);
+
+    c.width  = Math.round(W * dpr);
+    c.height = Math.round(H * dpr);
+    c.style.width  = W + 'px';
+    c.style.height = H + 'px';
 
     // Aligne les bâtiments sur leurs anneaux avant de dessiner
     alignLocationsToRings();
@@ -218,12 +233,15 @@ function initCanvas() {
 
   var dpr = window.devicePixelRatio || 1;
 
-  // Si canvas pas encore dimensionné, le faire maintenant
+  // Si canvas pas encore dimensionné, mesurer le container parent
   if (canvas.width === 0 || canvas.height === 0) {
     var hud = document.querySelector('.village-hud');
-    var hudH = hud ? hud.getBoundingClientRect().height : 48;
-    var W = window.innerWidth  || document.documentElement.clientWidth  || 360;
-    var H = (window.innerHeight || document.documentElement.clientHeight || 640) - hudH;
+    var visH = (window.visualViewport ? window.visualViewport.height : null)
+               || window.innerHeight || 640;
+    var hudH = hud ? hud.getBoundingClientRect().height : 56;
+    var W = (window.visualViewport ? window.visualViewport.width : null)
+            || window.innerWidth || 360;
+    var H = Math.max(200, visH - hudH);
     canvas.width  = Math.round(W * dpr);
     canvas.height = Math.round(H * dpr);
     canvas.style.width  = W + 'px';
@@ -249,21 +267,23 @@ function initCanvas() {
   }
 
   window._onCanvasResize = function() {
-    if (canvas && canvas.parentElement) {
-      var newDpr = window.devicePixelRatio || 1;
-      var hud = document.querySelector('.village-hud');
-      var hudH = hud ? hud.getBoundingClientRect().height : 48;
-      var newW = window.innerWidth || document.documentElement.clientWidth || 360;
-      var newH = (window.innerHeight || document.documentElement.clientHeight || 640) - hudH;
-      canvas.width  = Math.round(newW * newDpr);
-      canvas.height = Math.round(newH * newDpr);
-      canvas.style.width  = newW + 'px';
-      canvas.style.height = newH + 'px';
-      alignLocationsToRings();
-      var newCtx = canvas.getContext('2d');
-      newCtx.scale(newDpr, newDpr);
-      drawVillage();
-    }
+    if (!canvas) return;
+    var newDpr = window.devicePixelRatio || 1;
+    var hud = document.querySelector('.village-hud');
+    var visH = (window.visualViewport ? window.visualViewport.height : null)
+               || window.innerHeight || 640;
+    var hudH = hud ? hud.getBoundingClientRect().height : 56;
+    var newW = (window.visualViewport ? window.visualViewport.width : null)
+               || window.innerWidth || 360;
+    var newH = Math.max(200, visH - hudH);
+    canvas.width  = Math.round(newW * newDpr);
+    canvas.height = Math.round(newH * newDpr);
+    canvas.style.width  = newW + 'px';
+    canvas.style.height = newH + 'px';
+    alignLocationsToRings();
+    ctx = canvas.getContext('2d');
+    ctx.scale(newDpr, newDpr);
+    drawVillage();
   };
   window.addEventListener('resize', window._onCanvasResize);
 
@@ -301,7 +321,15 @@ function drawVillage() {
 
   var cx = W * 0.5;
   var cy = H * 0.5;
-  var minDim = Math.min(W, H);
+
+  // minDim limité pour que le ring le plus extérieur (rayon 0.46) + les bâtiments (taille ~0.17)
+  // tiennent entièrement dans l'écran avec une marge de sécurité de 10px de chaque côté.
+  // Rayon max utilisable = 0.5 - marge relative
+  // On veut : (0.46 + 0.09) * minDim <= min(W,H)/2 - 10
+  // Soit minDim <= (min(W,H)/2 - 10) / 0.55  ≈ min(W,H) * 0.88
+  var rawMin = Math.min(W, H);
+  var minDim = Math.min(rawMin * 0.88, W - 20, H - 20);
+
   var night = currentWeather === 'night';
   var cfg = window.VILLAGE_CONFIG;
 
@@ -675,7 +703,8 @@ function getLocAt(mx, my) {
   var H = canvas.height / dpr;
   var cx = W * 0.5;
   var cy = H * 0.5;
-  var minDim = Math.min(W, H);
+  var rawMin = Math.min(W, H);
+  var minDim = Math.min(rawMin * 0.88, W - 20, H - 20);
 
   return LOCATIONS.find(function(loc) {
     var centerX = (loc._ringX !== undefined) ? loc._ringX : (loc.x + loc.w / 2);
