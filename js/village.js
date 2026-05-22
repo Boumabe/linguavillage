@@ -88,39 +88,7 @@ function alignLocationsToRings() {
 }
 
 
-// ================================================================
-// DIMENSIONNEMENT DU CANVAS — fonction unique appelée partout
-// ================================================================
-function applyCanvasSize(c) {
-  if (!c) return;
-  var dpr = window.devicePixelRatio || 1;
-  var hud = document.querySelector('.village-hud');
-  var hudH = hud ? hud.getBoundingClientRect().height : 100;
-
-  var screenW = (window.visualViewport ? window.visualViewport.width  : null) || window.innerWidth  || 360;
-  var screenH = (window.visualViewport ? window.visualViewport.height : null) || window.innerHeight || 640;
-
-  var availH = Math.max(180, screenH - hudH);
-
-  // Canvas carré : on prend le plus petit des deux côtés disponibles,
-  // avec une marge de 24px pour ne jamais toucher les bords
-  var side = Math.min(screenW, availH) - 24;
-  side = Math.max(side, 160);
-
-  // Pixels réels pour le rendu DPR
-  c.width  = Math.round(side * dpr);
-  c.height = Math.round(side * dpr);
-
-  // Taille CSS affichée
-  c.style.width  = side + 'px';
-  c.style.height = side + 'px';
-
-  // Supprime tout margin auto résiduel — le centrage est géré par flex
-  c.style.margin = '0 auto';
-  c.style.display = 'block';
-}
-
-
+function goVillage() {
   if (!window.S) return;
 
   var hudPlayer = document.getElementById('hudPlayer');
@@ -153,7 +121,21 @@ function applyCanvasSize(c) {
     var c = document.getElementById('villageCanvas');
     if (!c) { initCanvas(); setWeather(getWeatherForTime()); updateTime(); return; }
 
-    applyCanvasSize(c);
+    var dpr  = window.devicePixelRatio || 1;
+    var hud  = document.querySelector('.village-hud');
+    var hudH = hud ? hud.getBoundingClientRect().height : 100;
+    var visW = (window.visualViewport ? window.visualViewport.width  : null) || window.innerWidth  || 360;
+    var visH = (window.visualViewport ? window.visualViewport.height : null) || window.innerHeight || 640;
+    var availH = Math.max(180, visH - hudH);
+
+    // Canvas carré : côté = min(largeur, hauteur dispo) − 24px de marge
+    var side = Math.min(visW, availH) - 24;
+    side = Math.max(side, 160);
+
+    c.width  = Math.round(side * dpr);
+    c.height = Math.round(side * dpr);
+    // Utiliser setAttribute pour battre les !important du CSS
+    c.setAttribute('style', 'display:block; width:' + side + 'px; height:' + side + 'px; margin:auto; flex:none;');
 
     // Aligne les bâtiments sur leurs anneaux avant de dessiner
     alignLocationsToRings();
@@ -241,7 +223,14 @@ function initCanvas() {
 
   // Si canvas pas encore dimensionné, appliquer la taille carrée
   if (canvas.width === 0 || canvas.height === 0) {
-    applyCanvasSize(canvas);
+    var hud2 = document.querySelector('.village-hud');
+    var hudH2 = hud2 ? hud2.getBoundingClientRect().height : 100;
+    var visW2 = (window.visualViewport ? window.visualViewport.width  : null) || window.innerWidth  || 360;
+    var visH2 = (window.visualViewport ? window.visualViewport.height : null) || window.innerHeight || 640;
+    var side2 = Math.max(Math.min(visW2, Math.max(180, visH2 - hudH2)) - 24, 160);
+    canvas.width  = Math.round(side2 * dpr);
+    canvas.height = Math.round(side2 * dpr);
+    canvas.setAttribute('style', 'display:block; width:' + side2 + 'px; height:' + side2 + 'px; margin:auto; flex:none;');
   }
 
   canvas.style.display = 'block';
@@ -265,7 +254,14 @@ function initCanvas() {
   window._onCanvasResize = function() {
     if (!canvas) return;
     var newDpr = window.devicePixelRatio || 1;
-    applyCanvasSize(canvas);
+    var hudR = document.querySelector('.village-hud');
+    var hudHR = hudR ? hudR.getBoundingClientRect().height : 100;
+    var visWR = (window.visualViewport ? window.visualViewport.width  : null) || window.innerWidth  || 360;
+    var visHR = (window.visualViewport ? window.visualViewport.height : null) || window.innerHeight || 640;
+    var sideR = Math.max(Math.min(visWR, Math.max(180, visHR - hudHR)) - 24, 160);
+    canvas.width  = Math.round(sideR * newDpr);
+    canvas.height = Math.round(sideR * newDpr);
+    canvas.setAttribute('style', 'display:block; width:' + sideR + 'px; height:' + sideR + 'px; margin:auto; flex:none;');
     alignLocationsToRings();
     ctx = canvas.getContext('2d');
     ctx.scale(newDpr, newDpr);
@@ -308,7 +304,7 @@ function drawVillage() {
   var cx = W * 0.5;
   var cy = H * 0.5;
 
-  // Canvas carré → W == H. minDim = 90% du côté pour marge visible.
+  // Canvas carré → minDim = 90% du côté pour une marge visible confortable
   var rawMin = Math.min(W, H);
   var minDim = rawMin * 0.90;
 
