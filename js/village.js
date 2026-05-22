@@ -306,7 +306,7 @@ function drawVillage() {
 
   // Canvas carré → minDim = 90% du côté pour une marge visible confortable
   var rawMin = Math.min(W, H);
-  var minDim = rawMin * 0.90;
+  var minDim = rawMin * 0.82;
 
   var night = currentWeather === 'night';
   var cfg = window.VILLAGE_CONFIG;
@@ -682,7 +682,7 @@ function getLocAt(mx, my) {
   var cx = W * 0.5;
   var cy = H * 0.5;
   var rawMin = Math.min(W, H);
-  var minDim = rawMin * 0.90;
+  var minDim = rawMin * 0.82;
 
   return LOCATIONS.find(function(loc) {
     var centerX = (loc._ringX !== undefined) ? loc._ringX : (loc.x + loc.w / 2);
@@ -723,7 +723,7 @@ function onVillageHover(e) {
     var cx = cW * 0.5;
     var cy = cH * 0.5;
     var rawMin = Math.min(cW, cH);
-    var minDim = rawMin * 0.90;
+    var minDim = rawMin * 0.82;
     var centerX = (loc._ringX !== undefined) ? loc._ringX : (loc.x + loc.w / 2);
     var centerY = (loc._ringY !== undefined) ? loc._ringY : (loc.y + loc.h / 2);
     tip.style.left = (cx + (centerX - 0.5) * minDim) + 'px';
