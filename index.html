@@ -1,49 +1,37 @@
+<!-- index.html - Version Corrigée -->
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <meta name="theme-color" content="#0a0a14">
-  <meta name="mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <link rel="manifest" href="manifest.json">
-  <title>LinguaVillage</title>
-  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/styles.css">
-  <style>
-    /* Styles de secours pour garantir l'affichage */
-    .screen { display: none; position: fixed; inset: 0; overflow-y: auto; background: #090c14; flex-direction: column; }
-    .screen.active { display: flex; }
-    #screen-welcome { background: radial-gradient(ellipse at 50% 30%, #0d1a2e 0%, #07090f 70%); align-items: center; justify-content: center; padding: 20px; }
-    .welcome-form { width: 100%; max-width: 420px; background: rgba(15,21,32,0.85); border-radius: 16px; padding: 20px; backdrop-filter: blur(8px); }
-    .logo { font-family: 'Cinzel', serif; font-size: 1.8rem; font-weight: 900; color: #ffd700; text-align: center; margin-bottom: 4px; }
-    .logo-sub { font-size: 0.9rem; color: rgba(232,224,208,0.45); text-align: center; margin-bottom: 28px; }
-    .flabel { font-size: 0.72rem; font-weight: 800; text-transform: uppercase; color: #ffd700; margin-bottom: 12px; }
-    .grid4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
-    .lang-tile { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; padding: 10px 4px; background: rgba(255,255,255,0.04); border: 1.5px solid rgba(255,215,0,0.15); border-radius: 10px; cursor: pointer; }
-    .lang-tile.active, .lang-tile.sel { background: rgba(255,215,0,0.12); border-color: #ffd700; }
-    .lang-tile.disabled { opacity: 0.3; pointer-events: none; }
-    .tf { font-size: 1.5rem; }
-    .tn { font-size: 0.65rem; font-weight: 700; color: #e8e0d0; }
-    .finput { width: 100%; background: rgba(255,255,255,0.06); border: 1.5px solid rgba(255,215,0,0.2); border-radius: 10px; padding: 12px 16px; color: #e8e0d0; font-size: 1rem; outline: none; }
-    .script-row { display: flex; gap: 8px; }
-    .sc-btn { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 10px 6px; background: rgba(255,255,255,0.04); border: 1.5px solid rgba(255,215,0,0.15); border-radius: 10px; cursor: pointer; }
-    .sc-btn.sel { background: rgba(255,215,0,0.1); border-color: #ffd700; }
-    .play-btn { width: 100%; background: linear-gradient(135deg, #a86800, #ffd700); border: none; border-radius: 16px; padding: 14px; font-family: 'Cinzel', serif; font-weight: 700; color: #0a0a0a; margin-top: 18px; cursor: pointer; }
-    .play-btn:disabled { opacity: 0.4; cursor: not-allowed; }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#0a0a14">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<link rel="manifest" href="manifest.json">
+<title>LinguaVillage</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
 <div id="debug" style="position:fixed;top:0;left:0;right:0;background:#4ecf70;color:#0a0a14;font-size:11px;padding:2px 6px;z-index:99999;font-family:monospace;">✅ Chargement...</div>
-<div id="notif" style="position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:rgba(15,20,35,0.95);border:1px solid rgba(255,215,0,0.12);color:#e8e0d0;padding:10px 20px;border-radius:20px;z-index:9000;opacity:0;transition:all 0.3s;backdrop-filter:blur(10px);"></div>
-<div id="weatherOverlay"></div>
-<div id="wordPopup" style="position:fixed;background:#0f1520;border:1px solid #ffd700;border-radius:16px;padding:16px;display:none;z-index:10001;"></div>
 
-<!-- ========== ÉCRAN D'ACCUEIL ========== -->
+<div id="notif"></div>
+<div id="wordPopup">
+  <button class="wp-close" onclick="closeWordPopup()">✕</button>
+  <div class="wp-word" id="wpWord"></div>
+  <div class="wp-roman" id="wpRoman"></div>
+  <div class="wp-translation" id="wpTranslation"></div>
+  <div class="wp-grammar" id="wpGrammar"></div>
+  <button class="wp-listen" onclick="speakPopupWord()">🔊 Écouter</button>
+</div>
+<div id="weatherOverlay"></div>
+
+<!-- ====== S1: WELCOME ====== -->
 <div class="screen active" id="screen-welcome">
+  <div class="w-stars" id="wStars"></div>
+  <div class="logo">🏘️ LinguaVillage</div>
+  <div class="logo-sub" id="ws-sub">Apprendre en vivant</div>
   <div class="welcome-form">
-    <div class="logo">🏘️ LinguaVillage</div>
-    <div class="logo-sub" id="ws-sub">Apprendre en vivant</div>
     <div>
       <div class="flabel" id="lbl-native">🌍 Votre langue maternelle</div>
       <div class="grid4" id="nativeGrid">
@@ -86,95 +74,363 @@
   </div>
 </div>
 
-<!-- ========== ÉCRAN MENU PRINCIPAL ========== -->
+<!-- ====== S2: MAIN MENU ====== -->
 <div class="screen" id="screen-menu">
-  <div style="padding:20px 24px; display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid rgba(255,215,0,0.12);">
-    <span style="font-family:'Cinzel',serif; font-size:1.3rem; color:#ffd700;">🏘️ LinguaVillage</span>
-    <div style="display:flex; gap:12px;">
-      <span id="menuPlayer" style="font-size:0.85rem;">👤</span>
-      <span id="menuLang" style="font-size:0.85rem;"></span>
-      <span id="menuXP" style="font-size:0.85rem;">0 XP</span>
-      <span id="gemDisplay" style="font-size:0.85rem;">💎 0</span>
+  <div class="menu-header">
+    <span class="menu-player" id="menuPlayer">👤</span>
+    <span class="menu-lang" id="menuLang"></span>
+    <button onclick="showProgression()" style="background:rgba(255,215,0,0.1);border:1px solid var(--border);color:var(--gold);padding:3px 10px;border-radius:15px;font-size:0.7rem;font-weight:800;cursor:pointer;display:flex;align-items:center;gap:4px;"><span id="gemDisplay">💎 0</span> · 📊</button>
+    <div class="menu-xp">
+      <span class="menu-xp-label" id="menuXP">0 XP</span>
+      <div class="xp-bar-bg"><div class="xp-bar-fill" id="xpFill"></div></div>
     </div>
   </div>
-  <div class="menu-content" style="flex:1; padding:24px;">
-    <div class="menu-title" id="menu-title-text" style="font-family:'Cinzel',serif; font-size:1.1rem; color:#ffd700;">Que voulez-vous faire ?</div>
-    <div class="menu-subtitle" id="menu-sub-text" style="font-size:0.75rem; color:rgba(232,224,208,0.45); margin-bottom:20px;">Choisissez votre mode d'apprentissage</div>
-    <div style="display:grid; grid-template-columns:repeat(2,1fr); gap:12px;">
-      <button class="menu-btn" onclick="goVillage()" style="background:rgba(15,21,32,0.8); border:1px solid rgba(255,215,0,0.12); border-radius:16px; padding:16px; cursor:pointer;">
-        <div style="font-size:2rem;">🏘️</div>
-        <div style="font-family:'Cinzel',serif; font-weight:700; color:#4ecf70;">Village</div>
-        <div style="font-size:0.65rem; color:rgba(232,224,208,0.45);">Conversations IA</div>
+  <div class="menu-content">
+    <div class="menu-title" id="menu-title-text">Que voulez-vous faire ?</div>
+    <div class="menu-subtitle" id="menu-sub-text">Choisissez votre mode d'apprentissage</div>
+    <div class="menu-btns">
+      <button class="menu-btn village" onclick="goVillage()">
+        <span class="btn-badge">LIVE</span>
+        <span class="btn-icon">🏘️</span>
+        <span class="btn-title" id="mb-village">Village</span>
+        <span class="btn-desc" id="mb-village-d">Conversations avec l'IA + correcteur</span>
       </button>
-      <button class="menu-btn" onclick="showScreen('screen-vocab');loadVocab('verbes')" style="background:rgba(15,21,32,0.8); border:1px solid rgba(255,215,0,0.12); border-radius:16px; padding:16px; cursor:pointer;">
-        <div style="font-size:2rem;">📖</div>
-        <div style="font-family:'Cinzel',serif; font-weight:700; color:#4ecf70;">Vocabulaire</div>
-        <div style="font-size:0.65rem; color:rgba(232,224,208,0.45);">1500 mots essentiels</div>
+      <button class="menu-btn vocab" onclick="showScreen('screen-vocab');loadVocab('verbes')">
+        <span class="btn-badge">1500</span>
+        <span class="btn-icon">📖</span>
+        <span class="btn-title" id="mb-vocab">Vocabulaire</span>
+        <span class="btn-desc" id="mb-vocab-d">1500 mots essentiels par catégories</span>
       </button>
-      <button class="menu-btn" onclick="showScreen('screen-phrases');loadPhrases('quotidien')" style="background:rgba(15,21,32,0.8); border:1px solid rgba(255,215,0,0.12); border-radius:16px; padding:16px; cursor:pointer;">
-        <div style="font-size:2rem;">💬</div>
-        <div style="font-family:'Cinzel',serif; font-weight:700; color:#4a9eff;">Phrases</div>
-        <div style="font-size:0.65rem; color:rgba(232,224,208,0.45);">1000 phrases utiles</div>
+      <button class="menu-btn phrases" onclick="showScreen('screen-phrases');loadPhrases('quotidien')">
+        <span class="btn-badge">1000</span>
+        <span class="btn-icon">💬</span>
+        <span class="btn-title" id="mb-phrases">Phrases</span>
+        <span class="btn-desc" id="mb-phrases-d">1000 phrases & structures du quotidien</span>
       </button>
-      <button class="menu-btn" onclick="showScreen('screen-grammar');loadGrammar('present')" style="background:rgba(15,21,32,0.8); border:1px solid rgba(255,215,0,0.12); border-radius:16px; padding:16px; cursor:pointer;">
-        <div style="font-size:2rem;">✏️</div>
-        <div style="font-family:'Cinzel',serif; font-weight:700; color:#c084fc;">Grammaire</div>
-        <div style="font-size:0.65rem; color:rgba(232,224,208,0.45);">Règles + exemples</div>
+      <button class="menu-btn grammar" onclick="showScreen('screen-grammar');loadGrammar('present')">
+        <span class="btn-badge">500+</span>
+        <span class="btn-icon">✏️</span>
+        <span class="btn-title" id="mb-grammar">Grammaire</span>
+        <span class="btn-desc" id="mb-grammar-d">6 temps + 500 exemples expliqués</span>
       </button>
     </div>
-    <button class="menu-dict-btn" onclick="openDict()" style="display:flex; align-items:center; gap:12px; background:rgba(15,21,32,0.8); border:1px solid rgba(255,215,0,0.12); border-radius:16px; padding:14px 16px; width:100%; margin-top:12px; cursor:pointer;">
-      <span style="font-size:1.6rem;">🔤</span>
-      <div style="flex:1; text-align:left;">
-        <div style="font-family:'Cinzel',serif; font-weight:700;">Dictionnaire</div>
-        <div style="font-size:0.7rem; color:rgba(232,224,208,0.45);">Traduction mot ou phrase</div>
+    <button class="menu-dict-btn" onclick="openDict()">
+      <span class="menu-dict-icon">🔤</span>
+      <div class="menu-dict-text">
+        <div class="menu-dict-title" id="mb-dict">Dictionnaire</div>
+        <div class="menu-dict-sub" id="mb-dict-d">Traduction mot par mot ou phrase entière</div>
       </div>
-      <span style="color:rgba(232,224,208,0.45);">›</span>
+      <span style="color:var(--dim);margin-left:auto">›</span>
     </button>
-    <button class="menu-dict-btn" onclick="openWordGame()" style="display:flex; align-items:center; gap:12px; background:rgba(15,21,32,0.8); border:1px solid rgba(192,132,252,0.3); border-radius:16px; padding:14px 16px; width:100%; margin-top:8px; cursor:pointer;">
-      <span style="font-size:1.6rem;">🎮</span>
-      <div style="flex:1; text-align:left;">
-        <div style="font-family:'Cinzel',serif; font-weight:700;">Jeu de mots</div>
-        <div style="font-size:0.7rem; color:rgba(232,224,208,0.45);">Forme des mots et progresse</div>
+    <button class="menu-dict-btn" onclick="openWordGame()" style="border-color:rgba(192,132,252,0.3);margin-top:8px;">
+      <div class="menu-dict-icon">🔤</div>
+      <div class="menu-dict-text">
+        <div class="menu-dict-title">Jeu de mots</div>
+        <div class="menu-dict-sub">Forme des mots · Collecte tes favoris</div>
       </div>
-      <span style="color:#c084fc;">▶</span>
+      <span style="color:var(--purple,#c084fc);font-size:1rem;">▶</span>
     </button>
   </div>
 </div>
 
-<!-- ========== AUTRES ÉCRANS (contenu vide pour l'instant) ========== -->
-<div class="screen" id="screen-village"></div>
-<div class="screen" id="screen-location"></div>
-<div class="screen" id="screen-dialogue"></div>
-<div class="screen" id="screen-vocab"></div>
-<div class="screen" id="screen-phrases"></div>
-<div class="screen" id="screen-grammar"></div>
-<div class="screen" id="screen-dict"></div>
-<div class="screen" id="screen-cinema"></div>
-<div class="screen" id="screen-profile"></div>
-<div class="screen" id="screen-shop"></div>
-<div class="screen" id="screen-leaderboard"></div>
-<div class="screen" id="screen-settings"></div>
-<div class="screen" id="screen-quote"></div>
-<div class="screen" id="screen-onboarding"></div>
-<div class="screen" id="screen-wordgame"></div>
+<!-- ====== S3: VILLAGE ====== -->
+<div class="screen" id="screen-village">
+  <div class="village-hud">
+    <span class="hud-player" id="hudPlayer">👤</span>
+    <span class="hud-weather" id="hudWeather">☀️</span>
+    <span class="hud-time" id="hudTime"></span>
+    <span class="hud-lang" id="hudLang"></span>
+    <span id="streakDisplay" style="font-size:.68rem;color:#ff9f43;font-weight:900">🔥 0</span>
+    <span class="hud-xp" id="hudXP">0 XP</span>
+    <div class="hud-btns">
+      <button class="hud-btn" onclick="showScreen('screen-menu')">← Menu</button>
+      <button class="hud-btn" onclick="showDetailedStats()" title="Statistiques détaillées">📊</button>
+      <button class="hud-btn" onclick="showLeaderboard()" title="Classement & Défis">🏆</button>
+      <button class="hud-btn" onclick="launchSurpriseMode()" title="Mode Surprise">⚡</button>
+      <button class="hud-btn" onclick="openShop()" title="Boutique">🏪</button>
+      <button class="hud-btn" onclick="openReminderSettings()" title="Rappels">🔔</button>
+    </div>
+  </div>
+  <canvas id="villageCanvas"></canvas>
+  <div class="loc-tooltip" id="locTooltip"></div>
+</div>
 
+<!-- ====== S4: LOCATION ====== -->
+<div class="screen" id="screen-location">
+  <div class="u-header">
+    <button class="back-btn" onclick="showScreen('screen-village')">← Village</button>
+    <div class="u-title" id="locTitle" style="color:var(--village)"></div>
+    <span id="locWeather" style="font-size:1.1rem"></span>
+  </div>
+  <div id="missionsPanel" style="display:none;border-bottom:1px solid var(--border);"></div>
+  <div class="npc-list" id="npcList"></div>
+</div>
+
+<!-- ====== S5: DIALOGUE ====== -->
+<div class="screen" id="screen-dialogue">
+  <div class="dial-header">
+    <div class="dial-av" id="dialAv">🧑</div>
+    <div>
+      <div class="dial-name" id="dialName"></div>
+      <div class="dial-role" id="dialRole"></div>
+    </div>
+    <button class="back-btn" style="margin-left:auto" onclick="showScreen('screen-location')">←</button>
+  </div>
+  <div class="chat-msgs" id="chatMsgs"></div>
+  <div class="dial-input-area">
+    <div class="dial-input-wrap">
+      <input class="dial-input" id="dialInput" type="text" autocomplete="off" placeholder="Votre réponse...">
+      <button class="dial-send" id="dialSend" onclick="sendMsg()">➤</button>
+    </div>
+    <div class="dial-actions">
+      <button class="d-btn" onclick="reqHint()">💡 Indice</button>
+      <button class="d-btn" onclick="reqTranslate()">🔤 Traduire</button>
+      <button class="d-btn voice" id="voiceBtn" onclick="toggleVoice()">🎤 Parler</button>
+    </div>
+    <div class="correction-panel" id="corrPanel">
+      <div class="corr-title" id="corrTitle">✏️ CORRECTION</div>
+      <div class="corr-original" id="corrOrig"></div>
+      <div class="corr-corrected" id="corrFixed"></div>
+      <div class="corr-explain" id="corrExplain"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ====== S6: VOCABULAIRE ====== -->
+<div class="screen" id="screen-vocab">
+  <div class="u-header">
+    <button class="back-btn" onclick="showScreen('screen-menu')">← Menu</button>
+    <div class="u-title" style="color:var(--vocab)" id="vocab-title">📖 Vocabulaire</div>
+    <span class="u-badge" style="background:rgba(78,207,112,0.15);color:var(--vocab)" id="vocabCount"></span>
+  </div>
+
+  <section class="learn-hero learn-hero-vocab">
+    <div class="learn-hero-copy">
+      <span class="learn-eyebrow">Lexique essentiel</span>
+      <h2 class="learn-heading">Un vocabulaire clair, filtrable et prêt à réviser</h2>
+      <p class="learn-subheading">Travaille par thème, retrouve vite chaque mot et lance tes révisions actives sans te perdre dans l'écran.</p>
+    </div>
+    <div class="learn-stats">
+      <div class="learn-stat">
+        <span class="learn-stat-label">Catégorie active</span>
+        <strong id="vocabActiveLabel">—</strong>
+      </div>
+      <div class="learn-stat">
+        <span class="learn-stat-label">Éléments visibles</span>
+        <strong id="vocabVisibleCount">0</strong>
+      </div>
+    </div>
+  </section>
+
+  <div class="study-toolbar">
+    <button class="study-action primary" onclick="launchVocabFlashcards()">🃏 Flashcards SRS</button>
+    <button class="study-action" onclick="launchVocabOralPractice()">🎤 Révision orale</button>
+  </div>
+
+  <div class="learn-panel">
+    <div class="learn-panel-head">
+      <div class="learn-panel-title">Explorer par catégorie</div>
+      <div class="learn-panel-meta">Liste intelligente et triée</div>
+    </div>
+    <div class="vocab-cats" id="vocabCats"></div>
+    <div class="vocab-search">
+      <input class="vsearch" id="vocabSearch" type="text" placeholder="Rechercher un mot, une traduction ou une romanisation">
+    </div>
+  </div>
+
+  <div class="vocab-list" id="vocabList"></div>
+</div>
+
+<!-- ====== S7: PHRASES ====== -->
+<div class="screen" id="screen-phrases">
+  <div class="u-header">
+    <button class="back-btn" onclick="showScreen('screen-menu')">← Menu</button>
+    <div class="u-title" style="color:var(--blue)" id="phrases-title">💬 Phrases & Structures</div>
+    <span class="u-badge" style="background:rgba(74,158,255,0.15);color:var(--blue)" id="phrasesCount"></span>
+  </div>
+
+  <section class="learn-hero learn-hero-phrases">
+    <div class="learn-hero-copy">
+      <span class="learn-eyebrow">Expression naturelle</span>
+      <h2 class="learn-heading">Des phrases prêtes à parler, pas juste à lire</h2>
+      <p class="learn-subheading">Chaque bloc met en avant l'idée, la version cible et les actions utiles pour répéter, copier ou mémoriser rapidement.</p>
+    </div>
+    <div class="learn-stats">
+      <div class="learn-stat">
+        <span class="learn-stat-label">Thème actif</span>
+        <strong id="phrasesActiveLabel">—</strong>
+      </div>
+      <div class="learn-stat">
+        <span class="learn-stat-label">Éléments visibles</span>
+        <strong id="phrasesVisibleCount">0</strong>
+      </div>
+    </div>
+  </section>
+
+  <div class="study-toolbar study-toolbar-compact">
+    <button class="study-action primary secondary-blue" onclick="speakFocusedPhrase()">🔊 Écoute rapide</button>
+    <button class="study-action" onclick="copyFocusedPhrase()">📋 Copier une phrase</button>
+  </div>
+
+  <div class="learn-panel">
+    <div class="learn-panel-head">
+      <div class="learn-panel-title">Explorer par situation</div>
+      <div class="learn-panel-meta">Quotidien, voyage, politesse…</div>
+    </div>
+    <div class="phrase-cats" id="phraseCats"></div>
+    <div class="vocab-search">
+      <input class="vsearch" id="phraseSearch" type="text" placeholder="Rechercher une idée, une phrase ou un mot-clé">
+    </div>
+  </div>
+
+  <div class="phrase-list" id="phraseList"></div>
+</div>
+
+<!-- ====== S8: GRAMMAIRE ====== -->
+<div class="screen" id="screen-grammar">
+  <div class="u-header">
+    <button class="back-btn" onclick="showScreen('screen-menu')">← Menu</button>
+    <div class="u-title" style="color:var(--purple)" id="grammar-title">✏️ Grammaire</div>
+  </div>
+
+  <section class="learn-hero learn-hero-grammar">
+    <div class="learn-hero-copy">
+      <span class="learn-eyebrow">Structure & logique</span>
+      <h2 class="learn-heading">Une grammaire organisée comme une vraie fiche pro</h2>
+      <p class="learn-subheading">Explication claire, formule mise en avant et exemples filtrables pour aller droit à l'essentiel.</p>
+    </div>
+    <div class="learn-stats">
+      <div class="learn-stat">
+        <span class="learn-stat-label">Point actif</span>
+        <strong id="grammarActiveLabel">—</strong>
+      </div>
+      <div class="learn-stat">
+        <span class="learn-stat-label">Exemples visibles</span>
+        <strong id="grammarExampleCount">0</strong>
+      </div>
+    </div>
+  </section>
+
+  <div class="study-toolbar study-toolbar-compact">
+    <button class="study-action primary secondary-purple" onclick="playGrammarExample()">🔊 Écouter un exemple</button>
+    <button class="study-action" onclick="copyGrammarFormula()">📐 Copier la formule</button>
+  </div>
+
+  <div class="learn-panel">
+    <div class="learn-panel-head">
+      <div class="learn-panel-title">Points à réviser</div>
+      <div class="learn-panel-meta">Temps, structures et usages</div>
+    </div>
+    <div class="grammar-cats" id="grammarCats"></div>
+    <div class="vocab-search">
+      <input class="vsearch" id="grammarSearch" type="text" placeholder="Rechercher une règle, une structure ou un exemple">
+    </div>
+  </div>
+
+  <div class="grammar-body" id="grammarBody"></div>
+</div>
+
+<!-- ====== S9: DICTIONARY ====== -->
+<div class="screen" id="screen-dict">
+  <div class="u-header">
+    <button class="back-btn" id="dictBackBtn" onclick="closeDictBack()">← Retour</button>
+    <div class="u-title" style="color:var(--gold)">🔤 Dictionnaire</div>
+  </div>
+  <div class="dict-search-area">
+    <div class="dict-row">
+      <input class="dict-input" id="dictInput" type="text" placeholder="Mot ou phrase à traduire...">
+      <button class="dict-search-btn" onclick="searchDict()">🔍</button>
+    </div>
+    <div class="dict-modes">
+      <button class="dict-mode active" onclick="setDictMode('word',this)">📖 Mot</button>
+      <button class="dict-mode" onclick="setDictMode('phrase',this)">💬 Phrase entière</button>
+    </div>
+  </div>
+  <div class="dict-result" id="dictResult">
+    <div class="dict-empty"><div class="dict-empty-icon">🔤</div><div id="dict-empty-txt">Tapez un mot pour le traduire</div></div>
+  </div>
+</div>
+
+<!-- ====== S10: CINEMA ====== -->
+<div class="screen" id="screen-cinema">
+  <div class="u-header">
+    <button class="back-btn" onclick="showScreen('screen-village')">← Village</button>
+    <div class="u-title" style="color:#e040fb" id="cinema-title">🎬 Cinéma</div>
+    <span id="cinema-lang-badge" style="font-size:0.75rem;font-weight:800;color:#e040fb"></span>
+  </div>
+  <div style="flex:1;overflow-y:auto;padding:14px;" id="cinemaInfo">
+    <div id="cinema-player-wrap" style="display:none;margin-bottom:16px;border-radius:14px;overflow:hidden;background:#000;aspect-ratio:16/9;position:relative;">
+      <iframe id="cinema-player" src="" style="width:100%;height:100%;border:none;position:absolute;top:0;left:0;" allowfullscreen allow="autoplay; fullscreen; picture-in-picture" loading="lazy"></iframe>
+    </div>
+    <div id="cinema-playing-info" style="display:none;background:rgba(224,64,251,0.08);border:1px solid rgba(224,64,251,0.2);border-radius:12px;padding:10px 14px;margin-bottom:12px;">
+      <div id="cinema-playing-title" style="font-weight:800;font-size:0.88rem;color:#e040fb;margin-bottom:3px;"></div>
+      <div id="cinema-playing-desc" style="font-size:0.72rem;color:var(--dim);"></div>
+      <button onclick="cinemaStop()" style="margin-top:8px;background:rgba(255,107,107,0.1);border:1px solid rgba(255,107,107,0.3);border-radius:8px;padding:4px 12px;color:#ff6b6b;font-size:0.72rem;cursor:pointer;">⏹ Arrêter</button>
+    </div>
+    <div id="cinema-count" style="margin-bottom:12px;font-size:0.72rem;color:var(--dim);text-align:center;"></div>
+    <div style="background:rgba(224,64,251,0.07);border:1px solid rgba(224,64,251,0.2);border-radius:12px;padding:10px 14px;margin-bottom:14px;font-size:0.78rem;color:var(--dim);">
+      💡 Clique sur ▶ pour lire directement dans l'application.<br>
+      Vidéos en domaine public — Internet Archive
+    </div>
+    <div id="videoList" style="display:flex;flex-direction:column;gap:0;"></div>
+  </div>
+</div>
+
+<!-- ═══ LinguaVillage — Scripts (Ordre corrigé) ═══════════════════ -->
+<!-- 0. État global — DOIT être chargé en premier -->
 <script src="js/state.js"></script>
+
+<!-- 1. Sauvegarde — restaure window.S -->
 <script src="js/save.js"></script>
+
+<!-- 2. Données : vocabulaire, lieux, constantes -->
 <script src="js/data.js"></script>
+
+<!-- 3. Joueur : maison, personnage animé, marche -->
 <script src="js/player.js"></script>
+
+<!-- 4. Village : canvas, météo, interactions -->
 <script src="js/village.js"></script>
+
+<!-- 5. Mémoire personnalisée -->
 <script src="js/memory.js"></script>
+
+<!-- 6. Phonèmes adaptés à la langue maternelle -->
 <script src="js/phonemes.js"></script>
+
+<!-- 7. Sprites PNJ animés SVG -->
 <script src="js/sprites.js"></script>
+
+<!-- 8. PNJ vivant IA (patch dialogue) -->
 <script src="js/pnj.js"></script>
+
+<!-- 9. Dialogue : NPC, IA, correcteur, popup mots -->
 <script src="js/dialogue.js"></script>
+
+<!-- 10. Gamification : missions, boutique, quiz, streak -->
 <script src="js/gamification.js"></script>
+
+<!-- 11. Apprentissage : vocab, phrases, grammaire, dict -->
 <script src="js/learning.js"></script>
+
+<!-- 12. Cinéma : vidéos Internet Archive par langue -->
 <script src="js/cinema.js"></script>
+
+<!-- 13. Avancé : oral, flashcards, stats, rappels -->
 <script src="js/advanced.js"></script>
+
+<!-- 14. Citations et proverbes du jour -->
 <script src="js/quote.js"></script>
+
+<!-- 15. Porte d'entrée zéro (onboarding) -->
 <script src="js/onboarding.js"></script>
+
+<!-- 16. Jeu de formation de mots -->
 <script src="js/wordgame.js"></script>
+
+<!-- 17. App : point d'entrée, welcome flow, startMenu -->
 <script src="js/app.js"></script>
+
+<script defer src="https://static.cloudflareinsights.com/beacon.min.js/v833ccba57c9e4d2798f2e76cebdd09a11778172276447" integrity="sha512-57MDmcccJXYtNnH+ZiBwzC4jb2rvgVCEokYN+L/nLlmO8rfYT/gIpW2A569iJ/3b+0UEasghjuZH/ma3wIs/EQ==" data-cf-beacon='{"version":"2024.11.0","token":"4edd5f8ec12a48cfa682ab8261b80a79","server_timing":{"name":{"cfCacheStatus":true,"cfEdge":true,"cfExtPri":true,"cfL4":true,"cfOrigin":true,"cfSpeedBrain":true},"location_startswith":null}}' crossorigin="anonymous"></script>
 </body>
-                                                  </html>
+      </html>
