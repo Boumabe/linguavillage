@@ -378,3 +378,17 @@ function initGame(){
   initWeeklyChallenges();
 }
 initGame();
+// Exporter les fonctions nécessaires globalement
+window.updateWeeklyProgress = updateWeeklyProgress;
+window.initWeeklyChallenges = initWeeklyChallenges;
+window.checkDailyStreak = checkDailyStreak;
+window.updateStreakDisplay = updateStreakDisplay;
+window.checkBadges = checkBadges;
+window.updateDailyProgress = updateDailyProgress;
+window.openMissionsPanel = openMissionsPanel;
+window.startMission = startMission;
+window.completeMission = completeMission;
+window.checkMissionInMessage = checkMissionInMessage;
+window.grantChest = grantChest;
+window.launchSurpriseMode = launchSurpriseMode;
+window.closeSurpriseMode = closeSurpriseMode;
