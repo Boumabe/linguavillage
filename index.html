@@ -1,32 +1,23 @@
-<!-- index.html - Version Corrigée -->
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<meta name="theme-color" content="#0a0a14">
-<meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<link rel="manifest" href="manifest.json">
-<title>LinguaVillage</title>
-<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/styles.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#0a0a14">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <link rel="manifest" href="manifest.json">
+  <title>LinguaVillage</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
 <div id="debug" style="position:fixed;top:0;left:0;right:0;background:#4ecf70;color:#0a0a14;font-size:11px;padding:2px 6px;z-index:99999;font-family:monospace;">✅ Chargement...</div>
-
 <div id="notif"></div>
-<div id="wordPopup">
-  <button class="wp-close" onclick="closeWordPopup()">✕</button>
-  <div class="wp-word" id="wpWord"></div>
-  <div class="wp-roman" id="wpRoman"></div>
-  <div class="wp-translation" id="wpTranslation"></div>
-  <div class="wp-grammar" id="wpGrammar"></div>
-  <button class="wp-listen" onclick="speakPopupWord()">🔊 Écouter</button>
-</div>
+<div id="wordPopup">...</div>
 <div id="weatherOverlay"></div>
 
-<!-- ====== S1: WELCOME ====== -->
+<!-- ========== ÉCRAN D'ACCUEIL ========== -->
 <div class="screen active" id="screen-welcome">
   <div class="w-stars" id="wStars"></div>
   <div class="logo">🏘️ LinguaVillage</div>
@@ -74,7 +65,7 @@
   </div>
 </div>
 
-<!-- ====== S2: MAIN MENU ====== -->
+<!-- ========== ÉCRAN MENU PRINCIPAL ========== -->
 <div class="screen" id="screen-menu">
   <div class="menu-header">
     <span class="menu-player" id="menuPlayer">👤</span>
@@ -93,7 +84,7 @@
         <span class="btn-badge">LIVE</span>
         <span class="btn-icon">🏘️</span>
         <span class="btn-title" id="mb-village">Village</span>
-        <span class="btn-desc" id="mb-village-d">Conversations avec l'IA + correcteur</span>
+        <span class="btn-desc" id="mb-village-d">Conversations IA + correcteur temps réel</span>
       </button>
       <button class="menu-btn vocab" onclick="showScreen('screen-vocab');loadVocab('verbes')">
         <span class="btn-badge">1500</span>
@@ -133,7 +124,7 @@
   </div>
 </div>
 
-<!-- ====== S3: VILLAGE ====== -->
+<!-- ========== ÉCRAN VILLAGE ========== -->
 <div class="screen" id="screen-village">
   <div class="village-hud">
     <span class="hud-player" id="hudPlayer">👤</span>
@@ -155,7 +146,7 @@
   <div class="loc-tooltip" id="locTooltip"></div>
 </div>
 
-<!-- ====== S4: LOCATION ====== -->
+<!-- ========== ÉCRAN LOCATION ========== -->
 <div class="screen" id="screen-location">
   <div class="u-header">
     <button class="back-btn" onclick="showScreen('screen-village')">← Village</button>
@@ -166,7 +157,7 @@
   <div class="npc-list" id="npcList"></div>
 </div>
 
-<!-- ====== S5: DIALOGUE ====== -->
+<!-- ========== ÉCRAN DIALOGUE ========== -->
 <div class="screen" id="screen-dialogue">
   <div class="dial-header">
     <div class="dial-av" id="dialAv">🧑</div>
@@ -196,14 +187,13 @@
   </div>
 </div>
 
-<!-- ====== S6: VOCABULAIRE ====== -->
+<!-- ========== ÉCRAN VOCABULAIRE ========== -->
 <div class="screen" id="screen-vocab">
   <div class="u-header">
     <button class="back-btn" onclick="showScreen('screen-menu')">← Menu</button>
     <div class="u-title" style="color:var(--vocab)" id="vocab-title">📖 Vocabulaire</div>
     <span class="u-badge" style="background:rgba(78,207,112,0.15);color:var(--vocab)" id="vocabCount"></span>
   </div>
-
   <section class="learn-hero learn-hero-vocab">
     <div class="learn-hero-copy">
       <span class="learn-eyebrow">Lexique essentiel</span>
@@ -211,44 +201,29 @@
       <p class="learn-subheading">Travaille par thème, retrouve vite chaque mot et lance tes révisions actives sans te perdre dans l'écran.</p>
     </div>
     <div class="learn-stats">
-      <div class="learn-stat">
-        <span class="learn-stat-label">Catégorie active</span>
-        <strong id="vocabActiveLabel">—</strong>
-      </div>
-      <div class="learn-stat">
-        <span class="learn-stat-label">Éléments visibles</span>
-        <strong id="vocabVisibleCount">0</strong>
-      </div>
+      <div class="learn-stat"><span class="learn-stat-label">Catégorie active</span><strong id="vocabActiveLabel">—</strong></div>
+      <div class="learn-stat"><span class="learn-stat-label">Éléments visibles</span><strong id="vocabVisibleCount">0</strong></div>
     </div>
   </section>
-
   <div class="study-toolbar">
     <button class="study-action primary" onclick="launchVocabFlashcards()">🃏 Flashcards SRS</button>
     <button class="study-action" onclick="launchVocabOralPractice()">🎤 Révision orale</button>
   </div>
-
   <div class="learn-panel">
-    <div class="learn-panel-head">
-      <div class="learn-panel-title">Explorer par catégorie</div>
-      <div class="learn-panel-meta">Liste intelligente et triée</div>
-    </div>
+    <div class="learn-panel-head"><div class="learn-panel-title">Explorer par catégorie</div><div class="learn-panel-meta">Liste intelligente et triée</div></div>
     <div class="vocab-cats" id="vocabCats"></div>
-    <div class="vocab-search">
-      <input class="vsearch" id="vocabSearch" type="text" placeholder="Rechercher un mot, une traduction ou une romanisation">
-    </div>
+    <div class="vocab-search"><input class="vsearch" id="vocabSearch" type="text" placeholder="Rechercher un mot, une traduction ou une romanisation"></div>
   </div>
-
   <div class="vocab-list" id="vocabList"></div>
 </div>
 
-<!-- ====== S7: PHRASES ====== -->
+<!-- ========== ÉCRAN PHRASES ========== -->
 <div class="screen" id="screen-phrases">
   <div class="u-header">
     <button class="back-btn" onclick="showScreen('screen-menu')">← Menu</button>
     <div class="u-title" style="color:var(--blue)" id="phrases-title">💬 Phrases & Structures</div>
     <span class="u-badge" style="background:rgba(74,158,255,0.15);color:var(--blue)" id="phrasesCount"></span>
   </div>
-
   <section class="learn-hero learn-hero-phrases">
     <div class="learn-hero-copy">
       <span class="learn-eyebrow">Expression naturelle</span>
@@ -256,43 +231,28 @@
       <p class="learn-subheading">Chaque bloc met en avant l'idée, la version cible et les actions utiles pour répéter, copier ou mémoriser rapidement.</p>
     </div>
     <div class="learn-stats">
-      <div class="learn-stat">
-        <span class="learn-stat-label">Thème actif</span>
-        <strong id="phrasesActiveLabel">—</strong>
-      </div>
-      <div class="learn-stat">
-        <span class="learn-stat-label">Éléments visibles</span>
-        <strong id="phrasesVisibleCount">0</strong>
-      </div>
+      <div class="learn-stat"><span class="learn-stat-label">Thème actif</span><strong id="phrasesActiveLabel">—</strong></div>
+      <div class="learn-stat"><span class="learn-stat-label">Éléments visibles</span><strong id="phrasesVisibleCount">0</strong></div>
     </div>
   </section>
-
   <div class="study-toolbar study-toolbar-compact">
     <button class="study-action primary secondary-blue" onclick="speakFocusedPhrase()">🔊 Écoute rapide</button>
     <button class="study-action" onclick="copyFocusedPhrase()">📋 Copier une phrase</button>
   </div>
-
   <div class="learn-panel">
-    <div class="learn-panel-head">
-      <div class="learn-panel-title">Explorer par situation</div>
-      <div class="learn-panel-meta">Quotidien, voyage, politesse…</div>
-    </div>
+    <div class="learn-panel-head"><div class="learn-panel-title">Explorer par situation</div><div class="learn-panel-meta">Quotidien, voyage, politesse…</div></div>
     <div class="phrase-cats" id="phraseCats"></div>
-    <div class="vocab-search">
-      <input class="vsearch" id="phraseSearch" type="text" placeholder="Rechercher une idée, une phrase ou un mot-clé">
-    </div>
+    <div class="vocab-search"><input class="vsearch" id="phraseSearch" type="text" placeholder="Rechercher une idée, une phrase ou un mot-clé"></div>
   </div>
-
   <div class="phrase-list" id="phraseList"></div>
 </div>
 
-<!-- ====== S8: GRAMMAIRE ====== -->
+<!-- ========== ÉCRAN GRAMMAIRE ========== -->
 <div class="screen" id="screen-grammar">
   <div class="u-header">
     <button class="back-btn" onclick="showScreen('screen-menu')">← Menu</button>
     <div class="u-title" style="color:var(--purple)" id="grammar-title">✏️ Grammaire</div>
   </div>
-
   <section class="learn-hero learn-hero-grammar">
     <div class="learn-hero-copy">
       <span class="learn-eyebrow">Structure & logique</span>
@@ -300,37 +260,23 @@
       <p class="learn-subheading">Explication claire, formule mise en avant et exemples filtrables pour aller droit à l'essentiel.</p>
     </div>
     <div class="learn-stats">
-      <div class="learn-stat">
-        <span class="learn-stat-label">Point actif</span>
-        <strong id="grammarActiveLabel">—</strong>
-      </div>
-      <div class="learn-stat">
-        <span class="learn-stat-label">Exemples visibles</span>
-        <strong id="grammarExampleCount">0</strong>
-      </div>
+      <div class="learn-stat"><span class="learn-stat-label">Point actif</span><strong id="grammarActiveLabel">—</strong></div>
+      <div class="learn-stat"><span class="learn-stat-label">Exemples visibles</span><strong id="grammarExampleCount">0</strong></div>
     </div>
   </section>
-
   <div class="study-toolbar study-toolbar-compact">
     <button class="study-action primary secondary-purple" onclick="playGrammarExample()">🔊 Écouter un exemple</button>
     <button class="study-action" onclick="copyGrammarFormula()">📐 Copier la formule</button>
   </div>
-
   <div class="learn-panel">
-    <div class="learn-panel-head">
-      <div class="learn-panel-title">Points à réviser</div>
-      <div class="learn-panel-meta">Temps, structures et usages</div>
-    </div>
+    <div class="learn-panel-head"><div class="learn-panel-title">Points à réviser</div><div class="learn-panel-meta">Temps, structures et usages</div></div>
     <div class="grammar-cats" id="grammarCats"></div>
-    <div class="vocab-search">
-      <input class="vsearch" id="grammarSearch" type="text" placeholder="Rechercher une règle, une structure ou un exemple">
-    </div>
+    <div class="vocab-search"><input class="vsearch" id="grammarSearch" type="text" placeholder="Rechercher une règle, une structure ou un exemple"></div>
   </div>
-
   <div class="grammar-body" id="grammarBody"></div>
 </div>
 
-<!-- ====== S9: DICTIONARY ====== -->
+<!-- ========== ÉCRAN DICTIONNAIRE ========== -->
 <div class="screen" id="screen-dict">
   <div class="u-header">
     <button class="back-btn" id="dictBackBtn" onclick="closeDictBack()">← Retour</button>
@@ -351,7 +297,7 @@
   </div>
 </div>
 
-<!-- ====== S10: CINEMA ====== -->
+<!-- ========== ÉCRAN CINÉMA ========== -->
 <div class="screen" id="screen-cinema">
   <div class="u-header">
     <button class="back-btn" onclick="showScreen('screen-village')">← Village</button>
@@ -376,61 +322,89 @@
   </div>
 </div>
 
-<!-- ═══ LinguaVillage — Scripts (Ordre corrigé) ═══════════════════ -->
-<!-- 0. État global — DOIT être chargé en premier -->
+<!-- ========== ÉCRAN PROFIL ========== -->
+<div class="screen" id="screen-profile">
+  <div class="u-header">
+    <button class="back-btn" onclick="showScreen('screen-menu')">← Menu</button>
+    <div class="u-title" style="color:var(--gold)">👤 Mon profil</div>
+  </div>
+  <div class="profile-header">
+    <div class="profile-avatar">👤</div>
+    <div class="profile-name" id="profileName"></div>
+    <div class="profile-lang" id="profileLang"></div>
+  </div>
+  <div class="profile-stats">
+    <div class="p-stat"><div class="ps-val" id="profileXp">0</div><div class="ps-label">XP total</div></div>
+    <div class="p-stat"><div class="ps-val" id="profileStreak">0</div><div class="ps-label">Streak</div></div>
+    <div class="p-stat"><div class="ps-val" id="profileMasteredCount">0</div><div class="ps-label">Mots maîtrisés</div></div>
+  </div>
+  <div class="achievements">
+    <div class="ach-title">🏆 Badges</div>
+    <div class="ach-grid" id="badgesGrid"></div>
+  </div>
+  <div class="profile-section"><div class="ach-title">⭐ Mots favoris</div><div id="favWordsList"></div></div>
+  <div class="profile-section"><div class="ach-title">⚠️ Mots difficiles</div><div id="weakWordsList"></div></div>
+</div>
+
+<!-- ========== ÉCRAN BOUTIQUE ========== -->
+<div class="screen" id="screen-shop">
+  <div class="shop-header">
+    <button class="back-btn" onclick="showScreen('screen-menu')">← Menu</button>
+    <div class="shop-title">🏪 Boutique</div>
+    <div class="shop-gold"><span>💎</span><span id="shopGems">0</span></div>
+  </div>
+  <div class="shop-grid" id="shopItems"></div>
+</div>
+
+<!-- ========== ÉCRAN CLASSEMENT ========== -->
+<div class="screen" id="screen-leaderboard">
+  <div class="lb-header">
+    <button class="back-btn" onclick="showScreen('screen-menu')">← Menu</button>
+    <div class="lb-title">🏆 Classement</div>
+  </div>
+  <div class="lb-podium" id="lbPodium"></div>
+  <div class="lb-list" id="lbList"></div>
+</div>
+
+<!-- ========== ÉCRAN RÉGLAGES ========== -->
+<div class="screen" id="screen-settings">
+  <div class="settings-header">
+    <button class="back-btn" onclick="showScreen('screen-menu')">← Menu</button>
+    <div class="set-title">⚙️ Réglages</div>
+  </div>
+  <div class="settings-content">
+    <div class="settings-group"><div class="sg-title">🔔 Notifications</div><div class="setting-row"><div class="s-label">Rappels quotidiens</div><div class="toggle" id="notifToggle"></div></div></div>
+    <div class="settings-group"><div class="sg-title">🌙 Thème</div><div class="setting-row"><div class="s-label">Mode sombre</div><div class="toggle" id="themeToggle"></div></div></div>
+  </div>
+</div>
+
+<!-- ========== ÉCRAN PROVERBE ========== -->
+<div class="screen" id="screen-quote"></div>
+
+<!-- ========== ÉCRAN ONBOARDING ========== -->
+<div class="screen" id="screen-onboarding"></div>
+
+<!-- ========== ÉCRAN JEU DE MOTS ========== -->
+<div class="screen" id="screen-wordgame"></div>
+
+<!-- ========== SCRIPTS (dans l'ordre) ========== -->
 <script src="js/state.js"></script>
-
-<!-- 1. Sauvegarde — restaure window.S -->
 <script src="js/save.js"></script>
-
-<!-- 2. Données : vocabulaire, lieux, constantes -->
 <script src="js/data.js"></script>
-
-<!-- 3. Joueur : maison, personnage animé, marche -->
 <script src="js/player.js"></script>
-
-<!-- 4. Village : canvas, météo, interactions -->
 <script src="js/village.js"></script>
-
-<!-- 5. Mémoire personnalisée -->
 <script src="js/memory.js"></script>
-
-<!-- 6. Phonèmes adaptés à la langue maternelle -->
 <script src="js/phonemes.js"></script>
-
-<!-- 7. Sprites PNJ animés SVG -->
 <script src="js/sprites.js"></script>
-
-<!-- 8. PNJ vivant IA (patch dialogue) -->
 <script src="js/pnj.js"></script>
-
-<!-- 9. Dialogue : NPC, IA, correcteur, popup mots -->
 <script src="js/dialogue.js"></script>
-
-<!-- 10. Gamification : missions, boutique, quiz, streak -->
 <script src="js/gamification.js"></script>
-
-<!-- 11. Apprentissage : vocab, phrases, grammaire, dict -->
 <script src="js/learning.js"></script>
-
-<!-- 12. Cinéma : vidéos Internet Archive par langue -->
 <script src="js/cinema.js"></script>
-
-<!-- 13. Avancé : oral, flashcards, stats, rappels -->
 <script src="js/advanced.js"></script>
-
-<!-- 14. Citations et proverbes du jour -->
 <script src="js/quote.js"></script>
-
-<!-- 15. Porte d'entrée zéro (onboarding) -->
 <script src="js/onboarding.js"></script>
-
-<!-- 16. Jeu de formation de mots -->
 <script src="js/wordgame.js"></script>
-
-<!-- 17. App : point d'entrée, welcome flow, startMenu -->
 <script src="js/app.js"></script>
-
-<script defer src="https://static.cloudflareinsights.com/beacon.min.js/v833ccba57c9e4d2798f2e76cebdd09a11778172276447" integrity="sha512-57MDmcccJXYtNnH+ZiBwzC4jb2rvgVCEokYN+L/nLlmO8rfYT/gIpW2A569iJ/3b+0UEasghjuZH/ma3wIs/EQ==" data-cf-beacon='{"version":"2024.11.0","token":"4edd5f8ec12a48cfa682ab8261b80a79","server_timing":{"name":{"cfCacheStatus":true,"cfEdge":true,"cfExtPri":true,"cfL4":true,"cfOrigin":true,"cfSpeedBrain":true},"location_startswith":null}}' crossorigin="anonymous"></script>
 </body>
-      </html>
+                                                                                   </html>
