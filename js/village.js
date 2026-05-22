@@ -142,12 +142,22 @@ function goVillage() {
     var W    = (window.visualViewport ? window.visualViewport.width : null)
                || window.innerWidth
                || 360;
-    var H    = Math.max(200, visH - hudH);
+    var availH = Math.max(200, visH - hudH);
 
-    c.width  = Math.round(W * dpr);
-    c.height = Math.round(H * dpr);
-    c.style.width  = W + 'px';
-    c.style.height = H + 'px';
+    // Canvas carré : côté = min(largeur, hauteur disponible) avec marge 16px
+    var side = Math.min(W, availH) - 16;
+    side = Math.max(side, 180);
+
+    // Centrage dans l'espace disponible
+    var offsetX = Math.round((W - side) / 2);
+    var offsetY = Math.round((availH - side) / 2);
+
+    c.width  = Math.round(side * dpr);
+    c.height = Math.round(side * dpr);
+    c.style.width      = side + 'px';
+    c.style.height     = side + 'px';
+    c.style.marginLeft = offsetX + 'px';
+    c.style.marginTop  = offsetY + 'px';
 
     // Aligne les bâtiments sur leurs anneaux avant de dessiner
     alignLocationsToRings();
@@ -241,11 +251,16 @@ function initCanvas() {
     var hudH = hud ? hud.getBoundingClientRect().height : 56;
     var W = (window.visualViewport ? window.visualViewport.width : null)
             || window.innerWidth || 360;
-    var H = Math.max(200, visH - hudH);
-    canvas.width  = Math.round(W * dpr);
-    canvas.height = Math.round(H * dpr);
-    canvas.style.width  = W + 'px';
-    canvas.style.height = H + 'px';
+    var availH = Math.max(200, visH - hudH);
+    var side = Math.max(Math.min(W, availH) - 16, 180);
+    var offsetX = Math.round((W - side) / 2);
+    var offsetY = Math.round((availH - side) / 2);
+    canvas.width  = Math.round(side * dpr);
+    canvas.height = Math.round(side * dpr);
+    canvas.style.width      = side + 'px';
+    canvas.style.height     = side + 'px';
+    canvas.style.marginLeft = offsetX + 'px';
+    canvas.style.marginTop  = offsetY + 'px';
   }
 
   canvas.style.display = 'block';
@@ -275,11 +290,16 @@ function initCanvas() {
     var hudH = hud ? hud.getBoundingClientRect().height : 56;
     var newW = (window.visualViewport ? window.visualViewport.width : null)
                || window.innerWidth || 360;
-    var newH = Math.max(200, visH - hudH);
-    canvas.width  = Math.round(newW * newDpr);
-    canvas.height = Math.round(newH * newDpr);
-    canvas.style.width  = newW + 'px';
-    canvas.style.height = newH + 'px';
+    var availH = Math.max(200, visH - hudH);
+    var side = Math.max(Math.min(newW, availH) - 16, 180);
+    var offsetX = Math.round((newW - side) / 2);
+    var offsetY = Math.round((availH - side) / 2);
+    canvas.width  = Math.round(side * newDpr);
+    canvas.height = Math.round(side * newDpr);
+    canvas.style.width      = side + 'px';
+    canvas.style.height     = side + 'px';
+    canvas.style.marginLeft = offsetX + 'px';
+    canvas.style.marginTop  = offsetY + 'px';
     alignLocationsToRings();
     ctx = canvas.getContext('2d');
     ctx.scale(newDpr, newDpr);
@@ -322,11 +342,9 @@ function drawVillage() {
   var cx = W * 0.5;
   var cy = H * 0.5;
 
-  // minDim limité pour que tout le village tienne dans l'écran mobile.
-  // Plafond de 320px pour éviter le débordement sur écrans portait étroits.
-  // Marge de 40px de chaque côté pour une vraie respiration visuelle.
+  // Canvas carré → W == H. minDim = 92% du côté pour une marge confortable.
   var rawMin = Math.min(W, H);
-  var minDim = Math.min(rawMin * 0.75, W - 40, H - 40, 320);
+  var minDim = rawMin * 0.92;
 
   var night = currentWeather === 'night';
   var cfg = window.VILLAGE_CONFIG;
@@ -702,7 +720,7 @@ function getLocAt(mx, my) {
   var cx = W * 0.5;
   var cy = H * 0.5;
   var rawMin = Math.min(W, H);
-  var minDim = Math.min(rawMin * 0.75, W - 40, H - 40, 320);
+  var minDim = rawMin * 0.92;
 
   return LOCATIONS.find(function(loc) {
     var centerX = (loc._ringX !== undefined) ? loc._ringX : (loc.x + loc.w / 2);
@@ -743,7 +761,7 @@ function onVillageHover(e) {
     var cx = cW * 0.5;
     var cy = cH * 0.5;
     var rawMin = Math.min(cW, cH);
-    var minDim = Math.min(rawMin * 0.75, cW - 40, cH - 40, 320);
+    var minDim = rawMin * 0.92;
     var centerX = (loc._ringX !== undefined) ? loc._ringX : (loc.x + loc.w / 2);
     var centerY = (loc._ringY !== undefined) ? loc._ringY : (loc.y + loc.h / 2);
     tip.style.left = (cx + (centerX - 0.5) * minDim) + 'px';
