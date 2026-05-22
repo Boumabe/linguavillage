@@ -619,8 +619,7 @@ input  { font-family: var(--font-body); }
 }
 #villageCanvas {
   display: block;
-  width: 100% !important;
-  height: 100% !important;
+  /* Taille contrôlée exclusivement par JS — pas de !important */
 }
 
 /* Location tooltip */
