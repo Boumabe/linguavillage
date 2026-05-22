@@ -1,5 +1,5 @@
 // LinguaVillage — app.js
-// Version sans activation immédiate – menu après proverbe uniquement
+// Version corrigée – menu affiché directement après inscription
 // ================================================================
 
 var API = 'https://linguavillage-api--marckensbou2.replit.app';
@@ -26,7 +26,7 @@ window.addEventListener('DOMContentLoaded', function() {
     } catch(e) { console.warn('Restore failed:', e); }
   }
 
-  // Configuration des sélections (inchangée)
+  // Configuration des sélections (identique à avant)
   const nativeTiles = document.querySelectorAll('.lang-tile[data-native]');
   const targetTiles = document.querySelectorAll('.lang-tile[data-lang]');
   const step2 = document.getElementById('step2');
@@ -194,31 +194,19 @@ window.showScreen = function(id) {
   if (target) target.classList.add('active');
 };
 
+// -----------------------------------------------------------------
+// Version modifiée : on affiche le menu directement (sans proverbe)
+// pour debug. Une fois que le menu s'affiche, on pourra réactiver
+// le proverbe si souhaité.
+// -----------------------------------------------------------------
 function _launchMenu() {
-  function showQuoteThenMenu() {
-    if (typeof showDailyQuote === 'function') {
-      showDailyQuote(() => showScreen('screen-menu'));
-    } else {
-      showScreen('screen-menu');
-    }
-  }
-
-  let isFirstTime = true;
-  try {
-    isFirstTime = !localStorage.getItem('lv_onboarding_done');
-  } catch(e) { isFirstTime = false; }
-
-  if (isFirstTime && window.LV_ONBOARDING && typeof window.LV_ONBOARDING.show === 'function') {
-    try { localStorage.setItem('lv_onboarding_done', '1'); } catch(e) {}
-    window.LV_ONBOARDING.show(showQuoteThenMenu);
-  } else {
-    showQuoteThenMenu();
-  }
-
-  // PLUS AUCUNE ACTIVATION AUTOMATIQUE (dialogue ou flashcards)
-  // L'utilisateur arrive directement sur le menu après le proverbe.
+  // Afficher directement le menu principal
+  showScreen('screen-menu');
 }
 
+// -----------------------------------------------------------------
+// Utilitaires
+// -----------------------------------------------------------------
 function openWordGame() {
   if (window.LV_WORDGAME) window.LV_WORDGAME.open();
   else showNotif('Jeu de mots non chargé.');
@@ -228,4 +216,4 @@ function resetOnboarding() {
   try { localStorage.removeItem('lv_onboarding_done'); } catch(e) {}
   try { localStorage.removeItem('lv_last_quote_idx'); } catch(e) {}
   showNotif('Onboarding réinitialisé');
-          }
+                         }
