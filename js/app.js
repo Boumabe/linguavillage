@@ -1,5 +1,5 @@
 // LinguaVillage — app.js
-// Version corrigée – menu affiché directement après inscription
+// Flux complet : inscription → onboarding → proverbe → menu
 // ================================================================
 
 var API = 'https://linguavillage-api--marckensbou2.replit.app';
@@ -16,17 +16,18 @@ window.addEventListener('DOMContentLoaded', function() {
     };
   }
 
-  // Restaurer session existante
+  // Restaurer session existante (déjà enregistré)
   if (window._LINGUA_HAS_SAVE && window.S && S.playerName && S.nativeLang && S.targetLang) {
     try {
       if (typeof applyUI === 'function') applyUI(S.nativeLang);
-      startMenu();
+      // Si déjà passé par onboarding, on va directement au menu après le proverbe
+      startMenuAfterOnboarding();
       try { if (typeof checkDailyStreak === 'function') checkDailyStreak(); } catch(e) {}
       return;
     } catch(e) { console.warn('Restore failed:', e); }
   }
 
-  // Configuration des sélections (identique à avant)
+  // Configuration des sélections (langues, prénom, etc.)
   const nativeTiles = document.querySelectorAll('.lang-tile[data-native]');
   const targetTiles = document.querySelectorAll('.lang-tile[data-lang]');
   const step2 = document.getElementById('step2');
@@ -142,27 +143,50 @@ window.addEventListener('DOMContentLoaded', function() {
       }
       window.S.playerName = name;
       try { if (typeof saveGame === 'function') saveGame(); } catch(e) {}
-      startMenu();
+      // Lancer l'onboarding
+      startOnboarding();
     });
   }
 });
 
 // -----------------------------------------------------------------
+// Lancement de l'onboarding (niveau, sons, mots, structure)
+// -----------------------------------------------------------------
+function startOnboarding() {
+  if (window.LV_ONBOARDING && typeof window.LV_ONBOARDING.show === 'function') {
+    window.LV_ONBOARDING.show(function() {
+      // Une fois l'onboarding terminé, on passe au proverbe puis au menu
+      showQuoteThenMenu();
+    });
+  } else {
+    // Fallback : passer directement au proverbe
+    showQuoteThenMenu();
+  }
+}
+
+// -----------------------------------------------------------------
+// Afficher le proverbe puis le menu
+// -----------------------------------------------------------------
+function showQuoteThenMenu() {
+  if (typeof showDailyQuote === 'function') {
+    showDailyQuote(function() {
+      startMenu();
+    });
+  } else {
+    startMenu();
+  }
+}
+
+// -----------------------------------------------------------------
+// Affichage du menu principal (après onboarding et proverbe)
+// -----------------------------------------------------------------
 function startMenu() {
   if (!window.S) return;
 
-  try {
-    const test = localStorage.getItem('linguavillage_save');
-    if (test) {
-      const parsed = JSON.parse(test);
-      if (!parsed.S || !parsed.S.nativeLang || !parsed.S.targetLang || !parsed.S.playerName) {
-        localStorage.removeItem('linguavillage_save');
-        localStorage.removeItem('lv_onboarding_done');
-        localStorage.removeItem('lv_last_quote_idx');
-      }
-    }
-  } catch(e) {}
+  // Sauvegarder que l'onboarding est fait
+  try { localStorage.setItem('lv_onboarding_done', '1'); } catch(e) {}
 
+  // Mise à jour des éléments du menu
   const menuPlayer = document.getElementById('menuPlayer');
   const menuLang = document.getElementById('menuLang');
   const menuXP = document.getElementById('menuXP');
@@ -182,9 +206,21 @@ function startMenu() {
   try { if (typeof saveGame === 'function') saveGame(); } catch(e) {}
   try { if (typeof updateStreak === 'function') updateStreak(); } catch(e) {}
 
-  _launchMenu();
+  // Afficher l'écran du menu
+  showScreen('screen-menu');
 }
 
+// -----------------------------------------------------------------
+// Pour les utilisateurs existants (reprise de session)
+// -----------------------------------------------------------------
+function startMenuAfterOnboarding() {
+  // S'il y a déjà un onboarding fait, on passe directement au proverbe puis menu
+  showQuoteThenMenu();
+}
+
+// -----------------------------------------------------------------
+// Navigation entre écrans
+// -----------------------------------------------------------------
 window.showScreen = function(id) {
   document.querySelectorAll('.screen').forEach(s => {
     s.classList.remove('active');
@@ -193,16 +229,6 @@ window.showScreen = function(id) {
   const target = document.getElementById(id);
   if (target) target.classList.add('active');
 };
-
-// -----------------------------------------------------------------
-// Version modifiée : on affiche le menu directement (sans proverbe)
-// pour debug. Une fois que le menu s'affiche, on pourra réactiver
-// le proverbe si souhaité.
-// -----------------------------------------------------------------
-function _launchMenu() {
-  // Afficher directement le menu principal
-  showScreen('screen-menu');
-}
 
 // -----------------------------------------------------------------
 // Utilitaires
@@ -216,4 +242,4 @@ function resetOnboarding() {
   try { localStorage.removeItem('lv_onboarding_done'); } catch(e) {}
   try { localStorage.removeItem('lv_last_quote_idx'); } catch(e) {}
   showNotif('Onboarding réinitialisé');
-                         }
+    }
