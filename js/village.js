@@ -1,5 +1,5 @@
-// village.js — VERSION COMPLÈTE ET AUTONOME
-// LinguaVillage — Village circulaire pour mobile
+// village.js — PREMIUM EDITION (CORRIGÉ - FICHIER COMPLET)
+// LinguaVillage — Village circulaire parfaitement aligné
 // ================================================================
 
 window.canvas = null;
@@ -7,337 +7,101 @@ window.ctx = null;
 window.tick = 0;
 window.currentWeather = window.currentWeather || 'sun';
 window.hoveredLoc = null;
+window._onCanvasResize = window._onCanvasResize || null;
 
 // ================================================================
-// DONNÉES DES LIEUX
+// CONFIGURATION PREMIUM DU VILLAGE
 // ================================================================
-var VILLAGE_LOCATIONS = [
-  { id:'cinema',   x:0.50, y:0.50, emoji:'🎬', color:'#c060c0', name:'Cinéma' },
-  { id:'market',   x:0.50, y:0.75, emoji:'🏪', color:'#c0a060', name:'Marché' },
-  { id:'park',     x:0.50, y:0.25, emoji:'🌳', color:'#5a8a40', name:'Parc' },
-  { id:'friends',  x:0.75, y:0.75, emoji:'🤝', color:'#c09090', name:'Amis' },
-  { id:'police',   x:0.25, y:0.75, emoji:'🚔', color:'#6070a0', name:'Police' },
-  { id:'station',  x:0.25, y:0.25, emoji:'🚉', color:'#b0a090', name:'Gare' },
-  { id:'bank',     x:0.75, y:0.25, emoji:'🏦', color:'#c0c080', name:'Banque' },
-  { id:'hospital', x:0.88, y:0.50, emoji:'🏥', color:'#d0e0f0', name:'Hôpital' },
-  { id:'church',   x:0.65, y:0.85, emoji:'⛪', color:'#8a7a60', name:'Église' },
-  { id:'tavern',   x:0.20, y:0.80, emoji:'🍺', color:'#8a6040', name:'Taverne' },
-  { id:'factory',  x:0.20, y:0.20, emoji:'🏭', color:'#808080', name:'Ferme' },
-  { id:'school',   x:0.65, y:0.15, emoji:'🏫', color:'#6a8ab0', name:'École' }
-];
-
-// Exporter pour compatibilité
-if (typeof window.LOCATIONS === 'undefined') {
-  window.LOCATIONS = VILLAGE_LOCATIONS;
-}
+window.VILLAGE_CONFIG = {
+  rings: [
+    { radius: 0.10, color: 'rgba(160,130,80,0.35)', width: 2.5 },
+    { radius: 0.20, color: 'rgba(160,130,80,0.30)', width: 2.0 },
+    { radius: 0.32, color: 'rgba(160,130,80,0.28)', width: 1.8 },
+    { radius: 0.46, color: 'rgba(160,130,80,0.25)', width: 1.5 },
+  ],
+  bobAmplitude: 2.5,
+  bobSpeed: 0.025,
+  hoverScale: 1.15,
+  hoverGlow: 'rgba(255,215,0,0.4)',
+  particleCount: 30,
+  starCount: 60,
+};
 
 // ================================================================
-// FONCTIONS UTILITAIRES (définies en premier)
+// NAVIGATION VERS LE VILLAGE
 // ================================================================
-function lightenColor(color, amount) {
-  if (!color || color.length < 7) return '#888888';
-  var r = parseInt(color.slice(1, 3), 16);
-  var g = parseInt(color.slice(3, 5), 16);
-  var b = parseInt(color.slice(5, 7), 16);
-  r = Math.min(255, Math.max(0, r + amount));
-  g = Math.min(255, Math.max(0, g + amount));
-  b = Math.min(255, Math.max(0, b + amount));
-  return '#' + r.toString(16).padStart(2, '0') + 
-              g.toString(16).padStart(2, '0') + 
-              b.toString(16).padStart(2, '0');
-}
+function goVillage() {
+  if (!window.S) return;
 
-function darkenColor(color) {
-  return lightenColor(color, -40);
-}
+  var hudPlayer = document.getElementById('hudPlayer');
+  var hudLang   = document.getElementById('hudLang');
+  var hudXP     = document.getElementById('hudXP');
 
-function getLocationName(locId) {
-  var nativeLang = (window.S && window.S.nativeLang) ? window.S.nativeLang : 'fr';
-  var names = {
-    cinema: { fr: 'Cinéma', en: 'Cinema', es: 'Cine', ht: 'Sinema', de: 'Kino', ru: 'Кино', zh: '电影院', ja: '映画館' },
-    market: { fr: 'Marché', en: 'Market', es: 'Mercado', ht: 'Mache', de: 'Markt', ru: 'Рынок', zh: '市场', ja: '市場' },
-    park: { fr: 'Parc', en: 'Park', es: 'Parque', ht: 'Pak', de: 'Park', ru: 'Парк', zh: '公园', ja: '公園' },
-    friends: { fr: 'Amis', en: 'Friends', es: 'Amigos', ht: 'Zanmi', de: 'Freunde', ru: 'Друзья', zh: '朋友', ja: '友達' },
-    police: { fr: 'Police', en: 'Police', es: 'Policía', ht: 'Polis', de: 'Polizei', ru: 'Полиция', zh: '警察', ja: '警察' },
-    station: { fr: 'Gare', en: 'Station', es: 'Estación', ht: 'Estasyon', de: 'Bahnhof', ru: 'Вокзал', zh: '车站', ja: '駅' },
-    bank: { fr: 'Banque', en: 'Bank', es: 'Banco', ht: 'Bank', de: 'Bank', ru: 'Банк', zh: '银行', ja: '銀行' },
-    hospital: { fr: 'Hôpital', en: 'Hospital', es: 'Hospital', ht: 'Lopital', de: 'Krankenhaus', ru: 'Больница', zh: '医院', ja: '病院' },
-    church: { fr: 'Église', en: 'Church', es: 'Iglesia', ht: 'Legliz', de: 'Kirche', ru: 'Церковь', zh: '教堂', ja: '教会' },
-    tavern: { fr: 'Taverne', en: 'Tavern', es: 'Taberna', ht: 'Tavèn', de: 'Kneipe', ru: 'Таверна', zh: '酒馆', ja: '居酒屋' },
-    factory: { fr: 'Ferme', en: 'Farm', es: 'Granja', ht: 'Fèm', de: 'Bauernhof', ru: 'Ферма', zh: '农场', ja: '農場' },
-    school: { fr: 'École', en: 'School', es: 'Escuela', ht: 'Lekòl', de: 'Schule', ru: 'Школа', zh: '学校', ja: '学校' }
-  };
-  return (names[locId] && names[locId][nativeLang]) || (names[locId] && names[locId].en) || locId;
-}
+  if (hudPlayer) hudPlayer.textContent = '👤 ' + S.playerName;
+  if (hudLang)   hudLang.textContent   = (FLAGS[S.targetLang]||'') + ' ' + (LANG_NAMES[S.targetLang]||'');
+  if (hudXP)     hudXP.textContent     = (S.xp||0) + ' XP';
 
-// ================================================================
-// DESSIN DU VILLAGE
-// ================================================================
-function drawVillage() {
-  if (!window.canvas || !window.ctx) return;
-
-  var canvas = window.canvas;
-  var ctx = window.ctx;
-  var W = canvas.width;
-  var H = canvas.height;
-  var cx = W / 2;
-  var cy = H / 2;
-  var minDim = Math.min(W, H);
-  var night = window.currentWeather === 'night';
-
-  // Effacer
-  ctx.clearRect(0, 0, W, H);
-
-  // Ciel
-  var grad = ctx.createLinearGradient(0, 0, 0, H);
-  if (night) {
-    grad.addColorStop(0, '#0a0a2a');
-    grad.addColorStop(1, '#050510');
+  if (typeof window.showScreen === 'function') {
+    window.showScreen('screen-village');
   } else {
-    grad.addColorStop(0, '#1a3a2a');
-    grad.addColorStop(1, '#0a1a0a');
-  }
-  ctx.fillStyle = grad;
-  ctx.fillRect(0, 0, W, H);
-
-  // Soleil/Lune
-  if (night) {
-    ctx.beginPath();
-    ctx.arc(W - 35, 30, 14, 0, Math.PI * 2);
-    ctx.fillStyle = '#e0d8a0';
-    ctx.fill();
-  } else {
-    ctx.beginPath();
-    ctx.arc(W - 35, 30, 16, 0, Math.PI * 2);
-    ctx.fillStyle = '#ffe8a0';
-    ctx.fill();
+    document.querySelectorAll('.screen').forEach(function(s) {
+      s.classList.remove('active');
+      s.style.display = '';
+    });
+    var vs = document.getElementById('screen-village');
+    if (vs) vs.classList.add('active');
   }
 
-  // Étoiles la nuit
-  if (night) {
-    for (var i = 0; i < 40; i++) {
-      var sx = (Math.sin(i * 437) * 0.5 + 0.5) * W;
-      var sy = (Math.sin(i * 293) * 0.5 + 0.5) * H * 0.4;
-      var twinkle = 0.3 + 0.7 * Math.sin(window.tick * 0.02 + i);
-      ctx.beginPath();
-      ctx.arc(sx, sy, 1 + Math.sin(i) * 0.5, 0, Math.PI * 2);
-      ctx.fillStyle = 'rgba(255,255,200,' + twinkle + ')';
-      ctx.fill();
+  canvas = null;
+  ctx = null;
+  tick = 0;
+  window._villageLoopRunning = false;
+  window._villageLoopActive = false;
+
+  setTimeout(function() {
+    var c = document.getElementById('villageCanvas');
+    if (c) {
+      var W = window.innerWidth  || document.documentElement.clientWidth  || 360;
+      var H = window.innerHeight || document.documentElement.clientHeight || 640;
+      c.width  = W;
+      c.height = H;
+      c.style.width  = W + 'px';
+      c.style.height = H + 'px';
+      c.style.display = 'block';
     }
-  }
 
-  // Sol (cercle)
-  var groundGrad = ctx.createRadialGradient(cx, cy, 0, cx, cy, minDim * 0.48);
-  if (night) {
-    groundGrad.addColorStop(0, '#1a3a1a');
-    groundGrad.addColorStop(1, '#0a1a0a');
-  } else {
-    groundGrad.addColorStop(0, '#3a7a3a');
-    groundGrad.addColorStop(1, '#1a3a1a');
-  }
-  ctx.fillStyle = groundGrad;
-  ctx.beginPath();
-  ctx.arc(cx, cy, minDim * 0.48, 0, Math.PI * 2);
-  ctx.fill();
+    initCanvas();
+    setWeather(getWeatherForTime());
+    updateTime();
 
-  // Anneaux
-  [0.18, 0.32, 0.48].forEach(function(r) {
-    ctx.beginPath();
-    ctx.arc(cx, cy, minDim * r, 0, Math.PI * 2);
-    ctx.strokeStyle = 'rgba(200,170,100,0.3)';
-    ctx.lineWidth = 1.5;
-    ctx.stroke();
-  });
-
-  // Chemins
-  ctx.strokeStyle = 'rgba(200,170,100,0.15)';
-  ctx.lineWidth = 1;
-  ctx.setLineDash([3, 5]);
-  for (var li = 0; li < VILLAGE_LOCATIONS.length; li++) {
-    var locPath = VILLAGE_LOCATIONS[li];
-    if (locPath.id === 'cinema') continue;
-    var lx = cx + (locPath.x - 0.5) * minDim;
-    var ly = cy + (locPath.y - 0.5) * minDim;
-    ctx.beginPath();
-    ctx.moveTo(cx, cy);
-    ctx.lineTo(lx, ly);
-    ctx.stroke();
-  }
-  ctx.setLineDash([]);
-
-  // Maison centrale
-  var homeR = minDim * 0.05;
-  ctx.beginPath();
-  ctx.arc(cx, cy, homeR, 0, Math.PI * 2);
-  ctx.fillStyle = '#3a2a1a';
-  ctx.fill();
-  ctx.strokeStyle = '#c0a060';
-  ctx.lineWidth = 2;
-  ctx.stroke();
-  ctx.font = (homeR * 1.3) + 'px serif';
-  ctx.fillStyle = '#ffd700';
-  ctx.fillText('🏠', cx, cy);
-
-  // Nom du joueur
-  if (window.S && window.S.playerName) {
-    ctx.font = 'bold ' + Math.max(8, homeR * 0.6) + 'px Nunito';
-    ctx.fillStyle = 'rgba(255,215,0,0.8)';
-    ctx.fillText(window.S.playerName, cx, cy + homeR + 8);
-  }
-
-  
-// Ajoutez :
-var streak = (window.G && window.G.streak) || 0;
-if (streak > 0) {
-  ctx.font = 'bold ' + Math.max(10, homeR * 0.8) + 'px Nunito';
-  ctx.fillStyle = '#ff9f43';
-  ctx.fillText('🔥 ' + streak, cx + homeR + 8, cy - homeR - 4);
-}
-
-  // Dessiner tous les lieux
-  for (var i = 0; i < VILLAGE_LOCATIONS.length; i++) {
-    var loc = VILLAGE_LOCATIONS[i];
-    var r = minDim * 0.065;
-    var x = cx + (loc.x - 0.5) * minDim;
-    var y = cy + (loc.y - 0.5) * minDim;
-    var isHover = (window.hoveredLoc === loc.id);
-    
-    // Ombre
-    ctx.shadowColor = 'rgba(0,0,0,0.3)';
-    ctx.shadowBlur = isHover ? 8 : 4;
-    ctx.shadowOffsetX = 2;
-    ctx.shadowOffsetY = 2;
-    
-    // Cercle avec gradient
-    var grad2 = ctx.createRadialGradient(x - 3, y - 3, 0, x, y, r);
-    var brighter = lightenColor(loc.color, 20);
-    grad2.addColorStop(0, brighter);
-    grad2.addColorStop(1, loc.color);
-    ctx.beginPath();
-    ctx.arc(x, y, r, 0, Math.PI * 2);
-    ctx.fillStyle = grad2;
-    ctx.fill();
-    
-    // Bordure
-    ctx.beginPath();
-    ctx.arc(x, y, r, 0, Math.PI * 2);
-    ctx.strokeStyle = isHover ? '#FFD700' : 'rgba(255,215,0,0.4)';
-    ctx.lineWidth = isHover ? 2.5 : 1.5;
-    ctx.stroke();
-    
-    ctx.shadowColor = 'transparent';
-    
-    // Emoji
-    ctx.font = Math.max(14, Math.min(r * 0.9, 22)) + 'px serif';
-    ctx.fillStyle = '#fff';
-    ctx.fillText(loc.emoji, x, y);
-    
-    // Nom du lieu (traduit)
-    var locName = getLocationName(loc.id);
-    ctx.font = 'bold ' + Math.max(7, r * 0.3) + 'px Nunito';
-    ctx.fillStyle = isHover ? '#FFD700' : 'rgba(255,245,220,0.9)';
-    ctx.fillText(locName.substring(0, 8), x, y + r + 4);
-  }
-  
-  // Personnage
-  if (typeof window.player !== 'undefined' && window.player) {
-    var px = cx + (window.player.x - 0.5) * minDim;
-    var py = cy + (window.player.y - 0.5) * minDim;
-    var charR = minDim * 0.03;
-    ctx.beginPath();
-    ctx.arc(px, py, charR, 0, Math.PI * 2);
-    ctx.fillStyle = 'rgba(255,215,0,0.2)';
-    ctx.fill();
-    ctx.strokeStyle = '#ffd700';
-    ctx.lineWidth = 1.5;
-    ctx.stroke();
-    ctx.font = (charR * 1.5) + 'px serif';
-    ctx.fillStyle = '#ffd700';
-    ctx.fillText('🧑', px, py);
-    
-    // Destination si en marche
-    if (window.player.dest && window.player.destName) {
-      ctx.font = 'bold ' + Math.max(7, charR * 0.8) + 'px Nunito';
-      ctx.fillStyle = 'rgba(255,215,0,0.6)';
-      ctx.fillText('→ ' + window.player.destName.substring(0, 10), px + 12, py - 8);
+    if (typeof player !== 'undefined') {
+      player.x = HOME.x;
+      player.y = HOME.y;
+      player.dest = null;
+      player.walking = false;
+      player.currentLoc = 'home';
     }
-  }
 
-  // Pluie légère
-  if (window.currentWeather === 'rain') {
-    ctx.fillStyle = 'rgba(0,15,30,0.06)';
-    ctx.fillRect(0, 0, W, H);
-  }
+    setTimeout(function() {
+      if (typeof addCEFRIndicator === 'function') addCEFRIndicator();
+    }, 100);
+  }, 300);
+
+  if (window._timeUpdateInterval) clearInterval(window._timeUpdateInterval);
+  window._timeUpdateInterval = setInterval(updateTime, 30000);
 }
 
-// ================================================================
-// INTERACTIONS
-// ================================================================
-function getLocAt(mx, my) {
-  var canvas = window.canvas;
-  if (!canvas) return null;
-  
-  var rect = canvas.getBoundingClientRect();
-  var scaleX = canvas.width / rect.width;
-  var scaleY = canvas.height / rect.height;
-  var x = (mx - rect.left) * scaleX;
-  var y = (my - rect.top) * scaleY;
-  var W = canvas.width;
-  var H = canvas.height;
-  var cx = W / 2;
-  var cy = H / 2;
-  var minDim = Math.min(W, H);
-  var r = minDim * 0.065;
-  
-  for (var i = 0; i < VILLAGE_LOCATIONS.length; i++) {
-    var loc = VILLAGE_LOCATIONS[i];
-    var lx = cx + (loc.x - 0.5) * minDim;
-    var ly = cy + (loc.y - 0.5) * minDim;
-    var dx = x - lx;
-    var dy = y - ly;
-    if (dx * dx + dy * dy <= r * r) {
-      return loc;
-    }
-  }
-  return null;
-}
-
-function onVillageClick(e) {
-  var loc = getLocAt(e.clientX, e.clientY);
-  if (!loc) return;
-  if (typeof showNotif === 'function') showNotif('📍 ' + getLocationName(loc.id));
-}
-
-function onVillageTouch(e) {
-  e.preventDefault();
-  var touch = e.touches[0];
-  var loc = getLocAt(touch.clientX, touch.clientY);
-  if (!loc) return;
-  if (typeof showNotif === 'function') showNotif('📍 ' + getLocationName(loc.id));
-}
-
-function onVillageHover(e) {
-  var loc = getLocAt(e.clientX, e.clientY);
-  window.hoveredLoc = loc ? loc.id : null;
-  if (window.canvas) window.canvas.style.cursor = loc ? 'pointer' : 'default';
-}
-
-// ================================================================
-// MÉTÉO
-// ================================================================
 function getWeatherForTime() {
   var h = new Date().getHours();
   if (h >= 21 || h < 6) return 'night';
-  return 'sun';
+  var weathers = ['sun', 'sun', 'rain', 'wind', 'snow'];
+  return weathers[Math.floor(Math.random() * weathers.length)];
 }
 
 function setWeather(w) {
-  window.currentWeather = w;
+  currentWeather = w;
   var hudWeather = document.getElementById('hudWeather');
-  if (hudWeather) {
-    var icons = { sun: '☀️', rain: '🌧️', snow: '❄️', wind: '💨', night: '🌙' };
-    hudWeather.textContent = icons[w] || '☀️';
-  }
+  if (hudWeather) hudWeather.textContent = WEATHER_ICONS[w] || '☀️';
   buildWeatherFX(w);
 }
 
@@ -347,24 +111,24 @@ function buildWeatherFX(w) {
   o.innerHTML = '';
 
   if (w === 'rain') {
-    for (var i = 0; i < 40; i++) {
+    for (var i = 0; i < 60; i++) {
       var d = document.createElement('div');
       d.className = 'rain-drop';
-      d.style.cssText = 'left:' + (Math.random() * 100) + '%;' +
-        'height:' + (40 + Math.random() * 60) + 'px;' +
-        'top:-' + (40 + Math.random() * 60) + 'px;' +
-        'animation-duration:' + (0.5 + Math.random() * 0.5) + 's;' +
+      d.style.cssText = 'left:' + (Math.random() * 110 - 5) + '%;' +
+        'height:' + (60 + Math.random() * 80) + 'px;' +
+        'top:-' + (60 + Math.random() * 80) + 'px;' +
+        'animation-duration:' + (0.4 + Math.random() * 0.4) + 's;' +
         'animation-delay:' + (Math.random() * 2) + 's;' +
         'opacity:' + (0.3 + Math.random() * 0.4);
       o.appendChild(d);
     }
   } else if (w === 'snow') {
-    for (var j = 0; j < 30; j++) {
+    for (var j = 0; j < 40; j++) {
       var f = document.createElement('div');
       f.className = 'snow-flake';
       f.textContent = '❄';
       f.style.cssText = 'left:' + (Math.random() * 100) + '%;' +
-        'font-size:' + (6 + Math.random() * 8) + 'px;' +
+        'font-size:' + (8 + Math.random() * 10) + 'px;' +
         'animation-duration:' + (3 + Math.random() * 4) + 's;' +
         'animation-delay:' + (Math.random() * 5) + 's;' +
         'opacity:' + (0.5 + Math.random() * 0.4);
@@ -382,100 +146,587 @@ function updateTime() {
   }
 }
 
-// ================================================================
-// INITIALISATION
-// ================================================================
 function initCanvas() {
-  var canvasEl = document.getElementById('villageCanvas');
-  if (!canvasEl) {
-    console.error('Canvas non trouvé');
+  canvas = document.getElementById('villageCanvas');
+  if (!canvas) return;
+
+  var dpr = window.devicePixelRatio || 1;
+  var rect = canvas.getBoundingClientRect();
+
+  if (canvas.width === 0 || canvas.height === 0) {
+    canvas.width  = (window.innerWidth  || document.documentElement.clientWidth  || 360) * dpr;
+    canvas.height = (window.innerHeight || document.documentElement.clientHeight || 640) * dpr;
+  }
+
+  canvas.style.display = 'block';
+  ctx = canvas.getContext('2d');
+  if (!ctx) return;
+
+  ctx.scale(dpr, dpr);
+
+  var W = canvas.width / dpr;
+  var H = canvas.height / dpr;
+  ctx.fillStyle = '#0a0a14';
+  ctx.fillRect(0, 0, W, H);
+
+  tick = 0;
+  drawVillage();
+
+  if (window._onCanvasResize) {
+    window.removeEventListener('resize', window._onCanvasResize);
+  }
+
+  window._onCanvasResize = function() {
+    if (canvas && canvas.parentElement) {
+      var r = canvas.parentElement.getBoundingClientRect();
+      var newDpr = window.devicePixelRatio || 1;
+      canvas.width = (r.width || window.innerWidth) * newDpr;
+      canvas.height = (r.height || window.innerHeight) * newDpr;
+      var newCtx = canvas.getContext('2d');
+      newCtx.scale(newDpr, newDpr);
+      drawVillage();
+    }
+  };
+  window.addEventListener('resize', window._onCanvasResize);
+
+  canvas.removeEventListener('click', onVillageClick);
+  canvas.removeEventListener('mousemove', onVillageHover);
+  canvas.removeEventListener('touchstart', onVillageTouch);
+
+  canvas.addEventListener('click', onVillageClick);
+  canvas.addEventListener('mousemove', onVillageHover);
+  canvas.addEventListener('touchstart', onVillageTouch, { passive: true });
+
+  if (!window._villageLoopRunning) {
+    window._villageLoopRunning = true;
+    window._villageLoopActive = true;
+    requestAnimationFrame(villageLoop);
+  }
+}
+
+function villageLoop() {
+  if (!window._villageLoopActive) return;
+  tick++;
+  if (typeof updatePlayer === 'function') updatePlayer();
+  drawVillage();
+  requestAnimationFrame(villageLoop);
+}
+
+function drawVillage() {
+  if (!canvas || !ctx) return;
+
+  var dpr = window.devicePixelRatio || 1;
+  var W = canvas.width / dpr;
+  var H = canvas.height / dpr;
+
+  if (W === 0 || H === 0) return;
+
+  var cx = W * 0.5;
+  var cy = H * 0.5;
+  var minDim = Math.min(W, H);
+  var night = currentWeather === 'night';
+  var cfg = window.VILLAGE_CONFIG;
+
+  var sky = ctx.createRadialGradient(cx, cy * 0.3, 0, cx, cy, minDim * 0.6);
+  if (night) {
+    sky.addColorStop(0, '#0a0a1e');
+    sky.addColorStop(0.5, '#050510');
+    sky.addColorStop(1, '#020208');
+  } else if (currentWeather === 'rain') {
+    sky.addColorStop(0, '#1a2535');
+    sky.addColorStop(1, '#0d1418');
+  } else {
+    sky.addColorStop(0, '#1a2a1a');
+    sky.addColorStop(0.5, '#0f1f0f');
+    sky.addColorStop(1, '#0a140a');
+  }
+  ctx.fillStyle = sky;
+  ctx.fillRect(0, 0, W, H);
+
+  if (night) drawStars(cx, cy, minDim);
+  drawCelestialBody(W, H, night);
+  drawGround(cx, cy, minDim, night);
+  drawRings(cx, cy, minDim, cfg.rings);
+  drawConnectors(cx, cy, minDim);
+
+  if (typeof drawPlayerHome === 'function') {
+    drawPlayerHome(cx, cy, minDim * 0.08);
+  }
+
+  if (typeof LOCATIONS !== 'undefined') {
+    LOCATIONS.forEach(function(loc) {
+      var bob = Math.sin(tick * cfg.bobSpeed + loc.x * 10) * cfg.bobAmplitude;
+      var isHovered = hoveredLoc === loc.id;
+      drawLocPremium(loc, cx, cy, minDim, bob, isHovered);
+    });
+  }
+
+  if (typeof player !== 'undefined' && player.dest) {
+    drawPlayerPath(cx, cy, minDim);
+  }
+
+  if (typeof drawPlayerCharacter === 'function') {
+    drawPlayerCharacter(W, H);
+  }
+
+  if (currentWeather === 'rain') {
+    ctx.fillStyle = 'rgba(0,15,30,0.08)';
+    ctx.fillRect(0, 0, W, H);
+  }
+
+  if (!night && currentWeather === 'sun') {
+    drawAtmosphericParticles(W, H);
+  }
+}
+
+function drawStars(cx, cy, minDim) {
+  var count = window.VILLAGE_CONFIG.starCount;
+  for (var i = 0; i < count; i++) {
+    var sx = (Math.sin(i * 437.1) * 0.5 + 0.5) * canvas.width / (window.devicePixelRatio || 1);
+    var sy = (Math.sin(i * 293.3) * 0.5 + 0.5) * (canvas.height / (window.devicePixelRatio || 1)) * 0.45;
+    var twinkle = 0.3 + 0.7 * Math.sin(tick * 0.02 + i * 0.5);
+    var size = 0.5 + Math.sin(i * 127) * 0.5;
+
+    ctx.beginPath();
+    ctx.arc(sx, sy, size, 0, Math.PI * 2);
+    ctx.fillStyle = 'rgba(255,255,220,' + twinkle + ')';
+    ctx.fill();
+  }
+}
+
+function drawCelestialBody(W, H, night) {
+  var x = W * 0.85;
+  var y = H * 0.12;
+
+  if (night) {
+    var moonGlow = ctx.createRadialGradient(x, y, 0, x, y, 40);
+    moonGlow.addColorStop(0, 'rgba(240,230,160,0.3)');
+    moonGlow.addColorStop(1, 'rgba(240,230,160,0)');
+    ctx.fillStyle = moonGlow;
+    ctx.fillRect(x - 40, y - 40, 80, 80);
+
+    ctx.beginPath();
+    ctx.arc(x, y, 16, 0, Math.PI * 2);
+    ctx.fillStyle = '#f0e6a0';
+    ctx.fill();
+
+    ctx.beginPath();
+    ctx.arc(x - 4, y - 2, 3, 0, Math.PI * 2);
+    ctx.fillStyle = 'rgba(200,190,140,0.3)';
+    ctx.fill();
+    ctx.beginPath();
+    ctx.arc(x + 5, y + 3, 2, 0, Math.PI * 2);
+    ctx.fillStyle = 'rgba(200,190,140,0.2)';
+    ctx.fill();
+  } else {
+    var sunColor = currentWeather === 'rain' ? '#8a98a8' : '#ffe8a0';
+    var sunGlow = ctx.createRadialGradient(x, y, 0, x, y, 50);
+    sunGlow.addColorStop(0, 'rgba(255,230,160,0.25)');
+    sunGlow.addColorStop(1, 'rgba(255,230,160,0)');
+    ctx.fillStyle = sunGlow;
+    ctx.fillRect(x - 50, y - 50, 100, 100);
+
+    ctx.beginPath();
+    ctx.arc(x, y, 20, 0, Math.PI * 2);
+    ctx.fillStyle = sunColor;
+    ctx.fill();
+
+    if (currentWeather !== 'rain') {
+      for (var r = 0; r < 8; r++) {
+        var angle = (r / 8) * Math.PI * 2 + tick * 0.005;
+        ctx.beginPath();
+        ctx.moveTo(x + Math.cos(angle) * 24, y + Math.sin(angle) * 24);
+        ctx.lineTo(x + Math.cos(angle) * 32, y + Math.sin(angle) * 32);
+        ctx.strokeStyle = 'rgba(255,230,160,0.3)';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+      }
+    }
+  }
+}
+
+function drawGround(cx, cy, minDim, night) {
+  var ground = ctx.createRadialGradient(cx, cy, 0, cx, cy, minDim * 0.55);
+  if (currentWeather === 'snow') {
+    ground.addColorStop(0, '#c8d0d8');
+    ground.addColorStop(0.6, '#a8b0b8');
+    ground.addColorStop(1, '#889098');
+  } else if (night) {
+    ground.addColorStop(0, '#1a2a1a');
+    ground.addColorStop(0.6, '#0f1a0f');
+    ground.addColorStop(1, '#0a0f0a');
+  } else {
+    ground.addColorStop(0, '#2d5a2d');
+    ground.addColorStop(0.5, '#1e3d1a');
+    ground.addColorStop(1, '#0f1f0a');
+  }
+  ctx.fillStyle = ground;
+  var W = canvas.width / (window.devicePixelRatio || 1);
+  var H = canvas.height / (window.devicePixelRatio || 1);
+  ctx.fillRect(0, 0, W, H);
+}
+
+function drawRings(cx, cy, minDim, rings) {
+  rings.forEach(function(ring) {
+    var r = minDim * ring.radius;
+    ctx.beginPath();
+    ctx.arc(cx, cy, r, 0, Math.PI * 2);
+    ctx.strokeStyle = ring.color;
+    ctx.lineWidth = ring.width;
+    ctx.stroke();
+
+    ctx.beginPath();
+    ctx.arc(cx, cy, r - 1, 0, Math.PI * 2);
+    ctx.strokeStyle = 'rgba(200,170,100,0.15)';
+    ctx.lineWidth = 0.5;
+    ctx.stroke();
+  });
+}
+
+function drawConnectors(cx, cy, minDim) {
+  if (!LOCATIONS) return;
+
+  ctx.strokeStyle = 'rgba(160,130,80,0.12)';
+  ctx.lineWidth = 1;
+  ctx.setLineDash([3, 6]);
+
+  LOCATIONS.forEach(function(loc) {
+    if (loc.id === 'cinema') return;
+    var lx = cx + (loc.x + loc.w/2 - 0.5) * minDim;
+    var ly = cy + (loc.y + loc.h/2 - 0.5) * minDim;
+
+    ctx.beginPath();
+    ctx.moveTo(cx, cy);
+    ctx.lineTo(lx, ly);
+    ctx.stroke();
+  });
+
+  ctx.setLineDash([]);
+}
+
+function drawLocPremium(loc, cx, cy, minDim, bob, isHovered) {
+  if (!ctx) return;
+
+  var scale = isHovered ? window.VILLAGE_CONFIG.hoverScale : 1.0;
+  var baseSize = Math.min(loc.w * minDim, loc.h * minDim);
+  var size = baseSize * scale;
+  var r = size * 0.5;
+
+  var bx = cx + (loc.x + loc.w/2 - 0.5) * minDim;
+  var by = cy + (loc.y + loc.h/2 - 0.5) * minDim + bob;
+
+  var night = currentWeather === 'night';
+
+  ctx.save();
+  ctx.shadowColor = 'rgba(0,0,0,0.4)';
+  ctx.shadowBlur = isHovered ? 15 : 8;
+  ctx.shadowOffsetX = isHovered ? 6 : 3;
+  ctx.shadowOffsetY = (isHovered ? 6 : 3) + 2;
+
+  if (isHovered) {
+    var glow = ctx.createRadialGradient(bx, by, r * 0.8, bx, by, r * 1.8);
+    glow.addColorStop(0, window.VILLAGE_CONFIG.hoverGlow);
+    glow.addColorStop(1, 'rgba(255,215,0,0)');
+    ctx.fillStyle = glow;
+    ctx.beginPath();
+    ctx.arc(bx, by, r * 1.8, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  var grad = ctx.createRadialGradient(bx - r*0.3, by - r*0.3, 0, bx, by, r);
+  var baseColor = loc.color;
+
+  if (isHovered) {
+    grad.addColorStop(0, lighten(baseColor, 30));
+    grad.addColorStop(1, baseColor);
+  } else {
+    grad.addColorStop(0, lighten(baseColor, 15));
+    grad.addColorStop(1, baseColor);
+  }
+
+  ctx.beginPath();
+  ctx.arc(bx, by, r, 0, Math.PI * 2);
+  ctx.fillStyle = grad;
+  ctx.fill();
+  ctx.restore();
+
+  ctx.beginPath();
+  ctx.arc(bx, by, r, 0, Math.PI * 2);
+  if (isHovered) {
+    ctx.strokeStyle = '#FFD700';
+    ctx.lineWidth = 3;
+    ctx.shadowColor = '#FFD700';
+    ctx.shadowBlur = 10;
+  } else {
+    ctx.strokeStyle = hexA(darken(loc.color), 0.8);
+    ctx.lineWidth = 2;
+    ctx.shadowColor = 'transparent';
+    ctx.shadowBlur = 0;
+  }
+  ctx.stroke();
+  ctx.shadowColor = 'transparent';
+  ctx.shadowBlur = 0;
+
+  if (night) {
+    ctx.fillStyle = 'rgba(255,220,120,0.7)';
+    var winSize = r * 0.18;
+    ctx.fillRect(bx - r * 0.25, by - r * 0.1, winSize, winSize);
+    ctx.fillRect(bx + r * 0.08, by - r * 0.1, winSize, winSize);
+
+    ctx.shadowColor = 'rgba(255,220,120,0.5)';
+    ctx.shadowBlur = 8;
+    ctx.fillRect(bx - r * 0.25, by - r * 0.1, winSize, winSize);
+    ctx.fillRect(bx + r * 0.08, by - r * 0.1, winSize, winSize);
+    ctx.shadowColor = 'transparent';
+    ctx.shadowBlur = 0;
+  }
+
+  ctx.font = (size * 0.42) + 'px serif';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText(loc.emoji, bx, by);
+
+  var nativeLang = (window.S && window.S.nativeLang) ? window.S.nativeLang : 'en';
+  var nm = (LOC_NAMES && LOC_NAMES[loc.id] && LOC_NAMES[loc.id][nativeLang]) ? LOC_NAMES[loc.id][nativeLang] : loc.id;
+
+  ctx.font = 'bold ' + Math.max(9, Math.min(size * 0.16, 12)) + 'px Nunito,sans-serif';
+  ctx.fillStyle = isHovered ? '#FFD700' : 'rgba(255,245,220,0.95)';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'top';
+
+  ctx.shadowColor = 'rgba(0,0,0,0.6)';
+  ctx.shadowBlur = 4;
+  ctx.fillText(nm, bx, by + r + 6);
+  ctx.shadowColor = 'transparent';
+  ctx.shadowBlur = 0;
+
+  if (loc.id === 'cinema') {
+    ctx.beginPath();
+    ctx.arc(bx + r * 0.7, by - r * 0.7, r * 0.22, 0, Math.PI * 2);
+    ctx.fillStyle = '#e040fb';
+    ctx.fill();
+    ctx.font = (size * 0.14) + 'px Nunito';
+    ctx.fillStyle = '#fff';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText('▶', bx + r * 0.7, by - r * 0.7);
+  }
+}
+
+function drawPlayerPath(cx, cy, minDim) {
+  if (!player || !player.dest) return;
+
+  var px = cx + (player.x - 0.5) * minDim;
+  var py = cy + (player.y - 0.5) * minDim;
+  var dx = cx + (player.dest.x - 0.5) * minDim;
+  var dy = cy + (player.dest.y - 0.5) * minDim;
+
+  ctx.beginPath();
+  ctx.moveTo(px, py);
+  ctx.lineTo(dx, dy);
+  ctx.strokeStyle = 'rgba(255,215,0,0.25)';
+  ctx.lineWidth = 2;
+  ctx.setLineDash([5, 8]);
+  ctx.stroke();
+  ctx.setLineDash([]);
+
+  var pulse = 0.5 + 0.5 * Math.sin(tick * 0.1);
+  ctx.beginPath();
+  ctx.arc(dx, dy, 4 + pulse * 3, 0, Math.PI * 2);
+  ctx.fillStyle = 'rgba(255,215,0,' + (0.3 + pulse * 0.3) + ')';
+  ctx.fill();
+}
+
+function drawAtmosphericParticles(W, H) {
+  var count = window.VILLAGE_CONFIG.particleCount;
+  for (var i = 0; i < count; i++) {
+    var px = (Math.sin(i * 137.3 + tick * 0.008) * 0.5 + 0.5) * W;
+    var py = (Math.cos(i * 97.1 + tick * 0.006) * 0.5 + 0.5) * H;
+    var alpha = 0.1 + 0.1 * Math.sin(tick * 0.02 + i);
+    var size = 0.5 + Math.sin(i * 53.7) * 0.5;
+
+    ctx.beginPath();
+    ctx.arc(px, py, size, 0, Math.PI * 2);
+    ctx.fillStyle = 'rgba(255,255,200,' + alpha + ')';
+    ctx.fill();
+  }
+}
+
+function hexA(h, a) {
+  var r = parseInt(h.slice(1, 3), 16);
+  var g = parseInt(h.slice(3, 5), 16);
+  var b = parseInt(h.slice(5, 7), 16);
+  return 'rgba(' + r + ',' + g + ',' + b + ',' + a + ')';
+}
+
+function darken(h) {
+  var parts = [1, 3, 5].map(function(i) {
+    return Math.max(0, parseInt(h.slice(i, i + 2), 16) - 50)
+      .toString(16)
+      .padStart(2, '0');
+  });
+  return '#' + parts.join('');
+}
+
+function lighten(h, amount) {
+  var parts = [1, 3, 5].map(function(i) {
+    return Math.min(255, parseInt(h.slice(i, i + 2), 16) + amount)
+      .toString(16)
+      .padStart(2, '0');
+  });
+  return '#' + parts.join('');
+}
+
+function getLocAt(mx, my) {
+  if (!canvas || typeof LOCATIONS === 'undefined') return null;
+  var dpr = window.devicePixelRatio || 1;
+  var W = canvas.width / dpr;
+  var H = canvas.height / dpr;
+  var cx = W * 0.5;
+  var cy = H * 0.5;
+  var minDim = Math.min(W, H);
+
+  return LOCATIONS.find(function(loc) {
+    var bx = cx + (loc.x + loc.w/2 - 0.5) * minDim;
+    var by = cy + (loc.y + loc.h/2 - 0.5) * minDim;
+    var r = Math.min(loc.w * minDim, loc.h * minDim) * 0.5;
+    var dx = mx - bx;
+    var dy = my - by;
+    return dx * dx + dy * dy <= r * r * 1.2;
+  });
+}
+
+function onVillageHover(e) {
+  var rect = canvas.getBoundingClientRect();
+  var loc = getLocAt(e.clientX - rect.left, e.clientY - rect.top);
+
+  hoveredLoc = loc ? loc.id : null;
+  canvas.style.cursor = loc ? 'pointer' : 'default';
+
+  var tip = document.getElementById('locTooltip');
+  if (loc && tip) {
+    var nativeLang = (window.S && window.S.nativeLang) ? window.S.nativeLang : 'en';
+    var nm = (LOC_NAMES[loc.id] && LOC_NAMES[loc.id][nativeLang]) ? LOC_NAMES[loc.id][nativeLang] : loc.id;
+    var ds = (LOC_DESC[loc.id] && LOC_DESC[loc.id][nativeLang]) ? LOC_DESC[loc.id][nativeLang] : '';
+    var weather = WEATHER_ICONS[currentWeather] || '';
+    tip.innerHTML = '<strong style="color:var(--gold)">' + weather + ' ' + nm + '</strong>' + 
+                    (ds ? '<br><span style="color:var(--dim);font-size:0.78rem">' + ds + '</span>' : '');
+    tip.style.left = (loc.x * canvas.width/(window.devicePixelRatio||1) + loc.w * canvas.width/(window.devicePixelRatio||1) / 2) + 'px';
+    tip.style.top = (loc.y * canvas.height/(window.devicePixelRatio||1)) + 'px';
+    tip.classList.add('show');
+  } else if (tip) {
+    tip.classList.remove('show');
+  }
+}
+
+function onVillageClick(e) {
+  var rect = canvas.getBoundingClientRect();
+  var loc = getLocAt(e.clientX - rect.left, e.clientY - rect.top);
+  if (!loc) return;
+
+  var xpReq = LOC_XP_REQUIREMENTS ? (LOC_XP_REQUIREMENTS[loc.id] || 0) : 0;
+  if ((S.xp||0) < xpReq) {
+    showNotif('🔒 ' + ((LOC_NAMES[loc.id]&&LOC_NAMES[loc.id][S.nativeLang||'fr'])||loc.id) + ' — ' + xpReq + ' XP requis');
     return;
   }
 
-  // Taille adaptée pour mobile
-  var size = Math.min(window.innerWidth - 40, window.innerHeight - 120, 420);
-  canvasEl.width = size;
-  canvasEl.height = size;
-  canvasEl.style.width = size + 'px';
-  canvasEl.style.height = size + 'px';
-  canvasEl.style.display = 'block';
-  canvasEl.style.margin = '0 auto';
-  canvasEl.style.backgroundColor = '#0a1a0a';
-  canvasEl.style.borderRadius = '16px';
-  canvasEl.style.border = '1px solid rgba(255,215,0,0.2)';
-
-  window.canvas = canvasEl;
-  window.ctx = canvasEl.getContext('2d');
-
-  // Dessiner immédiatement
-  drawVillage();
-
-  // Rafraîchir périodiquement
-  if (window._villageInterval) clearInterval(window._villageInterval);
-  window._villageInterval = setInterval(function() {
-    window.tick++;
-    drawVillage();
-  }, 100);
-
-  // Attacher les événements
-  canvasEl.removeEventListener('click', onVillageClick);
-  canvasEl.removeEventListener('mousemove', onVillageHover);
-  canvasEl.removeEventListener('touchstart', onVillageTouch);
-  canvasEl.addEventListener('click', onVillageClick);
-  canvasEl.addEventListener('mousemove', onVillageHover);
-  canvasEl.addEventListener('touchstart', onVillageTouch, { passive: false });
-}
-
-// ================================================================
-// FONCTION PRINCIPALE - goVillage
-// ================================================================
-function goVillage() {
-  if (!window.S) return;
-
-  // Mettre à jour le HUD
-  var hudPlayer = document.getElementById('hudPlayer');
-  var hudLang = document.getElementById('hudLang');
-  var hudXP = document.getElementById('hudXP');
-  
-  if (hudPlayer) hudPlayer.textContent = '👤 ' + (window.S.playerName || '');
-  if (hudLang && typeof window.FLAGS !== 'undefined') {
-    var flag = window.FLAGS[window.S.targetLang] || '';
-    var langName = (window.LANG_NAMES && window.LANG_NAMES[window.S.targetLang]) || window.S.targetLang || '';
-    hudLang.textContent = flag + ' ' + langName;
-  }
-  if (hudXP) hudXP.textContent = (window.S.xp || 0) + ' XP';
-
-  // Afficher l'écran
-  if (typeof window.showScreen === 'function') {
-    window.showScreen('screen-village');
-  } else {
-    document.querySelectorAll('.screen').forEach(function(s) {
-      s.classList.remove('active');
-      s.style.display = '';
-    });
-    var vs = document.getElementById('screen-village');
-    if (vs) vs.classList.add('active');
-  }
-
-  // Initialiser le canvas après un court délai
-  setTimeout(function() {
-    initCanvas();
-    setWeather(getWeatherForTime());
-    updateTime();
-    
-    // Réinitialiser la position du joueur
-    if (typeof window.player !== 'undefined') {
-      window.player.x = 0.5;
-      window.player.y = 0.5;
-      window.player.dest = null;
-      window.player.walking = false;
+  var goToLoc = function() {
+    if (typeof playerGoHome === 'function') playerGoHome();
+    if (typeof showScreen === 'function') {
+      showScreen('screen-location');
+    } else {
+      document.querySelectorAll('.screen').forEach(function(s) {
+        s.classList.remove('active');
+        s.style.display = '';
+      });
+      var sl = document.getElementById('screen-location');
+      if (sl) sl.classList.add('active');
     }
-  }, 200);
+    if (typeof loadLocation === 'function') loadLocation(loc.id);
+  };
+
+  if (typeof startPlayerWalk === 'function') {
+    var destX = loc.x + loc.w/2;
+    var destY = loc.y + loc.h/2;
+    startPlayerWalk(destX, destY, (LOC_NAMES[loc.id]?LOC_NAMES[loc.id][S.nativeLang||'fr']:loc.id), goToLoc);
+  } else {
+    goToLoc();
+  }
 }
 
-// Nettoyer l'intervalle
-window.addEventListener('beforeunload', function() {
-  if (window._villageInterval) clearInterval(window._villageInterval);
-});
+function onVillageTouch(e) {
+  e.preventDefault();
+  var rect = canvas.getBoundingClientRect();
+  var t = e.touches[0];
+  var loc = getLocAt(t.clientX - rect.left, t.clientY - rect.top);
+  if (!loc) return;
 
-console.log('✅ village.js chargé - Version autonome');
+  var xpReq = LOC_XP_REQUIREMENTS ? (LOC_XP_REQUIREMENTS[loc.id] || 0) : 0;
+  if ((S.xp||0) < xpReq) {
+    showNotif('🔒 ' + ((LOC_NAMES[loc.id]&&LOC_NAMES[loc.id][S.nativeLang||'fr'])||loc.id) + ' — ' + xpReq + ' XP requis');
+    return;
+  }
+
+  var goToLoc = function() {
+    if (typeof playerGoHome === 'function') playerGoHome();
+    if (typeof showScreen === 'function') {
+      showScreen('screen-location');
+    } else {
+      document.querySelectorAll('.screen').forEach(function(s) {
+        s.classList.remove('active');
+        s.style.display = '';
+      });
+      var sl = document.getElementById('screen-location');
+      if (sl) sl.classList.add('active');
+    }
+    if (typeof loadLocation === 'function') loadLocation(loc.id);
+  };
+
+  if (typeof startPlayerWalk === 'function') {
+    var destX = loc.x + loc.w/2;
+    var destY = loc.y + loc.h/2;
+    startPlayerWalk(destX, destY, (LOC_NAMES[loc.id]?LOC_NAMES[loc.id][S.nativeLang||'fr']:loc.id), goToLoc);
+  } else {
+    goToLoc();
+  }
+}
+
+var LOC_XP_REQUIREMENTS = {
+  church:   0, school:  0, friends: 0,
+  market:   50, tavern:  50, park:    50,
+  hospital: 150, bank:    150, station: 150,
+  police:   300, factory: 300, cinema:  400,
+};
+
+function loadLocation(locId) {
+  var loc = LOCATIONS.find(function(l) { return l.id === locId; });
+  if (!loc) return;
+
+  var titleEl = document.getElementById('locTitle');
+  if (titleEl) titleEl.textContent = (LOC_NAMES[loc.id] ? LOC_NAMES[loc.id][S.nativeLang||'fr'] : loc.id);
+
+  var weatherEl = document.getElementById('locWeather');
+  if (weatherEl) weatherEl.textContent = WEATHER_ICONS[currentWeather] || '';
+
+  var npcList = document.getElementById('npcList');
+  if (!npcList) return;
+
+  if (!loc.npcs || loc.npcs.length === 0) {
+    npcList.innerHTML = '<div class="npc-card"><div class="npc-avatar">🏠</div><div class="npc-info"><div class="npc-name">Personne ici</div><div class="npc-role">Reviens plus tard...</div></div></div>';
+    return;
+  }
+
+  npcList.innerHTML = loc.npcs.map(function(npc) {
+    var role = typeof npc.role === 'object' ? (npc.role[S.nativeLang||'fr'] || npc.role.en) : npc.role;
+    return '<div class="npc-card" onclick="openDialogue(\'' + loc.id + '\', \'' + npc.id + '\')">' +
+      '<div class="npc-avatar">' + npc.emoji + '</div>' +
+      '<div class="npc-info">' +
+      '<div class="npc-name">' + npc.name + '</div>' +
+      '<div class="npc-role">' + role + '</div>' +
+      '</div>' +
+      '<div class="npc-go">💬</div>' +
+      '</div>';
+  }).join('');
+
+  if (typeof openMissionsPanel === 'function') openMissionsPanel(loc.id);
+}
