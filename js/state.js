@@ -1,7 +1,12 @@
-// state.js - VERSION PREMIUM (vibration + confettis améliorés)
-// CHARGÉ EN TOUT PREMIER
-// =================================================================
+// state.js - VERSION CORRIGÉE (chargé en premier)
+// LinguaVillage — state.js
+// CHARGÉ EN TOUT PREMIER dans index.html (avant data.js)
+// Définit : window.S, showScreen, applyUI, showNotif, gainXP, saveGame,
+//           updateStreak, launchConfetti, callAPIWithFallback
 
+// =================================================================
+// 1. ÉTAT GLOBAL DU JOUEUR
+// =================================================================
 window.S = window.S || {
   playerName   : '',
   nativeLang   : '',
@@ -18,62 +23,93 @@ window.S = window.S || {
 };
 var S = window.S;
 
+// Cache API et intervalles
 window.apiCache = window.apiCache || new Map();
 window._lastAPICall = 0;
 window.MIN_API_INTERVAL = 500;
 
+// =================================================================
+// 2. NAVIGATION — showScreen
+// =================================================================
 window.showScreen = function(id) {
   document.querySelectorAll('.screen').forEach(function(s) {
     s.classList.remove('active');
     s.style.display = '';
   });
   var el = document.getElementById(id);
-  if (el) el.classList.add('active');
+  if (el) {
+    el.classList.add('active');
+  }
 };
 
+// =================================================================
+// 3. TRADUCTION UI — applyUI
+// =================================================================
 window.applyUI = function(lang) {
   if (typeof UI_TEXT === 'undefined') return;
   var t = UI_TEXT[lang] || UI_TEXT['fr'];
   if (!t) return;
-  // ... (conserver l'ancien code de mise à jour des textes)
+
+  // Welcome screen
   var sub = document.getElementById('ws-sub');
   if (sub) sub.textContent = t.sub || '';
+
   var lblNative = document.getElementById('lbl-native');
   if (lblNative) lblNative.textContent = t.lbl_native || '';
+
   var lblName = document.getElementById('lbl-name');
   if (lblName) lblName.textContent = t.lbl_name || '';
+
   var lblTarget = document.getElementById('lbl-target');
   if (lblTarget) lblTarget.textContent = t.lbl_target || '';
+
   var lblScript = document.getElementById('lbl-script');
   if (lblScript) lblScript.textContent = t.lbl_script || '';
+
   var playBtn = document.getElementById('playBtn');
   if (playBtn) playBtn.textContent = t.play || '✨ Commencer';
+
+  // Menu principal
   var menuTitle = document.getElementById('menu-title-text');
   if (menuTitle) menuTitle.textContent = t.menu_title || '';
+
   var menuSub = document.getElementById('menu-sub-text');
   if (menuSub) menuSub.textContent = t.menu_sub || '';
+
   var mbVillage = document.getElementById('mb-village');
   if (mbVillage) mbVillage.textContent = t.mb_village || '';
+
   var mbVillageD = document.getElementById('mb-village-d');
   if (mbVillageD) mbVillageD.textContent = t.mb_village_d || '';
+
   var mbVocab = document.getElementById('mb-vocab');
   if (mbVocab) mbVocab.textContent = t.mb_vocab || '';
+
   var mbVocabD = document.getElementById('mb-vocab-d');
   if (mbVocabD) mbVocabD.textContent = t.mb_vocab_d || '';
+
   var mbPhrases = document.getElementById('mb-phrases');
   if (mbPhrases) mbPhrases.textContent = t.mb_phrases || '';
+
   var mbPhrasesD = document.getElementById('mb-phrases-d');
   if (mbPhrasesD) mbPhrasesD.textContent = t.mb_phrases_d || '';
+
   var mbGrammar = document.getElementById('mb-grammar');
   if (mbGrammar) mbGrammar.textContent = t.mb_grammar || '';
+
   var mbGrammarD = document.getElementById('mb-grammar-d');
   if (mbGrammarD) mbGrammarD.textContent = t.mb_grammar_d || '';
+
   var mbDict = document.getElementById('mb-dict');
   if (mbDict) mbDict.textContent = t.mb_dict || '';
+
   var mbDictD = document.getElementById('mb-dict-d');
   if (mbDictD) mbDictD.textContent = t.mb_dict_d || '';
 };
 
+// =================================================================
+// 4. NOTIFICATIONS — showNotif
+// =================================================================
 window.showNotif = function(msg, duration) {
   var el = document.getElementById('notif');
   if (!el) return;
@@ -85,21 +121,32 @@ window.showNotif = function(msg, duration) {
   }, duration || 2800);
 };
 
+// =================================================================
+// 5. XP — gainXP
+// =================================================================
 window.gainXP = function(amount) {
   if (!window.S) return;
   S.xp = (S.xp || 0) + (amount || 0);
+
+  // Mise à jour HUD
   var hudXP = document.getElementById('hudXP');
   if (hudXP) hudXP.textContent = S.xp + ' XP';
+
   var menuXP = document.getElementById('menuXP');
   if (menuXP) menuXP.textContent = S.xp + ' XP';
+
   var xpFill = document.getElementById('xpFill');
   if (xpFill) xpFill.style.width = (S.xp % 100) + '%';
+
+  // Badge CEFR
   if (typeof checkBadges === 'function') checkBadges();
+
   if (typeof saveGame === 'function') saveGame();
-  // Déclenche les défis hebdo sur gain XP (sera redéfini dans gamification.js)
-  if (typeof updateWeeklyProgress === 'function') updateWeeklyProgress('gain_xp', amount);
 };
 
+// =================================================================
+// 6. SAUVEGARDE — saveGame
+// =================================================================
 window.saveGame = function() {
   try {
     var data = {
@@ -109,14 +156,26 @@ window.saveGame = function() {
       timestamp: Date.now()
     };
     localStorage.setItem('linguavillage_save', JSON.stringify(data));
-  } catch(e) { console.warn('saveGame failed:', e); }
+  } catch(e) {
+    console.warn('saveGame failed:', e);
+  }
 };
 
+// =================================================================
+// 7. STREAK — updateStreak
+// =================================================================
 window.updateStreak = function() {
-  if (typeof checkDailyStreak === 'function') checkDailyStreak();
-  if (typeof updateStreakDisplay === 'function') updateStreakDisplay();
+  if (typeof checkDailyStreak === 'function') {
+    try { checkDailyStreak(); } catch(e) {}
+  }
+  if (typeof updateStreakDisplay === 'function') {
+    try { updateStreakDisplay(); } catch(e) {}
+  }
 };
 
+// =================================================================
+// 8. CONFETTI — launchConfetti
+// =================================================================
 window.launchConfetti = function() {
   var colors = ['#FFD700','#4ecf70','#4a9eff','#e040fb','#ff9f43','#ff6b6b'];
   for (var i = 0; i < 60; i++) {
@@ -145,41 +204,57 @@ window.launchConfetti = function() {
       }, i * 30);
     })(i);
   }
-  // Vibration (mobile)
-  if (navigator.vibrate) navigator.vibrate(200);
 };
 
+// =================================================================
+// 9. API AVEC FALLBACK — callAPIWithFallback
+// =================================================================
 window.callAPIWithFallback = async function(endpoint, payload) {
   var base = window.API || 'https://linguavillage-api--marckensbou2.replit.app';
   var url  = base + endpoint;
+
+  // Throttle
   var now = Date.now();
   if (window._lastAPICall && (now - window._lastAPICall) < window.MIN_API_INTERVAL) {
     await new Promise(function(r) { setTimeout(r, window.MIN_API_INTERVAL - (now - window._lastAPICall)); });
   }
   window._lastAPICall = Date.now();
+
+  // Cache
   var cacheKey = endpoint + JSON.stringify(payload);
-  if (window.apiCache && window.apiCache.has(cacheKey)) return window.apiCache.get(cacheKey);
+  if (window.apiCache && window.apiCache.has(cacheKey)) {
+    return window.apiCache.get(cacheKey);
+  }
+
   try {
     var resp = await fetch(url, {
       method : 'POST',
       headers: { 'Content-Type': 'application/json' },
       body   : JSON.stringify(payload),
     });
+
     if (!resp.ok) throw new Error('API ' + resp.status);
     var data = await resp.json();
+
     if (window.apiCache) window.apiCache.set(cacheKey, data);
     return data;
   } catch(e) {
     console.warn('API call failed:', e);
+    // Fallback simple
     return { reply: 'Désolé, service temporairement indisponible. Réessaie plus tard.' };
   }
 };
 
+// =================================================================
+// 10. BADGE DE CHARGEMENT
+// =================================================================
 (function() {
   var dbg = document.getElementById('debug');
   if (dbg) dbg.textContent = '✅ state.js chargé';
 })();
+
 console.log('✅ LinguaVillage — state.js chargé');
+
 window.onerror = function(msg, src, line) {
   var dbg = document.getElementById('debug');
   if (dbg) dbg.textContent = '❌ ' + msg + ' (ligne ' + line + ')';
