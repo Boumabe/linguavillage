@@ -1,238 +1,311 @@
 // LinguaVillage — app.js
-// Flux : inscription → onboarding (niveau, sons, mots, structure) → proverbe → menu
+// Point d'entrée principal : welcome flow + startMenu
+// CHARGÉ EN DERNIER — dépend de tous les autres fichiers
 // ================================================================
 
 var API = 'https://linguavillage-api--marckensbou2.replit.app';
 
-// Initialisation au chargement
+// ================================================================
+// WELCOME FLOW
+// ================================================================
 window.addEventListener('DOMContentLoaded', function() {
+
   if (!window.S) {
     window.S = {
       nativeLang: null,
       targetLang: null,
       playerName: '',
       scriptPref: 'both',
-      xp: 0,
-      userLevel: 'zero'
+      xp: 0
     };
   }
 
-  // Restaurer une session existante (déjà enregistrée)
+  // ── Restaurer session si sauvegarde valide ──────────────────
   if (window._LINGUA_HAS_SAVE && window.S && S.playerName && S.nativeLang && S.targetLang) {
     try {
       if (typeof applyUI === 'function') applyUI(S.nativeLang);
-      // L'utilisateur a déjà fait l'onboarding, on va directement au proverbe puis menu
-      showQuoteThenMenu();
+      startMenu();
       try { if (typeof checkDailyStreak === 'function') checkDailyStreak(); } catch(e) {}
       return;
-    } catch(e) { console.warn('Restore failed:', e); }
+    } catch(e) { console.warn('Restore session failed:', e); }
   }
 
-  // Gestion de la sélection des langues et du prénom (identique à avant)
-  const nativeTiles = document.querySelectorAll('.lang-tile[data-native]');
-  const targetTiles = document.querySelectorAll('.lang-tile[data-lang]');
-  const step2 = document.getElementById('step2');
-  const step3 = document.getElementById('step3');
-  const step4 = document.getElementById('step4');
-  const playBtn = document.getElementById('playBtn');
-  const nameInput = document.getElementById('inputName');
+  // ── 1. Sélection langue maternelle ─────────────────────────
+  document.querySelectorAll('.lang-tile[data-native]').forEach(function(t) {
+    t.onclick = function() {
+      if (!window.S) {
+        window.S = { nativeLang: null, targetLang: null, playerName: '', scriptPref: 'both', xp: 0 };
+      }
 
-  function resetWelcomeUI() {
-    if (step2) step2.style.display = 'none';
-    if (step3) step3.style.display = 'none';
-    if (step4) step4.style.display = 'none';
-    if (playBtn) { playBtn.style.display = 'none'; playBtn.disabled = true; }
-    if (nameInput) nameInput.value = '';
-    nativeTiles.forEach(t => t.classList.remove('active', 'sel'));
-    targetTiles.forEach(t => t.classList.remove('active', 'sel'));
-    window.S.nativeLang = null;
-    window.S.targetLang = null;
-    window.S.playerName = '';
-    window.S.scriptPref = 'both';
-  }
-
-  nativeTiles.forEach(tile => {
-    tile.onclick = function() {
-      nativeTiles.forEach(t => t.classList.remove('active', 'sel'));
-      this.classList.add('active', 'sel');
-      window.S.nativeLang = this.dataset.native;
-      if (typeof applyUI === 'function') applyUI(window.S.nativeLang);
-      if (step2) step2.style.display = 'block';
-      if (step3) step3.style.display = 'none';
-      if (step4) step4.style.display = 'none';
-      if (playBtn) { playBtn.style.display = 'none'; playBtn.disabled = true; }
-      if (nameInput) nameInput.value = '';
-      targetTiles.forEach(t => {
-        const same = t.dataset.lang === window.S.nativeLang;
-        t.classList.toggle('disabled', same);
-        if (same) t.classList.remove('active', 'sel');
+      document.querySelectorAll('.lang-tile[data-native]').forEach(function(x) {
+        x.classList.remove('active', 'sel');
       });
-      if (nameInput) setTimeout(() => nameInput.focus(), 100);
+      this.classList.add('active', 'sel');
+
+      window.S.nativeLang = this.dataset.native;
+
+      try { if (typeof applyUI === 'function') applyUI(window.S.nativeLang); } catch(e) {}
+
+      var s2 = document.getElementById('step2');
+      if (s2) {
+        s2.style.display = 'block';
+        s2.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+
+      var s3 = document.getElementById('step3');
+      var s4 = document.getElementById('step4');
+      var pb = document.getElementById('playBtn');
+      if (s3) s3.style.display = 'none';
+      if (s4) s4.style.display = 'none';
+      if (pb) { pb.style.display = 'none'; pb.disabled = true; }
+
+      var inp = document.getElementById('inputName');
+      if (inp) { inp.value = ''; }
+
+      document.querySelectorAll('.lang-tile[data-lang]').forEach(function(o) {
+        var same = o.dataset.lang === window.S.nativeLang;
+        o.classList.toggle('disabled', same);
+        if (same) { o.classList.remove('active', 'sel'); }
+      });
+
+      var inpFocus = document.getElementById('inputName');
+      if (inpFocus) setTimeout(function() { inpFocus.focus(); }, 300);
     };
   });
 
-  if (nameInput) {
-    nameInput.addEventListener('input', function() {
-      const hasName = this.value.trim().length > 0;
-      const hasNative = window.S && window.S.nativeLang;
-      if (hasName && hasNative) {
-        if (step3) step3.style.display = 'block';
-        if (step4) step4.style.display = 'none';
-        if (playBtn) { playBtn.style.display = 'none'; playBtn.disabled = true; }
-      } else {
-        if (step3) step3.style.display = 'none';
-        if (step4) step4.style.display = 'none';
-        if (playBtn) { playBtn.style.display = 'none'; playBtn.disabled = true; }
+  // ── 2. Saisie prénom → affiche step3 (langues cibles) ──────
+  var inputName = document.getElementById('inputName');
+  if (inputName) {
+    inputName.addEventListener('input', function() {
+      var hasValue = this.value.trim().length > 0;
+      var hasNative = window.S && window.S.nativeLang;
+      var s3 = document.getElementById('step3');
+      var s4 = document.getElementById('step4');
+      var pb = document.getElementById('playBtn');
+
+      if (s3) {
+        if (hasValue && hasNative) {
+          s3.style.display = 'block';
+          s3.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        } else {
+          s3.style.display = 'none';
+        }
       }
+
+      if (s4) s4.style.display = 'none';
+      if (pb) { pb.style.display = 'none'; pb.disabled = true; }
+
+      document.querySelectorAll('.lang-tile[data-lang]').forEach(function(x) {
+        x.classList.remove('active', 'sel');
+      });
+      window.S.targetLang = null;
     });
   }
 
-  targetTiles.forEach(tile => {
-    tile.onclick = function() {
+  // ── 3. Sélection langue cible ───────────────────────────────
+  document.querySelectorAll('.lang-tile[data-lang]').forEach(function(t) {
+    t.onclick = function() {
       if (this.classList.contains('disabled')) return;
-      targetTiles.forEach(t => t.classList.remove('active', 'sel'));
+
+      document.querySelectorAll('.lang-tile[data-lang]').forEach(function(x) {
+        x.classList.remove('active', 'sel');
+      });
       this.classList.add('active', 'sel');
+
       window.S.targetLang = this.dataset.lang;
-      const isCJK = ['zh', 'ja', 'ru'].includes(window.S.targetLang);
-      if (isCJK) {
-        if (step4) step4.style.display = 'block';
-        const examples = { zh: { n:'你好', r:'Ni hǎo' }, ja: { n:'こんにちは', r:'Konnichiwa' }, ru: { n:'Привет', r:'Privyet' } };
-        const scN = document.getElementById('sc-n');
-        const scR = document.getElementById('sc-r');
-        if (scN) scN.textContent = examples[window.S.targetLang]?.n || '';
-        if (scR) scR.textContent = examples[window.S.targetLang]?.r || '';
+
+      var cjk = ['zh', 'ja', 'ru'].indexOf(window.S.targetLang) !== -1;
+
+      var s4 = document.getElementById('step4');
+      var pb = document.getElementById('playBtn');
+
+      if (cjk) {
+        if (s4) {
+          s4.style.display = 'block';
+          s4.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+
+        var lb = {
+          zh: { n: '你好',      r: 'Ni hao' },
+          ja: { n: 'こんにちは', r: 'Konnichiwa' },
+          ru: { n: 'Привет',    r: 'Privyet' }
+        };
+        var sn = document.getElementById('sc-n');
+        var sr = document.getElementById('sc-r');
+        if (sn) sn.textContent = lb[window.S.targetLang].n;
+        if (sr) sr.textContent = lb[window.S.targetLang].r;
+
         window.S.scriptPref = null;
-        document.querySelectorAll('.sc-btn').forEach(b => b.classList.remove('sel', 'active'));
-        if (playBtn) { playBtn.style.display = 'none'; playBtn.disabled = true; }
+        document.querySelectorAll('.sc-btn').forEach(function(b) {
+          b.classList.remove('sel', 'active');
+        });
+
+        if (pb) { pb.style.display = 'none'; pb.disabled = true; }
       } else {
         window.S.scriptPref = 'both';
-        if (step4) step4.style.display = 'none';
-        const nativeLang = window.S.nativeLang || 'fr';
-        const uiText = (UI_TEXT && UI_TEXT[nativeLang]) ? UI_TEXT[nativeLang] : UI_TEXT?.fr || { play: '✨ Commencer' };
-        if (playBtn) {
-          playBtn.textContent = uiText.play;
-          playBtn.style.display = 'block';
-          playBtn.disabled = false;
+        if (s4) s4.style.display = 'none';
+        if (pb) {
+          pb.style.display = 'block';
+          pb.disabled = false;
+          pb.scrollIntoView({ behavior: 'smooth', block: 'center' });
         }
       }
     };
   });
 
+  // ── 3b. Choix script CJK ────────────────────────────────────
   window.selScript = function(pref, btn) {
-    document.querySelectorAll('.sc-btn').forEach(b => b.classList.remove('sel', 'active'));
+    document.querySelectorAll('.sc-btn').forEach(function(b) {
+      b.classList.remove('sel', 'active');
+    });
     if (btn) btn.classList.add('sel', 'active');
     window.S.scriptPref = pref;
-    const nativeLang = window.S.nativeLang || 'fr';
-    const uiText = (UI_TEXT && UI_TEXT[nativeLang]) ? UI_TEXT[nativeLang] : UI_TEXT?.fr || { play: '✨ Commencer' };
-    if (playBtn) {
-      playBtn.textContent = uiText.play;
-      playBtn.style.display = 'block';
-      playBtn.disabled = false;
+
+    var pb = document.getElementById('playBtn');
+    if (pb) {
+      pb.style.display = 'block';
+      pb.disabled = false;
+      pb.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
   };
 
+  // ── 4. Bouton Commencer ─────────────────────────────────────
+  var playBtn = document.getElementById('playBtn');
   if (playBtn) {
     playBtn.addEventListener('click', function() {
-      const name = nameInput ? nameInput.value.trim() : '';
-      if (!name || !window.S.nativeLang || !window.S.targetLang) {
-        showNotif('Complétez tous les champs !');
+      var nm = document.getElementById('inputName');
+      if (nm) {
+        window.S.playerName = nm.value.trim();
+      } else {
+        window.S.playerName = '';
+      }
+
+      if (!window.S.playerName || !window.S.nativeLang || !window.S.targetLang) {
+        try {
+          showNotif('Complétez tous les champs !');
+        } catch(e) {
+          alert('Complétez tous les champs !');
+        }
         return;
       }
-      if (['zh','ja','ru'].includes(window.S.targetLang) && !window.S.scriptPref) {
-        showNotif('Choisissez un mode d\'écriture !');
+
+      if (['zh', 'ja', 'ru'].indexOf(window.S.targetLang) !== -1 && !window.S.scriptPref) {
+        try {
+          showNotif('Choisissez un mode d\'écriture !');
+        } catch(e) {
+          alert('Choisissez un mode d\'écriture !');
+        }
         return;
       }
-      window.S.playerName = name;
-      try { if (typeof saveGame === 'function') saveGame(); } catch(e) {}
-      // Démarrer l'onboarding
-      startOnboarding();
+
+      try {
+        if (typeof saveGame === 'function') {
+          saveGame();
+        }
+      } catch(e) {}
+
+      startMenu();
     });
   }
+
 });
 
-// -----------------------------------------------------------------
-// Lancement de l'onboarding (niveau, sons, mots, structure)
-// -----------------------------------------------------------------
-function startOnboarding() {
-  if (window.LV_ONBOARDING && typeof window.LV_ONBOARDING.show === 'function') {
-    window.LV_ONBOARDING.show(function() {
-      // Une fois l'onboarding terminé, on passe au proverbe puis au menu
-      showQuoteThenMenu();
-    });
+// ================================================================
+// startMenu — appelée après welcome flow OU restauration session
+// ================================================================
+function startMenu() {
+  if (!window.S) return;
+
+  try {
+    var testLS = localStorage.getItem('linguavillage_save');
+    if (testLS) {
+      var parsed = JSON.parse(testLS);
+      if (!parsed.S || !parsed.S.nativeLang || !parsed.S.targetLang || !parsed.S.playerName) {
+        localStorage.removeItem('linguavillage_save');
+        localStorage.removeItem('lv_onboarding_done');
+        localStorage.removeItem('lv_last_quote_idx');
+      }
+    }
+  } catch(e) {
+    try { localStorage.clear(); } catch(e2) {}
+  }
+
+  var menuPlayer = document.getElementById('menuPlayer');
+  var menuLang   = document.getElementById('menuLang');
+  var menuXP     = document.getElementById('menuXP');
+  var gemDisplay = document.getElementById('gemDisplay');
+  var xpFill     = document.getElementById('xpFill');
+
+  if (menuPlayer) menuPlayer.textContent = '👤 ' + (window.S.playerName || 'Joueur');
+  if (menuLang) {
+    var flag  = (window.FLAGS && FLAGS[window.S.targetLang]) || '';
+    var lname = (window.LANG_NAMES && LANG_NAMES[window.S.targetLang]) || window.S.targetLang || '';
+    menuLang.textContent = flag + ' ' + lname;
+  }
+  if (menuXP)     menuXP.textContent     = (window.S.xp || 0) + ' XP';
+  if (gemDisplay) gemDisplay.textContent = '💎 ' + ((window.S_missions && window.S_missions.gems) || 0);
+  if (xpFill)     xpFill.style.width     = ((window.S.xp || 0) % 100) + '%';
+
+  try { if (typeof saveGame     === 'function') saveGame();     } catch(e) {}
+  try { if (typeof updateStreak === 'function') updateStreak(); } catch(e) {}
+  try { if (typeof applyMenuUI  === 'function') applyMenuUI();  } catch(e) {}
+
+  _launchMenu();
+}
+
+// ================================================================
+// _launchMenu — onboarding 1ère fois → citation → screen-menu
+// ================================================================
+window.showScreen = function(id) {
+  document.querySelectorAll('.screen').forEach(function(s) {
+    s.classList.remove('active');
+    s.style.display = '';
+  });
+  var target = document.getElementById(id);
+  if (target) {
+    target.classList.add('active');
+  }
+};
+
+function _launchMenu() {
+  function showQuoteThenMenu() {
+    if (typeof showDailyQuote === 'function') {
+      showDailyQuote(function() {
+        showScreen('screen-menu');
+      });
+    } else {
+      showScreen('screen-menu');
+    }
+  }
+
+  var isFirstTime = true;
+  try {
+    isFirstTime = !localStorage.getItem('lv_onboarding_done');
+  } catch(e) {
+    isFirstTime = false;
+  }
+
+  // Vérifier si LV_ONBOARDING est disponible
+  if (isFirstTime && window.LV_ONBOARDING && typeof window.LV_ONBOARDING.show === 'function') {
+    try {
+      localStorage.setItem('lv_onboarding_done', '1');
+    } catch(e) {}
+    window.LV_ONBOARDING.show(showQuoteThenMenu);
   } else {
-    // Fallback : passer directement au proverbe
     showQuoteThenMenu();
   }
 }
 
-// -----------------------------------------------------------------
-// Afficher le proverbe puis le menu
-// -----------------------------------------------------------------
-function showQuoteThenMenu() {
-  if (typeof showDailyQuote === 'function') {
-    showDailyQuote(function() {
-      startMenu();
-    });
-  } else {
-    startMenu();
-  }
-}
-
-// -----------------------------------------------------------------
-// Affichage du menu principal (après onboarding et proverbe)
-// -----------------------------------------------------------------
-function startMenu() {
-  if (!window.S) return;
-
-  // Sauvegarder que l'onboarding est fait
-  try { localStorage.setItem('lv_onboarding_done', '1'); } catch(e) {}
-
-  // Mettre à jour les éléments du menu
-  const menuPlayer = document.getElementById('menuPlayer');
-  const menuLang = document.getElementById('menuLang');
-  const menuXP = document.getElementById('menuXP');
-  const gemDisplay = document.getElementById('gemDisplay');
-  const xpFill = document.getElementById('xpFill'); // optionnel
-
-  if (menuPlayer) menuPlayer.textContent = '👤 ' + (window.S.playerName || 'Joueur');
-  if (menuLang) {
-    const flag = (FLAGS && FLAGS[window.S.targetLang]) || '';
-    const lname = (LANG_NAMES && LANG_NAMES[window.S.targetLang]) || window.S.targetLang || '';
-    menuLang.textContent = flag + ' ' + lname;
-  }
-  if (menuXP) menuXP.textContent = (window.S.xp || 0) + ' XP';
-  if (gemDisplay) gemDisplay.textContent = '💎 ' + ((window.S_missions && window.S_missions.gems) || 0);
-
-  // Sauvegarder la progression
-  try { if (typeof saveGame === 'function') saveGame(); } catch(e) {}
-  try { if (typeof updateStreak === 'function') updateStreak(); } catch(e) {}
-
-  // Afficher l'écran du menu
-  showScreen('screen-menu');
-}
-
-// -----------------------------------------------------------------
-// Navigation entre écrans
-// -----------------------------------------------------------------
-window.showScreen = function(id) {
-  document.querySelectorAll('.screen').forEach(s => {
-    s.classList.remove('active');
-    s.style.display = '';
-  });
-  const target = document.getElementById(id);
-  if (target) target.classList.add('active');
-};
-
-// -----------------------------------------------------------------
-// Utilitaires
-// -----------------------------------------------------------------
+// ================================================================
+// Helpers globaux
+// ================================================================
 function openWordGame() {
   if (window.LV_WORDGAME) window.LV_WORDGAME.open();
-  else showNotif('Jeu de mots non chargé.');
+  else if (typeof showNotif === 'function') showNotif('Jeu de mots non chargé.');
 }
 
 function resetOnboarding() {
   try { localStorage.removeItem('lv_onboarding_done'); } catch(e) {}
   try { localStorage.removeItem('lv_last_quote_idx'); } catch(e) {}
-  showNotif('Onboarding réinitialisé');
+  if (typeof showNotif === 'function') showNotif('Onboarding réinitialisé');
         }
