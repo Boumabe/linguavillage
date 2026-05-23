@@ -11,29 +11,42 @@ window._onCanvasResize = window._onCanvasResize || null;
 
 // ================================================================
 // CONFIGURATION PREMIUM DU VILLAGE
-// Rayons réduits pour tenir dans l'écran mobile (portrait 360px)
-// Anneau max 0.35 × minDim = 0.35 × 340 = 119px → bâtiment bord = ~140px
-// Demi-canvas = 170px → tout tient avec 30px de marge
 // ================================================================
 window.VILLAGE_CONFIG = {
+  // ── Anneaux agrandis pour remplir l'écran mobile ──
+  // Formule : on veut que l'anneau le plus extérieur (ring[3]) + le rayon d'un
+  // bâtiment (~ring.radius * 0.38 / 2) atteignent ~0.46 de minDim.
+  // minDim = min(W, H) * 0.95 (nouveau calcul), donc ring3.radius = 0.38
+  // donne un bâtiment à 0.38 + 0.07 = 0.45 → parfait avec une marge de 5%.
   rings: [
-    { radius: 0.07,  color: 'rgba(160,130,80,0.35)', width: 2.5 },
-    { radius: 0.145, color: 'rgba(160,130,80,0.30)', width: 2.0 },
-    { radius: 0.235, color: 'rgba(160,130,80,0.28)', width: 1.8 },
-    { radius: 0.335, color: 'rgba(160,130,80,0.25)', width: 1.5 },
+    { radius: 0.085, color: 'rgba(160,130,80,0.40)', width: 2.8 },   // maison centrale
+    { radius: 0.175, color: 'rgba(160,130,80,0.34)', width: 2.2 },   // faciles
+    { radius: 0.275, color: 'rgba(160,130,80,0.28)', width: 1.9 },   // moyens
+    { radius: 0.385, color: 'rgba(160,130,80,0.22)', width: 1.6 },   // avancés
   ],
   bobAmplitude: 2.5,
   bobSpeed: 0.025,
-  hoverScale: 1.15,
-  hoverGlow: 'rgba(255,215,0,0.4)',
-  particleCount: 30,
+  hoverScale: 1.14,
+  hoverGlow: 'rgba(255,215,0,0.45)',
+  particleCount: 28,
   starCount: 60,
 };
 
 // ================================================================
 // ALIGNEMENT PRÉCIS DES BÂTIMENTS SUR LES ANNEAUX
 // ================================================================
+// Chaque lieu est assigné à un anneau (ring index 0..3) et à un angle.
+// La position (loc.x, loc.y) est recalculée pour centrer le bâtiment
+// exactement sur le cercle correspondant.
+//
+// Anneau 0 (rayon 0.085) → maison centrale (home only)
+// Anneau 1 (rayon 0.175) → 3 lieux faciles  : church, school, friends
+// Anneau 2 (rayon 0.275) → 3 lieux moyens   : market, tavern, park
+// Anneau 3 (rayon 0.385) → 3 lieux avancés  : hospital, bank, station, police, factory
+// Hors anneau (extérieur) → cinema (coin haut-droit)
+
 window.LOC_RING_MAP = {
+  // id:        [ringIndex, angleDegrees]
   church:    [1,   90],
   school:    [1,  210],
   friends:   [1,  330],
@@ -45,64 +58,48 @@ window.LOC_RING_MAP = {
   station:   [3,  300],
   police:    [3,    0],
   factory:   [3,  240],
-  cinema:    [null, null],
+  cinema:    [null, null],   // positionné séparément
 };
 
 function alignLocationsToRings() {
   if (typeof LOCATIONS === 'undefined') return;
+
   var rings = window.VILLAGE_CONFIG.rings;
+  var TAU = Math.PI * 2;
 
   LOCATIONS.forEach(function(loc) {
     var mapping = window.LOC_RING_MAP[loc.id];
     if (!mapping || mapping[0] === null) {
+      // Cinema : positionner en haut à droite (coin, hors des anneaux)
       if (loc.id === 'cinema') {
-        loc._ringX = 0.5 + 0.28;
-        loc._ringY = 0.5 - 0.28;
+        loc._ringX = 0.5 + 0.40;
+        loc._ringY = 0.5 - 0.40;
       }
       return;
     }
-    var ringIdx  = mapping[0];
+
+    var ringIdx = mapping[0];
     var angleDeg = mapping[1];
     var ring = rings[ringIdx];
     if (!ring) return;
-    var rad = (angleDeg - 90) * Math.PI / 180;
-    loc._ringX = 0.5 + ring.radius * Math.cos(rad);
-    loc._ringY = 0.5 + ring.radius * Math.sin(rad);
+
+    var rad = (angleDeg - 90) * Math.PI / 180; // -90 pour partir du haut
+    var r = ring.radius;
+
+    // Centre normalisé (0.5, 0.5) + vecteur sur l'anneau
+    loc._ringX = 0.5 + r * Math.cos(rad);
+    loc._ringY = 0.5 + r * Math.sin(rad);
   });
 }
 
-// ================================================================
-// CALCUL UNIQUE DE LA TAILLE DU CANVAS — appliqué partout
-// Canvas carré, côté = min(largeur, hauteur_dispo) − 24px
-// setAttribute écrase les !important du CSS
-// ================================================================
-function _sizeCanvas(c) {
-  if (!c) return 0;
-  var dpr  = window.devicePixelRatio || 1;
-  var hud  = document.querySelector('.village-hud');
-  var hudH = hud ? hud.getBoundingClientRect().height : 100;
-  var vp   = window.visualViewport;
-  var vW   = (vp ? vp.width  : null) || window.innerWidth  || 360;
-  var vH   = (vp ? vp.height : null) || window.innerHeight || 640;
-  var avH  = Math.max(180, vH - hudH);
-  var side = Math.max(160, Math.min(vW, avH) - 24);
-  c.width  = Math.round(side * dpr);
-  c.height = Math.round(side * dpr);
-  c.setAttribute('style',
-    'display:block;width:' + side + 'px;height:' + side + 'px;' +
-    'margin:auto;flex:none;');
-  return side;
-}
 
-// ================================================================
-// goVillage
-// ================================================================
 function goVillage() {
   if (!window.S) return;
 
   var hudPlayer = document.getElementById('hudPlayer');
   var hudLang   = document.getElementById('hudLang');
   var hudXP     = document.getElementById('hudXP');
+
   if (hudPlayer) hudPlayer.textContent = '👤 ' + S.playerName;
   if (hudLang)   hudLang.textContent   = (FLAGS[S.targetLang]||'') + ' ' + (LANG_NAMES[S.targetLang]||'');
   if (hudXP)     hudXP.textContent     = (S.xp||0) + ' XP';
@@ -119,34 +116,75 @@ function goVillage() {
   }
 
   canvas = null;
-  ctx    = null;
-  tick   = 0;
+  ctx = null;
+  tick = 0;
   window._villageLoopRunning = false;
-  window._villageLoopActive  = false;
+  window._villageLoopActive = false;
 
-  setTimeout(function() {
-    var c = document.getElementById('villageCanvas');
-    if (!c) { initCanvas(); setWeather(getWeatherForTime()); updateTime(); return; }
-    _sizeCanvas(c);
-    alignLocationsToRings();
-    initCanvas();
-    setWeather(getWeatherForTime());
-    updateTime();
+  // Double-rAF garantit que le layout est calculé avant de mesurer
+  requestAnimationFrame(function() {
+    requestAnimationFrame(function() {
+      _resizeAndInitVillage();
 
-    if (typeof player !== 'undefined') {
-      player.x = HOME.x;
-      player.y = HOME.y;
-      player.dest = null;
-      player.walking = false;
-      player.currentLoc = 'home';
-    }
-    setTimeout(function() {
-      if (typeof addCEFRIndicator === 'function') addCEFRIndicator();
-    }, 100);
-  }, 300);
+      if (typeof player !== 'undefined') {
+        player.x = HOME.x;
+        player.y = HOME.y;
+        player.dest = null;
+        player.walking = false;
+        player.currentLoc = 'home';
+      }
+
+      setTimeout(function() {
+        if (typeof addCEFRIndicator === 'function') addCEFRIndicator();
+      }, 120);
+    });
+  });
 
   if (window._timeUpdateInterval) clearInterval(window._timeUpdateInterval);
   window._timeUpdateInterval = setInterval(updateTime, 30000);
+}
+
+// ── Dimensionnement robuste du canvas ──────────────────────────────
+// Lit les dimensions réelles du wrapper via getBoundingClientRect,
+// ce qui est fiable même quand le HUD s'étale sur plusieurs lignes.
+function _resizeAndInitVillage() {
+  var c = document.getElementById('villageCanvas');
+  if (!c) return;
+
+  var dpr = window.devicePixelRatio || 1;
+
+  // Stratégie : mesurer le WRAPPER (village-canvas-wrap), sinon le screen.
+  // Le wrapper a flex:1 donc il prend exactement l'espace restant après le HUD.
+  var wrapper = document.querySelector('.village-canvas-wrap') || document.getElementById('screen-village');
+  var rect = wrapper ? wrapper.getBoundingClientRect() : null;
+
+  var W, H;
+  if (rect && rect.width > 0 && rect.height > 0) {
+    W = rect.width;
+    H = rect.height;
+  } else {
+    // Fallback : soustraction manuelle fiable
+    var hud   = document.querySelector('.village-hud');
+    var hudH  = hud ? hud.getBoundingClientRect().height : 56;
+    var visH  = (window.visualViewport ? window.visualViewport.height : null) || window.innerHeight || 640;
+    W = (window.visualViewport ? window.visualViewport.width  : null) || window.innerWidth  || 360;
+    H = Math.max(200, visH - hudH);
+  }
+
+  // Arrondir pour éviter les pixels flottants
+  W = Math.floor(W);
+  H = Math.floor(H);
+
+  c.width         = W * dpr;
+  c.height        = H * dpr;
+  c.style.width   = W + 'px';
+  c.style.height  = H + 'px';
+  c.style.display = 'block';
+
+  alignLocationsToRings();
+  initCanvas();
+  setWeather(getWeatherForTime());
+  updateTime();
 }
 
 function getWeatherForTime() {
@@ -167,6 +205,7 @@ function buildWeatherFX(w) {
   var o = document.getElementById('weatherOverlay');
   if (!o) return;
   o.innerHTML = '';
+
   if (w === 'rain') {
     for (var i = 0; i < 60; i++) {
       var d = document.createElement('div');
@@ -198,42 +237,76 @@ function updateTime() {
   var n = new Date();
   var hudTime = document.getElementById('hudTime');
   if (hudTime) {
-    hudTime.textContent = n.getHours().toString().padStart(2,'0') + ':' +
-                          n.getMinutes().toString().padStart(2,'0');
+    hudTime.textContent = n.getHours().toString().padStart(2, '0') + ':' + 
+                          n.getMinutes().toString().padStart(2, '0');
   }
 }
 
-// ================================================================
-// initCanvas
-// ================================================================
 function initCanvas() {
   canvas = document.getElementById('villageCanvas');
   if (!canvas) return;
+
   var dpr = window.devicePixelRatio || 1;
 
-  if (canvas.width === 0 || canvas.height === 0) {
-    _sizeCanvas(canvas);
+  // Si le canvas n'a pas encore été dimensionné par _resizeAndInitVillage, on le fait ici
+  if (canvas.width === 0 || canvas.height === 0 || canvas.style.width === '') {
+    var wrapper = document.querySelector('.village-canvas-wrap') || document.getElementById('screen-village');
+    var rect = wrapper ? wrapper.getBoundingClientRect() : null;
+    var W, H;
+    if (rect && rect.width > 0 && rect.height > 0) {
+      W = Math.floor(rect.width);
+      H = Math.floor(rect.height);
+    } else {
+      var hud  = document.querySelector('.village-hud');
+      var visH = (window.visualViewport ? window.visualViewport.height : null) || window.innerHeight || 640;
+      var hudH = hud ? hud.getBoundingClientRect().height : 56;
+      W = Math.floor((window.visualViewport ? window.visualViewport.width : null) || window.innerWidth || 360);
+      H = Math.max(200, Math.floor(visH - hudH));
+    }
+    canvas.width        = W * dpr;
+    canvas.height       = H * dpr;
+    canvas.style.width  = W + 'px';
+    canvas.style.height = H + 'px';
   }
 
   canvas.style.display = 'block';
   ctx = canvas.getContext('2d');
   if (!ctx) return;
+
   ctx.scale(dpr, dpr);
 
   var W = canvas.width / dpr;
   var H = canvas.height / dpr;
   ctx.fillStyle = '#0a0a14';
   ctx.fillRect(0, 0, W, H);
+
   tick = 0;
   drawVillage();
 
   if (window._onCanvasResize) {
     window.removeEventListener('resize', window._onCanvasResize);
   }
+
   window._onCanvasResize = function() {
     if (!canvas) return;
     var newDpr = window.devicePixelRatio || 1;
-    _sizeCanvas(canvas);
+    var wrapper2 = document.querySelector('.village-canvas-wrap') || document.getElementById('screen-village');
+    var r2 = wrapper2 ? wrapper2.getBoundingClientRect() : null;
+    var newW, newH;
+    if (r2 && r2.width > 0 && r2.height > 0) {
+      newW = Math.floor(r2.width);
+      newH = Math.floor(r2.height);
+    } else {
+      var hud2  = document.querySelector('.village-hud');
+      var visH2 = (window.visualViewport ? window.visualViewport.height : null) || window.innerHeight || 640;
+      var hudH2 = hud2 ? hud2.getBoundingClientRect().height : 56;
+      newW = Math.floor((window.visualViewport ? window.visualViewport.width : null) || window.innerWidth || 360);
+      newH = Math.max(200, Math.floor(visH2 - hudH2));
+    }
+    canvas.width        = newW * newDpr;
+    canvas.height       = newH * newDpr;
+    canvas.style.width  = newW + 'px';
+    canvas.style.height = newH + 'px';
     alignLocationsToRings();
     ctx = canvas.getContext('2d');
     ctx.scale(newDpr, newDpr);
@@ -241,16 +314,17 @@ function initCanvas() {
   };
   window.addEventListener('resize', window._onCanvasResize);
 
-  canvas.removeEventListener('click',      onVillageClick);
-  canvas.removeEventListener('mousemove',  onVillageHover);
+  canvas.removeEventListener('click', onVillageClick);
+  canvas.removeEventListener('mousemove', onVillageHover);
   canvas.removeEventListener('touchstart', onVillageTouch);
-  canvas.addEventListener('click',      onVillageClick);
-  canvas.addEventListener('mousemove',  onVillageHover);
+
+  canvas.addEventListener('click', onVillageClick);
+  canvas.addEventListener('mousemove', onVillageHover);
   canvas.addEventListener('touchstart', onVillageTouch, { passive: true });
 
   if (!window._villageLoopRunning) {
     window._villageLoopRunning = true;
-    window._villageLoopActive  = true;
+    window._villageLoopActive = true;
     requestAnimationFrame(villageLoop);
   }
 }
@@ -263,26 +337,25 @@ function villageLoop() {
   requestAnimationFrame(villageLoop);
 }
 
-// ================================================================
-// drawVillage
-// minDim = 90% du côté du canvas carré
-// Anneau max 0.335 × minDim = 0.335 × (side×0.90) < side×0.5 ✓
-// ================================================================
 function drawVillage() {
   if (!canvas || !ctx) return;
+
   var dpr = window.devicePixelRatio || 1;
   var W = canvas.width / dpr;
   var H = canvas.height / dpr;
+
   if (W === 0 || H === 0) return;
 
   var cx = W * 0.5;
   var cy = H * 0.5;
 
-  // Canvas carré → min(W,H)=W=H. 90% pour une marge visible.
-  var minDim = Math.min(W, H) * 0.90;
+  // minDim : on prend 95% du plus petit côté pour maximiser l'occupation de l'écran.
+  // Le bâtiment le plus éloigné est à ring[3].radius + ring[3].radius*0.38/2 ≈ 0.46 → rentre dans 0.5*0.95.
+  var rawMin = Math.min(W, H);
+  var minDim = Math.min(rawMin * 0.95, W - 8, H - 8);
 
   var night = currentWeather === 'night';
-  var cfg   = window.VILLAGE_CONFIG;
+  var cfg = window.VILLAGE_CONFIG;
 
   var sky = ctx.createRadialGradient(cx, cy * 0.3, 0, cx, cy, minDim * 0.6);
   if (night) {
@@ -307,7 +380,7 @@ function drawVillage() {
   drawConnectors(cx, cy, minDim);
 
   if (typeof drawPlayerHome === 'function') {
-    drawPlayerHome(cx, cy, minDim * 0.06);
+    drawPlayerHome(cx, cy, minDim * 0.08);
   }
 
   if (typeof LOCATIONS !== 'undefined') {
@@ -321,6 +394,7 @@ function drawVillage() {
   if (typeof player !== 'undefined' && player.dest) {
     drawPlayerPath(cx, cy, minDim);
   }
+
   if (typeof drawPlayerCharacter === 'function') {
     drawPlayerCharacter(W, H);
   }
@@ -329,6 +403,7 @@ function drawVillage() {
     ctx.fillStyle = 'rgba(0,15,30,0.08)';
     ctx.fillRect(0, 0, W, H);
   }
+
   if (!night && currentWeather === 'sun') {
     drawAtmosphericParticles(W, H);
   }
@@ -341,6 +416,7 @@ function drawStars(cx, cy, minDim) {
     var sy = (Math.sin(i * 293.3) * 0.5 + 0.5) * (canvas.height / (window.devicePixelRatio || 1)) * 0.45;
     var twinkle = 0.3 + 0.7 * Math.sin(tick * 0.02 + i * 0.5);
     var size = 0.5 + Math.sin(i * 127) * 0.5;
+
     ctx.beginPath();
     ctx.arc(sx, sy, size, 0, Math.PI * 2);
     ctx.fillStyle = 'rgba(255,255,220,' + twinkle + ')';
@@ -351,16 +427,19 @@ function drawStars(cx, cy, minDim) {
 function drawCelestialBody(W, H, night) {
   var x = W * 0.85;
   var y = H * 0.12;
+
   if (night) {
     var moonGlow = ctx.createRadialGradient(x, y, 0, x, y, 40);
     moonGlow.addColorStop(0, 'rgba(240,230,160,0.3)');
     moonGlow.addColorStop(1, 'rgba(240,230,160,0)');
     ctx.fillStyle = moonGlow;
     ctx.fillRect(x - 40, y - 40, 80, 80);
+
     ctx.beginPath();
     ctx.arc(x, y, 16, 0, Math.PI * 2);
     ctx.fillStyle = '#f0e6a0';
     ctx.fill();
+
     ctx.beginPath();
     ctx.arc(x - 4, y - 2, 3, 0, Math.PI * 2);
     ctx.fillStyle = 'rgba(200,190,140,0.3)';
@@ -376,10 +455,12 @@ function drawCelestialBody(W, H, night) {
     sunGlow.addColorStop(1, 'rgba(255,230,160,0)');
     ctx.fillStyle = sunGlow;
     ctx.fillRect(x - 50, y - 50, 100, 100);
+
     ctx.beginPath();
     ctx.arc(x, y, 20, 0, Math.PI * 2);
     ctx.fillStyle = sunColor;
     ctx.fill();
+
     if (currentWeather !== 'rain') {
       for (var r = 0; r < 8; r++) {
         var angle = (r / 8) * Math.PI * 2 + tick * 0.005;
@@ -423,6 +504,7 @@ function drawRings(cx, cy, minDim, rings) {
     ctx.strokeStyle = ring.color;
     ctx.lineWidth = ring.width;
     ctx.stroke();
+
     ctx.beginPath();
     ctx.arc(cx, cy, r - 1, 0, Math.PI * 2);
     ctx.strokeStyle = 'rgba(200,170,100,0.15)';
@@ -433,45 +515,54 @@ function drawRings(cx, cy, minDim, rings) {
 
 function drawConnectors(cx, cy, minDim) {
   if (!LOCATIONS) return;
+
   ctx.strokeStyle = 'rgba(160,130,80,0.12)';
   ctx.lineWidth = 1;
   ctx.setLineDash([3, 6]);
+
   LOCATIONS.forEach(function(loc) {
     if (loc.id === 'cinema') return;
     var centerX = (loc._ringX !== undefined) ? loc._ringX : (loc.x + loc.w / 2);
     var centerY = (loc._ringY !== undefined) ? loc._ringY : (loc.y + loc.h / 2);
     var lx = cx + (centerX - 0.5) * minDim;
     var ly = cy + (centerY - 0.5) * minDim;
+
     ctx.beginPath();
     ctx.moveTo(cx, cy);
     ctx.lineTo(lx, ly);
     ctx.stroke();
   });
+
   ctx.setLineDash([]);
 }
 
 function drawLocPremium(loc, cx, cy, minDim, bob, isHovered) {
   if (!ctx) return;
+
   var scale = isHovered ? window.VILLAGE_CONFIG.hoverScale : 1.0;
+  // Taille du bâtiment : proportionnelle au rayon de l'anneau
   var mapping = window.LOC_RING_MAP && window.LOC_RING_MAP[loc.id];
-  var ringIdx  = (mapping && mapping[0] !== null) ? mapping[0] : null;
-  var rings    = window.VILLAGE_CONFIG.rings;
-  var baseRingRadius = (ringIdx !== null && rings[ringIdx]) ? rings[ringIdx].radius : 0.06;
-  var sizeRelative   = Math.max(0.04, baseRingRadius * 0.38);
+  var ringIdx = (mapping && mapping[0] !== null) ? mapping[0] : null;
+  var rings = window.VILLAGE_CONFIG.rings;
+  var baseRingRadius = (ringIdx !== null && rings[ringIdx]) ? rings[ringIdx].radius : 0.08;
+  // Taille relative à l'anneau : plus grand sur les anneaux extérieurs
+  var sizeRelative = Math.max(0.055, baseRingRadius * 0.38);
   var baseSize = sizeRelative * minDim;
   var size = baseSize * scale;
   var r = size * 0.5;
 
+  // Utilise la position pré-calculée sur l'anneau si disponible
   var centerX = (loc._ringX !== undefined) ? loc._ringX : (loc.x + loc.w / 2);
   var centerY = (loc._ringY !== undefined) ? loc._ringY : (loc.y + loc.h / 2);
+
   var bx = cx + (centerX - 0.5) * minDim;
   var by = cy + (centerY - 0.5) * minDim + bob;
 
   var night = currentWeather === 'night';
 
   ctx.save();
-  ctx.shadowColor   = 'rgba(0,0,0,0.4)';
-  ctx.shadowBlur    = isHovered ? 15 : 8;
+  ctx.shadowColor = 'rgba(0,0,0,0.4)';
+  ctx.shadowBlur = isHovered ? 15 : 8;
   ctx.shadowOffsetX = isHovered ? 6 : 3;
   ctx.shadowOffsetY = (isHovered ? 6 : 3) + 2;
 
@@ -487,6 +578,7 @@ function drawLocPremium(loc, cx, cy, minDim, bob, isHovered) {
 
   var grad = ctx.createRadialGradient(bx - r*0.3, by - r*0.3, 0, bx, by, r);
   var baseColor = loc.color;
+
   if (isHovered) {
     grad.addColorStop(0, lighten(baseColor, 30));
     grad.addColorStop(1, baseColor);
@@ -494,6 +586,7 @@ function drawLocPremium(loc, cx, cy, minDim, bob, isHovered) {
     grad.addColorStop(0, lighten(baseColor, 15));
     grad.addColorStop(1, baseColor);
   }
+
   ctx.beginPath();
   ctx.arc(bx, by, r, 0, Math.PI * 2);
   ctx.fillStyle = grad;
@@ -506,48 +599,49 @@ function drawLocPremium(loc, cx, cy, minDim, bob, isHovered) {
     ctx.strokeStyle = '#FFD700';
     ctx.lineWidth = 3;
     ctx.shadowColor = '#FFD700';
-    ctx.shadowBlur  = 10;
+    ctx.shadowBlur = 10;
   } else {
     ctx.strokeStyle = hexA(darken(loc.color), 0.8);
     ctx.lineWidth = 2;
     ctx.shadowColor = 'transparent';
-    ctx.shadowBlur  = 0;
+    ctx.shadowBlur = 0;
   }
   ctx.stroke();
   ctx.shadowColor = 'transparent';
-  ctx.shadowBlur  = 0;
+  ctx.shadowBlur = 0;
 
   if (night) {
     ctx.fillStyle = 'rgba(255,220,120,0.7)';
     var winSize = r * 0.18;
     ctx.fillRect(bx - r * 0.25, by - r * 0.1, winSize, winSize);
     ctx.fillRect(bx + r * 0.08, by - r * 0.1, winSize, winSize);
+
     ctx.shadowColor = 'rgba(255,220,120,0.5)';
-    ctx.shadowBlur  = 8;
+    ctx.shadowBlur = 8;
     ctx.fillRect(bx - r * 0.25, by - r * 0.1, winSize, winSize);
     ctx.fillRect(bx + r * 0.08, by - r * 0.1, winSize, winSize);
     ctx.shadowColor = 'transparent';
-    ctx.shadowBlur  = 0;
+    ctx.shadowBlur = 0;
   }
 
   ctx.font = (size * 0.42) + 'px serif';
-  ctx.textAlign    = 'center';
+  ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
   ctx.fillText(loc.emoji, bx, by);
 
   var nativeLang = (window.S && window.S.nativeLang) ? window.S.nativeLang : 'en';
-  var nm = (LOC_NAMES && LOC_NAMES[loc.id] && LOC_NAMES[loc.id][nativeLang])
-           ? LOC_NAMES[loc.id][nativeLang] : loc.id;
+  var nm = (LOC_NAMES && LOC_NAMES[loc.id] && LOC_NAMES[loc.id][nativeLang]) ? LOC_NAMES[loc.id][nativeLang] : loc.id;
 
-  ctx.font = 'bold ' + Math.max(8, Math.min(size * 0.16, 11)) + 'px Nunito,sans-serif';
-  ctx.fillStyle    = isHovered ? '#FFD700' : 'rgba(255,245,220,0.95)';
-  ctx.textAlign    = 'center';
+  ctx.font = 'bold ' + Math.max(9, Math.min(size * 0.16, 12)) + 'px Nunito,sans-serif';
+  ctx.fillStyle = isHovered ? '#FFD700' : 'rgba(255,245,220,0.95)';
+  ctx.textAlign = 'center';
   ctx.textBaseline = 'top';
-  ctx.shadowColor  = 'rgba(0,0,0,0.6)';
-  ctx.shadowBlur   = 4;
-  ctx.fillText(nm, bx, by + r + 4);
+
+  ctx.shadowColor = 'rgba(0,0,0,0.6)';
+  ctx.shadowBlur = 4;
+  ctx.fillText(nm, bx, by + r + 6);
   ctx.shadowColor = 'transparent';
-  ctx.shadowBlur  = 0;
+  ctx.shadowBlur = 0;
 
   if (loc.id === 'cinema') {
     ctx.beginPath();
@@ -555,8 +649,8 @@ function drawLocPremium(loc, cx, cy, minDim, bob, isHovered) {
     ctx.fillStyle = '#e040fb';
     ctx.fill();
     ctx.font = (size * 0.14) + 'px Nunito';
-    ctx.fillStyle    = '#fff';
-    ctx.textAlign    = 'center';
+    ctx.fillStyle = '#fff';
+    ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     ctx.fillText('▶', bx + r * 0.7, by - r * 0.7);
   }
@@ -564,10 +658,12 @@ function drawLocPremium(loc, cx, cy, minDim, bob, isHovered) {
 
 function drawPlayerPath(cx, cy, minDim) {
   if (!player || !player.dest) return;
-  var px = cx + (player.x     - 0.5) * minDim;
-  var py = cy + (player.y     - 0.5) * minDim;
+
+  var px = cx + (player.x - 0.5) * minDim;
+  var py = cy + (player.y - 0.5) * minDim;
   var dx = cx + (player.dest.x - 0.5) * minDim;
   var dy = cy + (player.dest.y - 0.5) * minDim;
+
   ctx.beginPath();
   ctx.moveTo(px, py);
   ctx.lineTo(dx, dy);
@@ -576,6 +672,7 @@ function drawPlayerPath(cx, cy, minDim) {
   ctx.setLineDash([5, 8]);
   ctx.stroke();
   ctx.setLineDash([]);
+
   var pulse = 0.5 + 0.5 * Math.sin(tick * 0.1);
   ctx.beginPath();
   ctx.arc(dx, dy, 4 + pulse * 3, 0, Math.PI * 2);
@@ -586,69 +683,75 @@ function drawPlayerPath(cx, cy, minDim) {
 function drawAtmosphericParticles(W, H) {
   var count = window.VILLAGE_CONFIG.particleCount;
   for (var i = 0; i < count; i++) {
-    var px    = (Math.sin(i * 137.3 + tick * 0.008) * 0.5 + 0.5) * W;
-    var py    = (Math.cos(i * 97.1  + tick * 0.006) * 0.5 + 0.5) * H;
+    var px = (Math.sin(i * 137.3 + tick * 0.008) * 0.5 + 0.5) * W;
+    var py = (Math.cos(i * 97.1 + tick * 0.006) * 0.5 + 0.5) * H;
     var alpha = 0.1 + 0.1 * Math.sin(tick * 0.02 + i);
-    var sz    = 0.5 + Math.sin(i * 53.7) * 0.5;
+    var size = 0.5 + Math.sin(i * 53.7) * 0.5;
+
     ctx.beginPath();
-    ctx.arc(px, py, sz, 0, Math.PI * 2);
+    ctx.arc(px, py, size, 0, Math.PI * 2);
     ctx.fillStyle = 'rgba(255,255,200,' + alpha + ')';
     ctx.fill();
   }
 }
 
 function hexA(h, a) {
-  var r = parseInt(h.slice(1,3), 16);
-  var g = parseInt(h.slice(3,5), 16);
-  var b = parseInt(h.slice(5,7), 16);
+  var r = parseInt(h.slice(1, 3), 16);
+  var g = parseInt(h.slice(3, 5), 16);
+  var b = parseInt(h.slice(5, 7), 16);
   return 'rgba(' + r + ',' + g + ',' + b + ',' + a + ')';
 }
+
 function darken(h) {
-  return '#' + [1,3,5].map(function(i) {
-    return Math.max(0, parseInt(h.slice(i,i+2),16) - 50).toString(16).padStart(2,'0');
-  }).join('');
-}
-function lighten(h, amount) {
-  return '#' + [1,3,5].map(function(i) {
-    return Math.min(255, parseInt(h.slice(i,i+2),16) + amount).toString(16).padStart(2,'0');
-  }).join('');
+  var parts = [1, 3, 5].map(function(i) {
+    return Math.max(0, parseInt(h.slice(i, i + 2), 16) - 50)
+      .toString(16)
+      .padStart(2, '0');
+  });
+  return '#' + parts.join('');
 }
 
-// ================================================================
-// getLocAt — détection du clic/tap sur un bâtiment
-// ================================================================
+function lighten(h, amount) {
+  var parts = [1, 3, 5].map(function(i) {
+    return Math.min(255, parseInt(h.slice(i, i + 2), 16) + amount)
+      .toString(16)
+      .padStart(2, '0');
+  });
+  return '#' + parts.join('');
+}
+
 function getLocAt(mx, my) {
   if (!canvas || typeof LOCATIONS === 'undefined') return null;
   var dpr = window.devicePixelRatio || 1;
-  var W   = canvas.width  / dpr;
-  var H   = canvas.height / dpr;
-  var cx  = W * 0.5;
-  var cy  = H * 0.5;
-  var minDim = Math.min(W, H) * 0.90;
+  var W = canvas.width / dpr;
+  var H = canvas.height / dpr;
+  var cx = W * 0.5;
+  var cy = H * 0.5;
+  var rawMin = Math.min(W, H);
+  var minDim = Math.min(rawMin * 0.95, W - 8, H - 8);
 
   return LOCATIONS.find(function(loc) {
     var centerX = (loc._ringX !== undefined) ? loc._ringX : (loc.x + loc.w / 2);
     var centerY = (loc._ringY !== undefined) ? loc._ringY : (loc.y + loc.h / 2);
     var bx = cx + (centerX - 0.5) * minDim;
     var by = cy + (centerY - 0.5) * minDim;
+    // Rayon de hit basé sur la même logique que drawLocPremium
     var mapping = window.LOC_RING_MAP && window.LOC_RING_MAP[loc.id];
     var ringIdx = (mapping && mapping[0] !== null) ? mapping[0] : null;
-    var rings   = window.VILLAGE_CONFIG.rings;
-    var baseRingRadius = (ringIdx !== null && rings[ringIdx]) ? rings[ringIdx].radius : 0.06;
-    var sizeRelative   = Math.max(0.04, baseRingRadius * 0.38);
-    var r  = (sizeRelative * minDim) * 0.5;
+    var rings = window.VILLAGE_CONFIG.rings;
+    var baseRingRadius = (ringIdx !== null && rings[ringIdx]) ? rings[ringIdx].radius : 0.08;
+    var sizeRelative = Math.max(0.055, baseRingRadius * 0.38);
+    var r = (sizeRelative * minDim) * 0.5;
     var dx = mx - bx;
     var dy = my - by;
-    return dx*dx + dy*dy <= r*r * 1.4;
+    return dx * dx + dy * dy <= r * r * 1.4;
   });
 }
 
-// ================================================================
-// onVillageHover
-// ================================================================
 function onVillageHover(e) {
   var rect = canvas.getBoundingClientRect();
-  var loc  = getLocAt(e.clientX - rect.left, e.clientY - rect.top);
+  var loc = getLocAt(e.clientX - rect.left, e.clientY - rect.top);
+
   hoveredLoc = loc ? loc.id : null;
   canvas.style.cursor = loc ? 'pointer' : 'default';
 
@@ -656,32 +759,29 @@ function onVillageHover(e) {
   if (loc && tip) {
     var nativeLang = (window.S && window.S.nativeLang) ? window.S.nativeLang : 'en';
     var nm = (LOC_NAMES[loc.id] && LOC_NAMES[loc.id][nativeLang]) ? LOC_NAMES[loc.id][nativeLang] : loc.id;
-    var ds = (LOC_DESC[loc.id]  && LOC_DESC[loc.id][nativeLang])  ? LOC_DESC[loc.id][nativeLang]  : '';
+    var ds = (LOC_DESC[loc.id] && LOC_DESC[loc.id][nativeLang]) ? LOC_DESC[loc.id][nativeLang] : '';
     var weather = WEATHER_ICONS[currentWeather] || '';
-    tip.innerHTML = '<strong style="color:var(--gold)">' + weather + ' ' + nm + '</strong>' +
+    tip.innerHTML = '<strong style="color:var(--gold)">' + weather + ' ' + nm + '</strong>' + 
                     (ds ? '<br><span style="color:var(--dim);font-size:0.78rem">' + ds + '</span>' : '');
-    var dpr    = window.devicePixelRatio || 1;
-    var cW     = canvas.width  / dpr;
-    var cH     = canvas.height / dpr;
-    var cx2    = cW * 0.5;
-    var cy2    = cH * 0.5;
-    var minDim = Math.min(cW, cH) * 0.90;
+    var dpr = window.devicePixelRatio || 1;
+    var cW = canvas.width / dpr;
+    var cH = canvas.height / dpr;
+    var cx = cW * 0.5;
+    var cy = cH * 0.5;
+    var minDim = Math.min(cW, cH);
     var centerX = (loc._ringX !== undefined) ? loc._ringX : (loc.x + loc.w / 2);
     var centerY = (loc._ringY !== undefined) ? loc._ringY : (loc.y + loc.h / 2);
-    tip.style.left = (cx2 + (centerX - 0.5) * minDim) + 'px';
-    tip.style.top  = (cy2 + (centerY - 0.5) * minDim - 60) + 'px';
+    tip.style.left = (cx + (centerX - 0.5) * minDim) + 'px';
+    tip.style.top  = (cy + (centerY - 0.5) * minDim - 60) + 'px';
     tip.classList.add('show');
   } else if (tip) {
     tip.classList.remove('show');
   }
 }
 
-// ================================================================
-// onVillageClick
-// ================================================================
 function onVillageClick(e) {
   var rect = canvas.getBoundingClientRect();
-  var loc  = getLocAt(e.clientX - rect.left, e.clientY - rect.top);
+  var loc = getLocAt(e.clientX - rect.left, e.clientY - rect.top);
   if (!loc) return;
 
   var xpReq = LOC_XP_REQUIREMENTS ? (LOC_XP_REQUIREMENTS[loc.id] || 0) : 0;
@@ -714,14 +814,11 @@ function onVillageClick(e) {
   }
 }
 
-// ================================================================
-// onVillageTouch
-// ================================================================
 function onVillageTouch(e) {
   e.preventDefault();
   var rect = canvas.getBoundingClientRect();
-  var t    = e.touches[0];
-  var loc  = getLocAt(t.clientX - rect.left, t.clientY - rect.top);
+  var t = e.touches[0];
+  var loc = getLocAt(t.clientX - rect.left, t.clientY - rect.top);
   if (!loc) return;
 
   var xpReq = LOC_XP_REQUIREMENTS ? (LOC_XP_REQUIREMENTS[loc.id] || 0) : 0;
@@ -754,19 +851,13 @@ function onVillageTouch(e) {
   }
 }
 
-// ================================================================
-// XP requis par lieu
-// ================================================================
 var LOC_XP_REQUIREMENTS = {
-  church:   0,   school:  0,   friends: 0,
-  market:   50,  tavern:  50,  park:    50,
+  church:   0, school:  0, friends: 0,
+  market:   50, tavern:  50, park:    50,
   hospital: 150, bank:    150, station: 150,
   police:   300, factory: 300, cinema:  400,
 };
 
-// ================================================================
-// loadLocation
-// ================================================================
 function loadLocation(locId) {
   var loc = LOCATIONS.find(function(l) { return l.id === locId; });
   if (!loc) return;
