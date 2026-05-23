@@ -16,9 +16,10 @@
     .screen.active { display: flex; }
     #screen-welcome { background: radial-gradient(ellipse at 50% 30%, #0d1a2e 0%, #07090f 70%); align-items: center; justify-content: center; padding: 20px; }
     /* Village screen : colonne stricte, pas de scroll, canvas remplit le reste */
-    #screen-village { overflow: hidden !important; display: none; flex-direction: column; }
-    #screen-village.active { display: flex; align-items: center; justify-content: center; }
-    #screen-village #villageCanvas { display: block; flex-shrink: 0; }
+    #screen-village { overflow: hidden !important; display: none; flex-direction: column; height: 100dvh; height: 100vh; max-height: 100dvh; }
+    #screen-village.active { display: flex; }
+    #screen-village .village-canvas-wrap { flex: 1 1 0; min-height: 0; position: relative; overflow: hidden; }
+    #screen-village #villageCanvas { display: block; width: 100% !important; height: 100% !important; touch-action: none; }
     #screen-welcome { background: radial-gradient(ellipse at 50% 30%, #0d1a2e 0%, #07090f 70%); align-items: center; justify-content: center; padding: 20px; }
     .welcome-form { width: 100%; max-width: 420px; background: rgba(15,21,32,0.85); border-radius: 16px; padding: 20px; backdrop-filter: blur(8px); }
     .logo { font-family: 'Cinzel', serif; font-size: 1.8rem; font-weight: 900; color: #ffd700; text-align: center; margin-bottom: 4px; }
@@ -132,12 +133,12 @@
 <!-- ================= ÉCRAN VILLAGE ================= -->
 <div class="screen" id="screen-village">
   <div class="village-hud">
-    <span class="hud-player" id="hudPlayer">👤</span>
+    <span class="hud-player"  id="hudPlayer">👤</span>
     <span class="hud-weather" id="hudWeather">☀️</span>
-    <span class="hud-time" id="hudTime"></span>
-    <span class="hud-lang" id="hudLang"></span>
+    <span class="hud-time"    id="hudTime"></span>
+    <span class="hud-lang"    id="hudLang"></span>
     <span id="streakDisplay">🔥 0</span>
-    <span class="hud-xp" id="hudXP">0 XP</span>
+    <span class="hud-xp"      id="hudXP">0 XP</span>
     <div class="hud-btns">
       <button class="hud-btn" onclick="showScreen('screen-menu')">← Menu</button>
       <button class="hud-btn" onclick="showDetailedStats()">📊</button>
@@ -147,8 +148,10 @@
       <button class="hud-btn" onclick="openReminderSettings()">🔔</button>
     </div>
   </div>
-  <canvas id="villageCanvas"></canvas>
-  <div class="loc-tooltip" id="locTooltip"></div>
+  <div class="village-canvas-wrap">
+    <canvas id="villageCanvas"></canvas>
+    <div class="loc-tooltip" id="locTooltip"></div>
+  </div>
 </div>
 
 <!-- ================= ÉCRAN LIEU ================= -->
