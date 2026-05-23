@@ -509,70 +509,88 @@ input  { font-family: var(--font-body); }
 /* ================================================================
    VILLAGE SCREEN
    ================================================================ */
+
+/* Colonne stricte, hauteur = viewport visible (barre URL exclue) */
 #screen-village {
   background: radial-gradient(ellipse at 50% 100%, #0a1a0e 0%, #07090f 60%);
   overflow: hidden !important;
   display: none;
   flex-direction: column;
+  height: 100dvh;      /* dynamic viewport height — exclut la barre URL mobile */
+  height: 100vh;       /* fallback navigateurs anciens */
+  max-height: 100dvh;
 }
 #screen-village.active { display: flex; }
 
-/* Village HUD */
+/* ── Village HUD : une seule ligne, scroll horizontal si besoin ── */
 .village-hud {
-  position: relative;
-  top: auto;
-  left: auto;
-  right: auto;
-  flex-shrink: 0;
+  flex-shrink: 0;          /* ne se compresse jamais */
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 10px 16px;
-  background: rgba(7,9,15,0.92);
-  backdrop-filter: blur(8px);
+  gap: 8px;
+  padding: 8px 12px;
+  background: rgba(7,9,15,0.94);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
   border-bottom: 1px solid var(--border);
   z-index: 10;
-  flex-wrap: wrap;
-  font-size: 0.75rem;
+  /* PAS de flex-wrap : on scroll horizontalement à la place */
+  overflow-x: auto;
+  overflow-y: hidden;
+  white-space: nowrap;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  font-size: 0.72rem;
   font-weight: 600;
+  min-height: 44px;
 }
+.village-hud::-webkit-scrollbar { display: none; }
+
 .hud-player, .hud-lang, .hud-xp {
+  flex-shrink: 0;
   background: rgba(255,255,255,0.06);
-  padding: 4px 10px;
+  padding: 3px 9px;
   border-radius: 20px;
+  white-space: nowrap;
 }
 .hud-weather, .hud-time {
+  flex-shrink: 0;
   font-size: 1rem;
 }
-.hud-btns {
-  display: flex;
-  gap: 6px;
-  margin-left: auto;
-}
-.hud-btn {
-  background: rgba(255,255,255,0.06);
-  border: 1px solid var(--border);
-  border-radius: 20px;
-  padding: 4px 10px;
-  font-size: 0.7rem;
-  font-weight: 700;
-  color: var(--text);
-  transition: all 0.2s;
-}
-.hud-btn:hover {
-  background: rgba(255,215,0,0.1);
-  border-color: var(--gold);
-}
 #streakDisplay {
+  flex-shrink: 0;
   font-size: 0.7rem;
   font-weight: 900;
   color: #ff9f43;
   background: rgba(255,159,67,0.1);
   padding: 2px 8px;
   border-radius: 12px;
+  white-space: nowrap;
+}
+.hud-btns {
+  display: flex;
+  gap: 5px;
+  margin-left: auto;
+  flex-shrink: 0;
+}
+.hud-btn {
+  flex-shrink: 0;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  padding: 3px 9px;
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: var(--text);
+  transition: all 0.18s;
+  white-space: nowrap;
+}
+.hud-btn:hover {
+  background: rgba(255,215,0,0.1);
+  border-color: var(--gold);
 }
 
-/* Village header */
+/* Village header (écrans de lieu, etc.) */
 .village-header {
   padding: 16px 20px;
   display: flex;
@@ -608,27 +626,30 @@ input  { font-family: var(--font-body); }
   font-weight: 700;
 }
 
-/* Village canvas area */
+/* ── Wrapper canvas : prend TOUT l'espace restant après le HUD ── */
 .village-canvas-wrap {
-  flex: 1;
+  flex: 1 1 0;         /* 1 = grandit, 1 = rétrécit, 0 = base zéro */
+  min-height: 0;       /* obligatoire pour flex:1 dans un flex-column */
   position: relative;
-  margin: 0;
   overflow: hidden;
-  background: rgba(10,20,15,0.6);
-  min-height: 0;
+  background: rgba(10,20,15,0.5);
 }
+
+/* ── Canvas : remplit son wrapper à 100% ── */
 #villageCanvas {
   display: block;
-  /* Taille contrôlée exclusivement par JS — pas de !important */
+  width: 100% !important;
+  height: 100% !important;
+  touch-action: none;  /* empêche le scroll natif sur tap mobile */
 }
 
 /* Location tooltip */
 .loc-tooltip {
   position: absolute;
-  background: rgba(7,9,15,0.95);
+  background: rgba(7,9,15,0.96);
   border: 1px solid var(--gold);
   border-radius: 12px;
-  padding: 6px 12px;
+  padding: 5px 11px;
   font-size: 0.7rem;
   font-weight: 700;
   color: var(--text);
@@ -637,6 +658,7 @@ input  { font-family: var(--font-body); }
   white-space: nowrap;
   transform: translate(-50%, -100%);
   display: none;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.5);
 }
 .loc-tooltip.show { display: block; }
 
