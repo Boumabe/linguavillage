@@ -241,7 +241,7 @@ function _drawIsoVillage() {
   ctx.scale(dpr, dpr);
 
   // ── SKY ──────────────────────────────────────────────────────────
-  var skyGrad = ctx.createLinearGradient(0, 0, 0, H * 0.65);
+  var skyGrad = ctx.createLinearGradient(0, 0, 0, H * 0.58);
   var night   = currentWeather === 'night';
   if (night) {
     skyGrad.addColorStop(0, '#060818');
@@ -256,26 +256,26 @@ function _drawIsoVillage() {
   ctx.fillStyle = skyGrad;
   ctx.fillRect(0, 0, W, H);
 
-  // ── MONTAGNE (fond) ───────────────────────────────────────────────
+  // ── MONTAGNE (fond, derrière le sol) ─────────────────────────────
   _drawMountains(W, H, night);
 
   // ── NUAGES ───────────────────────────────────────────────────────
   if (!night) _drawClouds(W, H);
 
-  // ── TERRAIN ISOMÉTRIQUE ───────────────────────────────────────────
+  // ── TERRAIN ISOMÉTRIQUE (sol par-dessus les montagnes) ───────────
   _drawIsoTerrain(W, H);
 
   // ── CHEMIN ───────────────────────────────────────────────────────
   _drawPath(W, H);
 
-  // ── ZONES ET BÂTIMENTS ───────────────────────────────────────────
-  _drawZonesAndBuildings(W, H);
+  // ── ARBRES (derrière les bâtiments) ──────────────────────────────
+  _drawTrees(W, H);
 
   // ── RIVIÈRE ───────────────────────────────────────────────────────
   _drawRiver(W, H);
 
-  // ── ARBRE DÉCORATIF ───────────────────────────────────────────────
-  _drawTrees(W, H);
+  // ── ZONES ET BÂTIMENTS (devant tout) ─────────────────────────────
+  _drawZonesAndBuildings(W, H);
 
   // ── PARTICULES ───────────────────────────────────────────────────
   _updateAndDrawParticles(W, H);
@@ -305,19 +305,18 @@ function _getZoneX(zoneIdx, W) {
 }
 
 function _getGroundY(W, H) {
-  // Ligne du sol isométrique
-  return H * 0.72;
+  // Ligne du sol — remonté à 58% pour que les bâtiments aient de la place
+  return H * 0.58;
 }
 
 function _getBuildingPos(zoneIdx, buildIdx, buildCount, W, H) {
   var zX     = _getZoneX(zoneIdx, W);
   var gY     = _getGroundY(W, H);
-  var spread = W * 0.09;
-  // Disposition : 1 bâtiment centré, 2+ répartis
+  var spread = W * 0.13;  // plus large pour éviter le chevauchement
   var offset = buildCount === 1 ? 0 :
-               buildCount === 2 ? (buildIdx === 0 ? -spread * 0.6 : spread * 0.6) :
-               (buildIdx - 1) * spread * 0.7;
-  return { x: zX + offset, y: gY - H * 0.01 };
+               buildCount === 2 ? (buildIdx === 0 ? -spread * 0.55 : spread * 0.55) :
+               (buildIdx - 1) * spread * 0.65;
+  return { x: zX + offset, y: gY };
 }
 
 // ================================================================
@@ -349,30 +348,32 @@ function _drawMountains(W, H, night) {
   var cols = night
     ? ['#1a1f35','#141828','#0e121f']
     : ['#7bbf9a','#5ea078','#4a8a62'];
+  // Pics beaucoup plus bas (H*0.42–0.50) et base à H*0.55 max
+  // → les montagnes restent en arrière-plan derrière le sol
   var peaks = [
-    [W*0.05, H*0.38, W*0.22],
-    [W*0.18, H*0.28, W*0.18],
-    [W*0.55, H*0.33, W*0.20],
-    [W*0.70, H*0.25, W*0.22],
-    [W*0.88, H*0.31, W*0.19],
-    [W*1.05, H*0.29, W*0.17],
+    [W*0.05, H*0.42, W*0.18],
+    [W*0.20, H*0.36, W*0.15],
+    [W*0.42, H*0.40, W*0.17],
+    [W*0.62, H*0.34, W*0.18],
+    [W*0.80, H*0.39, W*0.16],
+    [W*1.00, H*0.37, W*0.15],
   ];
   peaks.forEach(function(p, i) {
     ctx.beginPath();
-    ctx.moveTo(p[0] - p[2]*0.5, H*0.58);
+    ctx.moveTo(p[0] - p[2]*0.5, H*0.54);
     ctx.lineTo(p[0], p[1]);
-    ctx.lineTo(p[0] + p[2]*0.5, H*0.58);
+    ctx.lineTo(p[0] + p[2]*0.5, H*0.54);
     ctx.closePath();
     ctx.fillStyle = cols[i % cols.length];
     ctx.fill();
     // Neige au sommet
     if (!night) {
       ctx.beginPath();
-      ctx.moveTo(p[0] - p[2]*0.08, p[1] + p[2]*0.12);
+      ctx.moveTo(p[0] - p[2]*0.07, p[1] + p[2]*0.10);
       ctx.lineTo(p[0], p[1]);
-      ctx.lineTo(p[0] + p[2]*0.08, p[1] + p[2]*0.12);
+      ctx.lineTo(p[0] + p[2]*0.07, p[1] + p[2]*0.10);
       ctx.closePath();
-      ctx.fillStyle = 'rgba(255,255,255,0.82)';
+      ctx.fillStyle = 'rgba(255,255,255,0.85)';
       ctx.fill();
     }
   });
@@ -462,15 +463,14 @@ function _drawPath(W, H) {
   ctx.setLineDash([]);
 
   ctx.beginPath();
-  ctx.moveTo(-sx, gY + H * 0.06);
   var numZones = window.VILLAGE_ZONES.length;
   for (var i = 0; i <= numZones; i++) {
     var px = _getZoneX(i, W);
-    var py = gY + H * 0.04 + Math.sin(i * 1.8) * H * 0.025;
+    var py = gY + H * 0.02 + Math.sin(i * 1.8) * H * 0.015;
     if (i === 0) ctx.moveTo(px - W * 0.25, py);
     else ctx.lineTo(px, py);
   }
-  ctx.lineTo(_getZoneX(numZones - 1, W) + W * 0.3, gY + H * 0.04);
+  ctx.lineTo(_getZoneX(numZones - 1, W) + W * 0.3, gY + H * 0.02);
   ctx.stroke();
 
   // Bordures du chemin
@@ -547,12 +547,13 @@ function _drawRiver(W, H) {
 function _drawTrees(W, H) {
   var gY = _getGroundY(W, H);
   var treePositions = [];
-  // Arbres entre les zones
   var numZones = window.VILLAGE_ZONES.length;
   for (var i = 0; i < numZones + 1; i++) {
     var zx = _getZoneX(i, W);
-    treePositions.push({ x: zx - W*0.13, y: gY - H*0.005, s: 0.85 });
-    treePositions.push({ x: zx + W*0.13, y: gY - H*0.01,  s: 0.75 });
+    // Arbres bien sur le sol, en arrière-plan des bâtiments
+    treePositions.push({ x: zx - W*0.16, y: gY, s: 0.55 });
+    treePositions.push({ x: zx + W*0.16, y: gY, s: 0.50 });
+    treePositions.push({ x: zx - W*0.10, y: gY + H*0.018, s: 0.38 });
   }
   treePositions.forEach(function(t) {
     if (t.x < -40 || t.x > W + 40) return;
@@ -648,7 +649,7 @@ function _drawZonesAndBuildings(W, H) {
     // ── Label de zone (en haut) ──
     var zLabel = zone.label[nl] || zone.label.fr;
     var zSub   = zone.sublabel[nl] || zone.sublabel.fr;
-    var labelY = gY - H * 0.48;
+    var labelY = H * 0.10;  // fixé en haut de l'écran, pas relatif au sol
 
     // Badge de zone
     ctx.save();
@@ -686,8 +687,8 @@ function _drawZonesAndBuildings(W, H) {
     ctx.setLineDash([4, 4]);
     ctx.globalAlpha = 0.5;
     ctx.beginPath();
-    ctx.moveTo(zX, labelY + 18);
-    ctx.lineTo(zX, gY - H * 0.19);
+    ctx.moveTo(zX, labelY + 20);
+    ctx.lineTo(zX, gY - H * 0.32);
     ctx.stroke();
     ctx.restore();
 
@@ -704,24 +705,23 @@ function _drawZonesAndBuildings(W, H) {
     if (!unlocked) {
       var needed = zone.xpRequired - xp;
       ctx.save();
-      ctx.fillStyle  = 'rgba(0,0,0,0.55)';
-      _roundRect(ctx, zX - 44, gY - H*0.08, 88, 22, 8);
+      ctx.fillStyle  = 'rgba(0,0,0,0.65)';
+      _roundRect(ctx, zX - 50, gY - H*0.22, 100, 26, 10);
       ctx.fill();
       ctx.fillStyle  = '#ff9f43';
-      ctx.font       = 'bold ' + Math.round(H * 0.014) + 'px system-ui';
+      ctx.font       = 'bold ' + Math.round(H * 0.018) + 'px system-ui';
       ctx.textAlign  = 'center';
-      ctx.fillText('🔒 +' + needed + ' XP', zX, gY - H*0.063);
+      ctx.fillText('🔒 +' + needed + ' XP', zX, gY - H*0.198);
       ctx.restore();
     } else {
-      // Badge "débloqué"
       ctx.save();
-      ctx.fillStyle  = 'rgba(78,207,112,0.18)';
-      _roundRect(ctx, zX - 32, gY - H*0.08, 64, 20, 8);
+      ctx.fillStyle  = 'rgba(78,207,112,0.22)';
+      _roundRect(ctx, zX - 38, gY - H*0.22, 76, 22, 10);
       ctx.fill();
       ctx.fillStyle  = '#4ecf70';
-      ctx.font       = 'bold ' + Math.round(H * 0.014) + 'px system-ui';
+      ctx.font       = 'bold ' + Math.round(H * 0.017) + 'px system-ui';
       ctx.textAlign  = 'center';
-      ctx.fillText('✅ Débloqué', zX, gY - H*0.064);
+      ctx.fillText('✅ Débloqué', zX, gY - H*0.202);
       ctx.restore();
     }
   });
@@ -731,10 +731,11 @@ function _drawZonesAndBuildings(W, H) {
 // DESSIN : UN BÂTIMENT ISOMÉTRIQUE
 // ================================================================
 function _drawIsoBuild(ctx, x, y, bld, zone, unlocked, isHovered, W, H, nl) {
-  var s     = H * 0.095; // taille de base
+  var s     = H * 0.16;  // taille augmentée (était 0.095)
   var bob   = Math.sin(tick * 0.022 + x * 0.01) * 2.5;
-  var scale = isHovered ? 1.12 : 1;
-  var bY    = y + bob - s * 0.5;
+  var scale = isHovered ? 1.10 : 1;
+  // Position Y : le bas du bâtiment est sur le sol, pas au-dessus
+  var bY    = y - s * 0.85 + bob;
   var bX    = x;
 
   ctx.save();
@@ -784,9 +785,9 @@ function _drawIsoBuild(ctx, x, y, bld, zone, unlocked, isHovered, W, H, nl) {
 
     // Label du bâtiment
     var bLabel = bld.label[nl] || bld.label.fr;
-    ctx.font      = 'bold ' + Math.round(H * 0.016) + 'px system-ui, sans-serif';
+    ctx.font      = 'bold ' + Math.round(H * 0.022) + 'px system-ui, sans-serif';
     ctx.fillStyle = '#ffffff';
-    ctx.fillText(bLabel, 0, s * 0.78);
+    ctx.fillText(bLabel, 0, s * 0.88);
     ctx.shadowBlur = 0;
   }
 
