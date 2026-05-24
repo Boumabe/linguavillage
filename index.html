@@ -16,10 +16,9 @@
     .screen.active { display: flex; }
     #screen-welcome { background: radial-gradient(ellipse at 50% 30%, #0d1a2e 0%, #07090f 70%); align-items: center; justify-content: center; padding: 20px; }
     /* Village screen : colonne stricte, pas de scroll, canvas remplit le reste */
-    #screen-village { overflow: hidden !important; display: none; flex-direction: column; height: 100dvh; height: 100vh; max-height: 100dvh; }
+    #screen-village { overflow: hidden !important; display: none; flex-direction: column; height:100dvh; height:100vh; max-height:100dvh; }
     #screen-village.active { display: flex; }
-    #screen-village .village-canvas-wrap { flex: 1 1 0; min-height: 0; position: relative; overflow: hidden; }
-    #screen-village #villageCanvas { display: block; width: 100% !important; height: 100% !important; touch-action: none; }
+    #screen-village .village-canvas-wrap { flex:1 1 0; min-height:0; position:relative; overflow:hidden; } #screen-village #villageCanvas { display:block; width:100%!important; height:100%!important; touch-action:none; }
     #screen-welcome { background: radial-gradient(ellipse at 50% 30%, #0d1a2e 0%, #07090f 70%); align-items: center; justify-content: center; padding: 20px; }
     .welcome-form { width: 100%; max-width: 420px; background: rgba(15,21,32,0.85); border-radius: 16px; padding: 20px; backdrop-filter: blur(8px); }
     .logo { font-family: 'Cinzel', serif; font-size: 1.8rem; font-weight: 900; color: #ffd700; text-align: center; margin-bottom: 4px; }
@@ -156,9 +155,13 @@
 
 <!-- ================= ÉCRAN LIEU ================= -->
 <div class="screen" id="screen-location">
-  <div class="u-header"><button class="back-btn" onclick="showScreen('screen-village')">← Village</button><div class="u-title" id="locTitle"></div><span id="locWeather"></span></div>
+  <div class="u-header">
+    <button class="back-btn" onclick="showScreen('screen-village');window._villageLoopActive=true;window._villageLoopRunning=true;requestAnimationFrame(window.drawVillage);">← Village</button>
+    <div class="u-title" id="locTitle"></div>
+    <span id="locWeather"></span>
+  </div>
   <div id="missionsPanel"></div>
-  <div class="npc-list" id="npcList"></div>
+  <div class="npc-list" id="npcList" style="padding:12px 16px;display:flex;flex-direction:column;gap:0;"></div>
 </div>
 
 <!-- ================= ÉCRAN DIALOGUE ================= -->
