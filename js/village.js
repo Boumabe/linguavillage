@@ -1,9 +1,8 @@
-// LinguaVillage — village.js  ILLUSTRATED MAP EDITION
-// Reproduit fidèlement le visuel de la maquette :
-//   ciel bleu dégradé, montagnes vertes, nuages blancs, forêt, rivière, pont en arc,
-//   chemin de pierres sinueux, 5 bâtiments illustrés (chaumière → château),
-//   badges de niveau numérotés, cadenas sur les zones verrouillées,
-//   barre de navigation bas (Village / Leçons / Pratique / Défis / Profil).
+// LinguaVillage — village.js  ILLUSTRATED MAP EDITION (CORRIGÉ COMPLET)
+// Corrections intégrées :
+// - Clic sur bâtiment → ouvre dialogue direct avec PNJ associé
+// - Barre de navigation : bouton "Leçons" redirige vers screen-vocab
+// - Tooltip au survol pour plus d'immersion
 // ================================================================
 
 window.canvas  = null;
@@ -57,6 +56,17 @@ window.VILLAGE_ZONES = [
     state: 'locked'
   }
 ];
+
+// ================================================================
+// MAPPING ZONE -> PNJ (pour ouvrir le dialogue)
+// ================================================================
+const ZONE_TO_NPC = {
+  zero:      { locId: 'school',   npcId: 'teacher'   },  // cottage → professeur
+  beginner:  { locId: 'market',   npcId: 'merchant'  },  // boutique → marchand
+  elementary:{ locId: 'tavern',   npcId: 'bartender' },  // auberge → barman
+  intermediate:{ locId: 'hospital', npcId: 'doctor'   },  // mansion → médecin
+  advanced:  { locId: 'church',   npcId: 'pastor'    }   // château → pasteur
+};
 
 // ================================================================
 // ÉTAT
@@ -239,15 +249,12 @@ function _drawSky(W, H) {
 // ── SOLEIL ────────────────────────────────────────────────────────
 function _drawSun(W, H) {
   var x = W * 0.82, y = H * 0.10;
-  // halo
   var halo = ctx.createRadialGradient(x, y, 0, x, y, 55);
   halo.addColorStop(0,   'rgba(255,235,80,0.28)');
   halo.addColorStop(1,   'rgba(255,235,80,0)');
   ctx.fillStyle = halo; ctx.fillRect(x-55,y-55,110,110);
-  // disque
   ctx.beginPath(); ctx.arc(x, y, 20, 0, Math.PI*2);
   ctx.fillStyle = '#ffe87a'; ctx.fill();
-  // rayons
   for (var r = 0; r < 8; r++) {
     var a = (r/8)*Math.PI*2 + tick*0.003;
     ctx.beginPath();
@@ -295,7 +302,6 @@ function _drawMountains(W, H) {
   ];
   peaks.forEach(function(p) {
     var bY = H*0.555;
-    // ombre
     ctx.beginPath();
     ctx.moveTo(p.x - p.w*0.5, bY);
     ctx.lineTo(p.x, p.y);
@@ -303,7 +309,6 @@ function _drawMountains(W, H) {
     ctx.closePath();
     ctx.fillStyle = _shadeColor(p.c, -0.18);
     ctx.fill();
-    // face éclairée
     ctx.beginPath();
     ctx.moveTo(p.x - p.w*0.08, p.y+p.w*0.10);
     ctx.lineTo(p.x, p.y);
@@ -312,7 +317,6 @@ function _drawMountains(W, H) {
     ctx.closePath();
     ctx.fillStyle = p.c;
     ctx.fill();
-    // neige
     ctx.beginPath();
     ctx.moveTo(p.x-p.w*0.07, p.y+p.w*0.09);
     ctx.lineTo(p.x, p.y);
@@ -326,7 +330,6 @@ function _drawMountains(W, H) {
 // ── SOL HERBEUX ───────────────────────────────────────────────────
 function _drawGround(W, H) {
   var gY = _groundY(H);
-  // grande prairie
   var g = ctx.createLinearGradient(0, gY-10, 0, H);
   g.addColorStop(0,   '#68c05a');
   g.addColorStop(0.25,'#52a846');
@@ -337,7 +340,6 @@ function _drawGround(W, H) {
   ctx.bezierCurveTo(W*0.3, gY-16, W*0.7, gY+12, W, gY+2);
   ctx.lineTo(W, H); ctx.lineTo(0, H); ctx.closePath();
   ctx.fill();
-  // bande claire en lisière
   ctx.fillStyle = 'rgba(130,220,100,0.22)';
   ctx.beginPath();
   ctx.moveTo(0, gY+4);
@@ -346,7 +348,6 @@ function _drawGround(W, H) {
   ctx.bezierCurveTo(W*0.7, gY+28, W*0.3, gY+0, 0, gY+20);
   ctx.closePath();
   ctx.fill();
-  // quelques fleurs
   _drawFlowers(W, H, gY);
 }
 
@@ -372,7 +373,6 @@ function _drawPath(W, H) {
   var n     = _zoneCount();
 
   ctx.save();
-  // contour sombre du chemin
   ctx.strokeStyle = '#a07840';
   ctx.lineWidth   = W * 0.062;
   ctx.lineCap = 'round'; ctx.lineJoin = 'round';
@@ -385,7 +385,6 @@ function _drawPath(W, H) {
   }
   ctx.stroke();
 
-  // surface du chemin
   ctx.strokeStyle = '#d4aa6a';
   ctx.lineWidth   = W * 0.056;
   ctx.beginPath();
@@ -397,7 +396,6 @@ function _drawPath(W, H) {
   }
   ctx.stroke();
 
-  // pierres du chemin
   ctx.fillStyle = 'rgba(160,120,65,0.40)';
   for (var j = 0; j < 70; j++) {
     var t    = j / 70;
@@ -414,12 +412,10 @@ function _drawPath(W, H) {
 // ── RIVIÈRE ───────────────────────────────────────────────────────
 function _drawRiver(W, H) {
   var gY = _groundY(H);
-  // La rivière est fixe à ~75% de l'écran (zone 3→4)
   var rx = _zoneX(3, W) + _zoneSpacing(W) * 0.18;
   if (rx < -W*0.15 || rx > W*1.15) return;
 
   ctx.save();
-  // eau
   var rg = ctx.createLinearGradient(rx-22, 0, rx+22, 0);
   rg.addColorStop(0,   '#3a8abf');
   rg.addColorStop(0.4, '#5ab4da');
@@ -431,7 +427,6 @@ function _drawRiver(W, H) {
   ctx.bezierCurveTo(rx+30, gY+H*0.04, rx-14, gY+H*0.02, rx-10, gY-H*0.06);
   ctx.closePath();
   ctx.fill();
-  // reflets
   ctx.globalAlpha = 0.30;
   ctx.fillStyle   = '#aaddee';
   for (var k = 0; k < 5; k++) {
@@ -440,27 +435,22 @@ function _drawRiver(W, H) {
   }
   ctx.globalAlpha = 1;
 
-  // pont en arc
   var by = gY + H*0.038;
-  // tablier
   ctx.fillStyle   = '#a07830';
   ctx.strokeStyle = '#7a5a18';
   ctx.lineWidth   = 1.5;
   _rrect(ctx, rx-30, by-7, 60, 12, 3);
   ctx.fill(); ctx.stroke();
-  // arche
   ctx.strokeStyle = '#6b4a10';
   ctx.lineWidth   = 3;
   ctx.beginPath();
   ctx.arc(rx, by+24, 26, Math.PI, 0);
   ctx.stroke();
-  // garde-corps
   ctx.fillStyle = '#b88820';
   for (var p = -4; p <= 4; p++) {
     _rrect(ctx, rx+p*7-2, by-17, 4, 11, 1);
     ctx.fill();
   }
-  // petit bateau
   var bx = rx + 36 + Math.sin(tick*0.015)*4;
   var boatY = gY + H*0.06;
   ctx.fillStyle   = '#8b5c18';
@@ -487,7 +477,6 @@ function _drawTrees(W, H) {
     positions.push({ x:zx-W*0.08, y:gY+H*0.02, s:0.36 });
     positions.push({ x:zx+W*0.09, y:gY+H*0.01, s:0.42 });
   }
-  // moulin à vent (zone 4 background)
   var mx = _zoneX(4, W) + W*0.09;
   if (mx > -40 && mx < W+40) _drawWindmill(mx, gY - H*0.05, H);
 
@@ -499,11 +488,9 @@ function _drawTrees(W, H) {
 
 function _drawTree(x, y, scale, H) {
   var s = scale * H * 0.085;
-  // tronc
   ctx.fillStyle = '#6b4226';
   _rrect(ctx, x-s*0.11, y-s*0.28, s*0.22, s*0.32, 2);
   ctx.fill();
-  // feuillage
   [
     { dy:-s*0.22, r:s*0.45, c:'#2d8a3a' },
     { dy:-s*0.52, r:s*0.38, c:'#38a848' },
@@ -516,7 +503,6 @@ function _drawTree(x, y, scale, H) {
 
 function _drawWindmill(x, y, H) {
   var h = H * 0.14;
-  // corps
   ctx.fillStyle = '#c9a86c';
   ctx.beginPath();
   ctx.moveTo(x-h*0.18, y+h);
@@ -525,14 +511,12 @@ function _drawWindmill(x, y, H) {
   ctx.lineTo(x-h*0.10, y);
   ctx.closePath();
   ctx.fill();
-  // toit violet
   ctx.fillStyle = '#9b59b6';
   ctx.beginPath();
   ctx.moveTo(x-h*0.14, y);
   ctx.lineTo(x, y-h*0.26);
   ctx.lineTo(x+h*0.14, y);
   ctx.closePath(); ctx.fill();
-  // ailes
   ctx.strokeStyle = '#8b6914'; ctx.lineWidth = 2.5;
   for (var a = 0; a < 4; a++) {
     var ang = (a/4)*Math.PI*2 + tick*0.008;
@@ -567,7 +551,6 @@ function _drawAllBuildings(W, H) {
       ctx.globalAlpha = 0.45;
       _drawBuilding(zone.type, 0, 0, bSize, '#888', '#666');
       ctx.globalAlpha = 1;
-      // cadenas
       ctx.font = Math.round(bSize*0.44)+'px serif';
       ctx.textAlign = 'center';
       ctx.fillText('🔒', 0, bSize*0.15);
@@ -583,7 +566,6 @@ function _drawAllBuildings(W, H) {
     }
     ctx.restore();
 
-    // check / étoile sur le sol
     if (unlocked) {
       var st = zone.state;
       if (st === 'done') {
@@ -604,7 +586,6 @@ function _drawAllBuildings(W, H) {
         ctx.restore();
       }
     } else {
-      // cadenas sur le sol
       ctx.save();
       ctx.beginPath(); ctx.arc(zx, gY+H*0.038, H*0.026, 0, Math.PI*2);
       ctx.fillStyle = 'rgba(80,80,80,0.55)'; ctx.fill();
@@ -616,7 +597,6 @@ function _drawAllBuildings(W, H) {
   });
 }
 
-// Dessin d'un bâtiment selon son type (illustrations cartoon)
 function _drawBuilding(type, x, y, s, mainCol, darkCol) {
   if (type === 'cottage')  _drawCottage(x, y, s, mainCol, darkCol);
   else if (type === 'shop')   _drawShop(x, y, s, mainCol, darkCol);
@@ -625,14 +605,11 @@ function _drawBuilding(type, x, y, s, mainCol, darkCol) {
   else if (type === 'castle') _drawCastle(x, y, s, mainCol, darkCol);
 }
 
-// Chaumière (zone 1 — petite maison rustique)
 function _drawCottage(x, y, s, col, dark) {
   var w = s*0.70, h = s*0.55, rh = s*0.44;
-  // corps
   ctx.fillStyle = '#f5deb3';
   _rrect(ctx, x-w/2, y-h, w, h, 4); ctx.fill();
   ctx.strokeStyle = '#c8a87a'; ctx.lineWidth = 1.5; ctx.stroke();
-  // toit
   ctx.fillStyle = col;
   ctx.beginPath();
   ctx.moveTo(x-w/2-s*0.05, y-h+2);
@@ -640,61 +617,46 @@ function _drawCottage(x, y, s, col, dark) {
   ctx.lineTo(x+w/2+s*0.05, y-h+2);
   ctx.closePath(); ctx.fill();
   ctx.strokeStyle = dark; ctx.lineWidth = 1.5; ctx.stroke();
-  // fenêtres
   ctx.fillStyle = '#87ceeb';
   _rrect(ctx, x-w*0.26, y-h*0.68, w*0.24, h*0.30, 2); ctx.fill();
   _rrect(ctx, x+w*0.04, y-h*0.68, w*0.24, h*0.30, 2); ctx.fill();
-  // porte
   ctx.fillStyle = '#8b5e3c';
   _rrect(ctx, x-w*0.12, y-h*0.44, w*0.24, h*0.44, 3); ctx.fill();
-  // cheminée
   ctx.fillStyle = '#c0a06a';
   ctx.fillRect(x+w*0.15, y-h-rh+rh*0.22, s*0.10, s*0.22);
-  // fumée
   for (var fi=0;fi<3;fi++){
     ctx.save(); ctx.globalAlpha=0.35;
     ctx.beginPath(); ctx.arc(x+w*0.20, y-h-rh+rh*0.10-fi*8-Math.sin(tick*0.04+fi)*3, 4+fi*1.5, 0, Math.PI*2);
     ctx.fillStyle='#ccc'; ctx.fill(); ctx.restore();
   }
-  // arbre décoratif à droite
   _drawSmallTree(x+w/2+s*0.15, y, s*0.55);
 }
 
-// Boutique à auvent (zone 2)
 function _drawShop(x, y, s, col, dark) {
   var w = s*0.74, h = s*0.58;
-  // corps
   ctx.fillStyle = '#f0e0c0';
   _rrect(ctx, x-w/2, y-h, w, h, 4); ctx.fill();
   ctx.strokeStyle = '#c0a060'; ctx.lineWidth = 1.5; ctx.stroke();
-  // toit plat + auvent
   ctx.fillStyle = col;
   _rrect(ctx, x-w/2-4, y-h-s*0.06, w+8, s*0.12, 3); ctx.fill();
-  // auvent rayures
   ctx.fillStyle = '#fff';
   ctx.globalAlpha = 0.35;
   for (var ai=0; ai<5; ai++) {
     ctx.fillRect(x-w/2-4+ai*(w+8)/5, y-h-s*0.06, (w+8)/10, s*0.12);
   }
   ctx.globalAlpha = 1;
-  // enseigne
   ctx.fillStyle = '#f9c74f'; _rrect(ctx, x-w*0.30, y-h*0.90, w*0.60, h*0.22, 3); ctx.fill();
-  // fenêtres
   ctx.fillStyle = '#87ceeb';
   _rrect(ctx, x-w*0.28, y-h*0.62, w*0.22, h*0.28, 2); ctx.fill();
   _rrect(ctx, x+w*0.06, y-h*0.62, w*0.22, h*0.28, 2); ctx.fill();
-  // porte
   ctx.fillStyle = '#8b5e3c'; _rrect(ctx, x-w*0.10, y-h*0.40, w*0.20, h*0.40, 3); ctx.fill();
 }
 
-// Auberge bleue (zone 3)
 function _drawInn(x, y, s, col, dark) {
   var w = s*0.80, h = s*0.65, rh = s*0.38;
-  // corps pierre
   ctx.fillStyle = '#d9c9a8';
   _rrect(ctx, x-w/2, y-h, w, h, 4); ctx.fill();
   ctx.strokeStyle = '#b0a080'; ctx.lineWidth = 1.5; ctx.stroke();
-  // toit bleu
   ctx.fillStyle = col;
   ctx.beginPath();
   ctx.moveTo(x-w/2-6, y-h+3);
@@ -702,38 +664,30 @@ function _drawInn(x, y, s, col, dark) {
   ctx.lineTo(x+w/2+6, y-h+3);
   ctx.closePath(); ctx.fill();
   ctx.strokeStyle = dark; ctx.lineWidth = 1.5; ctx.stroke();
-  // horloge sur le fronton
   ctx.fillStyle = '#fff';
   ctx.beginPath(); ctx.arc(x, y-h-rh*0.42, s*0.09, 0, Math.PI*2); ctx.fill();
   ctx.strokeStyle='#333'; ctx.lineWidth=1;
   ctx.beginPath(); ctx.moveTo(x,y-h-rh*0.42); ctx.lineTo(x,y-h-rh*0.42-s*0.06); ctx.stroke();
   ctx.beginPath(); ctx.moveTo(x,y-h-rh*0.42); ctx.lineTo(x+s*0.04,y-h-rh*0.42+s*0.02); ctx.stroke();
-  // fenêtres x3
   ctx.fillStyle = '#87ceeb';
   [-w*0.28, 0, w*0.28].forEach(function(ox) {
     _rrect(ctx, x+ox-w*0.10, y-h*0.60, w*0.20, h*0.28, 2); ctx.fill();
   });
-  // porte
   ctx.fillStyle = '#5a3a18'; _rrect(ctx, x-w*0.13, y-h*0.38, w*0.26, h*0.38, 4); ctx.fill();
-  // banc
   ctx.fillStyle='#a07830'; ctx.fillRect(x-w*0.38, y-h*0.05, w*0.22, s*0.04);
   ctx.fillRect(x+w*0.16, y-h*0.05, w*0.22, s*0.04);
 }
 
-// Maison de ville (zone 4 — grande, verrouillée)
 function _drawMansion(x, y, s, col, dark) {
   var w = s*0.88, h = s*0.75, rh = s*0.45;
-  // corps
   ctx.fillStyle = '#e8d8b8';
   _rrect(ctx, x-w/2, y-h, w, h, 4); ctx.fill();
   ctx.strokeStyle = '#b8a880'; ctx.lineWidth = 1.5; ctx.stroke();
-  // toit principal
   ctx.fillStyle = '#c05020';
   ctx.beginPath();
   ctx.moveTo(x-w/2-6, y-h+3); ctx.lineTo(x, y-h-rh); ctx.lineTo(x+w/2+6, y-h+3);
   ctx.closePath(); ctx.fill();
   ctx.strokeStyle = dark; ctx.lineWidth=1.5; ctx.stroke();
-  // tour gauche
   ctx.fillStyle = '#b84020';
   ctx.fillRect(x-w/2-2, y-h-rh*0.15, s*0.18, rh*0.82);
   ctx.fillStyle = '#d04025';
@@ -742,35 +696,27 @@ function _drawMansion(x, y, s, col, dark) {
   ctx.lineTo(x-w/2+s*0.09, y-h-rh*0.15-rh*0.40);
   ctx.lineTo(x-w/2+s*0.18, y-h-rh*0.15);
   ctx.closePath(); ctx.fill();
-  // fenêtres
   ctx.fillStyle = '#87ceeb';
   [-w*0.28, 0, w*0.28].forEach(function(ox) {
     _rrect(ctx, x+ox-w*0.10, y-h*0.55, w*0.20, h*0.28, 2); ctx.fill();
   });
-  // porte
   ctx.fillStyle='#4a2810'; _rrect(ctx, x-w*0.13, y-h*0.38, w*0.26, h*0.38, 4); ctx.fill();
 }
 
-// Château (zone 5 — majestueux)
 function _drawCastle(x, y, s, col, dark) {
   var w = s*0.96, h = s*0.82;
-  // corps principal
   ctx.fillStyle = '#d8c8a8';
   _rrect(ctx, x-w/2, y-h, w, h, 4); ctx.fill();
   ctx.strokeStyle = '#b0a080'; ctx.lineWidth=1.5; ctx.stroke();
-  // tours côtés
   var tw = s*0.22, th = h*0.60;
   ctx.fillStyle = '#c8b890';
   ctx.strokeStyle = '#a09070'; ctx.lineWidth=1.5;
   [x-w/2+tw*0.05, x+w/2-tw*1.05].forEach(function(tx) {
     _rrect(ctx, tx, y-th, tw, th, 3); ctx.fill(); ctx.stroke();
-    // créneaux
     for(var cr=0;cr<3;cr++) ctx.fillRect(tx+cr*tw/3+1, y-th-s*0.07, tw/4, s*0.07);
-    // fenêtre tour
     ctx.fillStyle='#87ceeb'; _rrect(ctx, tx+tw*0.22, y-th+th*0.22, tw*0.55, th*0.22, 2); ctx.fill();
     ctx.fillStyle='#c8b890';
   });
-  // toits tours violet
   ctx.fillStyle = '#9b59b6';
   [x-w/2+tw*0.05, x+w/2-tw*1.05].forEach(function(tx) {
     ctx.beginPath();
@@ -778,22 +724,17 @@ function _drawCastle(x, y, s, col, dark) {
     ctx.lineTo(tx+tw/2, y-th-s*0.32);
     ctx.lineTo(tx+tw, y-th);
     ctx.closePath(); ctx.fill();
-    // drapeau
     ctx.strokeStyle='#7a3090'; ctx.lineWidth=1.2;
     ctx.beginPath(); ctx.moveTo(tx+tw/2, y-th-s*0.32); ctx.lineTo(tx+tw/2, y-th-s*0.32-s*0.14); ctx.stroke();
     ctx.fillStyle='#e040fb';
     ctx.beginPath(); ctx.moveTo(tx+tw/2, y-th-s*0.46); ctx.lineTo(tx+tw/2+s*0.07, y-th-s*0.40); ctx.lineTo(tx+tw/2, y-th-s*0.34); ctx.closePath(); ctx.fill();
   });
-  // créneaux du corps principal
   ctx.fillStyle='#d8c8a8';
   for (var cr=0;cr<6;cr++) ctx.fillRect(x-w*0.35+cr*w/8, y-h-s*0.07, w/10, s*0.07);
-  // grande porte
   ctx.fillStyle='#3a2208'; 
   ctx.beginPath(); ctx.moveTo(x-w*0.13, y-h*0.38); ctx.lineTo(x+w*0.13, y-h*0.38); ctx.arc(x, y-h*0.38, w*0.13, 0, Math.PI, true); ctx.closePath(); ctx.fill();
-  // herse
   ctx.strokeStyle='#6a4010'; ctx.lineWidth=1.5;
   for(var hb=0;hb<3;hb++) { ctx.beginPath(); ctx.moveTo(x-w*0.08+hb*w*0.08, y-h*0.38); ctx.lineTo(x-w*0.08+hb*w*0.08, y-h*0.38-h*0.20); ctx.stroke(); }
-  // étoile sur le château
   ctx.font=Math.round(s*0.18)+'px serif'; ctx.textAlign='center';
   ctx.fillText('⭐', x+w/2-s*0.06, y-h-s*0.06);
 }
@@ -820,14 +761,12 @@ function _drawBadges(W, H) {
     var bgCol  = unlocked ? zone.color : '#666';
     var txCol  = unlocked ? 'rgba(0,0,0,0.75)' : 'rgba(255,255,255,0.55)';
 
-    // fond badge
     ctx.save();
     ctx.shadowColor='rgba(0,0,0,0.22)'; ctx.shadowBlur=6; ctx.shadowOffsetY=2;
     ctx.fillStyle = bgCol;
     _rrect(ctx, zx-bw/2, by, bw, bh, 10); ctx.fill();
     ctx.shadowBlur = 0;
 
-    // numéro dans un cercle
     ctx.fillStyle = 'rgba(0,0,0,0.22)';
     ctx.beginPath(); ctx.arc(zx-bw/2+16, by+bh/2, 12, 0, Math.PI*2); ctx.fill();
     ctx.fillStyle = '#fff';
@@ -835,7 +774,6 @@ function _drawBadges(W, H) {
     ctx.textAlign = 'center';
     ctx.fillText(zone.num, zx-bw/2+16, by+bh/2+H*0.007);
 
-    // label
     ctx.fillStyle = txCol;
     ctx.font = 'bold '+Math.round(H*0.017)+'px system-ui, sans-serif';
     ctx.textAlign = 'left';
@@ -844,7 +782,6 @@ function _drawBadges(W, H) {
     ctx.font = Math.round(H*0.013)+'px system-ui, sans-serif';
     ctx.fillText(zone.sublabel[nl]||zone.sublabel.fr, zx-bw/2+34, by+bh*0.72);
 
-    // ligne de connexion badge → bâtiment
     ctx.strokeStyle = unlocked ? zone.color : 'rgba(150,150,150,0.3)';
     ctx.lineWidth   = 1.5;
     ctx.setLineDash([4,4]);
@@ -894,25 +831,32 @@ function _hitTest(mx, my, W, H) {
   return result;
 }
 
+// ================================================================
+// CLIC SUR BÂTIMENT (CORRIGÉ)
+// ================================================================
 function _onBuildingClick(id) {
   var zone = window.VILLAGE_ZONES.find(function(z){ return z.id === id; });
   if (!zone) return;
   var xp = (window.S && S.xp) || 0;
   if (xp < zone.xpRequired) {
-    if (typeof showNotif==='function') showNotif('🔒 Il te faut '+(zone.xpRequired-xp)+' XP de plus !');
+    if (typeof showNotif === 'function') showNotif('🔒 Il te faut '+(zone.xpRequired-xp)+' XP de plus !');
     return;
   }
-  if (typeof openLocation==='function') openLocation(zone.id);
-  else if (typeof showScreen==='function') {
-    showScreen('screen-location');
-    var t = document.getElementById('locTitle');
-    var nl = (window.S&&S.nativeLang)||'fr';
-    if (t) t.textContent = (zone.label[nl]||zone.label.fr);
+  var mapping = ZONE_TO_NPC[zone.id];
+  if (mapping && typeof window.openDialogue === 'function') {
+    openDialogue(mapping.locId, mapping.npcId);
+  } else {
+    if (typeof showScreen === 'function') {
+      showScreen('screen-location');
+      var t = document.getElementById('locTitle');
+      var nl = (window.S&&S.nativeLang)||'fr';
+      if (t) t.textContent = (zone.label[nl]||zone.label.fr);
+    }
   }
 }
 
 // ================================================================
-// ÉVÉNEMENTS
+// ÉVÉNEMENTS (avec tooltip)
 // ================================================================
 var _touchStartX=0, _touchScrollX=0;
 function _onIsoTouchStart(e){ e.preventDefault(); _touchStartX=e.touches[0].clientX; _touchScrollX=_isoState.targetScrollX; if(canvas)canvas.style.cursor='grabbing'; }
@@ -921,12 +865,45 @@ function _onIsoTouchEnd(e){ if(canvas)canvas.style.cursor='grab'; var dpr=window
 function _onIsoMouseDown(e){ _isoState.isDragging=true; _isoState.dragStartX=e.clientX; _isoState.dragScrollX=_isoState.targetScrollX; if(canvas)canvas.style.cursor='grabbing'; }
 function _onIsoMouseDrag(e){ if(!_isoState.isDragging)return; var dx=_isoState.dragStartX-e.clientX; var dpr=window.devicePixelRatio||1; var W=canvas?canvas.width/dpr:360; _isoState.targetScrollX=_isoState.dragScrollX+dx; _clampScroll(W); }
 function _onIsoMouseUp(e){ if(_isoState.isDragging){ _isoState.isDragging=false; if(canvas)canvas.style.cursor='grab'; var dpr=window.devicePixelRatio||1; var W=canvas?canvas.width/dpr:360; _snapNearest(W); } }
-function _onIsoHover(e){ if(_isoState.isDragging)return; var rect=canvas.getBoundingClientRect(); var dpr=window.devicePixelRatio||1; var W=canvas.width/dpr; var H=canvas.height/dpr; var hit=_hitTest(e.clientX-rect.left,e.clientY-rect.top,W,H); _isoState.hoveredBuilding=hit; canvas.style.cursor=hit?'pointer':(_isoState.isDragging?'grabbing':'grab'); }
-function _onIsoClick(e){ if(_isoState.isDragging)return; var rect=canvas.getBoundingClientRect(); var dpr=window.devicePixelRatio||1; var W=canvas.width/dpr; var H=canvas.height/dpr; var hit=_hitTest(e.clientX-rect.left,e.clientY-rect.top,W,H); if(hit)_onBuildingClick(hit); }
+
+function _onIsoHover(e){
+  if(_isoState.isDragging) return;
+  var rect = canvas.getBoundingClientRect();
+  var dpr = window.devicePixelRatio || 1;
+  var W = canvas.width/dpr;
+  var H = canvas.height/dpr;
+  var hit = _hitTest(e.clientX - rect.left, e.clientY - rect.top, W, H);
+  _isoState.hoveredBuilding = hit;
+  canvas.style.cursor = hit ? 'pointer' : (_isoState.isDragging ? 'grabbing' : 'grab');
+  var tooltip = document.getElementById('locTooltip');
+  if (tooltip && hit) {
+    var zone = window.VILLAGE_ZONES.find(z => z.id === hit);
+    if (zone) {
+      var nl = (window.S && S.nativeLang) || 'fr';
+      tooltip.textContent = zone.label[nl] || zone.label.fr;
+      tooltip.style.left = (e.clientX - rect.left + 15) + 'px';
+      tooltip.style.top = (e.clientY - rect.top - 30) + 'px';
+      tooltip.classList.add('show');
+    }
+  } else if (tooltip) {
+    tooltip.classList.remove('show');
+  }
+}
+
+function _onIsoClick(e){
+  if(_isoState.isDragging) return;
+  var rect = canvas.getBoundingClientRect();
+  var dpr = window.devicePixelRatio||1;
+  var W = canvas.width/dpr;
+  var H = canvas.height/dpr;
+  var hit = _hitTest(e.clientX - rect.left, e.clientY - rect.top, W, H);
+  if(hit) _onBuildingClick(hit);
+}
+
 function _snapNearest(W){ var best=0, dist=Infinity; window.VILLAGE_ZONES.forEach(function(z,i){ var d=Math.abs(_zoneX(i,W)-W*0.38); if(d<dist){dist=d;best=i;} }); _scrollToZone(best,false); }
 
 // ================================================================
-// BARRE NAV
+// BARRE NAV (CORRIGÉE)
 // ================================================================
 function _buildNavBar() {
   var existing = document.querySelector('.village-nav-bar');
@@ -965,10 +942,12 @@ window._navTo = function(section) {
   if (btn) btn.classList.add('active');
   switch(section){
     case 'village': break;
-    case 'lessons': if(typeof showScreen==='function') showScreen('screen-lesson'); break;
-    case 'practice': if(typeof openFlashcards==='function') openFlashcards(); break;
-    case 'challenges': if(typeof showDetailedStats==='function') showDetailedStats(); break;
-    case 'profile': if(typeof showScreen==='function') showScreen('screen-menu'); break;
+    case 'lessons': 
+      if (typeof showScreen === 'function') showScreen('screen-vocab');
+      break;
+    case 'practice': if(typeof openFlashcards === 'function') openFlashcards(); break;
+    case 'challenges': if(typeof showDetailedStats === 'function') showDetailedStats(); break;
+    case 'profile': if(typeof showScreen === 'function') showScreen('screen-menu'); break;
   }
 };
 
@@ -1019,4 +998,4 @@ window.initCanvas   = initCanvas;
 window.drawVillage  = drawVillage;
 window.alignLocationsToRings = alignLocationsToRings;
 
-console.log('✅ village.js ILLUSTRATED MAP EDITION chargé');
+console.log('✅ village.js ILLUSTRATED MAP EDITION (CORRIGÉ COMPLET) chargé');
