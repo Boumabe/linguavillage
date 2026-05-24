@@ -11,7 +11,11 @@ var MIN_API_INTERVAL = 300;
 async function callAPIWithFallback(endpoint, data, options) {
   options = options || {};
   var skipCache = options.skipCache || false;
-  var timeout   = options.timeout || 10000;
+  var timeout   = options.timeout || 12000;
+  // Normaliser l'endpoint : accepter /dialogue et /api/dialogue
+  if (endpoint && !endpoint.startsWith('/api/') && !endpoint.startsWith('http')) {
+    endpoint = '/api' + endpoint;
+  }
   var cacheKey  = endpoint + JSON.stringify(data);
   if (!skipCache && _apiCache[cacheKey]) return _apiCache[cacheKey];
   var now  = Date.now();
@@ -28,7 +32,7 @@ async function callAPIWithFallback(endpoint, data, options) {
     clearTimeout(timer);
     if (!r.ok) throw new Error('HTTP ' + r.status);
     var result = await r.json();
-    _apiCache[cacheKey] = result;
+    if (!skipCache) _apiCache[cacheKey] = result;
     return result;
   } catch(e) { clearTimeout(timer); throw e; }
 }
