@@ -1,6 +1,9 @@
-// village.js — ISOMETRIC EDITION
-// LinguaVillage — Vue isométrique avec zones de progression
-// Inspiré de l'Image 2 : chemin sinueux, bâtiments par niveau, badges XP
+// LinguaVillage — village.js  ILLUSTRATED MAP EDITION
+// Reproduit fidèlement le visuel de la maquette :
+//   ciel bleu dégradé, montagnes vertes, nuages blancs, forêt, rivière, pont en arc,
+//   chemin de pierres sinueux, 5 bâtiments illustrés (chaumière → château),
+//   badges de niveau numérotés, cadenas sur les zones verrouillées,
+//   barre de navigation bas (Village / Leçons / Pratique / Défis / Profil).
 // ================================================================
 
 window.canvas  = null;
@@ -10,108 +13,78 @@ window.currentWeather = window.currentWeather || 'sun';
 window.hoveredLoc     = null;
 
 // ================================================================
-// ZONES DE PROGRESSION (alignées sur tes niveaux réels)
-// Chaque zone = un niveau CECRL + bâtiments + seuil XP pour débloquer
+// ZONES DE PROGRESSION
 // ================================================================
 window.VILLAGE_ZONES = [
   {
-    id: 'zero',
-    label:   { fr:'Zéro absolu',  en:'Absolute zero',  es:'Cero absoluto', ht:'Zewo absoli' },
-    sublabel:{ fr:'Les bases',    en:'The basics',      es:'Las bases',      ht:'Baz yo' },
-    icon: '🌱',
-    xpRequired: 0,
-    color: '#4ecf70',
-    buildings: [
-      { id:'park',    emoji:'🌳', label:{ fr:'Parc',    en:'Park',    es:'Parque',  ht:'Pak'    }, xp:0   },
-    ]
+    id: 'zero', num: 1,
+    label:    { fr:'Débutant',      en:'Beginner',     es:'Principiante',  ht:'Debitant'  },
+    sublabel: { fr:'Les bases',     en:'The basics',   es:'Las bases',     ht:'Baz yo'    },
+    xpRequired: 0,   color: '#4ecf70',
+    type: 'cottage',   // chaumière toit de chaume
+    state: 'done'
   },
   {
-    id: 'beginner',
-    label:   { fr:'Débutant',       en:'Beginner',      es:'Principiante',   ht:'Debitant'     },
-    sublabel:{ fr:'Se présenter',   en:'Introduce yourself', es:'Presentarse', ht:'Prezante ou' },
-    icon: '⭐',
-    xpRequired: 100,
-    color: '#4a9eff',
-    buildings: [
-      { id:'school',  emoji:'🏫', label:{ fr:'École',   en:'School',  es:'Escuela', ht:'Lekòl'  }, xp:100 },
-      { id:'church',  emoji:'⛪', label:{ fr:'Église',  en:'Church',  es:'Iglesia', ht:'Legliz' }, xp:150 },
-    ]
+    id: 'beginner', num: 2,
+    label:    { fr:'Élémentaire',   en:'Elementary',   es:'Elemental',     ht:'Elemantè'  },
+    sublabel: { fr:'Se présenter',  en:'Introduce',    es:'Presentarse',   ht:'Prezante'  },
+    xpRequired: 100,  color: '#f9c74f',
+    type: 'shop',      // boutique à auvent
+    state: 'star'
   },
   {
-    id: 'elementary',
-    label:   { fr:'Élémentaire',    en:'Elementary',    es:'Elemental',      ht:'Elemantè'     },
-    sublabel:{ fr:'Parler au quotidien', en:'Daily conversations', es:'Conversaciones', ht:'Pale chak jou' },
-    icon: '📚',
-    xpRequired: 300,
-    color: '#ffd700',
-    buildings: [
-      { id:'market',  emoji:'🏪', label:{ fr:'Marché',  en:'Market',  es:'Mercado', ht:'Mache'  }, xp:300 },
-      { id:'friends', emoji:'🤝', label:{ fr:'Amis',    en:'Friends', es:'Amigos',  ht:'Zanmi'  }, xp:400 },
-    ]
+    id: 'elementary', num: 3,
+    label:    { fr:'Intermédiaire', en:'Intermediate', es:'Intermedio',    ht:'Entèmedyè' },
+    sublabel: { fr:'Parler au quotidien', en:'Daily talk', es:'Diálogo',  ht:'Pale chak jou' },
+    xpRequired: 300,  color: '#4a9eff',
+    type: 'inn',       // auberge bleue
+    state: 'star'
   },
   {
-    id: 'intermediate',
-    label:   { fr:'Intermédiaire',  en:'Intermediate',  es:'Intermedio',     ht:'Entèmedyè'    },
-    sublabel:{ fr:'S\'exprimer avec aisance', en:'Speak with ease', es:'Hablar con fluidez', ht:'Pale avèk fasili' },
-    icon: '🎓',
-    xpRequired: 600,
-    color: '#ff9f43',
-    buildings: [
-      { id:'tavern',   emoji:'🍺', label:{ fr:'Taverne',en:'Tavern',  es:'Taberna', ht:'Tavèn'  }, xp:600 },
-      { id:'bank',     emoji:'🏦', label:{ fr:'Banque', en:'Bank',    es:'Banco',   ht:'Bank'   }, xp:750 },
-      { id:'station',  emoji:'🚉', label:{ fr:'Gare',   en:'Station', es:'Estación',ht:'Estasyon'}, xp:900 },
-    ]
+    id: 'intermediate', num: 4,
+    label:    { fr:'Avancé',        en:'Advanced',     es:'Avanzado',      ht:'Avanse'    },
+    sublabel: { fr:"S'exprimer avec aisance", en:'Speak with ease', es:'Fluidez', ht:'Pale libman' },
+    xpRequired: 600,  color: '#ff9f43',
+    type: 'mansion',   // maison de ville
+    state: 'locked'
   },
   {
-    id: 'advanced',
-    label:   { fr:'Maîtrise',       en:'Mastery',       es:'Maestría',       ht:'Mètrize'      },
-    sublabel:{ fr:'Comme un·e natif·ve', en:'Like a native', es:'Como nativo', ht:'Tankou natif' },
-    icon: '👑',
-    xpRequired: 1000,
-    color: '#e040fb',
-    buildings: [
-      { id:'hospital', emoji:'🏥', label:{ fr:'Hôpital',en:'Hospital',es:'Hospital', ht:'Lopital' }, xp:1000 },
-      { id:'cinema',   emoji:'🎬', label:{ fr:'Cinéma', en:'Cinema',  es:'Cine',    ht:'Sinema'  }, xp:1500 },
-    ]
+    id: 'advanced', num: 5,
+    label:    { fr:'Maîtrise',      en:'Mastery',      es:'Maestría',      ht:'Mètrize'   },
+    sublabel: { fr:'Comme un·e natif·ve', en:'Like a native', es:'Como nativo', ht:'Tankou natif' },
+    xpRequired: 1000, color: '#e040fb',
+    type: 'castle',    // château
+    state: 'locked'
   }
 ];
 
 // ================================================================
-// ÉTAT ISOMÉTRIQUE
+// ÉTAT
 // ================================================================
 var _isoState = {
-  scrollX:     0,       // décalage horizontal actuel (px logiques)
-  targetScrollX: 0,     // cible pour l'animation fluide
-  isDragging:  false,
-  dragStartX:  0,
-  dragScrollX: 0,
+  scrollX: 0, targetScrollX: 0,
+  isDragging: false, dragStartX: 0, dragScrollX: 0,
   hoveredBuilding: null,
-  hoveredZone:     null,
-  particles:       [],
-  clouds:          [],
-  initialized:     false,
+  particles: [], clouds: [],
+  initialized: false
 };
 
 // ================================================================
-// POINT D'ENTRÉE PRINCIPAL
+// POINT D'ENTRÉE
 // ================================================================
 function goVillage() {
   if (!window.S) return;
 
-  // Mettre à jour le HUD
-  var hudPlayer  = document.getElementById('hudPlayer');
-  var hudLang    = document.getElementById('hudLang');
-  var hudXP      = document.getElementById('hudXP');
+  var hudPlayer = document.getElementById('hudPlayer');
+  var hudLang   = document.getElementById('hudLang');
+  var hudXP     = document.getElementById('hudXP');
   if (hudPlayer) hudPlayer.textContent = '👤 ' + (S.playerName || '');
   if (hudLang)   hudLang.textContent   = ((FLAGS && FLAGS[S.targetLang]) || '') + ' ' + ((LANG_NAMES && LANG_NAMES[S.targetLang]) || '');
   if (hudXP)     hudXP.textContent     = (S.xp || 0) + ' XP';
 
-  if (typeof window.showScreen === 'function') {
-    window.showScreen('screen-village');
-  } else {
-    document.querySelectorAll('.screen').forEach(function(s) {
-      s.classList.remove('active'); s.style.display = '';
-    });
+  if (typeof window.showScreen === 'function') window.showScreen('screen-village');
+  else {
+    document.querySelectorAll('.screen').forEach(function(s){ s.classList.remove('active'); s.style.display=''; });
     var vs = document.getElementById('screen-village');
     if (vs) vs.classList.add('active');
   }
@@ -121,20 +94,11 @@ function goVillage() {
   window._villageLoopActive  = false;
   _isoState.initialized = false;
 
-  // Scroll initial : positionner sur la zone correspondant au niveau XP actuel
-  var xp = (window.S && S.xp) || 0;
-  var zoneIdx = 0;
-  window.VILLAGE_ZONES.forEach(function(z, i) {
-    if (xp >= z.xpRequired) zoneIdx = i;
-  });
-  _isoState.scrollX       = 0;
-  _isoState.targetScrollX = 0;
-
-  requestAnimationFrame(function() {
-    requestAnimationFrame(function() {
+  requestAnimationFrame(function(){
+    requestAnimationFrame(function(){
       _initIsoCanvas();
       _buildNavBar();
-      setTimeout(function() { _scrollToZone(zoneIdx, true); }, 200);
+      setTimeout(function(){ _scrollToZone(0, true); }, 150);
     });
   });
 
@@ -150,37 +114,22 @@ function _initIsoCanvas() {
   var c = document.getElementById('villageCanvas');
   if (!c) return;
 
-  var dpr     = window.devicePixelRatio || 1;
-  var wrapper = document.querySelector('.village-canvas-wrap') || document.getElementById('screen-village');
-  var rect    = wrapper ? wrapper.getBoundingClientRect() : null;
-  var W, H;
+  var dpr  = window.devicePixelRatio || 1;
+  var nav  = document.querySelector('.village-nav-bar');
+  var hud  = document.querySelector('.village-hud');
+  var hudH = (hud ? hud.getBoundingClientRect().height : 52)
+           + (nav ? nav.getBoundingClientRect().height : 56);
+  var W = (window.visualViewport ? window.visualViewport.width  : null) || window.innerWidth  || 360;
+  var H = Math.max(200, ((window.visualViewport ? window.visualViewport.height : null) || window.innerHeight || 640) - hudH);
 
-  if (rect && rect.width > 0 && rect.height > 0) {
-    W = Math.floor(rect.width);
-    H = Math.floor(rect.height);
-  } else {
-    var hud  = document.querySelector('.village-hud');
-    var nav  = document.querySelector('.village-nav-bar');
-    var hudH = (hud ? hud.getBoundingClientRect().height : 52)
-             + (nav ? nav.getBoundingClientRect().height : 56);
-    var visH = (window.visualViewport ? window.visualViewport.height : null) || window.innerHeight || 640;
-    W = (window.visualViewport ? window.visualViewport.width : null) || window.innerWidth || 360;
-    H = Math.max(200, Math.floor(visH - hudH));
-  }
+  c.width  = W * dpr; c.height = H * dpr;
+  c.style.width  = W + 'px'; c.style.height = H + 'px';
+  c.style.display = 'block'; c.style.cursor = 'grab';
 
-  c.width        = W * dpr;
-  c.height       = H * dpr;
-  c.style.width  = W + 'px';
-  c.style.height = H + 'px';
-  c.style.display= 'block';
-  c.style.cursor = 'grab';
-
-  // Générer les nuages et particules
   _isoState.clouds = _genClouds(W, H);
   _isoState.particles = [];
   _isoState.initialized = true;
 
-  // Événements
   c.removeEventListener('click',      _onIsoClick);
   c.removeEventListener('mousemove',  _onIsoHover);
   c.removeEventListener('touchstart', _onIsoTouchStart);
@@ -199,9 +148,8 @@ function _initIsoCanvas() {
   c.addEventListener('mousemove',  _onIsoMouseDrag);
   c.addEventListener('mouseup',    _onIsoMouseUp);
 
-  // Resize
   if (window._onCanvasResize) window.removeEventListener('resize', window._onCanvasResize);
-  window._onCanvasResize = function() { _initIsoCanvas(); };
+  window._onCanvasResize = function(){ _initIsoCanvas(); };
   window.addEventListener('resize', window._onCanvasResize);
 
   if (!window._villageLoopRunning) {
@@ -212,21 +160,44 @@ function _initIsoCanvas() {
 }
 
 // ================================================================
-// BOUCLE PRINCIPALE
+// BOUCLE
 // ================================================================
 function _isoLoop() {
   if (!window._villageLoopActive) return;
   tick++;
-  // Interpolation fluide du scroll
   _isoState.scrollX += (_isoState.targetScrollX - _isoState.scrollX) * 0.10;
-  _drawIsoVillage();
+  _drawVillage();
   requestAnimationFrame(_isoLoop);
 }
 
 // ================================================================
-// RENDU PRINCIPAL
+// LAYOUT
 // ================================================================
-function _drawIsoVillage() {
+function _zoneCount()  { return window.VILLAGE_ZONES.length; }
+function _zoneSpacing(W) { return W * 0.36; }
+function _totalWidth(W)  { return _zoneSpacing(W) * (_zoneCount() - 1) + W * 0.5; }
+function _zoneX(i, W)    { return W * 0.22 + i * _zoneSpacing(W) - _isoState.scrollX; }
+function _groundY(H)     { return H * 0.60; }
+
+function _scrollToZone(i, instant) {
+  var c = document.getElementById('villageCanvas');
+  if (!c) return;
+  var dpr = window.devicePixelRatio || 1;
+  var W   = c.width / dpr;
+  var tx  = _zoneX(i, W) + _isoState.scrollX - W * 0.35;
+  tx = Math.max(0, Math.min(tx, Math.max(0, _totalWidth(W) - W)));
+  if (instant) _isoState.scrollX = tx;
+  _isoState.targetScrollX = tx;
+}
+function _clampScroll(W) {
+  var max = Math.max(0, _totalWidth(W) - W);
+  _isoState.targetScrollX = Math.max(0, Math.min(_isoState.targetScrollX, max));
+}
+
+// ================================================================
+// DESSIN PRINCIPAL
+// ================================================================
+function _drawVillage() {
   if (!canvas || !ctx) {
     canvas = document.getElementById('villageCanvas');
     if (!canvas) return;
@@ -240,956 +211,807 @@ function _drawIsoVillage() {
   ctx.save();
   ctx.scale(dpr, dpr);
 
-  // ── SKY ──────────────────────────────────────────────────────────
-  var skyGrad = ctx.createLinearGradient(0, 0, 0, H * 0.58);
-  var night   = currentWeather === 'night';
-  if (night) {
-    skyGrad.addColorStop(0, '#060818');
-    skyGrad.addColorStop(1, '#0e1630');
-  } else if (currentWeather === 'rain') {
-    skyGrad.addColorStop(0, '#2a3545');
-    skyGrad.addColorStop(1, '#3a4a5a');
-  } else {
-    skyGrad.addColorStop(0, '#a8d8f0');
-    skyGrad.addColorStop(1, '#d4eef8');
-  }
-  ctx.fillStyle = skyGrad;
-  ctx.fillRect(0, 0, W, H);
-
-  // ── MONTAGNE (fond, derrière le sol) ─────────────────────────────
-  _drawMountains(W, H, night);
-
-  // ── NUAGES ───────────────────────────────────────────────────────
-  if (!night) _drawClouds(W, H);
-
-  // ── TERRAIN ISOMÉTRIQUE (sol par-dessus les montagnes) ───────────
-  _drawIsoTerrain(W, H);
-
-  // ── CHEMIN ───────────────────────────────────────────────────────
-  _drawPath(W, H);
-
-  // ── ARBRES (derrière les bâtiments) ──────────────────────────────
-  _drawTrees(W, H);
-
-  // ── RIVIÈRE ───────────────────────────────────────────────────────
+  _drawSky(W, H);
+  _drawMountains(W, H);
+  _drawClouds(W, H);
+  _drawGround(W, H);
   _drawRiver(W, H);
-
-  // ── ZONES ET BÂTIMENTS (devant tout) ─────────────────────────────
-  _drawZonesAndBuildings(W, H);
-
-  // ── PARTICULES ───────────────────────────────────────────────────
-  _updateAndDrawParticles(W, H);
-
-  // ── ÉTOILES (nuit) ────────────────────────────────────────────────
-  if (night) _drawStarsIso(W, H);
-
-  // ── SOLEIL / LUNE ─────────────────────────────────────────────────
-  _drawCelestial(W, H, night);
+  _drawTrees(W, H);
+  _drawPath(W, H);
+  _drawAllBuildings(W, H);
+  _drawBadges(W, H);
+  _drawParticles(W, H);
+  _drawSun(W, H);
 
   ctx.restore();
 }
 
-// ================================================================
-// CALCUL DES POSITIONS
-// ================================================================
-function _getTotalWidth(W) {
-  // Largeur totale du village (toutes zones)
-  return W * 0.38 * window.VILLAGE_ZONES.length + W * 0.18;
+// ── SKY ──────────────────────────────────────────────────────────
+function _drawSky(W, H) {
+  var g = ctx.createLinearGradient(0, 0, 0, H * 0.62);
+  g.addColorStop(0,   '#8ec9f0');
+  g.addColorStop(0.5, '#b8dff5');
+  g.addColorStop(1,   '#d6eefc');
+  ctx.fillStyle = g;
+  ctx.fillRect(0, 0, W, H);
 }
 
-function _getZoneX(zoneIdx, W) {
-  // X du centre de chaque zone, en tenant compte du scroll
-  var zoneW  = W * 0.38;
-  var startX = W * 0.18;
-  return startX + zoneIdx * zoneW - _isoState.scrollX;
-}
-
-function _getGroundY(W, H) {
-  // Ligne du sol — remonté à 58% pour que les bâtiments aient de la place
-  return H * 0.58;
-}
-
-function _getBuildingPos(zoneIdx, buildIdx, buildCount, W, H) {
-  var zX     = _getZoneX(zoneIdx, W);
-  var gY     = _getGroundY(W, H);
-  var spread = W * 0.13;  // plus large pour éviter le chevauchement
-  var offset = buildCount === 1 ? 0 :
-               buildCount === 2 ? (buildIdx === 0 ? -spread * 0.55 : spread * 0.55) :
-               (buildIdx - 1) * spread * 0.65;
-  return { x: zX + offset, y: gY };
-}
-
-// ================================================================
-// SCROLL PAR ZONE
-// ================================================================
-function _scrollToZone(zoneIdx, instant) {
-  var c   = document.getElementById('villageCanvas');
-  if (!c) return;
-  var dpr = window.devicePixelRatio || 1;
-  var W   = c.width / dpr;
-  var zoneW   = W * 0.38;
-  var startX  = W * 0.18;
-  var targetX = startX + zoneIdx * zoneW - W * 0.35;
-  var maxScroll = _getTotalWidth(W) - W;
-  targetX = Math.max(0, Math.min(targetX, maxScroll));
-  if (instant) { _isoState.scrollX = targetX; }
-  _isoState.targetScrollX = targetX;
-}
-
-function _clampScroll(W) {
-  var max = Math.max(0, _getTotalWidth(W) - W);
-  _isoState.targetScrollX = Math.max(0, Math.min(_isoState.targetScrollX, max));
-}
-
-// ================================================================
-// DESSIN : MONTAGNES
-// ================================================================
-function _drawMountains(W, H, night) {
-  var cols = night
-    ? ['#1a1f35','#141828','#0e121f']
-    : ['#7bbf9a','#5ea078','#4a8a62'];
-  // Pics beaucoup plus bas (H*0.42–0.50) et base à H*0.55 max
-  // → les montagnes restent en arrière-plan derrière le sol
-  var peaks = [
-    [W*0.05, H*0.42, W*0.18],
-    [W*0.20, H*0.36, W*0.15],
-    [W*0.42, H*0.40, W*0.17],
-    [W*0.62, H*0.34, W*0.18],
-    [W*0.80, H*0.39, W*0.16],
-    [W*1.00, H*0.37, W*0.15],
-  ];
-  peaks.forEach(function(p, i) {
+// ── SOLEIL ────────────────────────────────────────────────────────
+function _drawSun(W, H) {
+  var x = W * 0.82, y = H * 0.10;
+  // halo
+  var halo = ctx.createRadialGradient(x, y, 0, x, y, 55);
+  halo.addColorStop(0,   'rgba(255,235,80,0.28)');
+  halo.addColorStop(1,   'rgba(255,235,80,0)');
+  ctx.fillStyle = halo; ctx.fillRect(x-55,y-55,110,110);
+  // disque
+  ctx.beginPath(); ctx.arc(x, y, 20, 0, Math.PI*2);
+  ctx.fillStyle = '#ffe87a'; ctx.fill();
+  // rayons
+  for (var r = 0; r < 8; r++) {
+    var a = (r/8)*Math.PI*2 + tick*0.003;
     ctx.beginPath();
-    ctx.moveTo(p[0] - p[2]*0.5, H*0.54);
-    ctx.lineTo(p[0], p[1]);
-    ctx.lineTo(p[0] + p[2]*0.5, H*0.54);
-    ctx.closePath();
-    ctx.fillStyle = cols[i % cols.length];
-    ctx.fill();
-    // Neige au sommet
-    if (!night) {
-      ctx.beginPath();
-      ctx.moveTo(p[0] - p[2]*0.07, p[1] + p[2]*0.10);
-      ctx.lineTo(p[0], p[1]);
-      ctx.lineTo(p[0] + p[2]*0.07, p[1] + p[2]*0.10);
-      ctx.closePath();
-      ctx.fillStyle = 'rgba(255,255,255,0.85)';
-      ctx.fill();
-    }
-  });
-}
-
-// ================================================================
-// DESSIN : NUAGES
-// ================================================================
-function _genClouds(W, H) {
-  var clouds = [];
-  for (var i = 0; i < 5; i++) {
-    clouds.push({
-      x: W * (0.05 + i * 0.22),
-      y: H * (0.08 + (i % 3) * 0.06),
-      r: 18 + i * 7,
-      speed: 0.12 + i * 0.05,
-    });
+    ctx.moveTo(x + Math.cos(a)*24, y + Math.sin(a)*24);
+    ctx.lineTo(x + Math.cos(a)*34, y + Math.sin(a)*34);
+    ctx.strokeStyle = 'rgba(255,220,50,0.5)'; ctx.lineWidth = 2.5; ctx.stroke();
   }
-  return clouds;
 }
 
+// ── NUAGES ────────────────────────────────────────────────────────
+function _genClouds(W, H) {
+  var out = [];
+  for (var i = 0; i < 6; i++) {
+    out.push({ x: W*(0.04+i*0.18), y: H*(0.06+(i%3)*0.05), r: 20+i*6, speed: 0.10+i*0.04 });
+  }
+  return out;
+}
 function _drawClouds(W, H) {
   _isoState.clouds.forEach(function(cl) {
     cl.x += cl.speed;
-    if (cl.x > W + cl.r * 2) cl.x = -cl.r * 2;
-    ctx.save();
-    ctx.globalAlpha = 0.72;
-    ctx.fillStyle   = '#ffffff';
-    [
-      [cl.x, cl.y, cl.r],
-      [cl.x + cl.r * 0.6, cl.y + cl.r * 0.1, cl.r * 0.75],
-      [cl.x - cl.r * 0.6, cl.y + cl.r * 0.15, cl.r * 0.65],
-      [cl.x + cl.r * 0.05, cl.y + cl.r * 0.35, cl.r * 0.9],
-    ].forEach(function(b) {
-      ctx.beginPath();
-      ctx.arc(b[0], b[1], b[2], 0, Math.PI * 2);
-      ctx.fill();
-    });
+    if (cl.x > W + cl.r*3) cl.x = -cl.r*3;
+    ctx.save(); ctx.globalAlpha = 0.90; ctx.fillStyle = '#ffffff';
+    var puffs = [
+      [cl.x,          cl.y,         cl.r       ],
+      [cl.x+cl.r*0.7, cl.y+cl.r*0.1, cl.r*0.72],
+      [cl.x-cl.r*0.7, cl.y+cl.r*0.15,cl.r*0.60],
+      [cl.x+cl.r*0.1, cl.y+cl.r*0.38,cl.r*0.85],
+      [cl.x-cl.r*0.3, cl.y+cl.r*0.28,cl.r*0.55],
+    ];
+    puffs.forEach(function(p){ ctx.beginPath(); ctx.arc(p[0],p[1],p[2],0,Math.PI*2); ctx.fill(); });
     ctx.restore();
   });
 }
 
-// ================================================================
-// DESSIN : TERRAIN ISOMÉTRIQUE (sol herbeux)
-// ================================================================
-function _drawIsoTerrain(W, H) {
-  var gY = _getGroundY(W, H);
-  // Sol principal
-  var groundGrad = ctx.createLinearGradient(0, gY - H*0.05, 0, H);
-  groundGrad.addColorStop(0,   '#5daf60');
-  groundGrad.addColorStop(0.3, '#4a9a52');
-  groundGrad.addColorStop(1,   '#3a8040');
-  ctx.fillStyle = groundGrad;
-  ctx.beginPath();
-  ctx.moveTo(0, gY - H * 0.04);
-  ctx.bezierCurveTo(W*0.25, gY - H*0.08, W*0.75, gY + H*0.02, W, gY - H*0.03);
-  ctx.lineTo(W, H);
-  ctx.lineTo(0, H);
-  ctx.closePath();
-  ctx.fill();
-
-  // Lisière herbe claire
-  ctx.fillStyle = 'rgba(120,210,100,0.25)';
-  ctx.beginPath();
-  ctx.moveTo(0, gY - H * 0.04);
-  ctx.bezierCurveTo(W*0.25, gY - H*0.08, W*0.75, gY + H*0.02, W, gY - H*0.03);
-  ctx.lineTo(W, gY + H * 0.015);
-  ctx.bezierCurveTo(W*0.75, gY + H*0.035, W*0.25, gY - H*0.065, 0, gY + H*0.01);
-  ctx.closePath();
-  ctx.fill();
+// ── MONTAGNES ─────────────────────────────────────────────────────
+function _drawMountains(W, H) {
+  var peaks = [
+    { x:W*0.02, y:H*0.40, w:W*0.20, c:'#7bbf80' },
+    { x:W*0.16, y:H*0.32, w:W*0.16, c:'#5ea86a' },
+    { x:W*0.38, y:H*0.36, w:W*0.18, c:'#72b87a' },
+    { x:W*0.56, y:H*0.30, w:W*0.18, c:'#5ea86a' },
+    { x:W*0.74, y:H*0.34, w:W*0.16, c:'#72b87a' },
+    { x:W*0.90, y:H*0.28, w:W*0.18, c:'#5ea86a' },
+    { x:W*1.05, y:H*0.33, w:W*0.16, c:'#7bbf80' },
+  ];
+  peaks.forEach(function(p) {
+    var bY = H*0.555;
+    // ombre
+    ctx.beginPath();
+    ctx.moveTo(p.x - p.w*0.5, bY);
+    ctx.lineTo(p.x, p.y);
+    ctx.lineTo(p.x + p.w*0.5, bY);
+    ctx.closePath();
+    ctx.fillStyle = _shadeColor(p.c, -0.18);
+    ctx.fill();
+    // face éclairée
+    ctx.beginPath();
+    ctx.moveTo(p.x - p.w*0.08, p.y+p.w*0.10);
+    ctx.lineTo(p.x, p.y);
+    ctx.lineTo(p.x + p.w*0.5, bY);
+    ctx.lineTo(p.x - p.w*0.08, bY);
+    ctx.closePath();
+    ctx.fillStyle = p.c;
+    ctx.fill();
+    // neige
+    ctx.beginPath();
+    ctx.moveTo(p.x-p.w*0.07, p.y+p.w*0.09);
+    ctx.lineTo(p.x, p.y);
+    ctx.lineTo(p.x+p.w*0.07, p.y+p.w*0.09);
+    ctx.closePath();
+    ctx.fillStyle = 'rgba(255,255,255,0.88)';
+    ctx.fill();
+  });
 }
 
-// ================================================================
-// DESSIN : CHEMIN SINUEUX
-// ================================================================
-function _drawPath(W, H) {
-  var gY    = _getGroundY(W, H);
-  var sx    = _isoState.scrollX;
-  var total = _getTotalWidth(W);
-
-  // Chemin principal
-  ctx.save();
-  ctx.strokeStyle = '#c8a870';
-  ctx.lineWidth   = W * 0.055;
-  ctx.lineCap     = 'round';
-  ctx.lineJoin    = 'round';
-  ctx.setLineDash([]);
-
+// ── SOL HERBEUX ───────────────────────────────────────────────────
+function _drawGround(W, H) {
+  var gY = _groundY(H);
+  // grande prairie
+  var g = ctx.createLinearGradient(0, gY-10, 0, H);
+  g.addColorStop(0,   '#68c05a');
+  g.addColorStop(0.25,'#52a846');
+  g.addColorStop(1,   '#3e9038');
+  ctx.fillStyle = g;
   ctx.beginPath();
-  var numZones = window.VILLAGE_ZONES.length;
-  for (var i = 0; i <= numZones; i++) {
-    var px = _getZoneX(i, W);
-    var py = gY + H * 0.02 + Math.sin(i * 1.8) * H * 0.015;
-    if (i === 0) ctx.moveTo(px - W * 0.25, py);
+  ctx.moveTo(0, gY+4);
+  ctx.bezierCurveTo(W*0.3, gY-16, W*0.7, gY+12, W, gY+2);
+  ctx.lineTo(W, H); ctx.lineTo(0, H); ctx.closePath();
+  ctx.fill();
+  // bande claire en lisière
+  ctx.fillStyle = 'rgba(130,220,100,0.22)';
+  ctx.beginPath();
+  ctx.moveTo(0, gY+4);
+  ctx.bezierCurveTo(W*0.3, gY-16, W*0.7, gY+12, W, gY+2);
+  ctx.lineTo(W, gY+18);
+  ctx.bezierCurveTo(W*0.7, gY+28, W*0.3, gY+0, 0, gY+20);
+  ctx.closePath();
+  ctx.fill();
+  // quelques fleurs
+  _drawFlowers(W, H, gY);
+}
+
+function _drawFlowers(W, H, gY) {
+  var spots = [0.08, 0.15, 0.26, 0.45, 0.72, 0.85, 0.94];
+  spots.forEach(function(fx, i) {
+    var px = fx * W, py = gY + 6 + (i%3)*8;
+    if (i%2===0) {
+      ctx.beginPath(); ctx.arc(px, py, 3, 0, Math.PI*2);
+      ctx.fillStyle = '#9b59b6'; ctx.fill();
+    } else {
+      ctx.beginPath(); ctx.arc(px, py, 3.5, 0, Math.PI*2);
+      ctx.fillStyle = '#f1c40f'; ctx.fill();
+    }
+  });
+}
+
+// ── CHEMIN DE PIERRES ─────────────────────────────────────────────
+function _drawPath(W, H) {
+  var gY    = _groundY(H);
+  var total = _totalWidth(W);
+  var sx    = _isoState.scrollX;
+  var n     = _zoneCount();
+
+  ctx.save();
+  // contour sombre du chemin
+  ctx.strokeStyle = '#a07840';
+  ctx.lineWidth   = W * 0.062;
+  ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+  ctx.beginPath();
+  for (var i = 0; i <= n; i++) {
+    var px = _zoneX(i < n ? i : n-1, W) + (i === n ? _zoneSpacing(W) * 0.3 : 0);
+    var py = gY + 5 + Math.sin(i * 1.9) * H * 0.018;
+    if (i === 0) ctx.moveTo(px - W*0.22, py);
     else ctx.lineTo(px, py);
   }
-  ctx.lineTo(_getZoneX(numZones - 1, W) + W * 0.3, gY + H * 0.02);
   ctx.stroke();
 
-  // Bordures du chemin
-  ctx.strokeStyle = '#a07840';
-  ctx.lineWidth   = W * 0.057;
-  ctx.globalAlpha = 0.3;
+  // surface du chemin
+  ctx.strokeStyle = '#d4aa6a';
+  ctx.lineWidth   = W * 0.056;
+  ctx.beginPath();
+  for (var i = 0; i <= n; i++) {
+    var px = _zoneX(i < n ? i : n-1, W) + (i === n ? _zoneSpacing(W) * 0.3 : 0);
+    var py = gY + 5 + Math.sin(i * 1.9) * H * 0.018;
+    if (i === 0) ctx.moveTo(px - W*0.22, py);
+    else ctx.lineTo(px, py);
+  }
   ctx.stroke();
-  ctx.globalAlpha = 1;
 
-  // Texture pavés (petits rectangles)
-  ctx.fillStyle = 'rgba(180,145,90,0.35)';
-  for (var j = 0; j < 60; j++) {
-    var px2 = (j / 60) * (total + W) - sx;
+  // pierres du chemin
+  ctx.fillStyle = 'rgba(160,120,65,0.40)';
+  for (var j = 0; j < 70; j++) {
+    var t    = j / 70;
+    var px2  = (t * (total + W * 0.3)) - sx;
     if (px2 < -20 || px2 > W + 20) continue;
-    var py2 = gY + H * 0.04 + Math.sin(j * 1.1) * H * 0.025;
-    ctx.fillRect(px2 - 5, py2 - 3, 10, 6);
+    var py2  = gY + 5 + Math.sin(j * 1.2) * H * 0.018;
+    ctx.beginPath();
+    ctx.ellipse(px2, py2, 8+j%3, 4, j*0.3, 0, Math.PI*2);
+    ctx.fill();
   }
   ctx.restore();
 }
 
-// ================================================================
-// DESSIN : RIVIÈRE
-// ================================================================
+// ── RIVIÈRE ───────────────────────────────────────────────────────
 function _drawRiver(W, H) {
-  var gY = _getGroundY(W, H);
-  // Rivière qui coupe le chemin à droite
-  var rx = _getZoneX(3, W) + W * 0.12;
-  if (rx < -W * 0.1 || rx > W * 1.1) return;
+  var gY = _groundY(H);
+  // La rivière est fixe à ~75% de l'écran (zone 3→4)
+  var rx = _zoneX(3, W) + _zoneSpacing(W) * 0.18;
+  if (rx < -W*0.15 || rx > W*1.15) return;
 
   ctx.save();
-  // Corps de la rivière
-  var riverGrad = ctx.createLinearGradient(rx - 18, 0, rx + 18, 0);
-  riverGrad.addColorStop(0,   '#4a8fb0');
-  riverGrad.addColorStop(0.5, '#5db0d5');
-  riverGrad.addColorStop(1,   '#4a8fb0');
-  ctx.fillStyle = riverGrad;
+  // eau
+  var rg = ctx.createLinearGradient(rx-22, 0, rx+22, 0);
+  rg.addColorStop(0,   '#3a8abf');
+  rg.addColorStop(0.4, '#5ab4da');
+  rg.addColorStop(1,   '#3a8abf');
+  ctx.fillStyle = rg;
   ctx.beginPath();
-  ctx.moveTo(rx - 18, gY - H * 0.05);
-  ctx.bezierCurveTo(rx - 22, gY, rx + 22, gY + H * 0.02, rx + 18, H * 0.92);
-  ctx.bezierCurveTo(rx + 28, gY + H * 0.02, rx - 12, gY, rx - 8, gY - H * 0.05);
+  ctx.moveTo(rx-20, gY-H*0.06);
+  ctx.bezierCurveTo(rx-26, gY+H*0.02, rx+26, gY+H*0.04, rx+20, H*1.0);
+  ctx.bezierCurveTo(rx+30, gY+H*0.04, rx-14, gY+H*0.02, rx-10, gY-H*0.06);
   ctx.closePath();
   ctx.fill();
-
-  // Reflets
-  ctx.globalAlpha = 0.35;
-  ctx.fillStyle   = '#a0d8f0';
-  for (var r = 0; r < 4; r++) {
-    var ry = gY + r * H * 0.06;
-    ctx.fillRect(rx - 6 + r * 2, ry, 12 - r * 2, 3);
+  // reflets
+  ctx.globalAlpha = 0.30;
+  ctx.fillStyle   = '#aaddee';
+  for (var k = 0; k < 5; k++) {
+    var ry = gY + k*H*0.05 - H*0.01;
+    ctx.fillRect(rx-7+k*1.5, ry, 14-k*2, 3);
   }
-
-  // Pont
   ctx.globalAlpha = 1;
-  var bridgeY = gY + H * 0.042;
-  ctx.fillStyle = '#8b6914';
-  ctx.fillRect(rx - 26, bridgeY - 5, 52, 10);
-  // Arche du pont
-  ctx.strokeStyle = '#6b4a0a';
-  ctx.lineWidth   = 2.5;
+
+  // pont en arc
+  var by = gY + H*0.038;
+  // tablier
+  ctx.fillStyle   = '#a07830';
+  ctx.strokeStyle = '#7a5a18';
+  ctx.lineWidth   = 1.5;
+  _rrect(ctx, rx-30, by-7, 60, 12, 3);
+  ctx.fill(); ctx.stroke();
+  // arche
+  ctx.strokeStyle = '#6b4a10';
+  ctx.lineWidth   = 3;
   ctx.beginPath();
-  ctx.arc(rx, bridgeY + 18, 22, Math.PI, 0);
+  ctx.arc(rx, by+24, 26, Math.PI, 0);
   ctx.stroke();
-  // Garde-corps
-  ctx.fillStyle = '#a07830';
-  for (var p = -3; p <= 3; p++) {
-    ctx.fillRect(rx + p * 7 - 2, bridgeY - 14, 4, 10);
+  // garde-corps
+  ctx.fillStyle = '#b88820';
+  for (var p = -4; p <= 4; p++) {
+    _rrect(ctx, rx+p*7-2, by-17, 4, 11, 1);
+    ctx.fill();
   }
+  // petit bateau
+  var bx = rx + 36 + Math.sin(tick*0.015)*4;
+  var boatY = gY + H*0.06;
+  ctx.fillStyle   = '#8b5c18';
+  ctx.strokeStyle = '#5a3a08';
+  ctx.lineWidth   = 1;
+  ctx.beginPath();
+  ctx.moveTo(bx-12, boatY);
+  ctx.lineTo(bx+12, boatY);
+  ctx.lineTo(bx+9,  boatY+7);
+  ctx.lineTo(bx-9,  boatY+7);
+  ctx.closePath();
+  ctx.fill(); ctx.stroke();
   ctx.restore();
 }
 
-// ================================================================
-// DESSIN : ARBRES DÉCORATIFS
-// ================================================================
+// ── ARBRES ────────────────────────────────────────────────────────
 function _drawTrees(W, H) {
-  var gY = _getGroundY(W, H);
-  var treePositions = [];
-  var numZones = window.VILLAGE_ZONES.length;
-  for (var i = 0; i < numZones + 1; i++) {
-    var zx = _getZoneX(i, W);
-    // Arbres bien sur le sol, en arrière-plan des bâtiments
-    treePositions.push({ x: zx - W*0.16, y: gY, s: 0.55 });
-    treePositions.push({ x: zx + W*0.16, y: gY, s: 0.50 });
-    treePositions.push({ x: zx - W*0.10, y: gY + H*0.018, s: 0.38 });
+  var gY = _groundY(H);
+  var positions = [];
+  for (var i = 0; i < _zoneCount() + 1; i++) {
+    var zx = _zoneX(i, W);
+    positions.push({ x:zx-W*0.15, y:gY,        s:0.58 });
+    positions.push({ x:zx+W*0.15, y:gY,        s:0.50 });
+    positions.push({ x:zx-W*0.08, y:gY+H*0.02, s:0.36 });
+    positions.push({ x:zx+W*0.09, y:gY+H*0.01, s:0.42 });
   }
-  treePositions.forEach(function(t) {
-    if (t.x < -40 || t.x > W + 40) return;
-    _drawOneTree(t.x, t.y, t.s, H);
+  // moulin à vent (zone 4 background)
+  var mx = _zoneX(4, W) + W*0.09;
+  if (mx > -40 && mx < W+40) _drawWindmill(mx, gY - H*0.05, H);
+
+  positions.forEach(function(t) {
+    if (t.x < -50 || t.x > W+50) return;
+    _drawTree(t.x, t.y, t.s, H);
   });
 }
 
-function _drawOneTree(x, y, scale, H) {
-  var s = scale * H * 0.075;
-  // Tronc
+function _drawTree(x, y, scale, H) {
+  var s = scale * H * 0.085;
+  // tronc
   ctx.fillStyle = '#6b4226';
-  ctx.fillRect(x - s*0.12, y - s*0.3, s*0.24, s*0.35);
-  // Feuillage (3 cercles superposés pour effet 3D)
+  _rrect(ctx, x-s*0.11, y-s*0.28, s*0.22, s*0.32, 2);
+  ctx.fill();
+  // feuillage
   [
-    { dy:-s*0.25, r:s*0.42, c:'#2d8a3a' },
-    { dy:-s*0.52, r:s*0.36, c:'#38a845' },
-    { dy:-s*0.76, r:s*0.26, c:'#45c055' },
-  ].forEach(function(layer) {
-    ctx.beginPath();
-    ctx.arc(x, y + layer.dy, layer.r, 0, Math.PI * 2);
-    ctx.fillStyle = layer.c;
-    ctx.fill();
+    { dy:-s*0.22, r:s*0.45, c:'#2d8a3a' },
+    { dy:-s*0.52, r:s*0.38, c:'#38a848' },
+    { dy:-s*0.78, r:s*0.28, c:'#4ecf5a' },
+  ].forEach(function(l) {
+    ctx.beginPath(); ctx.arc(x, y+l.dy, l.r, 0, Math.PI*2);
+    ctx.fillStyle = l.c; ctx.fill();
   });
 }
 
-// ================================================================
-// DESSIN : ÉTOILES (nuit)
-// ================================================================
-function _drawStarsIso(W, H) {
-  for (var i = 0; i < 55; i++) {
-    var sx = (Math.sin(i * 437.1) * 0.5 + 0.5) * W;
-    var sy = (Math.sin(i * 293.3) * 0.5 + 0.5) * H * 0.42;
-    var tw = 0.3 + 0.7 * Math.sin(tick * 0.018 + i * 0.5);
+function _drawWindmill(x, y, H) {
+  var h = H * 0.14;
+  // corps
+  ctx.fillStyle = '#c9a86c';
+  ctx.beginPath();
+  ctx.moveTo(x-h*0.18, y+h);
+  ctx.lineTo(x+h*0.18, y+h);
+  ctx.lineTo(x+h*0.10, y);
+  ctx.lineTo(x-h*0.10, y);
+  ctx.closePath();
+  ctx.fill();
+  // toit violet
+  ctx.fillStyle = '#9b59b6';
+  ctx.beginPath();
+  ctx.moveTo(x-h*0.14, y);
+  ctx.lineTo(x, y-h*0.26);
+  ctx.lineTo(x+h*0.14, y);
+  ctx.closePath(); ctx.fill();
+  // ailes
+  ctx.strokeStyle = '#8b6914'; ctx.lineWidth = 2.5;
+  for (var a = 0; a < 4; a++) {
+    var ang = (a/4)*Math.PI*2 + tick*0.008;
     ctx.beginPath();
-    ctx.arc(sx, sy, 0.5 + Math.sin(i * 127) * 0.4, 0, Math.PI * 2);
-    ctx.fillStyle = 'rgba(255,255,220,' + tw + ')';
-    ctx.fill();
+    ctx.moveTo(x, y-h*0.04);
+    ctx.lineTo(x+Math.cos(ang)*h*0.25, y-h*0.04+Math.sin(ang)*h*0.25);
+    ctx.stroke();
   }
 }
 
-// ================================================================
-// DESSIN : SOLEIL / LUNE
-// ================================================================
-function _drawCelestial(W, H, night) {
-  var x = W * 0.84, y = H * 0.13;
-  if (night) {
-    var mg = ctx.createRadialGradient(x, y, 0, x, y, 38);
-    mg.addColorStop(0, 'rgba(200,190,140,0.28)');
-    mg.addColorStop(1, 'rgba(200,190,140,0)');
-    ctx.fillStyle = mg; ctx.fillRect(x-38,y-38,76,76);
-    ctx.beginPath(); ctx.arc(x, y, 14, 0, Math.PI*2);
-    ctx.fillStyle = '#f0e6a0'; ctx.fill();
-  } else if (currentWeather !== 'rain') {
-    var sg = ctx.createRadialGradient(x, y, 0, x, y, 46);
-    sg.addColorStop(0, 'rgba(255,230,80,0.32)');
-    sg.addColorStop(1, 'rgba(255,230,80,0)');
-    ctx.fillStyle = sg; ctx.fillRect(x-46,y-46,92,92);
-    ctx.beginPath(); ctx.arc(x, y, 18, 0, Math.PI*2);
-    ctx.fillStyle = '#ffe066'; ctx.fill();
-    for (var r = 0; r < 8; r++) {
-      var a = (r / 8) * Math.PI * 2 + tick * 0.004;
-      ctx.beginPath();
-      ctx.moveTo(x + Math.cos(a)*22, y + Math.sin(a)*22);
-      ctx.lineTo(x + Math.cos(a)*30, y + Math.sin(a)*30);
-      ctx.strokeStyle = 'rgba(255,220,60,0.4)'; ctx.lineWidth = 2; ctx.stroke();
-    }
-  }
-}
-
-// ================================================================
-// DESSIN : ZONES ET BÂTIMENTS (cœur isométrique)
-// ================================================================
-function _drawZonesAndBuildings(W, H) {
-  var gY  = _getGroundY(W, H);
+// ── BÂTIMENTS ─────────────────────────────────────────────────────
+function _drawAllBuildings(W, H) {
+  var gY  = _groundY(H);
   var xp  = (window.S && S.xp) || 0;
   var nl  = (window.S && S.nativeLang) || 'fr';
 
   window.VILLAGE_ZONES.forEach(function(zone, zi) {
-    var zX       = _getZoneX(zi, W);
+    var zx       = _zoneX(zi, W);
     var unlocked = xp >= zone.xpRequired;
+    if (zx < -W*0.45 || zx > W*1.45) return;
 
-    if (zX < -W * 0.4 || zX > W * 1.4) return; // culling
+    var bob  = Math.sin(tick*0.020 + zi*0.8) * 2;
+    var hov  = _isoState.hoveredBuilding === zone.id;
+    var sc   = hov ? 1.08 : 1.0;
+    var bSize = H * 0.19;
 
-    // ── Ombre de zone ──
     ctx.save();
-    ctx.globalAlpha = 0.08;
-    ctx.fillStyle   = zone.color;
-    ctx.beginPath();
-    ctx.ellipse(zX, gY + H * 0.04, W * 0.16, H * 0.04, 0, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.restore();
+    ctx.translate(zx, gY - bSize*0.55 + bob);
+    ctx.scale(sc, sc);
 
-    // ── Label de zone (en haut) ──
-    var zLabel = zone.label[nl] || zone.label.fr;
-    var zSub   = zone.sublabel[nl] || zone.sublabel.fr;
-    var labelY = H * 0.10;  // fixé en haut de l'écran, pas relatif au sol
-
-    // Badge de zone
-    ctx.save();
-    var badgeBg = unlocked ? zone.color : 'rgba(80,80,80,0.7)';
-    var badgeX  = zX;
-    var badgeW  = Math.min(W * 0.28, 110);
-    var badgeH  = 38;
-
-    // Ombre du badge
-    ctx.shadowColor   = 'rgba(0,0,0,0.25)';
-    ctx.shadowBlur    = 8;
-    ctx.shadowOffsetY = 3;
-
-    // Fond badge
-    ctx.fillStyle = badgeBg;
-    _roundRect(ctx, badgeX - badgeW/2, labelY - 22, badgeW, badgeH, 10);
-    ctx.fill();
-    ctx.shadowBlur = 0;
-
-    // Numéro de zone
-    ctx.fillStyle  = unlocked ? 'rgba(0,0,0,0.7)' : 'rgba(255,255,255,0.4)';
-    ctx.font       = 'bold ' + Math.round(H * 0.018) + 'px Cinzel, serif';
-    ctx.textAlign  = 'center';
-    ctx.fillText(zone.icon + ' ' + zLabel, badgeX, labelY - 5);
-
-    ctx.fillStyle  = unlocked ? 'rgba(0,0,0,0.5)' : 'rgba(255,255,255,0.25)';
-    ctx.font       = Math.round(H * 0.013) + 'px system-ui, sans-serif';
-    ctx.fillText(zSub, badgeX, labelY + 10);
-    ctx.restore();
-
-    // Ligne de connexion badge → bâtiment
-    ctx.save();
-    ctx.strokeStyle = unlocked ? zone.color : 'rgba(150,150,150,0.3)';
-    ctx.lineWidth   = 1.5;
-    ctx.setLineDash([4, 4]);
-    ctx.globalAlpha = 0.5;
-    ctx.beginPath();
-    ctx.moveTo(zX, labelY + 20);
-    ctx.lineTo(zX, gY - H * 0.32);
-    ctx.stroke();
-    ctx.restore();
-
-    // ── Bâtiments de la zone ──
-    zone.buildings.forEach(function(bld, bi) {
-      var pos      = _getBuildingPos(zi, bi, zone.buildings.length, W, H);
-      var bUnlocked= xp >= bld.xp;
-      var isHovered= _isoState.hoveredBuilding === (zone.id + '_' + bld.id);
-
-      _drawIsoBuild(ctx, pos.x, pos.y, bld, zone, bUnlocked, isHovered, W, H, nl);
-    });
-
-    // ── Indicateur de progression XP ──
     if (!unlocked) {
-      var needed = zone.xpRequired - xp;
-      ctx.save();
-      ctx.fillStyle  = 'rgba(0,0,0,0.65)';
-      _roundRect(ctx, zX - 50, gY - H*0.22, 100, 26, 10);
-      ctx.fill();
-      ctx.fillStyle  = '#ff9f43';
-      ctx.font       = 'bold ' + Math.round(H * 0.018) + 'px system-ui';
-      ctx.textAlign  = 'center';
-      ctx.fillText('🔒 +' + needed + ' XP', zX, gY - H*0.198);
-      ctx.restore();
+      ctx.globalAlpha = 0.45;
+      _drawBuilding(zone.type, 0, 0, bSize, '#888', '#666');
+      ctx.globalAlpha = 1;
+      // cadenas
+      ctx.font = Math.round(bSize*0.44)+'px serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('🔒', 0, bSize*0.15);
     } else {
+      if (hov) {
+        ctx.save();
+        ctx.shadowColor = zone.color; ctx.shadowBlur = 20; ctx.globalAlpha = 0.3;
+        ctx.beginPath(); ctx.arc(0, 0, bSize*0.65, 0, Math.PI*2);
+        ctx.fillStyle = zone.color; ctx.fill();
+        ctx.restore();
+      }
+      _drawBuilding(zone.type, 0, 0, bSize, zone.color, _shadeColor(zone.color, -0.25));
+    }
+    ctx.restore();
+
+    // check / étoile sur le sol
+    if (unlocked) {
+      var st = zone.state;
+      if (st === 'done') {
+        ctx.save();
+        ctx.beginPath(); ctx.arc(zx, gY+H*0.038, H*0.028, 0, Math.PI*2);
+        ctx.fillStyle = '#4ecf70'; ctx.fill();
+        ctx.font = 'bold '+Math.round(H*0.025)+'px sans-serif';
+        ctx.textAlign = 'center'; ctx.fillStyle = '#fff';
+        ctx.fillText('✓', zx, gY+H*0.038+H*0.01);
+        ctx.restore();
+      } else if (st === 'star') {
+        ctx.save();
+        ctx.beginPath(); ctx.arc(zx, gY+H*0.038, H*0.028, 0, Math.PI*2);
+        ctx.fillStyle = '#f9c74f'; ctx.fill();
+        ctx.font = Math.round(H*0.028)+'px serif';
+        ctx.textAlign = 'center';
+        ctx.fillText('⭐', zx, gY+H*0.038+H*0.011);
+        ctx.restore();
+      }
+    } else {
+      // cadenas sur le sol
       ctx.save();
-      ctx.fillStyle  = 'rgba(78,207,112,0.22)';
-      _roundRect(ctx, zX - 38, gY - H*0.22, 76, 22, 10);
-      ctx.fill();
-      ctx.fillStyle  = '#4ecf70';
-      ctx.font       = 'bold ' + Math.round(H * 0.017) + 'px system-ui';
-      ctx.textAlign  = 'center';
-      ctx.fillText('✅ Débloqué', zX, gY - H*0.202);
+      ctx.beginPath(); ctx.arc(zx, gY+H*0.038, H*0.026, 0, Math.PI*2);
+      ctx.fillStyle = 'rgba(80,80,80,0.55)'; ctx.fill();
+      ctx.font = Math.round(H*0.026)+'px serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('🔒', zx, gY+H*0.038+H*0.010);
       ctx.restore();
     }
   });
 }
 
-// ================================================================
-// DESSIN : UN BÂTIMENT ISOMÉTRIQUE
-// ================================================================
-function _drawIsoBuild(ctx, x, y, bld, zone, unlocked, isHovered, W, H, nl) {
-  var s     = H * 0.16;  // taille augmentée (était 0.095)
-  var bob   = Math.sin(tick * 0.022 + x * 0.01) * 2.5;
-  var scale = isHovered ? 1.10 : 1;
-  // Position Y : le bas du bâtiment est sur le sol, pas au-dessus
-  var bY    = y - s * 0.85 + bob;
-  var bX    = x;
+// Dessin d'un bâtiment selon son type (illustrations cartoon)
+function _drawBuilding(type, x, y, s, mainCol, darkCol) {
+  if (type === 'cottage')  _drawCottage(x, y, s, mainCol, darkCol);
+  else if (type === 'shop')   _drawShop(x, y, s, mainCol, darkCol);
+  else if (type === 'inn')    _drawInn(x, y, s, mainCol, darkCol);
+  else if (type === 'mansion')_drawMansion(x, y, s, mainCol, darkCol);
+  else if (type === 'castle') _drawCastle(x, y, s, mainCol, darkCol);
+}
 
-  ctx.save();
-  ctx.translate(bX, bY);
-  ctx.scale(scale, scale);
-
-  if (!unlocked) {
-    // ── Bâtiment verrouillé (grisé) ──
-    ctx.globalAlpha = 0.48;
-    _drawBuildingShape(ctx, 0, 0, s, '#888', '#666', '#aaa');
-    ctx.globalAlpha = 1;
-    // Cadenas
-    ctx.font      = Math.round(s * 0.58) + 'px serif';
-    ctx.textAlign = 'center';
-    ctx.fillText('🔒', 0, s * 0.1);
-  } else {
-    // ── Bâtiment débloqué ──
-    // Halo de survol
-    if (isHovered) {
-      ctx.save();
-      ctx.shadowColor = zone.color;
-      ctx.shadowBlur  = 22;
-      ctx.globalAlpha = 0.45;
-      ctx.beginPath();
-      ctx.arc(0, -s * 0.1, s * 0.72, 0, Math.PI * 2);
-      ctx.fillStyle = zone.color;
-      ctx.fill();
-      ctx.restore();
-    }
-
-    // Corps du bâtiment (style cartoon isométrique)
-    _drawBuildingShape(ctx, 0, 0, s,
-      _shadeColor(zone.color, -0.2),
-      _shadeColor(zone.color, -0.4),
-      _shadeColor(zone.color, 0.15)
-    );
-
-    // Emoji principal
-    ctx.font      = Math.round(s * 0.62) + 'px serif';
-    ctx.textAlign = 'center';
-    ctx.fillText(bld.emoji, 0, s * 0.05);
-
-    // Ombre du texte
-    ctx.shadowColor   = 'rgba(0,0,0,0.5)';
-    ctx.shadowBlur    = 4;
-    ctx.shadowOffsetY = 1;
-
-    // Label du bâtiment
-    var bLabel = bld.label[nl] || bld.label.fr;
-    ctx.font      = 'bold ' + Math.round(H * 0.022) + 'px system-ui, sans-serif';
-    ctx.fillStyle = '#ffffff';
-    ctx.fillText(bLabel, 0, s * 0.88);
-    ctx.shadowBlur = 0;
+// Chaumière (zone 1 — petite maison rustique)
+function _drawCottage(x, y, s, col, dark) {
+  var w = s*0.70, h = s*0.55, rh = s*0.44;
+  // corps
+  ctx.fillStyle = '#f5deb3';
+  _rrect(ctx, x-w/2, y-h, w, h, 4); ctx.fill();
+  ctx.strokeStyle = '#c8a87a'; ctx.lineWidth = 1.5; ctx.stroke();
+  // toit
+  ctx.fillStyle = col;
+  ctx.beginPath();
+  ctx.moveTo(x-w/2-s*0.05, y-h+2);
+  ctx.lineTo(x, y-h-rh);
+  ctx.lineTo(x+w/2+s*0.05, y-h+2);
+  ctx.closePath(); ctx.fill();
+  ctx.strokeStyle = dark; ctx.lineWidth = 1.5; ctx.stroke();
+  // fenêtres
+  ctx.fillStyle = '#87ceeb';
+  _rrect(ctx, x-w*0.26, y-h*0.68, w*0.24, h*0.30, 2); ctx.fill();
+  _rrect(ctx, x+w*0.04, y-h*0.68, w*0.24, h*0.30, 2); ctx.fill();
+  // porte
+  ctx.fillStyle = '#8b5e3c';
+  _rrect(ctx, x-w*0.12, y-h*0.44, w*0.24, h*0.44, 3); ctx.fill();
+  // cheminée
+  ctx.fillStyle = '#c0a06a';
+  ctx.fillRect(x+w*0.15, y-h-rh+rh*0.22, s*0.10, s*0.22);
+  // fumée
+  for (var fi=0;fi<3;fi++){
+    ctx.save(); ctx.globalAlpha=0.35;
+    ctx.beginPath(); ctx.arc(x+w*0.20, y-h-rh+rh*0.10-fi*8-Math.sin(tick*0.04+fi)*3, 4+fi*1.5, 0, Math.PI*2);
+    ctx.fillStyle='#ccc'; ctx.fill(); ctx.restore();
   }
-
-  ctx.restore();
+  // arbre décoratif à droite
+  _drawSmallTree(x+w/2+s*0.15, y, s*0.55);
 }
 
-// Forme 3D isométrique simplifiée (boîte avec toit)
-function _drawBuildingShape(ctx, x, y, s, sideL, sideR, top) {
-  var hw = s * 0.48, hh = s * 0.52, th = s * 0.22;
-
-  // Face gauche
-  ctx.beginPath();
-  ctx.moveTo(x - hw, y);
-  ctx.lineTo(x,      y - hh);
-  ctx.lineTo(x,      y - hh - th * 0.5);
-  ctx.lineTo(x - hw, y - th * 0.5);
-  ctx.closePath();
-  ctx.fillStyle = sideL;
-  ctx.fill();
-
-  // Face droite
-  ctx.beginPath();
-  ctx.moveTo(x,      y - hh);
-  ctx.lineTo(x + hw, y);
-  ctx.lineTo(x + hw, y - th * 0.5);
-  ctx.lineTo(x,      y - hh - th * 0.5);
-  ctx.closePath();
-  ctx.fillStyle = sideR;
-  ctx.fill();
-
-  // Toit (losange)
-  ctx.beginPath();
-  ctx.moveTo(x - hw, y - th * 0.5);
-  ctx.lineTo(x,      y - hh - th);
-  ctx.lineTo(x + hw, y - th * 0.5);
-  ctx.lineTo(x,      y - th * 0.22);
-  ctx.closePath();
-  ctx.fillStyle = top;
-  ctx.fill();
-
-  // Contour
-  ctx.strokeStyle = 'rgba(0,0,0,0.18)';
-  ctx.lineWidth   = 0.8;
-  ctx.stroke();
+// Boutique à auvent (zone 2)
+function _drawShop(x, y, s, col, dark) {
+  var w = s*0.74, h = s*0.58;
+  // corps
+  ctx.fillStyle = '#f0e0c0';
+  _rrect(ctx, x-w/2, y-h, w, h, 4); ctx.fill();
+  ctx.strokeStyle = '#c0a060'; ctx.lineWidth = 1.5; ctx.stroke();
+  // toit plat + auvent
+  ctx.fillStyle = col;
+  _rrect(ctx, x-w/2-4, y-h-s*0.06, w+8, s*0.12, 3); ctx.fill();
+  // auvent rayures
+  ctx.fillStyle = '#fff';
+  ctx.globalAlpha = 0.35;
+  for (var ai=0; ai<5; ai++) {
+    ctx.fillRect(x-w/2-4+ai*(w+8)/5, y-h-s*0.06, (w+8)/10, s*0.12);
+  }
+  ctx.globalAlpha = 1;
+  // enseigne
+  ctx.fillStyle = '#f9c74f'; _rrect(ctx, x-w*0.30, y-h*0.90, w*0.60, h*0.22, 3); ctx.fill();
+  // fenêtres
+  ctx.fillStyle = '#87ceeb';
+  _rrect(ctx, x-w*0.28, y-h*0.62, w*0.22, h*0.28, 2); ctx.fill();
+  _rrect(ctx, x+w*0.06, y-h*0.62, w*0.22, h*0.28, 2); ctx.fill();
+  // porte
+  ctx.fillStyle = '#8b5e3c'; _rrect(ctx, x-w*0.10, y-h*0.40, w*0.20, h*0.40, 3); ctx.fill();
 }
 
-// ================================================================
-// PARTICULES
-// ================================================================
-function _updateAndDrawParticles(W, H) {
-  // Ajouter de nouvelles particules
-  if (tick % 12 === 0 && _isoState.particles.length < 20) {
+// Auberge bleue (zone 3)
+function _drawInn(x, y, s, col, dark) {
+  var w = s*0.80, h = s*0.65, rh = s*0.38;
+  // corps pierre
+  ctx.fillStyle = '#d9c9a8';
+  _rrect(ctx, x-w/2, y-h, w, h, 4); ctx.fill();
+  ctx.strokeStyle = '#b0a080'; ctx.lineWidth = 1.5; ctx.stroke();
+  // toit bleu
+  ctx.fillStyle = col;
+  ctx.beginPath();
+  ctx.moveTo(x-w/2-6, y-h+3);
+  ctx.lineTo(x, y-h-rh);
+  ctx.lineTo(x+w/2+6, y-h+3);
+  ctx.closePath(); ctx.fill();
+  ctx.strokeStyle = dark; ctx.lineWidth = 1.5; ctx.stroke();
+  // horloge sur le fronton
+  ctx.fillStyle = '#fff';
+  ctx.beginPath(); ctx.arc(x, y-h-rh*0.42, s*0.09, 0, Math.PI*2); ctx.fill();
+  ctx.strokeStyle='#333'; ctx.lineWidth=1;
+  ctx.beginPath(); ctx.moveTo(x,y-h-rh*0.42); ctx.lineTo(x,y-h-rh*0.42-s*0.06); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(x,y-h-rh*0.42); ctx.lineTo(x+s*0.04,y-h-rh*0.42+s*0.02); ctx.stroke();
+  // fenêtres x3
+  ctx.fillStyle = '#87ceeb';
+  [-w*0.28, 0, w*0.28].forEach(function(ox) {
+    _rrect(ctx, x+ox-w*0.10, y-h*0.60, w*0.20, h*0.28, 2); ctx.fill();
+  });
+  // porte
+  ctx.fillStyle = '#5a3a18'; _rrect(ctx, x-w*0.13, y-h*0.38, w*0.26, h*0.38, 4); ctx.fill();
+  // banc
+  ctx.fillStyle='#a07830'; ctx.fillRect(x-w*0.38, y-h*0.05, w*0.22, s*0.04);
+  ctx.fillRect(x+w*0.16, y-h*0.05, w*0.22, s*0.04);
+}
+
+// Maison de ville (zone 4 — grande, verrouillée)
+function _drawMansion(x, y, s, col, dark) {
+  var w = s*0.88, h = s*0.75, rh = s*0.45;
+  // corps
+  ctx.fillStyle = '#e8d8b8';
+  _rrect(ctx, x-w/2, y-h, w, h, 4); ctx.fill();
+  ctx.strokeStyle = '#b8a880'; ctx.lineWidth = 1.5; ctx.stroke();
+  // toit principal
+  ctx.fillStyle = '#c05020';
+  ctx.beginPath();
+  ctx.moveTo(x-w/2-6, y-h+3); ctx.lineTo(x, y-h-rh); ctx.lineTo(x+w/2+6, y-h+3);
+  ctx.closePath(); ctx.fill();
+  ctx.strokeStyle = dark; ctx.lineWidth=1.5; ctx.stroke();
+  // tour gauche
+  ctx.fillStyle = '#b84020';
+  ctx.fillRect(x-w/2-2, y-h-rh*0.15, s*0.18, rh*0.82);
+  ctx.fillStyle = '#d04025';
+  ctx.beginPath();
+  ctx.moveTo(x-w/2-2, y-h-rh*0.15);
+  ctx.lineTo(x-w/2+s*0.09, y-h-rh*0.15-rh*0.40);
+  ctx.lineTo(x-w/2+s*0.18, y-h-rh*0.15);
+  ctx.closePath(); ctx.fill();
+  // fenêtres
+  ctx.fillStyle = '#87ceeb';
+  [-w*0.28, 0, w*0.28].forEach(function(ox) {
+    _rrect(ctx, x+ox-w*0.10, y-h*0.55, w*0.20, h*0.28, 2); ctx.fill();
+  });
+  // porte
+  ctx.fillStyle='#4a2810'; _rrect(ctx, x-w*0.13, y-h*0.38, w*0.26, h*0.38, 4); ctx.fill();
+}
+
+// Château (zone 5 — majestueux)
+function _drawCastle(x, y, s, col, dark) {
+  var w = s*0.96, h = s*0.82;
+  // corps principal
+  ctx.fillStyle = '#d8c8a8';
+  _rrect(ctx, x-w/2, y-h, w, h, 4); ctx.fill();
+  ctx.strokeStyle = '#b0a080'; ctx.lineWidth=1.5; ctx.stroke();
+  // tours côtés
+  var tw = s*0.22, th = h*0.60;
+  ctx.fillStyle = '#c8b890';
+  ctx.strokeStyle = '#a09070'; ctx.lineWidth=1.5;
+  [x-w/2+tw*0.05, x+w/2-tw*1.05].forEach(function(tx) {
+    _rrect(ctx, tx, y-th, tw, th, 3); ctx.fill(); ctx.stroke();
+    // créneaux
+    for(var cr=0;cr<3;cr++) ctx.fillRect(tx+cr*tw/3+1, y-th-s*0.07, tw/4, s*0.07);
+    // fenêtre tour
+    ctx.fillStyle='#87ceeb'; _rrect(ctx, tx+tw*0.22, y-th+th*0.22, tw*0.55, th*0.22, 2); ctx.fill();
+    ctx.fillStyle='#c8b890';
+  });
+  // toits tours violet
+  ctx.fillStyle = '#9b59b6';
+  [x-w/2+tw*0.05, x+w/2-tw*1.05].forEach(function(tx) {
+    ctx.beginPath();
+    ctx.moveTo(tx, y-th);
+    ctx.lineTo(tx+tw/2, y-th-s*0.32);
+    ctx.lineTo(tx+tw, y-th);
+    ctx.closePath(); ctx.fill();
+    // drapeau
+    ctx.strokeStyle='#7a3090'; ctx.lineWidth=1.2;
+    ctx.beginPath(); ctx.moveTo(tx+tw/2, y-th-s*0.32); ctx.lineTo(tx+tw/2, y-th-s*0.32-s*0.14); ctx.stroke();
+    ctx.fillStyle='#e040fb';
+    ctx.beginPath(); ctx.moveTo(tx+tw/2, y-th-s*0.46); ctx.lineTo(tx+tw/2+s*0.07, y-th-s*0.40); ctx.lineTo(tx+tw/2, y-th-s*0.34); ctx.closePath(); ctx.fill();
+  });
+  // créneaux du corps principal
+  ctx.fillStyle='#d8c8a8';
+  for (var cr=0;cr<6;cr++) ctx.fillRect(x-w*0.35+cr*w/8, y-h-s*0.07, w/10, s*0.07);
+  // grande porte
+  ctx.fillStyle='#3a2208'; 
+  ctx.beginPath(); ctx.moveTo(x-w*0.13, y-h*0.38); ctx.lineTo(x+w*0.13, y-h*0.38); ctx.arc(x, y-h*0.38, w*0.13, 0, Math.PI, true); ctx.closePath(); ctx.fill();
+  // herse
+  ctx.strokeStyle='#6a4010'; ctx.lineWidth=1.5;
+  for(var hb=0;hb<3;hb++) { ctx.beginPath(); ctx.moveTo(x-w*0.08+hb*w*0.08, y-h*0.38); ctx.lineTo(x-w*0.08+hb*w*0.08, y-h*0.38-h*0.20); ctx.stroke(); }
+  // étoile sur le château
+  ctx.font=Math.round(s*0.18)+'px serif'; ctx.textAlign='center';
+  ctx.fillText('⭐', x+w/2-s*0.06, y-h-s*0.06);
+}
+
+function _drawSmallTree(x, y, s) {
+  ctx.fillStyle='#6b4226'; ctx.fillRect(x-2, y-s*0.18, 4, s*0.20);
+  ctx.fillStyle='#2d8a3a'; ctx.beginPath(); ctx.arc(x,y-s*0.28,s*0.22,0,Math.PI*2); ctx.fill();
+  ctx.fillStyle='#38a848'; ctx.beginPath(); ctx.arc(x,y-s*0.44,s*0.17,0,Math.PI*2); ctx.fill();
+}
+
+// ── BADGES DE NIVEAU ─────────────────────────────────────────────
+function _drawBadges(W, H) {
+  var xp = (window.S && S.xp) || 0;
+  var nl = (window.S && S.nativeLang) || 'fr';
+
+  window.VILLAGE_ZONES.forEach(function(zone, zi) {
+    var zx       = _zoneX(zi, W);
+    var unlocked = xp >= zone.xpRequired;
+    if (zx < -W*0.45 || zx > W*1.45) return;
+
+    var by     = H * 0.065;
+    var bw     = Math.min(W * 0.24, 100);
+    var bh     = 44;
+    var bgCol  = unlocked ? zone.color : '#666';
+    var txCol  = unlocked ? 'rgba(0,0,0,0.75)' : 'rgba(255,255,255,0.55)';
+
+    // fond badge
+    ctx.save();
+    ctx.shadowColor='rgba(0,0,0,0.22)'; ctx.shadowBlur=6; ctx.shadowOffsetY=2;
+    ctx.fillStyle = bgCol;
+    _rrect(ctx, zx-bw/2, by, bw, bh, 10); ctx.fill();
+    ctx.shadowBlur = 0;
+
+    // numéro dans un cercle
+    ctx.fillStyle = 'rgba(0,0,0,0.22)';
+    ctx.beginPath(); ctx.arc(zx-bw/2+16, by+bh/2, 12, 0, Math.PI*2); ctx.fill();
+    ctx.fillStyle = '#fff';
+    ctx.font = 'bold '+Math.round(H*0.018)+'px system-ui, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText(zone.num, zx-bw/2+16, by+bh/2+H*0.007);
+
+    // label
+    ctx.fillStyle = txCol;
+    ctx.font = 'bold '+Math.round(H*0.017)+'px system-ui, sans-serif';
+    ctx.textAlign = 'left';
+    ctx.fillText(zone.label[nl]||zone.label.fr, zx-bw/2+34, by+bh*0.42);
+    ctx.fillStyle = unlocked ? 'rgba(0,0,0,0.50)' : 'rgba(255,255,255,0.35)';
+    ctx.font = Math.round(H*0.013)+'px system-ui, sans-serif';
+    ctx.fillText(zone.sublabel[nl]||zone.sublabel.fr, zx-bw/2+34, by+bh*0.72);
+
+    // ligne de connexion badge → bâtiment
+    ctx.strokeStyle = unlocked ? zone.color : 'rgba(150,150,150,0.3)';
+    ctx.lineWidth   = 1.5;
+    ctx.setLineDash([4,4]);
+    ctx.globalAlpha = 0.55;
+    ctx.beginPath();
+    ctx.moveTo(zx, by+bh);
+    ctx.lineTo(zx, _groundY(H)-H*0.27);
+    ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.restore();
+  });
+}
+
+// ── PARTICULES ────────────────────────────────────────────────────
+function _drawParticles(W, H) {
+  if (tick % 14 === 0 && _isoState.particles.length < 18) {
     _isoState.particles.push({
-      x: Math.random() * W,
-      y: _getGroundY(W, H) - Math.random() * H * 0.2,
-      vx: (Math.random() - 0.5) * 0.6,
-      vy: -0.4 - Math.random() * 0.5,
-      life: 1, decay: 0.012,
-      r: 2 + Math.random() * 3,
-      color: ['#4ecf70','#ffd700','#ff9f43','#4a9eff'][Math.floor(Math.random() * 4)]
+      x: Math.random()*W, y: _groundY(H)-Math.random()*H*0.22,
+      vx:(Math.random()-0.5)*0.6, vy:-0.4-Math.random()*0.5,
+      life:1, decay:0.014, r:2+Math.random()*3,
+      color:['#4ecf70','#f9c74f','#ff9f43','#4a9eff'][Math.floor(Math.random()*4)]
     });
   }
   _isoState.particles = _isoState.particles.filter(function(p) {
-    p.x += p.vx; p.y += p.vy; p.life -= p.decay;
-    if (p.life <= 0) return false;
-    ctx.save();
-    ctx.globalAlpha = p.life * 0.55;
-    ctx.beginPath();
-    ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-    ctx.fillStyle = p.color;
-    ctx.fill();
-    ctx.restore();
+    p.x+=p.vx; p.y+=p.vy; p.life-=p.decay;
+    if (p.life<=0) return false;
+    ctx.save(); ctx.globalAlpha=p.life*0.50;
+    ctx.beginPath(); ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+    ctx.fillStyle=p.color; ctx.fill(); ctx.restore();
     return true;
   });
 }
 
 // ================================================================
-// UTILITAIRES DESSIN
+// HIT TEST
 // ================================================================
-function _roundRect(ctx, x, y, w, h, r) {
-  ctx.beginPath();
-  ctx.moveTo(x + r, y);
-  ctx.lineTo(x + w - r, y);
-  ctx.quadraticCurveTo(x + w, y, x + w, y + r);
-  ctx.lineTo(x + w, y + h - r);
-  ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
-  ctx.lineTo(x + r, y + h);
-  ctx.quadraticCurveTo(x, y + h, x, y + h - r);
-  ctx.lineTo(x, y + r);
-  ctx.quadraticCurveTo(x, y, x + r, y);
-  ctx.closePath();
-}
-
-function _shadeColor(hex, pct) {
-  // Assombrit ou éclaircit une couleur hex
-  var col = hex.replace('#','');
-  if (col.length === 3) col = col[0]+col[0]+col[1]+col[1]+col[2]+col[2];
-  var r = parseInt(col.slice(0,2),16);
-  var g = parseInt(col.slice(2,4),16);
-  var b = parseInt(col.slice(4,6),16);
-  r = Math.max(0, Math.min(255, Math.round(r + r * pct)));
-  g = Math.max(0, Math.min(255, Math.round(g + g * pct)));
-  b = Math.max(0, Math.min(255, Math.round(b + b * pct)));
-  return 'rgb(' + r + ',' + g + ',' + b + ')';
-}
-
-// ================================================================
-// ÉVÉNEMENTS TACTILES / SOURIS
-// ================================================================
-var _touchStartX = 0, _touchScrollX = 0;
-
-function _onIsoTouchStart(e) {
-  e.preventDefault();
-  _touchStartX  = e.touches[0].clientX;
-  _touchScrollX = _isoState.targetScrollX;
-  canvas && (canvas.style.cursor = 'grabbing');
-}
-function _onIsoTouchMove(e) {
-  e.preventDefault();
-  var dx = _touchStartX - e.touches[0].clientX;
-  var dpr = window.devicePixelRatio || 1;
-  var W   = canvas ? canvas.width / dpr : 360;
-  _isoState.targetScrollX = _touchScrollX + dx;
-  _clampScroll(W);
-}
-function _onIsoTouchEnd(e) {
-  canvas && (canvas.style.cursor = 'grab');
-  // Snap à la zone la plus proche
-  var dpr = window.devicePixelRatio || 1;
-  var W   = canvas ? canvas.width / dpr : 360;
-  _snapToNearestZone(W);
-}
-
-function _onIsoMouseDown(e) {
-  _isoState.isDragging  = true;
-  _isoState.dragStartX  = e.clientX;
-  _isoState.dragScrollX = _isoState.targetScrollX;
-  canvas && (canvas.style.cursor = 'grabbing');
-}
-function _onIsoMouseDrag(e) {
-  if (!_isoState.isDragging) return;
-  var dx  = _isoState.dragStartX - e.clientX;
-  var dpr = window.devicePixelRatio || 1;
-  var W   = canvas ? canvas.width / dpr : 360;
-  _isoState.targetScrollX = _isoState.dragScrollX + dx;
-  _clampScroll(W);
-}
-function _onIsoMouseUp(e) {
-  if (_isoState.isDragging) {
-    _isoState.isDragging = false;
-    canvas && (canvas.style.cursor = 'grab');
-    var dpr = window.devicePixelRatio || 1;
-    var W   = canvas ? canvas.width / dpr : 360;
-    _snapToNearestZone(W);
-  }
-}
-
-function _snapToNearestZone(W) {
-  // Trouver la zone dont le centre est le plus proche du centre écran
-  var cx      = _isoState.scrollX + W * 0.5;
-  var minDist = Infinity, bestZone = 0;
-  window.VILLAGE_ZONES.forEach(function(z, i) {
-    var zX   = _getZoneX(i, W) + _isoState.scrollX;
-    var dist = Math.abs(zX - W * 0.5);
-    if (dist < minDist) { minDist = dist; bestZone = i; }
-  });
-  _scrollToZone(bestZone, false);
-}
-
-function _onIsoHover(e) {
-  if (_isoState.isDragging) return;
-  var rect = canvas.getBoundingClientRect();
-  var dpr  = window.devicePixelRatio || 1;
-  var mx   = (e.clientX - rect.left);
-  var my   = (e.clientY - rect.top);
-  var W    = canvas.width  / dpr;
-  var H    = canvas.height / dpr;
-  _isoState.hoveredBuilding = _hitTestBuilding(mx, my, W, H);
-  canvas.style.cursor = _isoState.hoveredBuilding ? 'pointer' : (_isoState.isDragging ? 'grabbing' : 'grab');
-}
-
-function _onIsoClick(e) {
-  if (_isoState.isDragging) return;
-  var rect = canvas.getBoundingClientRect();
-  var dpr  = window.devicePixelRatio || 1;
-  var mx   = (e.clientX - rect.left);
-  var my   = (e.clientY - rect.top);
-  var W    = canvas.width  / dpr;
-  var H    = canvas.height / dpr;
-  var hit  = _hitTestBuilding(mx, my, W, H);
-  if (hit) _onBuildingClick(hit);
-}
-
-function _hitTestBuilding(mx, my, W, H) {
-  var xp = (window.S && S.xp) || 0;
-  var s  = H * 0.095;
+function _hitTest(mx, my, W, H) {
+  var gY = _groundY(H);
+  var bS = H * 0.19;
   var result = null;
   window.VILLAGE_ZONES.forEach(function(zone, zi) {
-    zone.buildings.forEach(function(bld, bi) {
-      var pos = _getBuildingPos(zi, bi, zone.buildings.length, W, H);
-      var bob = Math.sin(tick * 0.022 + pos.x * 0.01) * 2.5;
-      var bY  = pos.y + bob - s * 0.5;
-      var dx  = mx - pos.x, dy = my - bY;
-      if (Math.abs(dx) < s * 0.55 && Math.abs(dy) < s * 0.7) {
-        result = zone.id + '_' + bld.id;
-      }
-    });
+    var zx = _zoneX(zi, W);
+    var bY = gY - bS*0.55;
+    var dx = mx - zx, dy = my - bY;
+    if (Math.abs(dx) < bS*0.52 && Math.abs(dy) < bS*0.72) result = zone.id;
   });
   return result;
 }
 
-function _onBuildingClick(key) {
-  var parts   = key.split('_');
-  var zoneId  = parts[0];
-  var buildId = parts.slice(1).join('_');
-  var zone    = window.VILLAGE_ZONES.find(function(z) { return z.id === zoneId; });
-  var bld     = zone && zone.buildings.find(function(b) { return b.id === buildId; });
-  if (!zone || !bld) return;
-
+function _onBuildingClick(id) {
+  var zone = window.VILLAGE_ZONES.find(function(z){ return z.id === id; });
+  if (!zone) return;
   var xp = (window.S && S.xp) || 0;
-  if (xp < bld.xp) {
-    if (typeof showNotif === 'function')
-      showNotif('🔒 Il te faut ' + (bld.xp - xp) + ' XP de plus pour débloquer ce lieu!');
+  if (xp < zone.xpRequired) {
+    if (typeof showNotif==='function') showNotif('🔒 Il te faut '+(zone.xpRequired-xp)+' XP de plus !');
     return;
   }
-
-  // Particules de clic
-  if (canvas) {
-    var dpr = window.devicePixelRatio || 1;
-    var W   = canvas.width  / dpr;
-    var H   = canvas.height / dpr;
-    var pos = _getBuildingPos(
-      window.VILLAGE_ZONES.indexOf(zone),
-      zone.buildings.indexOf(bld),
-      zone.buildings.length, W, H
-    );
-    for (var i = 0; i < 10; i++) {
-      _isoState.particles.push({
-        x: pos.x, y: pos.y,
-        vx: (Math.random()-0.5)*3, vy:-1.5-Math.random()*2,
-        life:1, decay:0.03, r:3+Math.random()*4, color: zone.color
-      });
-    }
-  }
-
-  // Ouvrir le lieu
-  if (typeof openLocation === 'function') {
-    openLocation(buildId);
-  } else if (typeof showScreen === 'function') {
+  if (typeof openLocation==='function') openLocation(zone.id);
+  else if (typeof showScreen==='function') {
     showScreen('screen-location');
-    var locTitle = document.getElementById('locTitle');
-    var nl = (window.S && S.nativeLang) || 'fr';
-    if (locTitle) locTitle.textContent = bld.emoji + ' ' + (bld.label[nl] || bld.label.fr);
+    var t = document.getElementById('locTitle');
+    var nl = (window.S&&S.nativeLang)||'fr';
+    if (t) t.textContent = (zone.label[nl]||zone.label.fr);
   }
 }
 
 // ================================================================
-// BARRE DE NAVIGATION BOTTOM
+// ÉVÉNEMENTS
+// ================================================================
+var _touchStartX=0, _touchScrollX=0;
+function _onIsoTouchStart(e){ e.preventDefault(); _touchStartX=e.touches[0].clientX; _touchScrollX=_isoState.targetScrollX; if(canvas)canvas.style.cursor='grabbing'; }
+function _onIsoTouchMove(e){ e.preventDefault(); var dx=_touchStartX-e.touches[0].clientX; var dpr=window.devicePixelRatio||1; var W=canvas?canvas.width/dpr:360; _isoState.targetScrollX=_touchScrollX+dx; _clampScroll(W); }
+function _onIsoTouchEnd(e){ if(canvas)canvas.style.cursor='grab'; var dpr=window.devicePixelRatio||1; var W=canvas?canvas.width/dpr:360; _snapNearest(W); }
+function _onIsoMouseDown(e){ _isoState.isDragging=true; _isoState.dragStartX=e.clientX; _isoState.dragScrollX=_isoState.targetScrollX; if(canvas)canvas.style.cursor='grabbing'; }
+function _onIsoMouseDrag(e){ if(!_isoState.isDragging)return; var dx=_isoState.dragStartX-e.clientX; var dpr=window.devicePixelRatio||1; var W=canvas?canvas.width/dpr:360; _isoState.targetScrollX=_isoState.dragScrollX+dx; _clampScroll(W); }
+function _onIsoMouseUp(e){ if(_isoState.isDragging){ _isoState.isDragging=false; if(canvas)canvas.style.cursor='grab'; var dpr=window.devicePixelRatio||1; var W=canvas?canvas.width/dpr:360; _snapNearest(W); } }
+function _onIsoHover(e){ if(_isoState.isDragging)return; var rect=canvas.getBoundingClientRect(); var dpr=window.devicePixelRatio||1; var W=canvas.width/dpr; var H=canvas.height/dpr; var hit=_hitTest(e.clientX-rect.left,e.clientY-rect.top,W,H); _isoState.hoveredBuilding=hit; canvas.style.cursor=hit?'pointer':(_isoState.isDragging?'grabbing':'grab'); }
+function _onIsoClick(e){ if(_isoState.isDragging)return; var rect=canvas.getBoundingClientRect(); var dpr=window.devicePixelRatio||1; var W=canvas.width/dpr; var H=canvas.height/dpr; var hit=_hitTest(e.clientX-rect.left,e.clientY-rect.top,W,H); if(hit)_onBuildingClick(hit); }
+function _snapNearest(W){ var best=0, dist=Infinity; window.VILLAGE_ZONES.forEach(function(z,i){ var d=Math.abs(_zoneX(i,W)-W*0.38); if(d<dist){dist=d;best=i;} }); _scrollToZone(best,false); }
+
+// ================================================================
+// BARRE NAV
 // ================================================================
 function _buildNavBar() {
   var existing = document.querySelector('.village-nav-bar');
   if (existing) existing.remove();
-
   var vs = document.getElementById('screen-village');
   if (!vs) return;
-
-  var nl   = (window.S && S.nativeLang) || 'fr';
-  var xp   = (window.S && S.xp) || 0;
-
-  var nav  = document.createElement('div');
+  var nav = document.createElement('div');
   nav.className = 'village-nav-bar';
   nav.innerHTML = '\
-    <button class="vnb-btn active" onclick="_navTo(\'village\')" id="vnb-village">\
-      <span class="vnb-icon">🏘️</span>\
-      <span class="vnb-label">Village</span>\
-    </button>\
-    <button class="vnb-btn" onclick="_navTo(\'lessons\')" id="vnb-lessons">\
-      <span class="vnb-icon">📖</span>\
-      <span class="vnb-label">Leçons</span>\
-    </button>\
-    <button class="vnb-btn" onclick="_navTo(\'practice\')" id="vnb-practice">\
-      <span class="vnb-icon">🎤</span>\
-      <span class="vnb-label">Pratique</span>\
-    </button>\
-    <button class="vnb-btn" onclick="_navTo(\'challenges\')" id="vnb-challenges">\
-      <span class="vnb-icon">🏆</span>\
-      <span class="vnb-label">Défis</span>\
-    </button>\
-    <button class="vnb-btn" onclick="_navTo(\'profile\')" id="vnb-profile">\
-      <span class="vnb-icon">👤</span>\
-      <span class="vnb-label">Profil</span>\
-    </button>\
+    <button class="vnb-btn active" onclick="_navTo(\'village\')" id="vnb-village"><span class="vnb-icon">🏘️</span><span class="vnb-label">Village</span></button>\
+    <button class="vnb-btn" onclick="_navTo(\'lessons\')" id="vnb-lessons"><span class="vnb-icon">📖</span><span class="vnb-label">Leçons</span></button>\
+    <button class="vnb-btn" onclick="_navTo(\'practice\')" id="vnb-practice"><span class="vnb-icon">🎤</span><span class="vnb-label">Pratique</span></button>\
+    <button class="vnb-btn" onclick="_navTo(\'challenges\')" id="vnb-challenges"><span class="vnb-icon">🏆</span><span class="vnb-label">Défis</span></button>\
+    <button class="vnb-btn" onclick="_navTo(\'profile\')" id="vnb-profile"><span class="vnb-icon">👤</span><span class="vnb-label">Profil</span></button>\
   ';
   vs.appendChild(nav);
-
-  // Injecter le CSS de la nav bar si pas encore présent
   if (!document.getElementById('village-nav-css')) {
     var style = document.createElement('style');
-    style.id  = 'village-nav-css';
+    style.id = 'village-nav-css';
     style.textContent = '\
-      .village-nav-bar {\
-        flex-shrink: 0;\
-        display: flex;\
-        align-items: center;\
-        justify-content: space-around;\
-        background: rgba(8,10,18,0.97);\
-        backdrop-filter: blur(14px);\
-        -webkit-backdrop-filter: blur(14px);\
-        border-top: 1px solid rgba(255,255,255,0.07);\
-        padding: 8px 0 max(8px, env(safe-area-inset-bottom));\
-        z-index: 30;\
-        box-shadow: 0 -4px 24px rgba(0,0,0,0.4);\
-      }\
-      .vnb-btn {\
-        flex: 1;\
-        display: flex;\
-        flex-direction: column;\
-        align-items: center;\
-        gap: 2px;\
-        background: none;\
-        border: none;\
-        color: rgba(255,255,255,0.38);\
-        font-size: 0.6rem;\
-        font-weight: 700;\
-        letter-spacing: 0.02em;\
-        padding: 4px 0;\
-        cursor: pointer;\
-        transition: color 0.18s, transform 0.14s;\
-      }\
-      .vnb-btn.active { color: #4ecf70; }\
-      .vnb-btn:active { transform: scale(0.9); }\
-      .vnb-icon {\
-        font-size: 1.3rem;\
-        line-height: 1;\
-        transition: transform 0.18s;\
-      }\
-      .vnb-btn.active .vnb-icon { transform: scale(1.2); }\
-      .vnb-label { font-size: 0.58rem; }\
+      .village-nav-bar{flex-shrink:0;display:flex;align-items:center;justify-content:space-around;background:rgba(255,255,255,0.97);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-top:1px solid rgba(0,0,0,0.08);padding:8px 0 max(8px,env(safe-area-inset-bottom));z-index:30;box-shadow:0 -2px 16px rgba(0,0,0,0.10);}\
+      .vnb-btn{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;background:none;border:none;color:rgba(0,0,0,0.32);font-size:0.6rem;font-weight:700;letter-spacing:0.02em;padding:4px 0;cursor:pointer;transition:color 0.18s,transform 0.14s;}\
+      .vnb-btn.active{color:#2eaa55;}\
+      .vnb-btn:active{transform:scale(0.9);}\
+      .vnb-icon{font-size:1.3rem;line-height:1;transition:transform 0.18s;}\
+      .vnb-btn.active .vnb-icon{transform:scale(1.2);}\
+      .vnb-label{font-size:0.58rem;}\
     ';
     document.head.appendChild(style);
   }
 }
 
 window._navTo = function(section) {
-  document.querySelectorAll('.vnb-btn').forEach(function(b) { b.classList.remove('active'); });
-  var btn = document.getElementById('vnb-' + section);
+  document.querySelectorAll('.vnb-btn').forEach(function(b){ b.classList.remove('active'); });
+  var btn = document.getElementById('vnb-'+section);
   if (btn) btn.classList.add('active');
-
-  switch(section) {
-    case 'village':
-      // Déjà sur le village
-      break;
-    case 'lessons':
-      if (typeof showScreen === 'function') showScreen('screen-lesson');
-      else if (typeof showNotif === 'function') showNotif('📖 Leçons');
-      break;
-    case 'practice':
-      if (typeof openFlashcards === 'function') openFlashcards();
-      else if (typeof showNotif === 'function') showNotif('🎤 Pratique');
-      break;
-    case 'challenges':
-      if (typeof showDetailedStats === 'function') showDetailedStats();
-      else if (typeof showNotif === 'function') showNotif('🏆 Défis');
-      break;
-    case 'profile':
-      if (typeof showScreen === 'function') showScreen('screen-menu');
-      else if (typeof showNotif === 'function') showNotif('👤 Profil');
-      break;
+  switch(section){
+    case 'village': break;
+    case 'lessons': if(typeof showScreen==='function') showScreen('screen-lesson'); break;
+    case 'practice': if(typeof openFlashcards==='function') openFlashcards(); break;
+    case 'challenges': if(typeof showDetailedStats==='function') showDetailedStats(); break;
+    case 'profile': if(typeof showScreen==='function') showScreen('screen-menu'); break;
   }
 };
 
 // ================================================================
-// METEO / TEMPS (conservé depuis l'ancienne version)
+// UTILITAIRES
 // ================================================================
-function setWeather(w) { window.currentWeather = w || 'sun'; }
-function getWeatherForTime() {
-  var h = new Date().getHours();
-  if (h >= 21 || h < 6) return 'night';
-  var r = Math.random();
-  if (r < 0.1) return 'rain';
-  if (r < 0.15) return 'snow';
-  return 'sun';
+function _rrect(ctx, x, y, w, h, r) {
+  ctx.beginPath();
+  ctx.moveTo(x+r, y);
+  ctx.lineTo(x+w-r, y); ctx.quadraticCurveTo(x+w, y, x+w, y+r);
+  ctx.lineTo(x+w, y+h-r); ctx.quadraticCurveTo(x+w, y+h, x+w-r, y+h);
+  ctx.lineTo(x+r, y+h); ctx.quadraticCurveTo(x, y+h, x, y+h-r);
+  ctx.lineTo(x, y+r); ctx.quadraticCurveTo(x, y, x+r, y);
+  ctx.closePath();
 }
-function updateTime() {
-  var el = document.getElementById('hudTime');
-  if (el) {
-    var now = new Date();
-    el.textContent = now.getHours().toString().padStart(2,'0') + ':' + now.getMinutes().toString().padStart(2,'0');
-  }
-  var we = document.getElementById('hudWeather');
-  if (we && window.WEATHER_ICONS) we.textContent = WEATHER_ICONS[currentWeather] || '☀️';
+
+function _shadeColor(hex, pct) {
+  var col = hex.replace('#','');
+  if (col.length===3) col=col[0]+col[0]+col[1]+col[1]+col[2]+col[2];
+  var r=parseInt(col.slice(0,2),16), g=parseInt(col.slice(2,4),16), b=parseInt(col.slice(4,6),16);
+  r=Math.max(0,Math.min(255,Math.round(r+r*pct)));
+  g=Math.max(0,Math.min(255,Math.round(g+g*pct)));
+  b=Math.max(0,Math.min(255,Math.round(b+b*pct)));
+  return 'rgb('+r+','+g+','+b+')';
 }
 
 // ================================================================
-// COMPATIBILITÉ avec les fonctions appelées depuis index.html
+// MÉTÉO / HEURE (compat.)
 // ================================================================
-// Stub pour les fonctions de l'ancienne version attendues globalement
-function alignLocationsToRings() {}   // plus utilisé, gardé pour compatibilité
-function initCanvas() { _initIsoCanvas(); }
-function drawVillage() { _drawIsoVillage(); }
+function setWeather(w){ window.currentWeather = w||'sun'; }
+function getWeatherForTime(){ return 'sun'; }
+function updateTime(){
+  var el=document.getElementById('hudTime');
+  if(el){ var n=new Date(); el.textContent=n.getHours().toString().padStart(2,'0')+':'+n.getMinutes().toString().padStart(2,'0'); }
+}
 
-// Exporter goVillage globalement
+// ================================================================
+// COMPAT. GLOBALE
+// ================================================================
+function initCanvas()  { _initIsoCanvas(); }
+function drawVillage() { _drawVillage(); }
+function alignLocationsToRings() {}
+
 window.goVillage    = goVillage;
 window.setWeather   = setWeather;
 window.updateTime   = updateTime;
@@ -1197,4 +1019,4 @@ window.initCanvas   = initCanvas;
 window.drawVillage  = drawVillage;
 window.alignLocationsToRings = alignLocationsToRings;
 
-console.log('✅ village.js ISOMETRIC EDITION chargé');
+console.log('✅ village.js ILLUSTRATED MAP EDITION chargé');
