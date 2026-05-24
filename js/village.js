@@ -908,32 +908,46 @@ function _clickBuilding(key){
 // ================================================================
 // BARRE DE NAVIGATION
 // ================================================================
+// TRADUCTIONS NAV BAR (dans la langue cible d'apprentissage)
+// ================================================================
+var NAV_LABELS = {
+  village:    {fr:'Village',  en:'Village',  es:'Pueblo',   ht:'Vilaj',   de:'Dorf',     ru:'Деревня',  zh:'村庄',   ja:'村'},
+  lessons:    {fr:'Leçons',   en:'Lessons',  es:'Lecciones',ht:'Leson',   de:'Lektionen',ru:'Уроки',    zh:'课程',   ja:'レッスン'},
+  practice:   {fr:'Pratique', en:'Practice', es:'Práctica', ht:'Pratik',  de:'Übung',    ru:'Практика', zh:'练习',   ja:'練習'},
+  challenges: {fr:'Défis',    en:'Challenges',es:'Desafíos',ht:'Defi',   de:'Aufgaben', ru:'Задания',  zh:'挑战',   ja:'チャレンジ'},
+  profile:    {fr:'Profil',   en:'Profile',  es:'Perfil',   ht:'Pwofil',  de:'Profil',   ru:'Профиль',  zh:'我的',   ja:'プロフィール'}
+};
+
 function _buildNavBar(){
   var old=document.querySelector('.village-nav-bar');
   if(old) old.remove();
   var vs=document.getElementById('screen-village');
   if(!vs) return;
 
+  // Utiliser la LANGUE CIBLE pour les labels de la nav
+  var tl=(window.S&&S.targetLang)||'fr';
+
+  var tabs=[
+    {id:'village',   icon:'🏘️'},
+    {id:'lessons',   icon:'📖'},
+    {id:'practice',  icon:'💬'},
+    {id:'challenges',icon:'🏆'},
+    {id:'profile',   icon:'👤'}
+  ];
+
   var nav=document.createElement('nav');
   nav.className='village-nav-bar';
-  // 5 onglets avec vrais IDs d'écrans
-  var tabs=[
-    {id:'village',  icon:'🏘️', label:'Village'},
-    {id:'lessons',  icon:'📖', label:'Leçons'},
-    {id:'practice', icon:'💬', label:'Pratique'},
-    {id:'challenges',icon:'🏆',label:'Défis'},
-    {id:'profile',  icon:'👤', label:'Profil'}
-  ];
   nav.innerHTML=tabs.map(function(t){
+    var lbl=(NAV_LABELS[t.id]&&(NAV_LABELS[t.id][tl]||NAV_LABELS[t.id].fr))||t.id;
     return '<button class="vnb-btn'+(t.id==='village'?' active':'')+'" '
       +'id="vnb-'+t.id+'" onclick="window._navTo(\''+t.id+'\')">'
       +'<span class="vnb-icon">'+t.icon+'</span>'
-      +'<span class="vnb-label">'+t.label+'</span>'
+      +'<span class="vnb-label">'+lbl+'</span>'
       +'</button>';
   }).join('');
   vs.appendChild(nav);
 
-  // CSS de la nav bar
+  // CSS nav bar
   if(!document.getElementById('vnb-css')){
     var st=document.createElement('style');
     st.id='vnb-css';
