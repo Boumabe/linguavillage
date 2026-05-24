@@ -70,7 +70,10 @@ var LOCATIONS = [
     id:'cinema',   
     x:0.4200, y:0.4200, w:0.160, h:0.160, 
     emoji:'🎬', color:'#c060c0', 
-    npcs:[] 
+    npcs:[
+      {id:'director', name:'Réalisateur Félix', role:{fr:'Réalisateur',  en:'Director',   es:'Director',   ht:'Reyalizatè',  de:'Regisseur',  ru:'Режиссёр',  zh:'导演',   ja:'監督'},  emoji:'🎥'},
+      {id:'actress',  name:'Aïda',             role:{fr:'Actrice',      en:'Actress',    es:'Actriz',     ht:'Aktris',      de:'Schauspielerin', ru:'Актриса', zh:'女演员',  ja:'女優'},  emoji:'🎭'}
+    ] 
   },
   // === ANNEAU 1 (Rayon 20%) ===
   { 
@@ -83,7 +86,10 @@ var LOCATIONS = [
     id:'park',     
     x:0.4400, y:0.2400, w:0.120, h:0.120, 
     emoji:'🌳', color:'#5a8a40', 
-    npcs:[] 
+    npcs:[
+      {id:'elder',   name:'Grand-père Koffi', role:{fr:'Sage du village', en:'Village elder',    es:'Sabio del pueblo', ht:'Granmoun nan vilaj', de:'Dorfältester',    ru:'Старейшина',    zh:'村长',  ja:'村の長老'}, emoji:'👴'},
+      {id:'child',   name:'Mia',              role:{fr:'Enfant curieuse', en:'Curious child',    es:'Niña curiosa',     ht:'Ti fi kiriyen',      de:'Neugieriges Kind',ru:'Любопытный ребёнок', zh:'好奇的孩子', ja:'好奇心旺盛な子'}, emoji:'👧'}
+    ]
   },
   // === ANNEAU 2 (Rayon 32%) ===
   { 
