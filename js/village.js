@@ -998,7 +998,7 @@ window._navTo=function(section){
       if(typeof showScreen==='function') showScreen('screen-phrases');
       break;
     case 'alphabet':
-      // Ouvrir l'alphabet de la langue cible + mnémotechniques accessibles depuis là
+      window._villageLoopActive=false;
       if(typeof openAlphabet==='function'){
         openAlphabet((window.S&&S.targetLang)||'en',(window.S&&S.nativeLang)||'fr');
       } else if(typeof showNotif==='function'){
