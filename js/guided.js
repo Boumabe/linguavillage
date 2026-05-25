@@ -109,9 +109,15 @@ function _runScene(idx, tl, nl, npc) {
   var chatMsgs = document.getElementById('chatMsgs');
   if (!chatMsgs) return;
 
-  // Message NPC
+  // Message NPC dans la langue CIBLE
   var npcMsg = scene.npc[tl] || scene.npc.en || '';
-  var npcSub = (tl !== nl) ? (scene.npc[nl] || scene.npc.fr || '') : '';
+  // Traduction sous le message : seulement si langue native ≠ langue cible
+  // et que la traduction est réellement différente du message original
+  var npcSub = '';
+  if (tl !== nl) {
+    var candidate = scene.npc[nl] || scene.npc.fr || '';
+    if (candidate && candidate !== npcMsg) npcSub = candidate;
+  }
   _addGuidedBubble('npc', npc.emoji, npcMsg, npcSub);
 
   // Supprimer l'ancien bloc de choix
@@ -174,7 +180,11 @@ function _onChoice(choice, btn, scene, sceneIdx, tl, nl, npc, wrap) {
 
     // Feedback
     var fb = scene.feedback.correct[tl] || scene.feedback.correct.en || '';
-    var fbSub = (tl !== nl) ? (scene.feedback.correct[nl] || scene.feedback.correct.fr || '') : '';
+    var fbSub = '';
+    if (tl !== nl) {
+      var fbC = scene.feedback.correct[nl] || scene.feedback.correct.fr || '';
+      if (fbC && fbC !== fb) fbSub = fbC;
+    }
     setTimeout(function() {
       _addGuidedBubble('npc', npc.emoji, fb, fbSub, '#4ecf70');
       // Sprites
@@ -191,7 +201,11 @@ function _onChoice(choice, btn, scene, sceneIdx, tl, nl, npc, wrap) {
     btn.style.color       = '#ff7070';
 
     var fb = scene.feedback.wrong[tl] || scene.feedback.wrong.en || '';
-    var fbSub = (tl !== nl) ? (scene.feedback.wrong[nl] || scene.feedback.wrong.fr || '') : '';
+    var fbSub = '';
+    if (tl !== nl) {
+      var fbW = scene.feedback.wrong[nl] || scene.feedback.wrong.fr || '';
+      if (fbW && fbW !== fb) fbSub = fbW;
+    }
     if (window.LV_SPRITES) window.LV_SPRITES.setExpression('confused', 1500);
 
     // XP partiel
