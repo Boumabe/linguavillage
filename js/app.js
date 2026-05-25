@@ -209,6 +209,14 @@ function startMenu() {
 
   // Afficher l'écran du menu
   showScreen('screen-menu');
+
+  // Option B : afficher l'alphabet automatiquement pour les langues complexes
+  // (seulement la première fois, après l'onboarding)
+  try {
+    if (window.LV_ALPHABET && typeof window.LV_ALPHABET.maybeShowOnboarding === 'function') {
+      window.LV_ALPHABET.maybeShowOnboarding();
+    }
+  } catch(e) {}
 }
 
 // -----------------------------------------------------------------
