@@ -914,7 +914,7 @@ var NAV_LABELS = {
   village:    {fr:'Village',  en:'Village',  es:'Pueblo',   ht:'Vilaj',   de:'Dorf',     ru:'Деревня',  zh:'村庄',   ja:'村'},
   lessons:    {fr:'Leçons',   en:'Lessons',  es:'Lecciones',ht:'Leson',   de:'Lektionen',ru:'Уроки',    zh:'课程',   ja:'レッスン'},
   practice:   {fr:'Pratique', en:'Practice', es:'Práctica', ht:'Pratik',  de:'Übung',    ru:'Практика', zh:'练习',   ja:'練習'},
-  challenges: {fr:'Défis',    en:'Challenges',es:'Desafíos',ht:'Defi',   de:'Aufgaben', ru:'Задания',  zh:'挑战',   ja:'チャレンジ'},
+  alphabet:   {fr:'Alphabet', en:'Alphabet', es:'Alfabeto', ht:'Alfabè',  de:'Alphabet', ru:'Алфавит',  zh:'字母',   ja:'アルファベット'},
   profile:    {fr:'Profil',   en:'Profile',  es:'Perfil',   ht:'Pwofil',  de:'Profil',   ru:'Профиль',  zh:'我的',   ja:'プロフィール'}
 };
 
@@ -927,11 +927,12 @@ function _buildNavBar(){
   // Utiliser la LANGUE CIBLE pour les labels de la nav
   var tl=(window.S&&S.targetLang)||'fr';
 
+  var xpForNav=(window.S&&S.xp)||0;
   var tabs=[
     {id:'village',   icon:'🏘️'},
     {id:'lessons',   icon:'📖'},
     {id:'practice',  icon:'💬'},
-    {id:'challenges',icon:'🏆'},
+    {id:'alphabet',  icon:'🔤'},
     {id:'profile',   icon:'👤'}
   ];
 
@@ -976,29 +977,53 @@ window._navTo=function(section){
   if(btn) btn.classList.add('active');
   switch(section){
     case 'village':
+      // Rester sur le village, scroller vers la zone active
       var xp2=(window.S&&S.xp)||0,zi2=0;
       window.VILLAGE_ZONES.forEach(function(z,i){if(xp2>=z.xpRequired)zi2=i;});
       _scrollToZone(zi2,false);
       break;
     case 'lessons':
       window._villageLoopActive=false;
-      if(typeof loadVocab==='function') loadVocab('verbes');
+      // Initialiser le vocab avant d'afficher l'écran
+      if(typeof ensureLearningBindings==='function') ensureLearningBindings();
+      var firstVocabKey=window.VOCAB?Object.keys(window.VOCAB)[0]:null;
+      if(firstVocabKey&&typeof loadVocab==='function') loadVocab(firstVocabKey);
       if(typeof showScreen==='function') showScreen('screen-vocab');
       break;
     case 'practice':
       window._villageLoopActive=false;
-      if(typeof loadPhrases==='function') loadPhrases('quotidien');
+      if(typeof ensureLearningBindings==='function') ensureLearningBindings();
+      var firstPhraseKey=window.PHRASES_DATA?Object.keys(window.PHRASES_DATA)[0]:null;
+      if(firstPhraseKey&&typeof loadPhrases==='function') loadPhrases(firstPhraseKey);
       if(typeof showScreen==='function') showScreen('screen-phrases');
       break;
-    case 'challenges':
-      window._villageLoopActive=false;
-      if(typeof showLeaderboard==='function') showLeaderboard();
-      else if(typeof showScreen==='function') showScreen('screen-leaderboard');
+    case 'alphabet':
+      // Ouvrir l'alphabet de la langue cible + mnémotechniques accessibles depuis là
+      if(typeof openAlphabet==='function'){
+        openAlphabet((window.S&&S.targetLang)||'en',(window.S&&S.nativeLang)||'fr');
+      } else if(typeof showNotif==='function'){
+        showNotif('🔤 Alphabet bientôt disponible');
+      }
       break;
     case 'profile':
       window._villageLoopActive=false;
+      // Mettre à jour le profil avant d'afficher
       if(typeof showScreen==='function') showScreen('screen-profile');
+      var pn=document.getElementById('profileName');
+      var pl=document.getElementById('profileLang');
+      var px=document.getElementById('profileXp');
+      var ps=document.getElementById('profileStreak');
+      if(pn&&window.S) pn.textContent=S.playerName||'';
+      if(pl&&window.S) pl.textContent=((window.FLAGS&&FLAGS[S.targetLang])||'')+' '+((window.LANG_NAMES&&LANG_NAMES[S.targetLang])||'');
+      if(px&&window.S) px.textContent=S.xp||0;
+      if(ps&&window.S_game) ps.textContent=window.S_game.streak||0;
       break;
+  }
+  // Relancer le village si on revient dessus
+  if(section==='village'){
+    window._villageLoopActive=true;
+    window._villageLoopRunning=true;
+    requestAnimationFrame(_loop);
   }
 };
 
