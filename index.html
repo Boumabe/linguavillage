@@ -222,6 +222,29 @@
   <div class="dict-result" id="dictResult"></div>
 </div>
 
+<!-- ================= ÉCRAN ALPHABET ================= -->
+<div class="screen" id="screen-alphabet">
+  <div class="u-header">
+    <button class="back-btn" onclick="var prev=document.referrer;if(typeof showScreen==='function'){showScreen('screen-village');window._villageLoopActive=true;window._villageLoopRunning=true;requestAnimationFrame(window.drawVillage||function(){});}">← Village</button>
+    <div class="u-title">🔤 <span id="alphaTitle">Alphabet</span></div>
+    <span class="u-badge" id="alphaCount"></span>
+  </div>
+  <div class="vocab-search">
+    <div style="padding:8px 16px 0;font-size:0.72rem;color:rgba(255,255,255,0.35);" id="alphaSub"></div>
+  </div>
+  <div class="vocab-list" id="alphaBody" style="padding:12px 16px;"></div>
+</div>
+
+<!-- ================= ÉCRAN MNÉMOTECHNIQUES ================= -->
+<div class="screen" id="screen-mnemonics">
+  <div class="u-header">
+    <button class="back-btn" onclick="if(typeof showScreen==='function'){showScreen('screen-alphabet');if(window.S)window.LV_ALPHABET.openAlphabet(S.targetLang,S.nativeLang);}">← Alphabet</button>
+    <div class="u-title">💡 <span id="mnemTitle">Mnémotechniques</span></div>
+    <span class="u-badge" id="mnemCount"></span>
+  </div>
+  <div class="vocab-list" id="mnemBody"></div>
+</div>
+
 <!-- ================= ÉCRAN CINÉMA ================= -->
 <div class="screen" id="screen-cinema">
   <div class="u-header"><button class="back-btn" onclick="showScreen('screen-village')">← Village</button><div class="u-title">🎬 Cinéma</div><span id="cinema-lang-badge"></span></div>
