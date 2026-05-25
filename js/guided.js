@@ -234,32 +234,59 @@ function _onChoice(choice, btn, scene, sceneIdx, tl, nl, npc, wrap) {
 // ================================================================
 function _guidedComplete(tl, nl, npc) {
   var total = _guidedState.xpEarned;
+  var locId = _guidedState.locId;
   var msgs  = {
-    fr: '🎉 Bravo ! Tu as terminé ce dialogue. +' + total + ' XP !\nParlons maintenant librement !',
-    en: '🎉 Well done! Dialogue complete. +' + total + ' XP!\nLet\'s chat freely now!',
-    es: '🎉 ¡Bravo! Diálogo completado. +' + total + ' XP!\n¡Ahora hablemos libremente!',
-    ht: '🎉 Bravo! Dyalòg fini. +' + total + ' XP!\nAnn pale lib kounye a!',
-    de: '🎉 Bravo! Dialog abgeschlossen. +' + total + ' XP!\nJetzt reden wir frei!',
-    ru: '🎉 Браво! Диалог завершён. +' + total + ' XP!\nТеперь говорим свободно!',
-    zh: '🎉 太棒了！对话完成。+' + total + ' XP！\n现在自由聊天！',
-    ja: '🎉 ブラボー！対話完了。+' + total + ' XP！\n自由に話しましょう！'
+    fr: '🎉 Bravo ! +' + total + ' XP !\nÉcris-moi ci-dessous pour parler librement !',
+    en: '🎉 Well done! +' + total + ' XP!\nWrite to me below to chat freely!',
+    es: '🎉 ¡Bravo! +' + total + ' XP!\n¡Escríbeme abajo para hablar libremente!',
+    ht: '🎉 Bravo! +' + total + ' XP!\nEkri ban mwen anba a pou pale lib!',
+    de: '🎉 Bravo! +' + total + ' XP!\nSchreib mir unten — freies Gespräch!',
+    ru: '🎉 Браво! +' + total + ' XP!\nНапиши мне ниже для свободного общения!',
+    zh: '🎉 太棒了！+' + total + ' XP！\n在下方给我写信自由交谈！',
+    ja: '🎉 +' + total + ' XP！\n下に書いて自由に話しましょう！'
   };
-  _addGuidedBubble('npc', npc.emoji, msgs[tl] || msgs.en, msgs[nl] !== msgs[tl] ? msgs[nl] : null, '#ffd700');
+  _addGuidedBubble('npc', npc.emoji, msgs[tl] || msgs.en, (nl !== tl && msgs[nl]) ? msgs[nl] : null, '#ffd700');
   if (typeof showNotif === 'function') showNotif('🎉 +' + total + ' XP !');
   if (typeof launchConfetti === 'function') launchConfetti();
 
-  // Supprimer les choix guidés
-  var gc = document.getElementById('guided-choices');
-  if (gc) setTimeout(function() { gc.remove(); }, 300);
-
-  // Afficher la zone de saisie libre
   setTimeout(function() {
-    var inputArea = document.querySelector('.dial-input-area');
-    if (inputArea) inputArea.style.display = '';
-    var inp = document.getElementById('dialInput');
-    if (inp) { inp.placeholder = '...'; setTimeout(function() { inp.focus(); }, 200); }
+    var gc = document.getElementById('guided-choices');
+    if (gc) gc.remove();
+
+    // Restaurer S.currentNPC + S.currentLoc pour que sendMsg() fonctionne
+    if (window.S) {
+      S.currentNPC  = _guidedState.npc;
+      var loc = (typeof LOCATIONS !== 'undefined')
+        ? LOCATIONS.find(function(l){ return l.id === locId; })
+        : null;
+      S.currentLoc  = loc || { id: locId, npcs: [_guidedState.npc] };
+      S.chatHistory = [];
+    }
     _guidedState = null;
-  }, 1500);
+
+    // Placeholder dans la langue cible
+    var inp = document.getElementById('dialInput');
+    if (inp) {
+      var ph = {fr:'Écris en ',en:'Write in ',es:'Escribe en ',ht:'Ekri an ',de:'Schreib auf ',ru:'Пиши на ',zh:'用',ja:''};
+      var ph2= {fr:'…',en:'…',es:'…',ht:'…',de:'…',ru:'…',zh:'写…',ja:'で書いて…'};
+      var ln = (window.LANG_NAMES && LANG_NAMES[tl]) || tl;
+      inp.placeholder = (ph[nl]||'Write in ') + ln + (ph2[nl]||'…');
+      inp.disabled    = false;
+    }
+
+    // Réactiver le bouton send et le brancher sur sendMsg
+    var sendBtn = document.getElementById('dialSend');
+    if (sendBtn) {
+      sendBtn.disabled = false;
+      sendBtn.onclick  = function(){ if (typeof sendMsg === 'function') sendMsg(); };
+    }
+
+    // Afficher la zone de saisie
+    var ia = document.querySelector('.dial-input-area');
+    if (ia) { ia.style.display = ''; ia.style.visibility = 'visible'; ia.style.opacity = '1'; }
+
+    setTimeout(function(){ if (inp) inp.focus(); }, 150);
+  }, 1400);
 }
 
 // ================================================================
