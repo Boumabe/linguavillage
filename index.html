@@ -120,10 +120,26 @@
     <div class="menu-subtitle" id="menu-sub-text">Choisissez votre mode d'apprentissage</div>
     <div class="menu-btns">
       <button class="menu-btn village" onclick="goVillage()"><span class="btn-badge">LIVE</span><span class="btn-icon">🏘️</span><span class="btn-title" id="mb-village">Village</span><span class="btn-desc" id="mb-village-d">Conversations IA + correcteur</span></button>
-      <button class="menu-btn vocab" onclick="showScreen('screen-vocab');loadVocab('verbes')"><span class="btn-badge">1500</span><span class="btn-icon">📖</span><span class="btn-title" id="mb-vocab">Vocabulaire</span><span class="btn-desc" id="mb-vocab-d">1500 mots essentiels</span></button>
-      <button class="menu-btn phrases" onclick="showScreen('screen-phrases');loadPhrases('quotidien')"><span class="btn-badge">1000</span><span class="btn-icon">💬</span><span class="btn-title" id="mb-phrases">Phrases</span><span class="btn-desc" id="mb-phrases-d">1000 phrases & structures</span></button>
-      <button class="menu-btn grammar" onclick="showScreen('screen-grammar');loadGrammar('present')"><span class="btn-badge">500+</span><span class="btn-icon">✏️</span><span class="btn-title" id="mb-grammar">Grammaire</span><span class="btn-desc" id="mb-grammar-d">6 temps + exemples</span></button>
+      <button class="menu-btn vocab" onclick="showScreen('screen-vocab');if(typeof ensureLearningBindings==='function')ensureLearningBindings();if(typeof loadVocab==='function')loadVocab(Object.keys(window.VOCAB||{})[0]||'verbes')"><span class="btn-badge">1500</span><span class="btn-icon">📖</span><span class="btn-title" id="mb-vocab">Vocabulaire</span><span class="btn-desc" id="mb-vocab-d">1500 mots essentiels</span></button>
+      <button class="menu-btn phrases" onclick="showScreen('screen-phrases');if(typeof ensureLearningBindings==='function')ensureLearningBindings();if(typeof loadPhrases==='function')loadPhrases(Object.keys(window.PHRASES_DATA||{})[0]||'quotidien')"><span class="btn-badge">1000</span><span class="btn-icon">💬</span><span class="btn-title" id="mb-phrases">Phrases</span><span class="btn-desc" id="mb-phrases-d">1000 phrases & structures</span></button>
+      <button class="menu-btn grammar" onclick="showScreen('screen-grammar');if(typeof loadGrammar==='function')loadGrammar('present')"><span class="btn-badge">500+</span><span class="btn-icon">✏️</span><span class="btn-title" id="mb-grammar">Grammaire</span><span class="btn-desc" id="mb-grammar-d">6 temps + exemples</span></button>
     </div>
+    <button class="menu-dict-btn" onclick="if(typeof openAlphabet==='function')openAlphabet()" style="border-color:rgba(255,215,0,0.25);margin-top:8px;">
+      <span class="menu-dict-icon">🔤</span>
+      <div class="menu-dict-text">
+        <div class="menu-dict-title" id="mb-alpha">Alphabet & Phonétique</div>
+        <div class="menu-dict-sub" id="mb-alpha-d">Hiragana · Cyrillique · Pinyin + tons</div>
+      </div>
+      <span style="color:#ffd700;margin-left:auto">›</span>
+    </button>
+    <button class="menu-dict-btn" onclick="if(typeof openMnemonics==='function')openMnemonics()" style="border-color:rgba(78,207,112,0.25);margin-top:8px;">
+      <span class="menu-dict-icon">💡</span>
+      <div class="menu-dict-text">
+        <div class="menu-dict-title" id="mb-mnem">Mnémotechniques</div>
+        <div class="menu-dict-sub" id="mb-mnem-d">Trucs mémoire adaptés à ta langue</div>
+      </div>
+      <span style="color:#4ecf70;margin-left:auto">›</span>
+    </button>
     <button class="menu-dict-btn" onclick="openDict()"><span class="menu-dict-icon">🔤</span><div class="menu-dict-text"><div class="menu-dict-title" id="mb-dict">Dictionnaire</div><div class="menu-dict-sub" id="mb-dict-d">Traduction mot ou phrase</div></div><span style="color:var(--dim);margin-left:auto">›</span></button>
     <button class="menu-dict-btn" onclick="openWordGame()" style="border-color:rgba(192,132,252,0.3);margin-top:8px;"><div class="menu-dict-icon">🔤</div><div class="menu-dict-text"><div class="menu-dict-title">Jeu de mots</div><div class="menu-dict-sub">Forme des mots · Collecte tes favoris</div></div><span style="color:var(--purple,#c084fc);font-size:1rem;">▶</span></button>
   </div>
@@ -259,6 +275,7 @@
 <script src="js/village.js"></script>
 <script src="js/dialogue.js"></script>
 <script src="js/guided.js"></script>
+<script src="js/alphabet.js"></script>
 <script src="js/pnj.js"></script>
 <script src="js/gamification.js"></script>
 <script src="js/learning.js"></script>
