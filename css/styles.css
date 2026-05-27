@@ -386,6 +386,16 @@ input  { font-family: var(--font-body); }
 .menu-btn.vocab .btn-title { color: var(--vocab); }
 .menu-btn.phrases .btn-title { color: var(--blue); }
 .menu-btn.grammar .btn-title { color: var(--purple); }
+.menu-btn.alphabet .btn-title { color: var(--gold); }
+.menu-btn.mnemonics .btn-title { color: var(--green); }
+.menu-btn.dictionary .btn-title { color: var(--blue); }
+.menu-btn.wordgame .btn-title { color: var(--purple); }
+
+/* Badge color variants */
+.menu-btn .btn-badge.badge-gold   { background: var(--gold); color: #0a0a0a; }
+.menu-btn .btn-badge.badge-green  { background: var(--green); color: #0a0a0a; }
+.menu-btn .btn-badge.badge-blue   { background: var(--blue); color: #fff; }
+.menu-btn .btn-badge.badge-purple { background: var(--purple); color: #fff; }
 
 .menu-dict-btn {
   display: flex;
