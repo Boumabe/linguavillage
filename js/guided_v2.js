@@ -1,19 +1,17 @@
-// LinguaVillage — guided_v2.js
-// Système de dialogue guidé repensé
+// LinguaVillage — guided_v2.js (FIXED)
+// Fonctionne DANS l'overlay de dialogue.js
 //
-// INNOVATIONS v2 :
-//   - 4 niveaux de scaffold (choix → complétion → saisie courte → libre)
-//   - Transition guidé→libre avec rampe de sécurité (starter chips)
-//   - Progression visuelle par scène (barre + numéro)
-//   - Feedback reformulé en "découverte" pas en "erreur"
-//   - Mémorisation des erreurs pour adaptation future (via S.weakPoints)
-//   - Expression NPC dynamique selon le contexte
+// CORRECTION CRITIQUE v2.1 :
+//   - Utilise #dlg-messages, #dlg-choices, #dlg-free-input de dialogue.js
+//   - Après guided → appelle _switchToFreeMode() de dialogue.js
+//   - Plus de conflit avec les éléments statiques #dialInput / #dialSend
+//   - Starter chips injectés dans la zone dlg-free-input
 // ================================================================
 
 window.GUIDED_XP_THRESHOLD = 300;
 
 // ================================================================
-// PATCH openDialogue — intercepte les débutants
+// PATCH openDialogue — APRÈS le chargement de dialogue.js
 // ================================================================
 (function() {
   function _patch() {
@@ -26,118 +24,98 @@ window.GUIDED_XP_THRESHOLD = 300;
       var useGuided = guided && !guided.freeFromStart && xp < window.GUIDED_XP_THRESHOLD;
 
       if (useGuided) {
-        _openGuided(locId, npcId, guided);
+        orig(locId, npcId);
+        setTimeout(function() { _hijackForGuided(locId, npcId, guided); }, 50);
       } else {
         orig(locId, npcId);
       }
     };
     window.openDialogue._v2_patched = true;
-    console.log('✅ guided_v2.js patché openDialogue');
+    console.log('✅ guided_v2.js patché openDialogue (mode overlay)');
   }
 
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', function() { setTimeout(_patch, 250); });
+    document.addEventListener('DOMContentLoaded', function() { setTimeout(_patch, 350); });
   } else {
-    setTimeout(_patch, 250);
+    setTimeout(_patch, 350);
   }
 })();
 
 // ================================================================
 // ÉTAT GLOBAL DU GUIDED
 // ================================================================
-var _gs = null; // guided state
+var _gs = null;
 
 // ================================================================
-// OUVERTURE DU DIALOGUE GUIDÉ
+// HIJACK DE L'OVERLAY dialogue.js
 // ================================================================
-function _openGuided(locId, npcId, guided) {
+function _hijackForGuided(locId, npcId, guided) {
+  var overlay = document.getElementById('dlg-overlay');
+  if (!overlay) { console.warn('guided_v2: dlg-overlay introuvable'); return; }
+
   var loc = typeof LOCATIONS !== 'undefined'
     ? LOCATIONS.find(function(l) { return l.id === locId; })
     : null;
   if (!loc) return;
-
   var npc = (loc.npcs || []).find(function(n) { return n.id === npcId; });
   if (!npc) return;
-
-  // Initialiser l'état
-  if (window.S) {
-    S.currentNPC  = npc;
-    S.currentLoc  = loc;
-    S.chatHistory = [];
-    if (!S.weakPoints) S.weakPoints = {};
-  }
 
   var nl = (window.S && S.nativeLang) || 'fr';
   var tl = (window.S && S.targetLang) || 'en';
 
-  // Construire l'écran dialogue
-  _buildDialogueHeader(npc, guided, nl, tl);
+  _gs = { locId:locId, npcId:npcId, npc:npc, guided:guided, tl:tl, nl:nl, sceneIdx:0, xpEarned:0, errors:0 };
 
-  // Cacher le champ libre pendant le guidé
-  var inputArea = document.querySelector('.dial-input-area');
-  if (inputArea) inputArea.style.display = 'none';
+  if (window.S) {
+    S.currentNPC = npc; S.currentLoc = loc; S.chatHistory = [];
+    if (!S.weakPoints) S.weakPoints = {};
+  }
 
-  // Cacher les starter chips (pas encore pertinents)
-  var starterRow = document.getElementById('starterRow');
-  if (starterRow) starterRow.style.display = 'none';
+  // Vider les messages (dialogue.js a peut-être déjà mis un message d'accueil)
+  var msgsEl = document.getElementById('dlg-messages');
+  if (msgsEl) msgsEl.innerHTML = '';
 
-  // Afficher la PLI bar
-  if (typeof PLI !== 'undefined') PLI.updateBar();
+  // Cacher l'input libre
+  var freeInput = document.getElementById('dlg-free-input');
+  if (freeInput) freeInput.style.display = 'none';
 
-  if (typeof showScreen === 'function') showScreen('screen-dialogue');
+  // Injecter badge "Guidé" dans le header de l'overlay
+  var modeLabel = overlay.querySelector('[style*="0.62rem"][style*="font-weight:700"], [style*="0.62rem"][style*="font-weight: 700"]');
+  if (modeLabel) {
+    var labels = {fr:'Dialogue guidé 📖',en:'Guided Dialogue 📖',es:'Diálogo guiado 📖',ht:'Dyalòg gide 📖',de:'Geführter Dialog 📖',ru:'Диалог под руководством 📖',zh:'引导对话 📖',ja:'ガイド付き対話 📖'};
+    modeLabel.textContent = labels[nl] || 'Guided Dialogue 📖';
+    modeLabel.style.background = 'rgba(78,207,112,0.15)';
+    modeLabel.style.color      = '#4ecf70';
+  }
 
-  // État
-  _gs = {
-    locId    : locId,
-    npcId    : npcId,
-    npc      : npc,
-    guided   : guided,
-    tl       : tl,
-    nl       : nl,
-    sceneIdx : 0,
-    xpEarned : 0,
-    errors   : 0,
-    history  : []
-  };
+  // Injecter PLI bar
+  _injectPLIBar(overlay, tl);
 
-  // Vider les messages
-  var chatMsgs = document.getElementById('chatMsgs');
-  if (chatMsgs) chatMsgs.innerHTML = '';
+  // Injecter styles
+  _injectGuidedStyles();
 
   // Lancer la première scène
-  setTimeout(function() { _runScene(0); }, 300);
+  setTimeout(function() { _runScene(0); }, 200);
 }
 
-// ── Construction du header dialogue ─────────────────────────────
-function _buildDialogueHeader(npc, guided, nl, tl) {
-  var dialAv   = document.getElementById('dialAv');
-  var dialName = document.getElementById('dialName');
-  var dialRole = document.getElementById('dialRole');
-  var corrPanel= document.getElementById('corrPanel');
-
-  if (dialAv)   dialAv.textContent   = npc.emoji;
-  if (dialName) dialName.textContent = npc.name;
-  if (corrPanel) { corrPanel.className = 'correction-panel'; corrPanel.innerHTML = ''; }
-
-  if (dialRole) {
-    var theme = (guided.theme && (guided.theme[nl] || guided.theme.fr)) || '';
-    dialRole.innerHTML = _escHtml(theme) + ' ' + _guidedBadge(nl);
-  }
+function _injectPLIBar(overlay, tl) {
+  if (document.getElementById('guided-pli')) return;
+  var ratio = (typeof PLI !== 'undefined') ? PLI.ratio() : 0.45;
+  var pct   = Math.round(ratio * 100);
+  var bar   = document.createElement('div');
+  bar.id    = 'guided-pli';
+  bar.style.cssText = 'display:flex;align-items:center;gap:8px;padding:6px 16px;background:rgba(6,8,14,0.6);border-bottom:1px solid rgba(255,255,255,0.06);font-size:0.62rem;font-weight:800;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,255,255,0.2);flex-shrink:0;';
+  bar.innerHTML = 'immersion<div style="flex:1;height:2px;background:rgba(255,255,255,0.06);border-radius:2px;overflow:hidden;"><div style="width:'+pct+'%;height:100%;background:linear-gradient(90deg,#4a9eff,#4ecf70);border-radius:2px;"></div></div><span style="color:#4ecf70;font-weight:700;">'+pct+'% '+((window.LANG_NAMES&&LANG_NAMES[tl])||tl)+'</span>';
+  var first = overlay.firstElementChild;
+  if (first && first.nextSibling) { overlay.insertBefore(bar, first.nextSibling); }
+  else { overlay.appendChild(bar); }
 }
 
-// ── Badge "Guidé" ────────────────────────────────────────────────
-function _guidedBadge(nl) {
-  var labels = {
-    fr:'📖 Guidé', en:'📖 Guided', es:'📖 Guiado',
-    ht:'📖 Gide',  de:'📖 Geführt', ru:'📖 Ведомый',
-    zh:'📖 引导',   ja:'📖 ガイド'
-  };
-  return '<span style="' +
-    'display:inline-flex;align-items:center;margin-left:8px;' +
-    'font-size:0.6rem;font-weight:800;padding:2px 8px;' +
-    'background:rgba(78,207,112,0.15);border:1px solid rgba(78,207,112,0.35);' +
-    'border-radius:999px;color:#4ecf70;vertical-align:middle;' +
-    '">' + (labels[nl] || '📖 Guided') + '</span>';
+function _injectGuidedStyles() {
+  if (document.getElementById('guided-css-v2')) return;
+  var st = document.createElement('style');
+  st.id  = 'guided-css-v2';
+  st.textContent = '.g-choice{display:block;width:100%;padding:13px 16px;margin:6px 0;background:rgba(255,255,255,0.04);border:1.5px solid rgba(255,215,0,0.14);border-radius:14px;color:#e8e0d0;font-size:0.87rem;font-weight:600;text-align:left;cursor:pointer;transition:all 0.18s;-webkit-tap-highlight-color:transparent;}.g-choice:hover:not(:disabled){background:rgba(255,215,0,0.08);border-color:#ffd700;transform:translateX(3px);}.g-choice.correct{background:rgba(78,207,112,0.15);border-color:#4ecf70;color:#4ecf70;}.g-choice.wrong{background:rgba(255,80,80,0.12);border-color:#ff5050;color:#ff7070;}.g-choice:disabled{pointer-events:none;}.g-prog{display:flex;align-items:center;gap:8px;margin-bottom:8px;}.g-prog-track{flex:1;height:2px;background:rgba(255,255,255,0.06);border-radius:2px;overflow:hidden;}.g-prog-fill{height:100%;background:linear-gradient(90deg,#4ecf70,#4a9eff);border-radius:2px;transition:width 0.5s ease;}.g-prog-num{font-size:0.6rem;font-weight:800;color:rgba(255,255,255,0.2);white-space:nowrap;}.g-fill-wrap{display:flex;gap:8px;padding:4px 0;}.g-fill-inp{flex:1;background:rgba(255,255,255,0.06);border:1.5px solid rgba(255,215,0,0.18);border-radius:12px;padding:12px 16px;color:#e8e0d0;font-size:0.95rem;font-weight:600;outline:none;transition:border 0.18s;}.g-fill-inp:focus{border-color:#ffd700;}.g-fill-btn{background:#ffd700;border:none;border-radius:12px;padding:12px 18px;font-weight:800;font-size:0.9rem;color:#09090e;cursor:pointer;transition:all 0.18s;}.g-fill-btn:hover{transform:scale(1.04);filter:brightness(1.1);}.g-starter-row{display:flex;gap:7px;padding:8px 16px 4px;overflow-x:auto;scrollbar-width:none;}.g-starter-row::-webkit-scrollbar{display:none;}.g-starter-chip{flex-shrink:0;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);border-radius:999px;padding:6px 14px;font-size:0.72rem;font-weight:600;color:#9B8E77;cursor:pointer;white-space:nowrap;transition:all 0.16s;}.g-starter-chip:hover{background:rgba(74,158,255,0.12);border-color:rgba(74,158,255,0.35);color:#4a9eff;transform:translateY(-1px);}';
+  document.head.appendChild(st);
 }
 
 // ================================================================
@@ -146,508 +124,201 @@ function _guidedBadge(nl) {
 function _runScene(idx) {
   if (!_gs) return;
   var scenes = _gs.guided.scenes;
-  if (!scenes) return;
-
-  // Fin du guided
-  if (idx >= scenes.length) {
-    _guidedComplete();
-    return;
-  }
+  if (!scenes || !scenes.length || idx >= scenes.length) { _guidedComplete(); return; }
 
   var scene = scenes[idx];
   var tl = _gs.tl, nl = _gs.nl, npc = _gs.npc;
-  var chatMsgs = document.getElementById('chatMsgs');
-  if (!chatMsgs) return;
 
-  // Message NPC
-  var npcMsg  = scene.npc[tl] || scene.npc.en || '';
-  var npcSub  = (tl !== nl) ? _getSub(scene.npc, nl, npcMsg) : '';
-  _addBubble('npc', npc.emoji, npcMsg, npcSub);
+  var npcMsg = scene.npc[tl] || scene.npc.en || '';
+  var npcSub = (tl !== nl) ? _getSub(scene.npc, nl, npcMsg) : '';
+  _dlgAddBubble('npc', npcMsg, npcSub);
 
-  // Retirer l'ancien bloc de choix
-  var old = document.getElementById('guided-choices');
-  if (old) old.remove();
+  var choicesEl = document.getElementById('dlg-choices');
+  if (choicesEl) { choicesEl.innerHTML = ''; choicesEl.style.display = 'block'; }
 
-  // Déterminer le type de scaffold selon le niveau de la scène
-  var scaffold = scene.scaffold || 'choices'; // choices | fill | short
+  var pct  = Math.round((idx / scenes.length) * 100);
+  var prog = document.createElement('div');
+  prog.className = 'g-prog';
+  prog.innerHTML = '<div class="g-prog-track"><div class="g-prog-fill" style="width:'+pct+'%"></div></div><span class="g-prog-num">'+(idx+1)+'/'+scenes.length+'</span>';
+  if (choicesEl) choicesEl.appendChild(prog);
 
-  // Créer le bloc d'interaction
-  var wrap = document.createElement('div');
-  wrap.id = 'guided-choices';
-  wrap.style.cssText = 'padding:10px 14px;display:flex;flex-direction:column;gap:8px;';
-
-  // Barre de progression
-  wrap.appendChild(_makeProgressBar(idx, scenes.length));
-
-  // Rendu selon scaffold
-  if (scaffold === 'fill') {
-    _renderFillBlank(wrap, scene, idx);
-  } else if (scaffold === 'short') {
-    _renderShortInput(wrap, scene, idx);
-  } else {
-    _renderChoices(wrap, scene, idx);
-  }
-
-  chatMsgs.appendChild(wrap);
-  chatMsgs.scrollTop = chatMsgs.scrollHeight;
+  var scaffold = scene.scaffold || 'choices';
+  if (scaffold === 'fill') { _renderFill(choicesEl, scene, idx); }
+  else                     { _renderChoices(choicesEl, scene, idx); }
 }
 
-// ── Barre de progression ─────────────────────────────────────────
-function _makeProgressBar(idx, total) {
-  var pct = Math.round(((idx) / total) * 100);
-  var bar = document.createElement('div');
-  bar.className = 'guided-scene-label';
-  bar.innerHTML = [
-    '<div class="guided-progress-track">',
-    '  <div class="guided-progress-fill" style="width:' + pct + '%"></div>',
-    '</div>',
-    '<span class="guided-scene-num">' + (idx + 1) + '/' + total + '</span>'
-  ].join('');
-  return bar;
-}
-
-// ================================================================
-// SCAFFOLD NIVEAU 1 — CHOIX MULTIPLES
-// ================================================================
 function _renderChoices(wrap, scene, sceneIdx) {
+  if (!wrap) return;
   scene.choices.forEach(function(ch) {
     var btn = document.createElement('button');
-    btn.className = 'choice-btn';
+    btn.className   = 'g-choice';
     btn.textContent = ch.label[_gs.tl] || ch.label.en || '';
-    btn.addEventListener('click', function() {
-      _onChoice(ch, btn, scene, sceneIdx, wrap);
-    });
+    btn.addEventListener('click', function() { _onChoice(ch, btn, scene, sceneIdx, wrap); });
     wrap.appendChild(btn);
   });
 }
 
-// ================================================================
-// SCAFFOLD NIVEAU 2 — COMPLÉTION DE PHRASE (fill-in-the-blank)
-// ================================================================
-function _renderFillBlank(wrap, scene, sceneIdx) {
-  var tl = _gs.tl;
+function _renderFill(wrap, scene, sceneIdx) {
+  if (!wrap) return;
+  var tl     = _gs.tl;
   var prompt = scene.fillPrompt && (scene.fillPrompt[tl] || scene.fillPrompt.en);
-  if (!prompt) {
-    _renderChoices(wrap, scene, sceneIdx);
-    return;
-  }
+  if (!prompt) { _renderChoices(wrap, scene, sceneIdx); return; }
 
-  // Affiche la phrase avec [___] en évidence
   var promptEl = document.createElement('div');
-  promptEl.style.cssText = [
-    'font-size:0.95rem;font-weight:600;',
-    'color:var(--text-primary);',
-    'background:var(--surface-raised);',
-    'border:1.5px solid var(--border-faint);',
-    'border-radius:var(--r-md);',
-    'padding:12px 16px;',
-    'line-height:1.6;'
-  ].join('');
-  promptEl.innerHTML = _escHtml(prompt).replace('[___]',
-    '<span style="display:inline-block;min-width:60px;border-bottom:2px solid var(--gold-warm);color:var(--gold-warm);font-weight:800;padding:0 4px;">___</span>'
-  );
+  promptEl.style.cssText = 'font-size:0.95rem;font-weight:600;color:#e8e0d0;background:rgba(255,255,255,0.04);border:1.5px solid rgba(255,215,0,0.14);border-radius:12px;padding:12px 16px;line-height:1.6;margin-bottom:8px;';
+  promptEl.innerHTML = _gEsc(prompt).replace('[___]','<span style="display:inline-block;min-width:60px;border-bottom:2px solid #ffd700;color:#ffd700;font-weight:800;padding:0 4px;">___</span>');
   wrap.appendChild(promptEl);
 
-  // Input
-  var fillWrap = document.createElement('div');
-  fillWrap.className = 'fill-blank-wrap';
-
-  var inp = document.createElement('input');
-  inp.type = 'text';
-  inp.className = 'fill-blank-input';
-  var nl = _gs.nl;
-  var placeholders = {
-    fr:'Complétez la phrase...', en:'Fill in the blank...',
-    es:'Complete la oración...', ht:'Konplete fraz la...',
-    de:'Ergänzen Sie den Satz...', ru:'Дополните фразу...',
-    zh:'填写空白...', ja:'空欄を埋めてください...'
-  };
-  inp.placeholder = placeholders[nl] || placeholders.fr;
-
-  var checkBtn = document.createElement('button');
-  checkBtn.className = 'fill-blank-check';
-  checkBtn.textContent = '✓';
-
-  var _check = function() {
-    var val = inp.value.trim();
-    if (!val) return;
-    var correct = scene.fillAnswer;
-    var isOk = correct
-      ? val.toLowerCase() === correct.toLowerCase()
-      : true; // Si pas de réponse définie, accepter tout
-
-    _onFillResult(isOk, val, correct, scene, sceneIdx, wrap, inp, checkBtn);
-  };
-
-  checkBtn.addEventListener('click', _check);
-  inp.addEventListener('keydown', function(e) { if (e.key === 'Enter') _check(); });
-
-  fillWrap.appendChild(inp);
-  fillWrap.appendChild(checkBtn);
-  wrap.appendChild(fillWrap);
-  setTimeout(function() { inp.focus(); }, 200);
-
-  // Hint discret
-  if (scene.hint && scene.hint[_gs.tl]) {
-    var hint = document.createElement('div');
-    hint.style.cssText = 'font-size:0.68rem;color:var(--text-ghost);font-style:italic;text-align:center;padding-top:4px;';
-    hint.textContent = '💡 ' + scene.hint[_gs.tl];
-    wrap.appendChild(hint);
-  }
+  var fw = document.createElement('div'); fw.className = 'g-fill-wrap';
+  var inp = document.createElement('input'); inp.type = 'text'; inp.className = 'g-fill-inp'; inp.placeholder = '...';
+  var cb  = document.createElement('button'); cb.className = 'g-fill-btn'; cb.textContent = '✓';
+  var chk = function() { var v=inp.value.trim(); if(!v) return; var correct=scene.fillAnswer; _onFillResult(correct?v.toLowerCase()===correct.toLowerCase():true, v, correct, scene, sceneIdx, wrap, inp, cb); };
+  cb.addEventListener('click', chk); inp.addEventListener('keydown', function(e){if(e.key==='Enter')chk();});
+  fw.appendChild(inp); fw.appendChild(cb); wrap.appendChild(fw);
+  setTimeout(function(){inp.focus();}, 200);
 }
 
-function _onFillResult(isOk, val, correct, scene, sceneIdx, wrap, inp, checkBtn) {
-  inp.disabled = true;
-  checkBtn.disabled = true;
-
+function _onFillResult(isOk, val, correct, scene, sceneIdx, wrap, inp, cb) {
+  inp.disabled=true; cb.disabled=true;
   if (isOk) {
-    inp.style.borderColor = 'var(--jade)';
-    inp.style.color = 'var(--jade)';
-    checkBtn.style.background = 'var(--jade)';
-    var xpGain = scene.xp || 20;
-    _gs.xpEarned += xpGain;
-    if (typeof gainXP === 'function') gainXP(xpGain, checkBtn);
-    var fb = scene.feedback && (scene.feedback.correct[_gs.tl] || scene.feedback.correct.en);
-    if (fb) {
-      setTimeout(function() {
-        _addBubble('npc', _gs.npc.emoji, fb, null, 'var(--jade)');
-        setTimeout(function() {
-          _gs.sceneIdx = sceneIdx + 1;
-          _runScene(_gs.sceneIdx);
-        }, 1600);
-      }, 400);
-    } else {
-      setTimeout(function() {
-        _gs.sceneIdx = sceneIdx + 1;
-        _runScene(_gs.sceneIdx);
-      }, 1000);
-    }
+    inp.style.borderColor='#4ecf70'; inp.style.color='#4ecf70'; cb.style.background='#4ecf70';
+    var xp=scene.xp||18; _gs.xpEarned+=xp; if(typeof gainXP==='function') gainXP(xp);
+    var fb=scene.feedback&&(scene.feedback.correct[_gs.tl]||scene.feedback.correct.en);
+    setTimeout(function(){ if(fb)_dlgAddBubble('npc',fb,null,'#4ecf70'); setTimeout(function(){_gs.sceneIdx=sceneIdx+1;_runScene(_gs.sceneIdx);},1600);},400);
   } else {
-    inp.style.borderColor = 'var(--coral)';
-    inp.style.color = 'var(--coral)';
-    // Mémoriser le point faible
-    if (window.S && correct) {
-      S.weakPoints = S.weakPoints || {};
-      S.weakPoints[correct] = (S.weakPoints[correct] || 0) + 1;
-    }
-    // Montrer la bonne réponse
-    var fb = scene.feedback && (scene.feedback.wrong[_gs.tl] || scene.feedback.wrong.en);
-    var msg = fb || '';
-    if (correct) msg += '\n✨ ' + correct;
-    setTimeout(function() {
-      _addBubble('npc', _gs.npc.emoji, msg.trim(), null, 'var(--amber)');
-      // Réactiver pour réessayer
-      setTimeout(function() {
-        inp.disabled = false;
-        checkBtn.disabled = false;
-        inp.value = '';
-        inp.style.borderColor = '';
-        inp.style.color = '';
-        inp.focus();
-      }, 1800);
-    }, 300);
+    inp.style.borderColor='#ff5050'; inp.style.color='#ff7070';
+    if(window.S&&correct){S.weakPoints=S.weakPoints||{};S.weakPoints[correct]=(S.weakPoints[correct]||0)+1;}
+    var fb2=scene.feedback&&(scene.feedback.wrong[_gs.tl]||scene.feedback.wrong.en);
+    setTimeout(function(){
+      _dlgAddBubble('npc',(fb2||'')+(correct?'\n✨ '+correct:''),null,'#ff9f43');
+      setTimeout(function(){inp.disabled=false;cb.disabled=false;inp.value='';inp.style.borderColor='';inp.style.color='';inp.focus();},1800);
+    },300);
   }
 }
 
-// ================================================================
-// SCAFFOLD NIVEAU 3 — SAISIE COURTE LIBRE
-// (pour XP ~200, juste avant la liberté totale)
-// ================================================================
-function _renderShortInput(wrap, scene, sceneIdx) {
-  var tl = _gs.tl;
-
-  var promptEl = document.createElement('div');
-  promptEl.style.cssText = 'font-size:0.85rem;color:var(--text-secondary);font-style:italic;margin-bottom:6px;';
-  var prompts = {
-    fr:'Répondez en ' + (LANG_NAMES && LANG_NAMES[tl] || tl) + ' (quelques mots) :',
-    en:'Reply in ' + (LANG_NAMES && LANG_NAMES[tl] || tl) + ' (a few words):',
-    es:'Responde en ' + (LANG_NAMES && LANG_NAMES[tl] || tl) + ' (pocas palabras):',
-  };
-  var nl = _gs.nl;
-  promptEl.textContent = prompts[nl] || prompts.fr;
-  wrap.appendChild(promptEl);
-
-  var fillWrap = document.createElement('div');
-  fillWrap.className = 'fill-blank-wrap';
-
-  var inp = document.createElement('input');
-  inp.type = 'text';
-  inp.className = 'fill-blank-input';
-  inp.placeholder = '...';
-
-  var sendBtn = document.createElement('button');
-  sendBtn.className = 'fill-blank-check';
-  sendBtn.textContent = '→';
-
-  var _send = function() {
-    var val = inp.value.trim();
-    if (!val) return;
-    // Saisie courte : accepter tout, corriger via API si disponible
-    inp.disabled = true; sendBtn.disabled = true;
-    sendBtn.textContent = '⏳';
-
-    _addBubble('player', '🧑', val, null, null);
-
-    // Appel API optionnel pour correction
-    var xpGain = scene.xp || 18;
-    _gs.xpEarned += xpGain;
-    if (typeof gainXP === 'function') gainXP(xpGain, sendBtn);
-
-    var fb = scene.feedback && (scene.feedback.correct[_gs.tl] || scene.feedback.correct.en);
-    if (fb) {
-      setTimeout(function() {
-        _addBubble('npc', _gs.npc.emoji, fb, null, 'var(--sapphire)');
-        setTimeout(function() {
-          _gs.sceneIdx = sceneIdx + 1;
-          _runScene(_gs.sceneIdx);
-        }, 1600);
-      }, 600);
-    } else {
-      setTimeout(function() {
-        _gs.sceneIdx = sceneIdx + 1;
-        _runScene(_gs.sceneIdx);
-      }, 800);
-    }
-  };
-
-  sendBtn.addEventListener('click', _send);
-  inp.addEventListener('keydown', function(e) { if (e.key === 'Enter') _send(); });
-
-  fillWrap.appendChild(inp);
-  fillWrap.appendChild(sendBtn);
-  wrap.appendChild(fillWrap);
-  setTimeout(function() { inp.focus(); }, 200);
-}
-
-// ================================================================
-// GESTION D'UN CHOIX (scaffold niveau 1)
-// ================================================================
 function _onChoice(choice, btn, scene, sceneIdx, wrap) {
-  // Désactiver tous les boutons
-  wrap.querySelectorAll('.choice-btn').forEach(function(b) {
-    b.disabled = true; b.style.opacity = '0.45';
-  });
-  btn.style.opacity = '1';
-
+  wrap.querySelectorAll('.g-choice').forEach(function(b){b.disabled=true;b.style.opacity='0.45';});
+  btn.style.opacity='1';
   if (choice.correct) {
     btn.classList.add('correct');
-
-    var xpGain = choice.xp || 15;
-    _gs.xpEarned += xpGain;
-    if (typeof gainXP === 'function') gainXP(xpGain, btn);
-
-    var fb    = _getFb(scene.feedback.correct, _gs.tl);
-    var fbSub = (_gs.tl !== _gs.nl) ? _getSub(scene.feedback.correct, _gs.nl, fb) : '';
-
-    if (window.LV_SPRITES) window.LV_SPRITES.setExpression('happy', 1500);
-
-    setTimeout(function() {
-      _addBubble('npc', _gs.npc.emoji, fb, fbSub, 'var(--jade)');
-      setTimeout(function() {
-        _gs.sceneIdx = sceneIdx + 1;
-        _runScene(_gs.sceneIdx);
-      }, 1700);
-    }, 350);
-
+    var xp=choice.xp||15; _gs.xpEarned+=xp; if(typeof gainXP==='function') gainXP(xp);
+    var fb=_getFb(scene.feedback.correct,_gs.tl); var fbSub=(_gs.tl!==_gs.nl)?_getSub(scene.feedback.correct,_gs.nl,fb):'';
+    if(window.LV_SPRITES) window.LV_SPRITES.setExpression('happy',1500);
+    setTimeout(function(){ _dlgAddBubble('npc',fb,fbSub,'#4ecf70'); setTimeout(function(){_gs.sceneIdx=sceneIdx+1;_runScene(_gs.sceneIdx);},1700);},350);
   } else {
-    btn.classList.add('wrong');
-
-    // Mémoriser le point faible
-    if (window.S) {
-      S.weakPoints = S.weakPoints || {};
-      var key = scene.npc[_gs.tl] || 'unknown';
-      S.weakPoints[key] = (S.weakPoints[key] || 0) + 1;
-    }
-    _gs.errors++;
-
-    if (choice.xp > 0) {
-      _gs.xpEarned += choice.xp;
-      if (typeof gainXP === 'function') gainXP(choice.xp, btn);
-    }
-
-    var fb    = _getFb(scene.feedback.wrong, _gs.tl);
-    var fbSub = (_gs.tl !== _gs.nl) ? _getSub(scene.feedback.wrong, _gs.nl, fb) : '';
-
-    if (window.LV_SPRITES) window.LV_SPRITES.setExpression('confused', 1500);
-
-    setTimeout(function() {
-      _addBubble('npc', _gs.npc.emoji, fb, fbSub, 'var(--amber)');
-      // Réactiver pour réessayer (sauf le mauvais choix)
-      setTimeout(function() {
-        wrap.querySelectorAll('.choice-btn').forEach(function(b) {
-          if (!b.classList.contains('wrong')) {
-            b.disabled = false; b.style.opacity = '1';
-          }
-        });
-      }, 1200);
-    }, 350);
+    btn.classList.add('wrong'); _gs.errors++;
+    if(window.S){S.weakPoints=S.weakPoints||{};var k=scene.npc[_gs.tl]||'u';S.weakPoints[k]=(S.weakPoints[k]||0)+1;}
+    if(choice.xp>0){_gs.xpEarned+=choice.xp;if(typeof gainXP==='function') gainXP(choice.xp);}
+    var fb2=_getFb(scene.feedback.wrong,_gs.tl); var fbSub2=(_gs.tl!==_gs.nl)?_getSub(scene.feedback.wrong,_gs.nl,fb2):'';
+    if(window.LV_SPRITES) window.LV_SPRITES.setExpression('confused',1500);
+    setTimeout(function(){ _dlgAddBubble('npc',fb2,fbSub2,'#ff9f43'); setTimeout(function(){ wrap.querySelectorAll('.g-choice').forEach(function(b){if(!b.classList.contains('wrong')){b.disabled=false;b.style.opacity='1';}});},1200);},350);
   }
 }
 
 // ================================================================
-// COMPLÉTION — Basculement vers dialogue libre
+// FIN GUIDED → MODE LIBRE
 // ================================================================
 function _guidedComplete() {
-  var total  = _gs.xpEarned;
-  var tl     = _gs.tl;
-  var nl     = _gs.nl;
-  var npc    = _gs.npc;
-  var locId  = _gs.locId;
-  var errors = _gs.errors;
-
-  // Message de félicitations adapté au score
-  var excellent = errors === 0;
-  var msgsByLang = {
-    fr: excellent
-      ? '🏆 Parfait ! +' + total + ' XP !\nMaintenant, parle-moi librement !'
-      : '🎉 Bien joué ! +' + total + ' XP !\nEssaie maintenant en écrivant librement.',
-    en: excellent
-      ? '🏆 Perfect! +' + total + ' XP!\nNow, talk to me freely!'
-      : '🎉 Well done! +' + total + ' XP!\nNow try writing to me freely.',
-    es: excellent
-      ? '🏆 ¡Perfecto! +' + total + ' XP!\n¡Ahora habla conmigo libremente!'
-      : '🎉 ¡Bien hecho! +' + total + ' XP!\nAhora intenta escribirme libremente.',
-    de: excellent
-      ? '🏆 Perfekt! +' + total + ' XP!\nJetzt sprich frei mit mir!'
-      : '🎉 Gut gemacht! +' + total + ' XP!\nVersuch jetzt, mir frei zu schreiben.',
-    ru: excellent
-      ? '🏆 Отлично! +' + total + ' XP!\nТеперь пиши мне свободно!'
-      : '🎉 Хорошо! +' + total + ' XP!\nТеперь попробуй писать свободно.',
-    zh: excellent
-      ? '🏆 完美！+' + total + ' XP！现在自由地和我说话吧！'
-      : '🎉 做得好！+' + total + ' XP！现在试着自由地写给我。',
-    ja: excellent
-      ? '🏆 完璧です！+' + total + ' XP！自由に話しかけてください！'
-      : '🎉 よくできました！+' + total + ' XP！自由に書いてみてください。',
-    ht: excellent
-      ? '🏆 Pafè! +' + total + ' XP!\nKounye a, pale avèk mwen lib!'
-      : '🎉 Bon travay! +' + total + ' XP!\nEseye ekri m lib kounye a.'
+  var total=_gs.xpEarned, tl=_gs.tl, nl=_gs.nl, npc=_gs.npc, locId=_gs.locId, errors=_gs.errors;
+  var ok=errors===0;
+  var msgs={
+    fr:ok?'🏆 Parfait ! +'+total+' XP !\nParle-moi librement maintenant !':'🎉 Bravo ! +'+total+' XP !\nÉcris-moi pour continuer librement.',
+    en:ok?'🏆 Perfect! +'+total+' XP!\nTalk to me freely now!':'🎉 Well done! +'+total+' XP!\nWrite to me to continue freely.',
+    es:ok?'🏆 ¡Perfecto! +'+total+' XP!\n¡Habla conmigo libremente!':'🎉 ¡Bravo! +'+total+' XP!\nEscríbeme para continuar.',
+    ht:ok?'🏆 Pafè! +'+total+' XP!\nPale avèm lib kounye a!':'🎉 Bravo! +'+total+' XP!\nEkri mwen pou kontinye lib.',
+    de:ok?'🏆 Perfekt! +'+total+' XP!\nSprich jetzt frei mit mir!':'🎉 Gut! +'+total+' XP!\nSchreib mir weiter.',
+    ru:ok?'🏆 Отлично! +'+total+' XP!\nТеперь говори свободно!':'🎉 Хорошо! +'+total+' XP!\nНапиши мне свободно.',
+    zh:ok?'🏆 完美！+'+total+' XP！现在自由说话！':'🎉 很好！+'+total+' XP！继续写信给我。',
+    ja:ok?'🏆 完璧！+'+total+' XP！自由に話して！':'🎉 よくできました！+'+total+' XP！自由に書いてください。'
   };
-
-  var finalMsg = msgsByLang[tl] || msgsByLang.en;
-  var finalSub = (tl !== nl && msgsByLang[nl] && msgsByLang[nl] !== finalMsg)
-    ? msgsByLang[nl] : null;
-
-  _addBubble('npc', npc.emoji, finalMsg, finalSub, 'var(--gold-warm)');
-
-  if (typeof showNotif    === 'function') showNotif('🎉 +' + total + ' XP !');
-  if (typeof launchConfetti === 'function') launchConfetti();
+  var finalMsg=msgs[tl]||msgs.en;
+  var finalSub=(tl!==nl&&msgs[nl]&&msgs[nl]!==finalMsg)?msgs[nl]:null;
+  _dlgAddBubble('npc',finalMsg,finalSub,'#ffd700');
+  if(typeof showNotif==='function') showNotif('🎉 +'+total+' XP !');
+  if(typeof launchConfetti==='function') launchConfetti();
 
   setTimeout(function() {
-    // Nettoyer les choix
-    var gc = document.getElementById('guided-choices');
-    if (gc) gc.remove();
+    var gc=document.getElementById('dlg-choices'); if(gc){gc.innerHTML='';gc.style.display='none';}
+    var pliBar=document.getElementById('guided-pli'); if(pliBar) pliBar.remove();
 
-    // Restaurer currentNPC et currentLoc pour sendMsg()
-    if (window.S) {
-      S.currentNPC  = npc;
-      var loc = (typeof LOCATIONS !== 'undefined')
-        ? LOCATIONS.find(function(l) { return l.id === locId; })
-        : null;
-      S.currentLoc  = loc || { id: locId, npcs: [npc] };
-      S.chatHistory = [];
-    }
-    _gs = null;
+    // Restaurer _dlgState pour _sendFreeMsg() de dialogue.js
+    if(window.S){ S.currentNPC=npc; var loc=(typeof LOCATIONS!=='undefined')?LOCATIONS.find(function(l){return l.id===locId;}):null; S.currentLoc=loc||{id:locId,npcs:[npc]}; S.chatHistory=[]; }
+    if(window._dlgState){ window._dlgState.npc=npc; window._dlgState.locId=locId; window._dlgState.guided=null; window._dlgState.history=[]; window._dlgState.isOpen=true; }
+    _gs=null;
 
-    // Activer le champ de saisie libre avec placeholder adapté
-    var inp = document.getElementById('dialInput');
-    if (inp) {
-      var ph = {
-        fr:'Écris en ' + (LANG_NAMES && LANG_NAMES[tl] || tl) + '…',
-        en:'Write in ' + (LANG_NAMES && LANG_NAMES[tl] || tl) + '…',
-        es:'Escribe en ' + (LANG_NAMES && LANG_NAMES[tl] || tl) + '…',
-        ht:'Ekri an ' + (LANG_NAMES && LANG_NAMES[tl] || tl) + '…',
-        de:'Schreib auf ' + (LANG_NAMES && LANG_NAMES[tl] || tl) + '…',
-        ru:'Пиши на ' + (LANG_NAMES && LANG_NAMES[tl] || tl) + '…',
-        zh:'用' + (LANG_NAMES && LANG_NAMES[tl] || tl) + '写…',
-        ja:(LANG_NAMES && LANG_NAMES[tl] || tl) + 'で書いて…'
-      };
-      inp.placeholder = ph[nl] || ph.fr;
-      inp.disabled    = false;
+    // Afficher l'input libre de dialogue.js
+    var freeEl=document.getElementById('dlg-free-input');
+    if(freeEl) freeEl.style.display='block';
+
+    // Placeholder dans la langue cible
+    var inp=document.getElementById('dlg-input');
+    if(inp){
+      var lname=(window.LANG_NAMES&&LANG_NAMES[tl])||tl;
+      var phs={fr:'Écris en '+lname+'…',en:'Write in '+lname+'…',es:'Escribe en '+lname+'…',ht:'Ekri an '+lname+'…',de:'Schreib auf '+lname+'…',ru:'Пиши на '+lname+'…',zh:'用'+lname+'写…',ja:lname+'で書いて…'};
+      inp.placeholder=phs[nl]||phs.fr; inp.disabled=false;
     }
 
-    // Rebrancher dialSend → sendMsg
-    var sendBtn = document.getElementById('dialSend');
-    if (sendBtn) {
-      sendBtn.disabled = false;
-      sendBtn.onclick  = function() { if (typeof sendMsg === 'function') sendMsg(); };
+    // CORRECTION CRITIQUE : binder #dlg-send sur _sendFreeMsg() de dialogue.js
+    var sendBtn=document.getElementById('dlg-send');
+    if(sendBtn){
+      sendBtn.disabled=false;
+      sendBtn.onclick=function(){ if(typeof _sendFreeMsg==='function') _sendFreeMsg(); };
     }
 
-    // Afficher la zone de saisie
-    var ia = document.querySelector('.dial-input-area');
-    if (ia) { ia.style.display = ''; ia.style.visibility = 'visible'; }
-
-    // RAMPE DE SÉCURITÉ — Afficher les starter chips
-    if (typeof window.showStarterSuggestions === 'function') {
-      window.showStarterSuggestions();
+    // Aussi : Enter pour envoyer
+    if(inp){
+      inp.onkeydown=function(e){ if(e.key==='Enter'&&typeof _sendFreeMsg==='function') _sendFreeMsg(); };
     }
 
-    setTimeout(function() { if (inp) inp.focus(); }, 200);
+    // Starter chips
+    _injectStarterChips(tl, nl, inp);
+
+    setTimeout(function(){ if(inp) inp.focus(); }, 200);
   }, 1500);
+}
+
+// ── Starter chips ─────────────────────────────────────────────────
+var _STARTERS = {
+  fr:['Bonjour ! Comment ça va ?',"Pouvez-vous m'aider ?",'Je ne comprends pas…','Répétez, s\'il vous plaît.','Merci beaucoup !'],
+  en:["Hello! How are you?","Can you help me?","I don't understand…","Please repeat that.","Thank you very much!"],
+  es:["¡Hola! ¿Cómo estás?","¿Me puedes ayudar?","No entiendo…","Repita, por favor.","¡Muchas gracias!"],
+  de:["Hallo! Wie geht's?","Können Sie mir helfen?","Ich verstehe nicht…","Bitte wiederholen.","Danke sehr!"],
+  ru:["Привет! Как дела?","Можете помочь мне?","Я не понимаю…","Повторите, пожалуйста.","Большое спасибо!"],
+  zh:["你好！你好吗？","你能帮我吗？","我不明白…","请再说一遍。","非常感谢！"],
+  ja:["こんにちは！","手伝ってもらえますか？","わかりません…","もう一度言ってください。","ありがとうございます！"],
+  ht:["Bonjou! Kijan ou ye?","Eske ou ka ede mwen?","Mwen pa konprann…","Repete, tanpri.","Mèsi anpil!"]
+};
+
+function _injectStarterChips(tl, nl, inp) {
+  var freeEl=document.getElementById('dlg-free-input'); if(!freeEl) return;
+  if(document.getElementById('g-starters')) return;
+  var pool=(_STARTERS[tl]||_STARTERS.en).slice().sort(function(){return Math.random()-0.5;}).slice(0,3);
+  var row=document.createElement('div'); row.id='g-starters'; row.className='g-starter-row';
+  pool.forEach(function(text){
+    var chip=document.createElement('button'); chip.className='g-starter-chip'; chip.textContent=text;
+    chip.onclick=function(){ if(inp){inp.value=text;inp.focus();} chip.style.opacity='0'; chip.style.transform='scale(0.9)'; setTimeout(function(){chip.remove();},180); };
+    row.appendChild(chip);
+  });
+  freeEl.insertBefore(row, freeEl.firstChild);
+  if(inp){ inp.addEventListener('input',function(){ var r=document.getElementById('g-starters'); if(!r) return; if(this.value.length>0){r.style.opacity='0';setTimeout(function(){if(r)r.style.display='none';},200);}else{r.style.display='flex';r.style.opacity='1';} }); }
 }
 
 // ================================================================
 // UTILITAIRES
 // ================================================================
-function _getFb(feedbackObj, lang) {
-  return feedbackObj[lang] || feedbackObj.en || '';
+function _dlgAddBubble(role,text,subtitle,color) {
+  if(typeof _addBubble==='function'){ _addBubble(role,text,subtitle,color); return; }
+  var msgsEl=document.getElementById('dlg-messages'); if(!msgsEl) return;
+  var isP=role==='player';
+  var d=document.createElement('div'); d.style.cssText='display:flex;flex-direction:column;align-items:'+(isP?'flex-end':'flex-start')+';max-width:88%;'+(isP?'align-self:flex-end':'align-self:flex-start');
+  var b=document.createElement('div'); b.style.cssText='padding:12px 16px;border-radius:'+(isP?'18px 18px 4px 18px':'18px 18px 18px 4px')+';font-size:0.9rem;line-height:1.5;'+(isP?'background:rgba(74,158,255,0.18);border:1.5px solid rgba(74,158,255,0.25);color:#d8eeff;':'background:rgba(255,255,255,0.07);border:1.5px solid rgba(255,255,255,0.10);color:#f0e8d0;')+(color?'border-color:'+color+'44;':'');
+  b.innerHTML=_gEsc(text).replace(/\n/g,'<br>'); d.appendChild(b);
+  if(subtitle){var s=document.createElement('div');s.style.cssText='font-size:0.7rem;color:rgba(255,255,255,0.28);margin-top:4px;padding:0 4px;font-style:italic;';s.textContent=subtitle;d.appendChild(s);}
+  msgsEl.appendChild(d); msgsEl.scrollTop=msgsEl.scrollHeight;
 }
 
-function _getSub(obj, lang, mainText) {
-  var candidate = obj[lang] || obj.fr || '';
-  return (candidate && candidate !== mainText) ? candidate : '';
-}
+function _getFb(obj,lang){ return obj[lang]||obj.en||''; }
+function _getSub(obj,lang,main){ var c=obj[lang]||obj.fr||''; return(c&&c!==main)?c:''; }
+function _gEsc(t){ return String(t||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 
-function _addBubble(type, avatar, text, subtitle, accentColor) {
-  var c = document.getElementById('chatMsgs');
-  if (!c) return;
-
-  var d = document.createElement('div');
-  d.className = 'msg ' + type;
-
-  var isNpc = type === 'npc';
-  var bubbleStyle = isNpc
-    ? 'background:var(--surface-raised);border:1px solid var(--border-faint);'
-    : 'background:rgba(74,158,255,0.12);border:1px solid rgba(74,158,255,0.25);';
-  if (accentColor) {
-    bubbleStyle += 'border-color:' + accentColor + ';';
-  }
-
-  // Formater le texte avec sauts de ligne
-  var formattedText = _escHtml(text).replace(/\n/g, '<br>');
-
-  d.innerHTML =
-    '<div class="msg-av">' + _escHtml(avatar) + '</div>' +
-    '<div class="msg-bubble" style="' + bubbleStyle + '">' + formattedText + '</div>';
-
-  if (subtitle && subtitle !== text) {
-    var sub = document.createElement('div');
-    sub.style.cssText = [
-      'font-size:0.67rem;',
-      'color:var(--text-ghost);',
-      'margin-top:4px;',
-      'padding:0 10px;',
-      'font-style:italic;',
-      'line-height:1.4;'
-    ].join('');
-    sub.textContent = subtitle;
-    d.appendChild(sub);
-  }
-
-  c.appendChild(d);
-
-  // Scroll fluide
-  requestAnimationFrame(function() {
-    c.scrollTo({ top: c.scrollHeight, behavior: 'smooth' });
-  });
-}
-
-function _escHtml(t) {
-  return String(t)
-    .replace(/&/g,'&amp;')
-    .replace(/</g,'&lt;')
-    .replace(/>/g,'&gt;')
-    .replace(/"/g,'&quot;');
-}
-
-console.log('✅ guided_v2.js chargé');
+console.log('✅ guided_v2.js chargé (mode overlay — bouton envoi corrigé)');
