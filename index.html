@@ -3,270 +3,161 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <meta name="theme-color" content="#06080e">
+  <meta name="theme-color" content="#0a0a14">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="description" content="Apprenez les langues en vivant — IA conversationnelle, village immersif, vocabulaire, grammaire.">
   <link rel="manifest" href="manifest.json">
   <title>LinguaVillage</title>
-
-  <!-- Typographie v2 : Cinzel + Sora + JetBrains Mono -->
-  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;900&family=Sora:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
-
-  <!-- Design system v2 -->
-  <link rel="stylesheet" href="css/styles_v2.css">
-  <!-- Styles écrans d'apprentissage (vocab / phrases / grammaire / dico) -->
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=Sora:wght@300;400;500;600;700;800&family=Nunito:wght@400;600;700;800;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css">
   <link rel="stylesheet" href="css/learning_styles.css">
-
   <style>
-    /* ── Styles de secours critiques — s'appliquent avant le CSS externe ── */
-    .screen { display:none; position:fixed; inset:0; overflow-y:auto; background:#090c15; flex-direction:column; }
-    .screen.active { display:flex; }
-    #screen-village { overflow:hidden !important; display:none; flex-direction:column; height:100dvh; height:100vh; max-height:100dvh; }
-    #screen-village.active { display:flex; }
-    #screen-village .village-canvas-wrap { flex:1 1 0; min-height:0; position:relative; overflow:hidden; }
-    #screen-village #villageCanvas { display:block; width:100% !important; height:100% !important; touch-action:none; }
-    /* Welcome fallback */
-    #screen-welcome { align-items:center; justify-content:flex-start; overflow-y:auto;
-      background: radial-gradient(ellipse 80% 50% at 50% -10%, rgba(255,215,0,0.06) 0%, transparent 70%), #090c15; }
-    /* Twinkle animation (utilisée par quote.js et welcome) */
-    @keyframes twinkle { from { opacity:0.1; transform:scale(0.8); } to { opacity:0.9; transform:scale(1.2); } }
+    /* Styles de secours pour éviter tout affichage cassé */
+    .screen { display: none; position: fixed; inset: 0; overflow-y: auto; background: #090c14; flex-direction: column; }
+    .screen.active { display: flex; }
+    #screen-welcome { background: radial-gradient(ellipse at 50% 30%, #0d1a2e 0%, #07090f 70%); align-items: center; justify-content: center; padding: 20px; }
+    /* Village screen : colonne stricte, pas de scroll, canvas remplit le reste */
+    #screen-village { overflow: hidden !important; display: none; flex-direction: column; height:100dvh; height:100vh; max-height:100dvh; }
+    #screen-village.active { display: flex; }
+    #screen-village .village-canvas-wrap { flex:1 1 0; min-height:0; position:relative; overflow:hidden; } #screen-village #villageCanvas { display:block; width:100%!important; height:100%!important; touch-action:none; }
+    #screen-welcome { background: radial-gradient(ellipse at 50% 30%, #0d1a2e 0%, #07090f 70%); align-items: center; justify-content: center; padding: 20px; }
+    .welcome-form { width: 100%; max-width: 420px; background: rgba(15,21,32,0.85); border-radius: 16px; padding: 20px; backdrop-filter: blur(8px); }
+    .logo { font-family: 'Cinzel', serif; font-size: 1.8rem; font-weight: 900; color: #ffd700; text-align: center; margin-bottom: 4px; }
+    .logo-sub { font-size: 0.9rem; color: rgba(232,224,208,0.45); text-align: center; margin-bottom: 28px; }
+    .flabel { font-size: 0.72rem; font-weight: 800; text-transform: uppercase; color: #ffd700; margin-bottom: 12px; }
+    .grid4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+    .lang-tile { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; padding: 10px 4px; background: rgba(255,255,255,0.04); border: 1.5px solid rgba(255,215,0,0.15); border-radius: 10px; cursor: pointer; transition: all 0.2s; }
+    .lang-tile:hover { background: rgba(255,215,0,0.08); transform: translateY(-2px); }
+    .lang-tile.active, .lang-tile.sel { background: rgba(255,215,0,0.12); border-color: #ffd700; box-shadow: 0 0 12px rgba(255,215,0,0.2); }
+    .lang-tile.disabled { opacity: 0.3; pointer-events: none; }
+    .tf { font-size: 1.5rem; }
+    .tn { font-size: 0.65rem; font-weight: 700; color: #e8e0d0; }
+    .finput { width: 100%; background: rgba(255,255,255,0.06); border: 1.5px solid rgba(255,215,0,0.2); border-radius: 10px; padding: 12px 16px; color: #e8e0d0; font-size: 1rem; outline: none; margin-top: 5px; }
+    .finput:focus { border-color: #ffd700; }
+    .script-row { display: flex; gap: 8px; margin-top: 5px; }
+    .sc-btn { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 10px 6px; background: rgba(255,255,255,0.04); border: 1.5px solid rgba(255,215,0,0.15); border-radius: 10px; cursor: pointer; transition: all 0.2s; }
+    .sc-btn:hover { background: rgba(255,215,0,0.08); }
+    .sc-btn.sel { background: rgba(255,215,0,0.1); border-color: #ffd700; }
+    .sc-main { font-size: 1.2rem; font-weight: 800; }
+    .sc-sub { font-size: 0.6rem; color: rgba(232,224,208,0.45); }
+    .play-btn { width: 100%; background: linear-gradient(135deg, #a86800, #ffd700); border: none; border-radius: 16px; padding: 14px; font-family: 'Cinzel', serif; font-weight: 700; color: #0a0a0a; margin-top: 18px; cursor: pointer; transition: all 0.2s; box-shadow: 0 4px 20px rgba(255,215,0,0.3); }
+    .play-btn:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(255,215,0,0.5); }
+    .play-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+    /* Autres styles minimaux pour les écrans */
+    .notif { position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%); background: rgba(15,20,35,0.95); border: 1px solid rgba(255,215,0,0.12); color: #e8e0d0; padding: 10px 20px; border-radius: 20px; z-index: 9000; opacity: 0; transition: all 0.3s; backdrop-filter: blur(10px); pointer-events: none; }
+    .notif.show { opacity: 1; transform: translateX(-50%) translateY(0); }
   </style>
 </head>
-
 <body>
-
-<!-- ── Debug bar (retirer en production) ───────────────────────── -->
-<div id="debug">✅ Chargement...</div>
-
-<!-- ── Notification toast ──────────────────────────────────────── -->
-<div id="notif"></div>
-
-<!-- ── Overlays globaux ────────────────────────────────────────── -->
+<div id="debug" style="position:fixed;top:0;left:0;right:0;background:#4ecf70;color:#0a0a14;font-size:11px;padding:2px 6px;z-index:99999;font-family:monospace;">✅ Chargement...</div>
+<div id="notif" class="notif"></div>
 <div id="weatherOverlay"></div>
-<div id="wordPopup" style="position:fixed;background:#0e1322;border:1px solid rgba(255,215,0,0.3);border-radius:18px;padding:16px;display:none;z-index:10001;flex-direction:column;gap:8px;box-shadow:0 8px 40px rgba(0,0,0,0.7);backdrop-filter:blur(20px);"></div>
+<div id="wordPopup" style="position:fixed;background:#0f1520;border:1px solid #ffd700;border-radius:16px;padding:16px;display:none;z-index:10001;flex-direction:column;gap:8px;"></div>
 
-
-<!-- ================================================================
-     ÉCRAN 1 — WELCOME
-     ================================================================ -->
+<!-- ================= ÉCRAN D'ACCUEIL (WELCOME) ================= -->
 <div class="screen active" id="screen-welcome">
-
-  <!-- Étoiles de fond -->
-  <div class="w-stars" id="welcomeStars"></div>
-
-  <!-- Hero logo -->
-  <div class="welcome-hero">
-    <span class="logo-mark">🏘️</span>
-    <span class="logo">LinguaVillage</span>
-    <div class="logo-sub" id="ws-sub">Apprendre en vivant</div>
-    <div class="gold-rule"></div>
-  </div>
-
-  <!-- Formulaire d'inscription -->
   <div class="welcome-form">
-
-    <!-- Step 1 — Langue maternelle -->
-    <div class="input-group">
-      <div class="step-label" id="lbl-native">🌍 Votre langue maternelle</div>
-      <div class="lang-grid" id="nativeGrid">
-        <div class="lang-tile" data-native="fr"><span class="lf">🇫🇷</span><span class="ln">Français</span></div>
-        <div class="lang-tile" data-native="ht"><span class="lf">🇭🇹</span><span class="ln">Kreyòl</span></div>
-        <div class="lang-tile" data-native="en"><span class="lf">🇬🇧</span><span class="ln">English</span></div>
-        <div class="lang-tile" data-native="es"><span class="lf">🇪🇸</span><span class="ln">Español</span></div>
-        <div class="lang-tile" data-native="de"><span class="lf">🇩🇪</span><span class="ln">Deutsch</span></div>
-        <div class="lang-tile" data-native="ru"><span class="lf">🇷🇺</span><span class="ln">Русский</span></div>
-        <div class="lang-tile" data-native="zh"><span class="lf">🇨🇳</span><span class="ln">中文</span></div>
-        <div class="lang-tile" data-native="ja"><span class="lf">🇯🇵</span><span class="ln">日本語</span></div>
+    <div class="logo">🏘️ LinguaVillage</div>
+    <div class="logo-sub" id="ws-sub">Apprendre en vivant</div>
+    <!-- Langue maternelle -->
+    <div>
+      <div class="flabel" id="lbl-native">🌍 Votre langue maternelle</div>
+      <div class="grid4" id="nativeGrid">
+        <div class="lang-tile" data-native="fr"><span class="tf">🇫🇷</span><span class="tn">Français</span></div>
+        <div class="lang-tile" data-native="ht"><span class="tf">🇭🇹</span><span class="tn">Kreyòl</span></div>
+        <div class="lang-tile" data-native="en"><span class="tf">🇬🇧</span><span class="tn">English</span></div>
+        <div class="lang-tile" data-native="es"><span class="tf">🇪🇸</span><span class="tn">Español</span></div>
+        <div class="lang-tile" data-native="de"><span class="tf">🇩🇪</span><span class="tn">Deutsch</span></div>
+        <div class="lang-tile" data-native="ru"><span class="tf">🇷🇺</span><span class="tn">Русский</span></div>
+        <div class="lang-tile" data-native="zh"><span class="tf">🇨🇳</span><span class="tn">中文</span></div>
+        <div class="lang-tile" data-native="ja"><span class="tf">🇯🇵</span><span class="tn">日本語</span></div>
       </div>
     </div>
-
-    <!-- Step 2 — Prénom (caché au début) -->
-    <div class="input-group form-step" id="step2" style="display:none">
-      <label class="input-label" id="lbl-name" for="inputName">✏️ Votre prénom</label>
-      <input class="text-input" id="inputName" type="text" maxlength="20" placeholder="ex : Marie" autocomplete="given-name">
+    <!-- Prénom -->
+    <div id="step2" style="display:none">
+      <div class="flabel" id="lbl-name">✏️ Votre prénom</div>
+      <input class="finput" id="inputName" type="text" maxlength="20" placeholder="ex: Marie">
     </div>
-
-    <!-- Step 3 — Langue cible (cachée au début) -->
-    <div class="input-group form-step" id="step3" style="display:none">
-      <div class="step-label" id="lbl-target">🎯 Langue à apprendre</div>
-      <div class="lang-grid" id="targetGrid">
-        <div class="lang-tile" data-lang="en"><span class="lf">🇬🇧</span><span class="ln">English</span></div>
-        <div class="lang-tile" data-lang="fr"><span class="lf">🇫🇷</span><span class="ln">Français</span></div>
-        <div class="lang-tile" data-lang="es"><span class="lf">🇪🇸</span><span class="ln">Español</span></div>
-        <div class="lang-tile" data-lang="ht"><span class="lf">🇭🇹</span><span class="ln">Kreyòl</span></div>
-        <div class="lang-tile" data-lang="de"><span class="lf">🇩🇪</span><span class="ln">Deutsch</span></div>
-        <div class="lang-tile" data-lang="ru"><span class="lf">🇷🇺</span><span class="ln">Русский</span></div>
-        <div class="lang-tile" data-lang="zh"><span class="lf">🇨🇳</span><span class="ln">中文</span></div>
-        <div class="lang-tile" data-lang="ja"><span class="lf">🇯🇵</span><span class="ln">日本語</span></div>
+    <!-- Langue à apprendre -->
+    <div id="step3" style="display:none">
+      <div class="flabel" id="lbl-target">🎯 Langue à apprendre</div>
+      <div class="grid4" id="targetGrid">
+        <div class="lang-tile" data-lang="en"><span class="tf">🇬🇧</span><span class="tn">English</span></div>
+        <div class="lang-tile" data-lang="fr"><span class="tf">🇫🇷</span><span class="tn">Français</span></div>
+        <div class="lang-tile" data-lang="es"><span class="tf">🇪🇸</span><span class="tn">Español</span></div>
+        <div class="lang-tile" data-lang="ht"><span class="tf">🇭🇹</span><span class="tn">Kreyòl</span></div>
+        <div class="lang-tile" data-lang="de"><span class="tf">🇩🇪</span><span class="tn">Deutsch</span></div>
+        <div class="lang-tile" data-lang="ru"><span class="tf">🇷🇺</span><span class="tn">Русский</span></div>
+        <div class="lang-tile" data-lang="zh"><span class="tf">🇨🇳</span><span class="tn">中文</span></div>
+        <div class="lang-tile" data-lang="ja"><span class="tf">🇯🇵</span><span class="tn">日本語</span></div>
       </div>
     </div>
-
-    <!-- Step 4 — Mode écriture CJK (caché au début) -->
-    <div class="input-group form-step" id="step4" style="display:none">
-      <div class="step-label" id="lbl-script">✍️ Mode d'écriture</div>
-      <div class="script-selector">
-        <button class="sc-btn" onclick="selScript('native',this)">
-          <span class="sc-n" id="sc-n" style="font-size:1.2rem;font-weight:800;display:block;margin-bottom:3px;">你好</span>
-          <span class="sc-l">Caractères</span>
-        </button>
-        <button class="sc-btn" onclick="selScript('roman',this)">
-          <span class="sc-r" id="sc-r" style="font-size:1rem;font-weight:700;display:block;margin-bottom:3px;">Nǐ hǎo</span>
-          <span class="sc-l">Romanisation</span>
-        </button>
-        <button class="sc-btn" onclick="selScript('both',this)">
-          <span style="font-size:1.2rem;font-weight:800;display:block;margin-bottom:3px;">両方</span>
-          <span class="sc-l">Les deux</span>
-        </button>
+    <!-- Mode écriture (CJK) -->
+    <div id="step4" style="display:none">
+      <div class="flabel" id="lbl-script">✍️ Mode d'écriture</div>
+      <div class="script-row">
+        <div class="sc-btn" onclick="selScript('native',this)"><span class="sc-main" id="sc-n">你好</span><span class="sc-sub">Caractères</span></div>
+        <div class="sc-btn" onclick="selScript('roman',this)"><span class="sc-main" id="sc-r">Nǐ hǎo</span><span class="sc-sub">Lettres latines</span></div>
+        <div class="sc-btn" onclick="selScript('both',this)"><span class="sc-main">両方</span><span class="sc-sub">Les deux</span></div>
       </div>
     </div>
+    <button class="play-btn" id="playBtn" style="display:none" disabled>✨ Commencer</button>
+  </div>
+</div>
 
-    <!-- CTA -->
-    <button class="btn-primary" id="playBtn" style="display:none" disabled>✨ Commencer</button>
-
-  </div><!-- /.welcome-form -->
-</div><!-- /#screen-welcome -->
-
-
-<!-- ================================================================
-     ÉCRAN 2 — MENU PRINCIPAL
-     ================================================================ -->
+<!-- ================= ÉCRAN MENU PRINCIPAL ================= -->
 <div class="screen" id="screen-menu">
-
-  <!-- Header sticky -->
   <div class="menu-header">
     <span class="menu-player" id="menuPlayer">👤</span>
     <span class="menu-lang" id="menuLang"></span>
-    <button onclick="showProgression()" style="background:rgba(255,215,0,0.08);border:1px solid rgba(255,215,0,0.2);color:var(--gold-warm);padding:4px 12px;border-radius:999px;font-size:0.7rem;font-weight:800;cursor:pointer;display:flex;align-items:center;gap:5px;transition:all 0.2s;" onmouseover="this.style.background='rgba(255,215,0,0.15)'" onmouseout="this.style.background='rgba(255,215,0,0.08)'">
-      <span id="gemDisplay">💎 0</span><span>·</span><span>📊</span>
-    </button>
-    <div class="menu-xp-wrap">
-      <span class="menu-xp-val" id="menuXP">0 XP</span>
+    <button onclick="showProgression()" style="background:rgba(255,215,0,0.1);border:1px solid var(--border);color:var(--gold);padding:3px 10px;border-radius:15px;font-size:0.7rem;font-weight:800;cursor:pointer;display:flex;align-items:center;gap:4px;"><span id="gemDisplay">💎 0</span> · 📊</button>
+    <button class="sound-toggle" id="soundToggleMenu" onclick="var on=window.LV_SOUND.toggle();this.textContent=on?'🔊':'🔇';var h=document.getElementById('soundToggleHud');if(h){h.textContent=on?'🔊':'🔇';h.classList.toggle('muted',!on);}this.classList.toggle('muted',!on);" title="Son">🔊</button>
+    <div class="menu-xp">
+      <span class="menu-xp-label" id="menuXP">0 XP</span>
       <div class="xp-bar-bg"><div class="xp-bar-fill" id="xpFill"></div></div>
     </div>
   </div>
-
-  <!-- Corps du menu -->
-  <div class="menu-body">
-
-    <!-- Greeting personnalisé -->
-    <div class="menu-greeting" id="menuGreeting">Bonjour !</div>
-    <div class="menu-greeting-sub" id="menu-sub-text">Choisissez votre mode d'apprentissage</div>
-
-    <!-- Streak banner (visible seulement si streak > 0) -->
-    <div class="streak-banner" id="streakBanner" style="display:none;">
-      <div class="streak-fire">🔥</div>
-      <div class="streak-info">
-        <div class="streak-val" id="streakVal">0 🔥</div>
-        <div class="streak-label" id="streakLabel">jours consécutifs</div>
-      </div>
-      <button class="streak-protect" onclick="useStreakFreeze()">🛡️ Protéger</button>
+  <div class="menu-content">
+    <div class="menu-title" id="menu-title-text">Que voulez-vous faire ?</div>
+    <div class="menu-subtitle" id="menu-sub-text">Choisissez votre mode d'apprentissage</div>
+    <div class="menu-btns">
+      <button class="menu-btn village" onclick="goVillage()"><span class="btn-badge">LIVE</span><span class="btn-icon">🏘️</span><span class="btn-title" id="mb-village">Village</span><span class="btn-desc" id="mb-village-d">Conversations IA + correcteur</span></button>
+      <button class="menu-btn vocab" onclick="showScreen('screen-vocab');if(typeof ensureLearningBindings==='function')ensureLearningBindings();if(typeof loadVocab==='function')loadVocab(Object.keys(window.VOCAB||{})[0]||'verbes')"><span class="btn-badge">1500</span><span class="btn-icon">📖</span><span class="btn-title" id="mb-vocab">Vocabulaire</span><span class="btn-desc" id="mb-vocab-d">1500 mots essentiels</span></button>
+      <button class="menu-btn phrases" onclick="showScreen('screen-phrases');if(typeof ensureLearningBindings==='function')ensureLearningBindings();if(typeof loadPhrases==='function')loadPhrases(Object.keys(window.PHRASES_DATA||{})[0]||'quotidien')"><span class="btn-badge">1000</span><span class="btn-icon">💬</span><span class="btn-title" id="mb-phrases">Phrases</span><span class="btn-desc" id="mb-phrases-d">1000 phrases & structures</span></button>
+      <button class="menu-btn grammar" onclick="showScreen('screen-grammar');if(typeof loadGrammar==='function')loadGrammar('present')"><span class="btn-badge">500+</span><span class="btn-icon">✏️</span><span class="btn-title" id="mb-grammar">Grammaire</span><span class="btn-desc" id="mb-grammar-d">6 temps + exemples</span></button>
     </div>
-
-    <!-- Titre section -->
-    <div style="font-size:0.62rem;font-weight:800;letter-spacing:0.14em;text-transform:uppercase;color:var(--text-ghost);margin:4px 0 8px;" id="menu-title-text">Que voulez-vous faire ?</div>
-
-    <!-- Grille des modes -->
-    <div class="menu-grid">
-
-      <!-- Village -->
-      <div class="menu-card" data-mode="village" onclick="goVillage()">
-        <div class="m-icon">🏘️</div>
-        <div class="m-label" id="mb-village">Village</div>
-        <div class="m-desc" id="mb-village-d">Conversations IA + correcteur</div>
-        <div class="m-badge new">LIVE</div>
+    <button class="menu-dict-btn" onclick="if(typeof openAlphabet==='function')openAlphabet()" style="border-color:rgba(255,215,0,0.25);margin-top:8px;">
+      <span class="menu-dict-icon">🔤</span>
+      <div class="menu-dict-text">
+        <div class="menu-dict-title" id="mb-alpha">Alphabet & Phonétique</div>
+        <div class="menu-dict-sub" id="mb-alpha-d">Hiragana · Cyrillique · Pinyin + tons</div>
       </div>
-
-      <!-- Vocabulaire -->
-      <div class="menu-card" data-mode="vocab" onclick="showScreen('screen-vocab');if(typeof ensureLearningBindings==='function')ensureLearningBindings();if(typeof loadVocab==='function')loadVocab(Object.keys(window.VOCAB||{})[0]||'verbes')">
-        <div class="m-icon">📖</div>
-        <div class="m-label" id="mb-vocab">Vocabulaire</div>
-        <div class="m-desc" id="mb-vocab-d">Mots essentiels par catégories</div>
-        <div class="m-badge">1500</div>
+      <span style="color:#ffd700;margin-left:auto">›</span>
+    </button>
+    <button class="menu-dict-btn" onclick="if(typeof openMnemonics==='function')openMnemonics()" style="border-color:rgba(78,207,112,0.25);margin-top:8px;">
+      <span class="menu-dict-icon">💡</span>
+      <div class="menu-dict-text">
+        <div class="menu-dict-title" id="mb-mnem">Mnémotechniques</div>
+        <div class="menu-dict-sub" id="mb-mnem-d">Trucs mémoire adaptés à ta langue</div>
       </div>
+      <span style="color:#4ecf70;margin-left:auto">›</span>
+    </button>
+    <button class="menu-dict-btn" onclick="openDict()"><span class="menu-dict-icon">🔤</span><div class="menu-dict-text"><div class="menu-dict-title" id="mb-dict">Dictionnaire</div><div class="menu-dict-sub" id="mb-dict-d">Traduction mot ou phrase</div></div><span style="color:var(--dim);margin-left:auto">›</span></button>
+    <button class="menu-dict-btn" onclick="openWordGame()" style="border-color:rgba(192,132,252,0.3);margin-top:8px;"><div class="menu-dict-icon">🔤</div><div class="menu-dict-text"><div class="menu-dict-title">Jeu de mots</div><div class="menu-dict-sub">Forme des mots · Collecte tes favoris</div></div><span style="color:var(--purple,#c084fc);font-size:1rem;">▶</span></button>
+  </div>
+</div>
 
-      <!-- Phrases -->
-      <div class="menu-card" data-mode="phrases" onclick="showScreen('screen-phrases');if(typeof ensureLearningBindings==='function')ensureLearningBindings();if(typeof loadPhrases==='function')loadPhrases(Object.keys(window.PHRASES_DATA||{})[0]||'quotidien')">
-        <div class="m-icon">💬</div>
-        <div class="m-label" id="mb-phrases">Phrases</div>
-        <div class="m-desc" id="mb-phrases-d">Expressions du quotidien</div>
-        <div class="m-badge">1000</div>
-      </div>
-
-      <!-- Grammaire -->
-      <div class="menu-card" data-mode="grammar" onclick="showScreen('screen-grammar');if(typeof loadGrammar==='function')loadGrammar('present')">
-        <div class="m-icon">✏️</div>
-        <div class="m-label" id="mb-grammar">Grammaire</div>
-        <div class="m-desc" id="mb-grammar-d">Règles et exemples</div>
-        <div class="m-badge">500+</div>
-      </div>
-
-      <!-- Alphabet -->
-      <div class="menu-card" data-mode="alphabet" onclick="if(typeof openAlphabet==='function')openAlphabet()">
-        <div class="m-icon">🔤</div>
-        <div class="m-label" id="mb-alpha">Alphabet</div>
-        <div class="m-desc" id="mb-alpha-d">Hiragana · Cyrillique · Pinyin</div>
-        <div class="m-badge new">ABC</div>
-      </div>
-
-      <!-- Dictionnaire -->
-      <div class="menu-card" data-mode="dict" onclick="openDict()">
-        <div class="m-icon">📚</div>
-        <div class="m-label" id="mb-dict">Dictionnaire</div>
-        <div class="m-desc" id="mb-dict-d">Traduction mot ou phrase</div>
-        <div class="m-badge" style="background:var(--sapphire);">∞</div>
-      </div>
-
-      <!-- Cinéma FSI -->
-      <div class="menu-card" data-mode="cinema" onclick="openCinema()">
-        <div class="m-icon">🎬</div>
-        <div class="m-label">Cinéma</div>
-        <div class="m-desc">Cours vidéo FSI & BBC</div>
-        <div class="m-badge new">FSI</div>
-      </div>
-
-      <!-- Jeu de mots -->
-      <div class="menu-card" data-mode="wordgame" onclick="openWordGame()">
-        <div class="m-icon">✍️</div>
-        <div class="m-label">Jeu de mots</div>
-        <div class="m-desc">Forme des mots · Favoris</div>
-        <div class="m-badge" style="background:var(--amethyst);">▶</div>
-      </div>
-
-    </div><!-- /.menu-grid -->
-
-    <!-- Mnémotechniques (ligne séparée, bouton pleine largeur) -->
-    <div style="margin-top:8px;">
-      <div class="menu-card" data-mode="mnemonics" onclick="if(typeof openMnemonics==='function')openMnemonics()" style="flex-direction:row;align-items:center;gap:14px;padding:14px 18px;">
-        <div class="m-icon" style="font-size:1.5rem;">🧠</div>
-        <div>
-          <div class="m-label" id="mb-mnem">Mnémotechniques</div>
-          <div class="m-desc" id="mb-mnem-d">Trucs mémoire adaptés à votre langue cible</div>
-        </div>
-        <div style="margin-left:auto;color:var(--text-ghost);font-size:1rem;">›</div>
-      </div>
-    </div>
-
-  </div><!-- /.menu-body -->
-</div><!-- /#screen-menu -->
-
-
-<!-- ================================================================
-     ÉCRAN 3 — VILLAGE (canvas)
-     ================================================================ -->
+<!-- ================= ÉCRAN VILLAGE ================= -->
 <div class="screen" id="screen-village">
-
-  <!-- HUD village -->
   <div class="village-hud">
-    <span class="hud-pill" id="hudPlayer">👤</span>
-    <span class="hud-pill" id="hudWeather">☀️</span>
-    <span class="hud-pill" id="hudTime"></span>
-    <span class="hud-pill" id="hudLang"></span>
-    <span class="hud-pill streak" id="streakDisplay">🔥 0</span>
-    <span class="hud-pill xp" id="hudXP">0 XP</span>
-    <div class="hud-spacer"></div>
-    <div style="display:flex;gap:5px;flex-shrink:0;">
+    <span class="hud-player" id="hudPlayer">👤</span>
+    <span class="hud-weather" id="hudWeather">☀️</span>
+    <span class="hud-time" id="hudTime"></span>
+    <span class="hud-lang" id="hudLang"></span>
+    <span id="streakDisplay">🔥 0</span>
+    <span class="hud-xp" id="hudXP">0 XP</span>
+    <div class="hud-btns">
+      <button class="sound-toggle" id="soundToggleHud" onclick="var on=window.LV_SOUND.toggle();this.textContent=on?'🔊':'🔇';this.classList.toggle('muted',!on);" title="Son">🔊</button>
       <button class="hud-btn" onclick="showScreen('screen-menu')">← Menu</button>
       <button class="hud-btn" onclick="showDetailedStats()">📊</button>
       <button class="hud-btn" onclick="showLeaderboard()">🏆</button>
@@ -275,19 +166,13 @@
       <button class="hud-btn" onclick="openReminderSettings()">🔔</button>
     </div>
   </div>
-
-  <!-- Canvas + tooltip -->
   <div class="village-canvas-wrap">
     <canvas id="villageCanvas"></canvas>
     <div class="loc-tooltip" id="locTooltip"></div>
   </div>
+</div>
 
-</div><!-- /#screen-village -->
-
-
-<!-- ================================================================
-     ÉCRAN 4 — LIEU (NPC list)
-     ================================================================ -->
+<!-- ================= ÉCRAN LIEU ================= -->
 <div class="screen" id="screen-location">
   <div class="u-header">
     <button class="back-btn" onclick="showScreen('screen-village');window._villageLoopActive=true;window._villageLoopRunning=true;requestAnimationFrame(window.drawVillage);">← Village</button>
@@ -295,390 +180,177 @@
     <span id="locWeather"></span>
   </div>
   <div id="missionsPanel"></div>
-  <div class="npc-list" id="npcList"></div>
+  <div class="npc-list" id="npcList" style="padding:12px 16px;display:flex;flex-direction:column;gap:0;"></div>
 </div>
 
-
-<!-- ================================================================
-     ÉCRAN 5 — DIALOGUE (cœur de l'expérience)
-     ================================================================ -->
+<!-- ================= ÉCRAN DIALOGUE ================= -->
 <div class="screen" id="screen-dialogue">
-
-  <!-- Header NPC -->
-  <div class="dial-header">
-    <div class="dial-av" id="dialAv">🧑</div>
-    <div class="dial-info">
-      <div class="dial-name" id="dialName"></div>
-      <div class="dial-role" id="dialRole"></div>
-    </div>
-    <button class="back-btn" style="margin-left:auto;flex-shrink:0;" onclick="showScreen('screen-location')">←</button>
-  </div>
-
-  <!-- PLI Bar — Progressive Linguistic Immersion -->
-  <div class="pli-bar-wrap">
-    <span class="pli-label">immersion</span>
-    <div class="pli-track">
-      <div class="pli-fill" id="pliBarFill" style="width:45%"></div>
-    </div>
-    <span class="pli-pct" id="pliPct">45% cible</span>
-  </div>
-
-  <!-- Zone de messages -->
+  <div class="dial-header"><div class="dial-av" id="dialAv">🧑</div><div><div class="dial-name" id="dialName"></div><div class="dial-role" id="dialRole"></div></div><button class="back-btn" style="margin-left:auto" onclick="showScreen('screen-location')">←</button></div>
   <div class="chat-msgs" id="chatMsgs"></div>
-
-  <!-- Zone de saisie -->
   <div class="dial-input-area">
+    <div class="dial-input-wrap"><input class="dial-input" id="dialInput" type="text" placeholder="Votre réponse..."><button class="dial-send" id="dialSend" onclick="sendMsg()">➤</button></div>
+    <div class="dial-actions"><button class="d-btn" onclick="reqHint()">💡 Indice</button><button class="d-btn" onclick="reqTranslate()">🔤 Traduire</button><button class="d-btn voice" id="voiceBtn" onclick="toggleVoice()">🎤 Parler</button></div>
+    <div class="correction-panel" id="corrPanel"><div class="corr-title" id="corrTitle">✏️ CORRECTION</div><div class="corr-original" id="corrOrig"></div><div class="corr-corrected" id="corrFixed"></div><div class="corr-explain" id="corrExplain"></div></div>
+  </div>
+</div>
 
-    <!-- Starter suggestions — rampe de sécurité post-guided -->
-    <div class="starter-row" id="starterRow" style="display:none;"></div>
-
-    <!-- Input + send -->
-    <div class="dial-input-wrap">
-      <input class="dial-input" id="dialInput" type="text" placeholder="Votre réponse…" autocomplete="off" autocorrect="off" spellcheck="false">
-      <button class="dial-send" id="dialSend" onclick="sendMsg()">➤</button>
-    </div>
-
-    <!-- Actions secondaires -->
-    <div class="dial-actions">
-      <button class="d-btn" onclick="reqHint()">💡 Indice</button>
-      <button class="d-btn" onclick="reqTranslate()">🔤 Traduire</button>
-      <button class="d-btn voice" id="voiceBtn" onclick="toggleVoice()">🎤 Parler</button>
-    </div>
-
-    <!-- Panneau de correction — reformulé en découverte -->
-    <div class="correction-panel" id="corrPanel">
-      <div class="corr-title" id="corrTitle">✨ ASTUCE</div>
-      <div class="corr-original" id="corrOrig"></div>
-      <div class="corr-corrected" id="corrFixed"></div>
-      <div class="corr-explain" id="corrExplain"></div>
-    </div>
-
-  </div><!-- /.dial-input-area -->
-</div><!-- /#screen-dialogue -->
-
-
-<!-- ================================================================
-     ÉCRAN 6 — VOCABULAIRE
-     ================================================================ -->
+<!-- ================= ÉCRAN VOCABULAIRE ================= -->
 <div class="screen" id="screen-vocab">
-  <div class="u-header">
-    <button class="back-btn" onclick="showScreen('screen-menu')">← Menu</button>
-    <div class="u-title">📖 Vocabulaire</div>
-    <span class="u-badge blue" id="vocabCount"></span>
-  </div>
-  <div class="category-scroll" id="vocabCats"></div>
-  <div style="padding:8px 20px;">
-    <input class="text-input" id="vocabSearch" type="text" placeholder="Rechercher un mot…" autocomplete="off">
-  </div>
-  <div id="vocabList" style="flex:1;overflow-y:auto;padding:0 16px 20px;"></div>
+  <div class="u-header"><button class="back-btn" onclick="showScreen('screen-menu')">← Menu</button><div class="u-title">📖 Vocabulaire</div><span class="u-badge" id="vocabCount"></span></div>
+  <div class="vocab-cats" id="vocabCats"></div>
+  <div class="vocab-search"><input class="vsearch" id="vocabSearch" type="text" placeholder="Rechercher..."></div>
+  <div class="vocab-list" id="vocabList"></div>
 </div>
 
-
-<!-- ================================================================
-     ÉCRAN 7 — PHRASES
-     ================================================================ -->
+<!-- ================= ÉCRAN PHRASES ================= -->
 <div class="screen" id="screen-phrases">
-  <div class="u-header">
-    <button class="back-btn" onclick="showScreen('screen-menu')">← Menu</button>
-    <div class="u-title">💬 Phrases</div>
-    <span class="u-badge blue" id="phrasesCount"></span>
-  </div>
-  <div class="category-scroll" id="phraseCats"></div>
-  <div style="padding:8px 20px;">
-    <input class="text-input" id="phraseSearch" type="text" placeholder="Rechercher une phrase…" autocomplete="off">
-  </div>
-  <div id="phraseList" style="flex:1;overflow-y:auto;padding:0 16px 20px;"></div>
+  <div class="u-header"><button class="back-btn" onclick="showScreen('screen-menu')">← Menu</button><div class="u-title">💬 Phrases</div><span class="u-badge" id="phrasesCount"></span></div>
+  <div class="phrase-cats" id="phraseCats"></div>
+  <div class="vocab-search"><input class="vsearch" id="phraseSearch" type="text" placeholder="Rechercher..."></div>
+  <div class="phrase-list" id="phraseList"></div>
 </div>
 
-
-<!-- ================================================================
-     ÉCRAN 8 — GRAMMAIRE
-     ================================================================ -->
+<!-- ================= ÉCRAN GRAMMAIRE ================= -->
 <div class="screen" id="screen-grammar">
-  <div class="u-header">
-    <button class="back-btn" onclick="showScreen('screen-menu')">← Menu</button>
-    <div class="u-title">✏️ Grammaire</div>
-  </div>
-  <div class="category-scroll" id="grammarCats"></div>
-  <div style="padding:8px 20px;">
-    <input class="text-input" id="grammarSearch" type="text" placeholder="Rechercher…" autocomplete="off">
-  </div>
-  <div id="grammarBody" style="flex:1;overflow-y:auto;padding:0 16px 20px;"></div>
+  <div class="u-header"><button class="back-btn" onclick="showScreen('screen-menu')">← Menu</button><div class="u-title">✏️ Grammaire</div></div>
+  <div class="grammar-cats" id="grammarCats"></div>
+  <div class="vocab-search"><input class="vsearch" id="grammarSearch" type="text" placeholder="Rechercher..."></div>
+  <div class="grammar-body" id="grammarBody"></div>
 </div>
 
-
-<!-- ================================================================
-     ÉCRAN 9 — DICTIONNAIRE
-     ================================================================ -->
+<!-- ================= ÉCRAN DICTIONNAIRE ================= -->
 <div class="screen" id="screen-dict">
-  <div class="u-header">
-    <button class="back-btn" id="dictBackBtn" onclick="closeDictBack()">← Retour</button>
-    <div class="u-title">📚 Dictionnaire</div>
-  </div>
-
-  <div class="dict-search-wrap">
-    <div class="dict-search-inner">
-      <input class="dict-input" id="dictInput" type="text" placeholder="Mot ou phrase…" autocomplete="off" autocorrect="off">
-      <button class="dict-search-btn" onclick="searchDict()">🔍</button>
-    </div>
-    <div style="display:flex;gap:8px;margin-top:10px;">
-      <button class="cat-chip active" onclick="setDictMode('word',this)">📖 Mot</button>
-      <button class="cat-chip" onclick="setDictMode('phrase',this)">💬 Phrase</button>
-    </div>
-  </div>
-
-  <div class="dict-result" id="dictResult" style="flex:1;overflow-y:auto;"></div>
+  <div class="u-header"><button class="back-btn" id="dictBackBtn" onclick="closeDictBack()">← Retour</button><div class="u-title">🔤 Dictionnaire</div></div>
+  <div class="dict-search-area"><div class="dict-row"><input class="dict-input" id="dictInput" type="text" placeholder="Mot ou phrase..."><button class="dict-search-btn" onclick="searchDict()">🔍</button></div><div class="dict-modes"><button class="dict-mode active" onclick="setDictMode('word',this)">📖 Mot</button><button class="dict-mode" onclick="setDictMode('phrase',this)">💬 Phrase</button></div></div>
+  <div class="dict-result" id="dictResult"></div>
 </div>
 
-
-<!-- ================================================================
-     ÉCRAN 10 — ALPHABET
-     ================================================================ -->
+<!-- ================= ÉCRAN ALPHABET ================= -->
 <div class="screen" id="screen-alphabet">
   <div class="u-header">
-    <button class="back-btn" onclick="showScreen('screen-menu')">← Menu</button>
+    <button class="back-btn" onclick="var prev=document.referrer;if(typeof showScreen==='function'){showScreen('screen-village');window._villageLoopActive=true;window._villageLoopRunning=true;requestAnimationFrame(window.drawVillage||function(){});}">← Village</button>
     <div class="u-title">🔤 <span id="alphaTitle">Alphabet</span></div>
-    <span class="u-badge gold" id="alphaCount"></span>
+    <span class="u-badge" id="alphaCount"></span>
   </div>
-  <div style="padding:8px 20px 0;font-size:0.72rem;color:var(--text-ghost);" id="alphaSub"></div>
-  <div id="alphaBody" style="flex:1;overflow-y:auto;padding:12px 16px;"></div>
+  <div class="vocab-search">
+    <div style="padding:8px 16px 0;font-size:0.72rem;color:rgba(255,255,255,0.35);" id="alphaSub"></div>
+  </div>
+  <div class="vocab-list" id="alphaBody" style="padding:12px 16px;"></div>
 </div>
 
-
-<!-- ================================================================
-     ÉCRAN 11 — MNÉMOTECHNIQUES
-     ================================================================ -->
+<!-- ================= ÉCRAN MNÉMOTECHNIQUES ================= -->
 <div class="screen" id="screen-mnemonics">
   <div class="u-header">
-    <button class="back-btn" onclick="if(typeof showScreen==='function'){showScreen('screen-alphabet');if(window.S&&window.LV_ALPHABET)window.LV_ALPHABET.openAlphabet(S.targetLang,S.nativeLang);}">← Alphabet</button>
-    <div class="u-title">🧠 <span id="mnemTitle">Mnémotechniques</span></div>
-    <span class="u-badge green" id="mnemCount"></span>
+    <button class="back-btn" onclick="if(typeof showScreen==='function'){showScreen('screen-alphabet');if(window.S)window.LV_ALPHABET.openAlphabet(S.targetLang,S.nativeLang);}">← Alphabet</button>
+    <div class="u-title">💡 <span id="mnemTitle">Mnémotechniques</span></div>
+    <span class="u-badge" id="mnemCount"></span>
   </div>
-  <div id="mnemBody" style="flex:1;overflow-y:auto;padding:12px 16px;"></div>
+  <div class="vocab-list" id="mnemBody"></div>
 </div>
 
-
-<!-- ================================================================
-     ÉCRAN 12 — CINÉMA (FSI + Internet Archive)
-     ================================================================ -->
+<!-- ================= ÉCRAN CINÉMA ================= -->
 <div class="screen" id="screen-cinema">
+  <div class="u-header"><button class="back-btn" onclick="showScreen('screen-village')">← Village</button><div class="u-title">🎬 Cinéma</div><span id="cinema-lang-badge"></span></div>
+  <div id="cinemaInfo"></div>
+</div>
 
-  <div class="u-header">
-    <button class="back-btn" onclick="cinemaStop();showScreen('screen-village')">← Village</button>
-    <div class="u-title" id="cinema-title">🎬 Cinéma</div>
-    <span id="cinema-lang-badge" style="font-size:0.75rem;font-weight:700;color:#e040fb;background:rgba(224,64,251,0.1);border:1px solid rgba(224,64,251,0.25);padding:4px 12px;border-radius:999px;"></span>
-  </div>
-
-  <!-- Compteur ressources -->
-  <div style="padding:10px 20px;font-size:0.7rem;color:var(--text-secondary);font-weight:600;" id="cinema-count"></div>
-
-  <!-- Player embed (caché par défaut) -->
-  <div id="cinema-player-wrap" class="cinema-player-wrap" style="display:none;">
-    <iframe id="cinema-player" allowfullscreen allow="autoplay; fullscreen; picture-in-picture"></iframe>
-  </div>
-
-  <!-- Infos du contenu en cours -->
-  <div id="cinema-playing-info" class="cinema-player-info" style="display:none;">
-    <div class="cinema-playing-title" id="cinema-playing-title"></div>
-    <div class="cinema-playing-desc"  id="cinema-playing-desc"></div>
-    <button onclick="cinemaStop()" style="margin-top:8px;background:rgba(255,107,107,0.12);border:1px solid rgba(255,107,107,0.3);color:var(--coral);padding:6px 16px;border-radius:999px;font-size:0.72rem;font-weight:700;cursor:pointer;">■ Arrêter</button>
-  </div>
-
-  <!-- Liste des vidéos -->
-  <div id="videoList" style="flex:1;overflow-y:auto;padding:8px 16px 20px;"></div>
-
-</div><!-- /#screen-cinema -->
-
-
-<!-- ================================================================
-     ÉCRAN 13 — PROFIL
-     ================================================================ -->
+<!-- ================= ÉCRAN PROFIL ================= -->
 <div class="screen" id="screen-profile">
-  <div class="u-header">
-    <button class="back-btn" onclick="showScreen('screen-menu')">← Menu</button>
-    <div class="u-title">👤 Profil</div>
-  </div>
-  <div style="padding:24px 20px;display:flex;flex-direction:column;align-items:center;gap:8px;border-bottom:1px solid var(--border-faint);">
-    <div style="font-size:3rem;">👤</div>
-    <div style="font-family:var(--font-display);font-size:1.2rem;font-weight:700;color:var(--gold-warm);" id="profileName"></div>
-    <div style="font-size:0.8rem;color:var(--text-secondary);" id="profileLang"></div>
-  </div>
-  <div style="display:flex;gap:0;border-bottom:1px solid var(--border-faint);">
-    <div style="flex:1;padding:16px;text-align:center;border-right:1px solid var(--border-faint);">
-      <div style="font-family:var(--font-display);font-size:1.4rem;font-weight:900;color:var(--gold-warm);" id="profileXp">0</div>
-      <div style="font-size:0.65rem;color:var(--text-secondary);text-transform:uppercase;letter-spacing:0.1em;font-weight:700;">XP</div>
-    </div>
-    <div style="flex:1;padding:16px;text-align:center;border-right:1px solid var(--border-faint);">
-      <div style="font-family:var(--font-display);font-size:1.4rem;font-weight:900;color:var(--amber);" id="profileStreak">0</div>
-      <div style="font-size:0.65rem;color:var(--text-secondary);text-transform:uppercase;letter-spacing:0.1em;font-weight:700;">Streak</div>
-    </div>
-    <div style="flex:1;padding:16px;text-align:center;">
-      <div style="font-family:var(--font-display);font-size:1.4rem;font-weight:900;color:var(--jade);" id="profileMasteredCount">0</div>
-      <div style="font-size:0.65rem;color:var(--text-secondary);text-transform:uppercase;letter-spacing:0.1em;font-weight:700;">Mots</div>
-    </div>
-  </div>
-  <div id="favWordsList"  style="flex:1;overflow-y:auto;padding:12px 16px;"></div>
-  <div id="weakWordsList" style="padding:0 16px 20px;"></div>
+  <div class="u-header"><button class="back-btn" onclick="showScreen('screen-menu')">← Menu</button><div class="u-title">👤 Profil</div></div>
+  <div class="profile-header"><div class="profile-avatar">👤</div><div class="profile-name" id="profileName"></div><div class="profile-lang" id="profileLang"></div></div>
+  <div class="profile-stats"><div class="p-stat"><div class="ps-val" id="profileXp">0</div><div class="ps-label">XP</div></div><div class="p-stat"><div class="ps-val" id="profileStreak">0</div><div class="ps-label">Streak</div></div><div class="p-stat"><div class="ps-val" id="profileMasteredCount">0</div><div class="ps-label">Mots</div></div></div>
+  <div id="favWordsList"></div><div id="weakWordsList"></div>
 </div>
 
-
-<!-- ================================================================
-     ÉCRAN 14 — BOUTIQUE
-     ================================================================ -->
+<!-- ================= ÉCRAN BOUTIQUE ================= -->
 <div class="screen" id="screen-shop">
-  <div class="u-header">
-    <button class="back-btn" onclick="showScreen('screen-menu')">← Menu</button>
-    <div class="u-title">🏪 Boutique</div>
-    <div style="display:flex;align-items:center;gap:5px;background:var(--gold-glow);border:1px solid var(--gold-trace);padding:4px 12px;border-radius:999px;">
-      <span>💎</span>
-      <span style="font-size:0.82rem;font-weight:800;color:var(--gold-warm);" id="shopGems">0</span>
-    </div>
-  </div>
-  <div id="shopItems" style="flex:1;overflow-y:auto;padding:16px;display:grid;grid-template-columns:1fr 1fr;gap:10px;"></div>
+  <div class="shop-header"><button class="back-btn" onclick="showScreen('screen-menu')">← Menu</button><div class="shop-title">🏪 Boutique</div><div class="shop-gold"><span>💎</span><span id="shopGems">0</span></div></div>
+  <div class="shop-grid" id="shopItems"></div>
 </div>
 
-
-<!-- ================================================================
-     ÉCRAN 15 — CLASSEMENT
-     ================================================================ -->
+<!-- ================= ÉCRAN CLASSEMENT ================= -->
 <div class="screen" id="screen-leaderboard">
-  <div class="u-header">
-    <button class="back-btn" onclick="showScreen('screen-menu')">← Menu</button>
-    <div class="u-title">🏆 Classement</div>
-  </div>
-  <div id="lbList" style="flex:1;overflow-y:auto;padding:16px;"></div>
+  <div class="lb-header"><button class="back-btn" onclick="showScreen('screen-menu')">← Menu</button><div class="lb-title">🏆 Classement</div></div>
+  <div class="lb-list" id="lbList"></div>
 </div>
 
-
-<!-- ================================================================
-     ÉCRAN 16 — RÉGLAGES
-     ================================================================ -->
+<!-- ================= ÉCRAN RÉGLAGES ================= -->
 <div class="screen" id="screen-settings">
-  <div class="u-header">
-    <button class="back-btn" onclick="showScreen('screen-menu')">← Menu</button>
-    <div class="u-title">⚙️ Réglages</div>
-  </div>
-  <div id="settingsContent" style="flex:1;overflow-y:auto;padding:16px;"></div>
+  <div class="settings-header"><button class="back-btn" onclick="showScreen('screen-menu')">← Menu</button><div class="set-title">⚙️ Réglages</div></div>
+  <div class="settings-content"></div>
 </div>
 
-
-<!-- ================================================================
-     ÉCRANS DYNAMIQUES (remplis par JavaScript)
-     ================================================================ -->
+<!-- ================= ÉCRAN PROVERBE ================= -->
 <div class="screen" id="screen-quote"></div>
+
+<!-- ================= ÉCRAN ONBOARDING ================= -->
 <div class="screen" id="screen-onboarding"></div>
+
+<!-- ================= ÉCRAN JEU DE MOTS ================= -->
 <div class="screen" id="screen-wordgame"></div>
 
-
-<!-- ================================================================
-     SCRIPTS — ORDRE CRITIQUE
-     ================================================================ -->
-
-<!-- 1. État global et données -->
+<!-- ========== SCRIPTS (ordre critique) ========== -->
+<script src="js/sound.js"></script>
+<script src="js/animation.js"></script>
 <script src="js/save.js"></script>
 <script src="js/state.js"></script>
 <script src="js/ui_text.js"></script>
 <script src="js/data.js"></script>
-
-<!-- 2. Citations (avant app pour être disponible à l'onboarding) -->
-<script src="js/quote_v2.js"></script>
-
-<!-- 3. Fonctionnalités terrain -->
 <script src="js/player.js"></script>
 <script src="js/phonemes.js"></script>
 <script src="js/sprites.js"></script>
 <script src="js/memory.js"></script>
 <script src="js/village.js"></script>
-
-<!-- 4. Dialogue — AVANT guided (guided patche openDialogue) -->
 <script src="js/dialogue.js"></script>
 <script src="js/guided_v2.js"></script>
-
-<!-- 5. Modules additionnels -->
 <script src="js/alphabet.js"></script>
 <script src="js/pnj.js"></script>
 <script src="js/gamification.js"></script>
 <script src="js/learning.js"></script>
 <script src="js/cinema.js"></script>
 <script src="js/advanced.js"></script>
+<script src="js/quote_v2.js"></script>
 <script src="js/onboarding.js"></script>
 <script src="js/wordgame.js"></script>
-
-<!-- 6. App principale — EN DERNIER -->
 <script src="js/app_v2.js" defer></script>
 
-
-<!-- ================================================================
-     SCRIPT DE SECOURS — Interactions critiques sans dépendance
-     Garantit que welcome screen fonctionne même si un module plante
-     ================================================================ -->
 <script>
-(function() {
-  'use strict';
-
-  // ── Étoiles du welcome ──────────────────────────────────────
-  function _buildWelcomeStars() {
-    var el = document.getElementById('welcomeStars');
-    if (!el) return;
-    var html = '';
-    for (var i = 0; i < 60; i++) {
-      var sz = 0.5 + Math.random() * 2;
-      html += '<div class="w-star" style="' +
-        'width:' + sz + 'px;height:' + sz + 'px;' +
-        'left:' + (Math.random() * 100) + '%;' +
-        'top:' + (Math.random() * 100) + '%;' +
-        'opacity:' + (0.1 + Math.random() * 0.6) + ';' +
-        'animation-duration:' + (2 + Math.random() * 5) + 's;' +
-        'animation-delay:' + (Math.random() * 5) + 's;' +
-        '"></div>';
-    }
-    el.innerHTML = html;
-  }
-  _buildWelcomeStars();
-
-  // ── Mise à jour bouton play — fallback ──────────────────────
-  function _updatePlayBtn() {
-    var S = window.S || {};
-    var nameEl = document.getElementById('inputName');
-    var name   = nameEl ? nameEl.value.trim() : '';
-    var isCJK  = ['zh','ja','ru'].includes(S.targetLang);
-    var btn    = document.getElementById('playBtn');
-    if (!btn) return;
-
-    if (S.nativeLang && name && S.targetLang) {
-      if (isCJK && !S.scriptPref) {
-        btn.disabled = true; btn.style.display = 'block';
-        btn.textContent = '✍️ Choisissez un mode d\'écriture';
+  // Script de secours simple pour la sélection des langues et l'activation du bouton play
+  (function() {
+    function updatePlayButton() {
+      var nativeLang = window.S && window.S.nativeLang;
+      var targetLang = window.S && window.S.targetLang;
+      var playerName = document.getElementById('inputName') ? document.getElementById('inputName').value.trim() : '';
+      var scriptPref = window.S && window.S.scriptPref;
+      var isCJK = ['zh','ja','ru'].includes(targetLang);
+      var playBtn = document.getElementById('playBtn');
+      if (!playBtn) return;
+      if (nativeLang && playerName && targetLang) {
+        if (isCJK && !scriptPref) {
+          playBtn.disabled = true;
+          playBtn.style.display = 'block';
+          playBtn.textContent = '✨ Choisissez un mode d\'écriture';
+        } else {
+          playBtn.disabled = false;
+          playBtn.style.display = 'block';
+          playBtn.textContent = (window.UI_TEXT && UI_TEXT[nativeLang] && UI_TEXT[nativeLang].play) || '✨ Commencer';
+        }
       } else {
-        btn.disabled = false; btn.style.display = 'block';
-        var t = (window.UI_TEXT && window.UI_TEXT[S.nativeLang]) || {};
-        btn.textContent = t.play || '✨ Commencer';
+        playBtn.style.display = 'none';
+        playBtn.disabled = true;
       }
-    } else {
-      btn.style.display = 'none'; btn.disabled = true;
     }
-  }
-
-  // Écouter les interactions
-  var nameInput = document.getElementById('inputName');
-  if (nameInput) nameInput.addEventListener('input', _updatePlayBtn);
-
-  document.querySelectorAll('.lang-tile[data-native], .lang-tile[data-lang], .sc-btn').forEach(function(el) {
-    el.addEventListener('click', function() { setTimeout(_updatePlayBtn, 60); });
-  });
-
-  _updatePlayBtn();
-
-  // ── Correction title — patch sémantique ────────────────────
-  // Remplace "❌ ERREUR" par "✨ ASTUCE" si le JS principal ne le fait pas
-  var corrTitle = document.getElementById('corrTitle');
-  if (corrTitle && corrTitle.textContent.includes('CORRECTION')) {
-    corrTitle.textContent = '✨ ASTUCE';
-  }
-
-  console.log('✅ Fallback script chargé');
-})();
+    var nameInput = document.getElementById('inputName');
+    if (nameInput) nameInput.addEventListener('input', updatePlayButton);
+    document.querySelectorAll('.lang-tile[data-native], .lang-tile[data-lang]').forEach(function(tile) {
+      tile.addEventListener('click', function() { setTimeout(updatePlayButton, 50); });
+    });
+    document.querySelectorAll('.sc-btn').forEach(function(btn) {
+      btn.addEventListener('click', function() { setTimeout(updatePlayButton, 50); });
+    });
+    updatePlayButton();
+    console.log('✅ Script de secours chargé');
+  })();
 </script>
-
 </body>
-                                            </html>
+                                                                    </html>
