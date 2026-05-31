@@ -41,27 +41,61 @@ window.applyUI = function(lang) {
   setText('mb-dict-d', t.mb_dict_d);
 };
 
-window.showNotif = function(msg, duration = 2800) {
+window.showNotif = function(msg, duration, type) {
   const el = document.getElementById('notif');
   if (!el) return;
+  duration = duration || 2800;
   el.textContent = msg;
   el.classList.add('show');
+  // Son selon type
+  if (window.LV_SOUND) {
+    if (type === 'error') window.LV_SOUND.play('wrong');
+    else if (type === 'success') window.LV_SOUND.play('correct');
+    else window.LV_SOUND.play('notif');
+  }
   clearTimeout(window._notifTimer);
   window._notifTimer = setTimeout(() => el.classList.remove('show'), duration);
 };
 
-window.gainXP = function(amount) {
+window._comboCount = 0;
+window._comboTimer = null;
+
+window.gainXP = function(amount, sourceEl) {
   if (!S) return;
   S.xp = (S.xp || 0) + (amount || 0);
-  const hudXP = document.getElementById('hudXP');
-  if (hudXP) hudXP.textContent = S.xp + ' XP';
-  const menuXP = document.getElementById('menuXP');
+  var hudXP  = document.getElementById('hudXP');
+  var menuXP = document.getElementById('menuXP');
+  var xpFill = document.getElementById('xpFill');
+  if (hudXP)  hudXP.textContent  = S.xp + ' XP';
   if (menuXP) menuXP.textContent = S.xp + ' XP';
-  const xpFill = document.getElementById('xpFill');
-  if (xpFill) xpFill.style.width = (S.xp % 100) + '%';
+  if (xpFill) {
+    var pct = (S.xp % 100);
+    xpFill.style.transition = 'width 0.6s cubic-bezier(0.22,1,0.36,1)';
+    xpFill.style.width = pct + '%';
+  }
+
+  // Combo tracking
+  clearTimeout(window._comboTimer);
+  window._comboCount = (window._comboCount || 0) + 1;
+  window._comboTimer = setTimeout(function() { window._comboCount = 0; }, 4000);
+
+  // Son XP
+  if (window.LV_SOUND) window.LV_SOUND.play('xp');
+
+  // Animation popup XP
+  if (window.LV_ANIM) {
+    window.LV_ANIM.xpPop(amount, sourceEl);
+    window.LV_ANIM.xpBarPulse();
+    // Combo visuel si 3+
+    if (window._comboCount >= 3) {
+      window.LV_ANIM.comboFlash(window._comboCount);
+    }
+  }
+
   if (typeof checkBadges === 'function') checkBadges();
-  if (typeof saveGame === 'function') saveGame();
+  if (typeof saveGame    === 'function') saveGame();
 };
+
 
 window.saveGame = function() {
   try {
