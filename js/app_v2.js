@@ -4,9 +4,8 @@
 
 var API = 'https://linguavillage-api--marckensbou2.replit.app';
 
-document.addEventListener('DOMContentLoaded', function() {
-  // Le splash s'affiche par-dessus tout via z-index:99999
-  // On n'a PAS besoin de cacher les écrans — le splash est opaque
+// Avec defer, DOMContentLoaded peut déjà être passé — on gère les deux cas
+function _startApp() {
   if (window.LV_ANIM && typeof window.LV_ANIM.showSplash === 'function') {
     window.LV_ANIM.showSplash(function() {
       _initApp();
@@ -14,7 +13,14 @@ document.addEventListener('DOMContentLoaded', function() {
   } else {
     _initApp();
   }
-});
+}
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', _startApp);
+} else {
+  // DOM déjà prêt (cas defer)
+  _startApp();
+}
 
 function _initApp() {
   if (!window.S) {
