@@ -4,18 +4,11 @@
 
 var API = 'https://linguavillage-api--marckensbou2.replit.app';
 
-// Lancer le splash screen immédiatement (avant tout)
 document.addEventListener('DOMContentLoaded', function() {
-  // Masquer tous les écrans pendant le splash
-  document.querySelectorAll('.screen').forEach(function(s) {
-    s.style.visibility = 'hidden';
-  });
-  // Splash → puis initialisation normale
+  // Le splash s'affiche par-dessus tout via z-index:99999
+  // On n'a PAS besoin de cacher les écrans — le splash est opaque
   if (window.LV_ANIM && typeof window.LV_ANIM.showSplash === 'function') {
     window.LV_ANIM.showSplash(function() {
-      document.querySelectorAll('.screen').forEach(function(s) {
-        s.style.visibility = '';
-      });
       _initApp();
     });
   } else {
