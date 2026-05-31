@@ -70,6 +70,15 @@ function checkDailyStreak() {
 }
 
 function showStreakMilestone(n) {
+  // Son streak
+  if (window.LV_SOUND) window.LV_SOUND.play('streak');
+  // Animation cinématique
+  if (window.LV_ANIM) {
+    var zone = n>=30?'👑 Légendaire':n>=14?'🔥 En Feu !':'⚡ En Série !';
+    window.LV_ANIM.levelUpCinema(n, n + ' jours — ' + zone);
+    return;
+  }
+  // Fallback si LV_ANIM pas chargé
   var ov = document.createElement('div');
   ov.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.92);z-index:9999;display:flex;align-items:center;justify-content:center;';
   var msg = n>=30?'👑 LÉGENDAIRE!':n>=14?'🏆 IMPRESSIONNANT!':'🔥 EN FEU!';
@@ -81,12 +90,12 @@ function showStreakMilestone(n) {
     +'<div style="color:#4ecf70;font-size:0.82rem;margin-bottom:20px">🎁 Récompense: '+reward+'</div>'
     +'<button onclick="this.parentElement.parentElement.remove()" style="background:linear-gradient(135deg,#ff6b00,#ff9f43);border:none;border-radius:14px;padding:11px 28px;font-family:Cinzel,serif;font-weight:700;cursor:pointer;font-size:0.88rem;color:#fff">🔥 Continuer!</button>'
     +'</div>';
-  document.body.appendChild(ov); 
+  document.body.appendChild(ov);
   if (typeof launchConfetti === 'function') launchConfetti();
 }
 
 function showStreakLost(n) {
-  var ov = document.createElement('div');
+  if (window.LV_SOUND) window.LV_SOUND.play('wrong');
   ov.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.92);z-index:9999;display:flex;align-items:center;justify-content:center;';
   ov.innerHTML = '<div style="text-align:center;padding:28px;max-width:280px">'
     +'<div style="font-size:3rem;margin-bottom:10px">💔</div>'
@@ -357,11 +366,34 @@ function checkBadges() {
   if (!S || !S_missions) return;
   var xp = S.xp || 0;
   var currentBadges = S_missions.badges || [];
+  var nl = (S && S.nativeLang) || 'fr';
   BADGES.forEach(function(badge) {
     if (xp >= badge.xp && !currentBadges.includes(badge.id)) {
       currentBadges.push(badge.id);
-      showNotif(badge.icon + ' Badge débloqué: ' + (badge.fr || badge.en));
-      gainXP(50);
+      var title = badge[nl] || badge.fr || badge.en || '';
+      var desc  = {
+        fr:'Tu as gagné le badge ' + title + ' !',
+        en:'You earned the ' + title + ' badge!',
+        es:'¡Ganaste la insignia ' + title + '!',
+        ht:'Ou te rantre badj ' + title + '!',
+        de:'Du hast das Abzeichen ' + title + ' verdient!',
+        ru:'Ты получил значок ' + title + '!',
+        zh:'获得了' + title + '徽章！',
+        ja:title + 'バッジを獲得しました！'
+      }[nl] || 'Badge: ' + title;
+      // Animation badge premium
+      if (window.LV_ANIM) {
+        window.LV_ANIM.badgePop(badge.icon, title, desc);
+      } else {
+        showNotif(badge.icon + ' Badge débloqué: ' + title);
+      }
+      // Son badge
+      if (window.LV_SOUND) window.LV_SOUND.play('badge');
+      if (window.launchConfetti) window.launchConfetti();
+      // XP bonus sans récursion
+      S.xp = (S.xp || 0) + 50;
+      var hudXP = document.getElementById('hudXP');
+      if (hudXP) hudXP.textContent = S.xp + ' XP';
       saveGame();
     }
   });
