@@ -325,13 +325,19 @@ window.updateStreak = function() {
   if (!banner) return;
 
   if (G.streak > 0) {
-    banner.style.display = 'flex';
+    banner.style.cssText = banner.style.cssText
+      .replace('display:none', '')
+      .replace('display: none', '');
+    banner.style.display       = 'flex';
+    banner.style.flexDirection = 'row';
+    banner.style.alignItems    = 'center';
+    banner.style.gap           = '12px';
     var valEl   = document.getElementById('streakVal');
     var labelEl = document.getElementById('streakLabel');
     if (valEl)   valEl.textContent   = G.streak + ' 🔥';
     if (labelEl) labelEl.textContent = ({fr:'jours consécutifs',en:'days in a row',es:'días seguidos',ht:'jou konsekitif',de:'Tage in Folge'})[S.nativeLang||'fr'] || 'jours consécutifs';
   } else {
-    banner.style.display = 'none';
+    banner.style.display = 'none'; banner.style.flexDirection = '';
   }
 };
 
