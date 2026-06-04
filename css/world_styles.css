@@ -1,0 +1,440 @@
+/* ================================================================
+   world_styles.css — LINGORIA Visual System
+   Styles pour : carte monde, statuts sociaux, intro narrative,
+   cérémonie de rang, HUD social, régions
+   ================================================================ */
+
+/* ── Variables monde ── */
+:root {
+  --rank-stranger:   #8899aa;
+  --rank-traveler:   #66aacc;
+  --rank-resident:   #4ecf70;
+  --rank-citizen:    #4a9eff;
+  --rank-merchant:   #ff9f43;
+  --rank-counselor:  #e040fb;
+  --rank-ambassador: #ffd700;
+  --rank-master:     #ff6b6b;
+}
+
+/* ================================================================
+   SOCIAL RANK HUD — bandeau en haut du menu
+   ================================================================ */
+.social-rank-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 16px;
+  background: rgba(255,255,255,0.03);
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  flex-shrink: 0;
+}
+
+.rank-icon {
+  font-size: 1.6rem;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.rank-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.rank-label {
+  font-family: Cinzel, serif;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  line-height: 1.2;
+}
+
+.rank-desc {
+  font-size: 0.62rem;
+  color: rgba(255,255,255,0.35);
+  margin-top: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.rank-progress-wrap {
+  flex: 1;
+  max-width: 90px;
+  flex-shrink: 0;
+}
+
+.rank-progress-track {
+  height: 4px;
+  background: rgba(255,255,255,0.08);
+  border-radius: 4px;
+  overflow: hidden;
+  margin-bottom: 3px;
+}
+
+.rank-progress-fill {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.rank-progress-label {
+  font-size: 0.58rem;
+  color: rgba(255,255,255,0.25);
+  text-align: right;
+  font-weight: 700;
+}
+
+/* ── Bouton carte monde ── */
+.map-btn {
+  flex-shrink: 0;
+  background: rgba(255,215,0,0.10);
+  border: 1px solid rgba(255,215,0,0.22);
+  border-radius: 12px;
+  padding: 6px 12px;
+  font-size: 0.72rem;
+  font-weight: 800;
+  color: #ffd700;
+  cursor: pointer;
+  transition: all 0.18s ease;
+  -webkit-tap-highlight-color: transparent;
+  white-space: nowrap;
+}
+.map-btn:active { transform: scale(0.94); }
+
+/* ================================================================
+   CARTE MONDE — overlay plein écran
+   ================================================================ */
+#world-map-overlay {
+  font-family: Cinzel, serif;
+}
+
+#world-map-canvas {
+  display: block;
+}
+
+#map-info-panel {
+  transition: all 0.28s ease;
+}
+
+/* ================================================================
+   INTRO NARRATIVE — séquence d'ouverture
+   ================================================================ */
+#intro-story {
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+#intro-story::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at 50% 40%,
+    rgba(74,158,255,0.06) 0%,
+    transparent 70%);
+  pointer-events: none;
+}
+
+/* ================================================================
+   CÉRÉMONIE DE RANG
+   ================================================================ */
+#rank-ceremony {
+  user-select: none;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+/* Étoiles flottantes pendant la cérémonie */
+#rank-ceremony::before {
+  content: '✦  ✦  ✦';
+  position: absolute;
+  top: 15%;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 1.2rem;
+  color: rgba(255,215,0,0.25);
+  letter-spacing: 1.5em;
+  animation: rankStars 2s ease-in-out infinite;
+}
+
+@keyframes rankStars {
+  0%, 100% { opacity: 0.25; transform: translateX(-50%) scale(1); }
+  50%       { opacity: 0.60; transform: translateX(-50%) scale(1.05); }
+}
+
+/* ================================================================
+   CARTE DU MENU — bouton Lingoria (carte monde)
+   ================================================================ */
+.menu-world-btn {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  padding: 14px 18px;
+  margin-bottom: 10px;
+  background: linear-gradient(135deg,
+    rgba(255,215,0,0.06) 0%,
+    rgba(255,215,0,0.02) 100%);
+  border: 1.5px solid rgba(255,215,0,0.18);
+  border-radius: 18px;
+  cursor: pointer;
+  transition: all 0.22s ease;
+  -webkit-tap-highlight-color: transparent;
+  text-align: left;
+}
+.menu-world-btn:active {
+  transform: scale(0.98);
+  background: rgba(255,215,0,0.10);
+}
+.menu-world-icon { font-size: 2rem; flex-shrink: 0; }
+.menu-world-title {
+  font-family: Cinzel, serif;
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: #ffd700;
+  margin-bottom: 2px;
+}
+.menu-world-sub {
+  font-size: 0.68rem;
+  color: rgba(255,255,255,0.38);
+}
+.menu-world-arrow {
+  margin-left: auto;
+  font-size: 1.2rem;
+  color: rgba(255,215,0,0.40);
+  flex-shrink: 0;
+}
+
+/* ================================================================
+   RÉGION CARDS dans le menu village
+   ================================================================ */
+.region-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 13px 16px;
+  background: rgba(255,255,255,0.04);
+  border: 1.5px solid rgba(255,255,255,0.07);
+  border-radius: 16px;
+  margin-bottom: 8px;
+  cursor: pointer;
+  transition: all 0.18s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+.region-card:active {
+  transform: translateX(3px);
+  background: rgba(255,255,255,0.07);
+}
+.region-card.locked {
+  opacity: 0.38;
+  cursor: not-allowed;
+}
+.region-card-emoji { font-size: 1.6rem; flex-shrink: 0; }
+.region-card-name {
+  font-family: Cinzel, serif;
+  font-size: 0.82rem;
+  font-weight: 700;
+  margin-bottom: 2px;
+}
+.region-card-desc {
+  font-size: 0.65rem;
+  color: rgba(255,255,255,0.38);
+  line-height: 1.35;
+}
+.region-card-lock {
+  margin-left: auto;
+  font-size: 0.9rem;
+  flex-shrink: 0;
+}
+
+/* ================================================================
+   NPC CARDS enrichies
+   ================================================================ */
+.npc-world-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 16px 18px;
+  background: rgba(255,255,255,0.04);
+  border: 1.5px solid rgba(255,255,255,0.07);
+  border-radius: 18px;
+  margin-bottom: 10px;
+  cursor: pointer;
+  transition: all 0.20s ease;
+  -webkit-tap-highlight-color: transparent;
+  position: relative;
+  overflow: hidden;
+}
+.npc-world-card::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  width: 3px;
+  border-radius: 3px 0 0 3px;
+  background: var(--npc-color, #4ecf70);
+}
+.npc-world-card:active {
+  transform: scale(0.98);
+  background: rgba(255,255,255,0.07);
+}
+.npc-avatar {
+  width: 46px; height: 46px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.06);
+  border: 2px solid var(--npc-color, #4ecf70);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.5rem;
+  flex-shrink: 0;
+}
+.npc-info { flex: 1; min-width: 0; }
+.npc-name {
+  font-weight: 800;
+  font-size: 0.92rem;
+  color: #f0e8d0;
+  margin-bottom: 2px;
+}
+.npc-role {
+  font-size: 0.68rem;
+  color: rgba(255,255,255,0.38);
+  margin-bottom: 5px;
+}
+.npc-preview {
+  font-size: 0.72rem;
+  color: rgba(255,255,255,0.50);
+  font-style: italic;
+  line-height: 1.4;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.npc-arrow {
+  color: rgba(255,255,255,0.25);
+  font-size: 1.2rem;
+  flex-shrink: 0;
+  align-self: center;
+}
+
+/* ── Badge "nouveau" sur NPC ── */
+.npc-new-badge {
+  position: absolute;
+  top: 10px; right: 14px;
+  font-size: 0.58rem;
+  font-weight: 900;
+  color: #000;
+  background: #4ecf70;
+  padding: 2px 7px;
+  border-radius: 8px;
+  letter-spacing: 0.05em;
+}
+
+/* ================================================================
+   ÉCRAN WORLD MAP / RÉGION
+   ================================================================ */
+#screen-world {
+  background: #060c1a;
+  display: none;
+  flex-direction: column;
+}
+#screen-world.active { display: flex; }
+
+/* ================================================================
+   STATUT SOCIAL dans le profil
+   ================================================================ */
+.profile-rank-card {
+  background: linear-gradient(135deg,
+    rgba(255,255,255,0.05),
+    rgba(255,255,255,0.02));
+  border: 1.5px solid rgba(255,255,255,0.08);
+  border-radius: 20px;
+  padding: 20px;
+  margin: 12px 16px;
+  text-align: center;
+}
+.profile-rank-icon { font-size: 3.5rem; margin-bottom: 8px; }
+.profile-rank-name {
+  font-family: Cinzel, serif;
+  font-size: 1.2rem;
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+.profile-rank-desc {
+  font-size: 0.75rem;
+  color: rgba(255,255,255,0.45);
+  line-height: 1.5;
+  margin-bottom: 14px;
+}
+.profile-rank-progress {
+  background: rgba(255,255,255,0.07);
+  border-radius: 8px;
+  height: 8px;
+  overflow: hidden;
+}
+.profile-rank-fill {
+  height: 100%;
+  border-radius: 8px;
+  transition: width 1s cubic-bezier(0.22,1,0.36,1);
+}
+.profile-rank-next {
+  font-size: 0.62rem;
+  color: rgba(255,255,255,0.28);
+  margin-top: 6px;
+  text-align: right;
+}
+
+/* ================================================================
+   ANIMATIONS MONDE
+   ================================================================ */
+@keyframes worldReveal {
+  from { opacity: 0; transform: scale(0.95) translateY(10px); }
+  to   { opacity: 1; transform: scale(1)    translateY(0); }
+}
+@keyframes rankGlow {
+  0%, 100% { text-shadow: 0 0 12px currentColor; }
+  50%       { text-shadow: 0 0 28px currentColor, 0 0 48px currentColor; }
+}
+@keyframes mapPulse {
+  0%, 100% { opacity: 0.6; transform: scale(1); }
+  50%       { opacity: 1;   transform: scale(1.04); }
+}
+
+/* ── Badge région sur la carte monde ── */
+.map-region-badge {
+  position: absolute;
+  background: rgba(6,12,26,0.90);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 10px;
+  padding: 4px 10px;
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: #e8e0d0;
+  pointer-events: none;
+  white-space: nowrap;
+  transform: translate(-50%, -120%);
+  backdrop-filter: blur(8px);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.5);
+}
+
+/* ================================================================
+   BARRE DE STATUT EN BAS DU VILLAGE HUD
+   ================================================================ */
+.village-rank-strip {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 16px;
+  background: rgba(0,0,0,0.30);
+  border-top: 1px solid rgba(255,255,255,0.05);
+  font-size: 0.62rem;
+  flex-shrink: 0;
+}
+.village-rank-icon { font-size: 0.9rem; }
+.village-rank-label { color: rgba(255,255,255,0.45); font-weight: 700; }
+.village-rank-xp    { color: rgba(255,255,255,0.25); margin-left: auto; }
+
+/* ================================================================
+   RESPONSIVE
+   ================================================================ */
+@media (min-width: 600px) {
+  .social-rank-bar { padding: 12px 24px; }
+  #map-info-panel  { padding: 16px 24px; }
+  .npc-world-card  { padding: 18px 22px; }
+}
