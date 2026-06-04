@@ -70,15 +70,6 @@ function checkDailyStreak() {
 }
 
 function showStreakMilestone(n) {
-  // Son streak
-  if (window.LV_SOUND) window.LV_SOUND.play('streak');
-  // Animation cinématique
-  if (window.LV_ANIM) {
-    var zone = n>=30?'👑 Légendaire':n>=14?'🔥 En Feu !':'⚡ En Série !';
-    window.LV_ANIM.levelUpCinema(n, n + ' jours — ' + zone);
-    return;
-  }
-  // Fallback si LV_ANIM pas chargé
   var ov = document.createElement('div');
   ov.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.92);z-index:9999;display:flex;align-items:center;justify-content:center;';
   var msg = n>=30?'👑 LÉGENDAIRE!':n>=14?'🏆 IMPRESSIONNANT!':'🔥 EN FEU!';
@@ -90,12 +81,12 @@ function showStreakMilestone(n) {
     +'<div style="color:#4ecf70;font-size:0.82rem;margin-bottom:20px">🎁 Récompense: '+reward+'</div>'
     +'<button onclick="this.parentElement.parentElement.remove()" style="background:linear-gradient(135deg,#ff6b00,#ff9f43);border:none;border-radius:14px;padding:11px 28px;font-family:Cinzel,serif;font-weight:700;cursor:pointer;font-size:0.88rem;color:#fff">🔥 Continuer!</button>'
     +'</div>';
-  document.body.appendChild(ov);
+  document.body.appendChild(ov); 
   if (typeof launchConfetti === 'function') launchConfetti();
 }
 
 function showStreakLost(n) {
-  if (window.LV_SOUND) window.LV_SOUND.play('wrong');
+  var ov = document.createElement('div');
   ov.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.92);z-index:9999;display:flex;align-items:center;justify-content:center;';
   ov.innerHTML = '<div style="text-align:center;padding:28px;max-width:280px">'
     +'<div style="font-size:3rem;margin-bottom:10px">💔</div>'
@@ -364,41 +355,65 @@ function onMessageSent(text) {
 // =================================================================
 function checkBadges() {
   if (!S || !S_missions) return;
-  var xp = S.xp || 0;
+  var xp  = S.xp || 0;
+  var nl  = S.nativeLang || 'fr';
   var currentBadges = S_missions.badges || [];
-  var nl = (S && S.nativeLang) || 'fr';
+
+  // ── Vérifier les badges XP ──
   BADGES.forEach(function(badge) {
     if (xp >= badge.xp && !currentBadges.includes(badge.id)) {
       currentBadges.push(badge.id);
       var title = badge[nl] || badge.fr || badge.en || '';
-      var desc  = {
-        fr:'Tu as gagné le badge ' + title + ' !',
-        en:'You earned the ' + title + ' badge!',
-        es:'¡Ganaste la insignia ' + title + '!',
-        ht:'Ou te rantre badj ' + title + '!',
-        de:'Du hast das Abzeichen ' + title + ' verdient!',
-        ru:'Ты получил значок ' + title + '!',
-        zh:'获得了' + title + '徽章！',
-        ja:title + 'バッジを獲得しました！'
-      }[nl] || 'Badge: ' + title;
-      // Animation badge premium
-      if (window.LV_ANIM) {
-        window.LV_ANIM.badgePop(badge.icon, title, desc);
-      } else {
-        showNotif(badge.icon + ' Badge débloqué: ' + title);
-      }
-      // Son badge
+      var desc  = {fr:'Badge gagné !',en:'Badge earned!',es:'¡Insignia ganada!',ht:'Badj rantre!'}[nl]||'Badge earned!';
+      if (window.LV_ANIM) window.LV_ANIM.badgePop(badge.icon, title, desc);
+      else showNotif(badge.icon + ' ' + title);
       if (window.LV_SOUND) window.LV_SOUND.play('badge');
-      if (window.launchConfetti) window.launchConfetti();
-      // XP bonus sans récursion
-      S.xp = (S.xp || 0) + 50;
-      var hudXP = document.getElementById('hudXP');
-      if (hudXP) hudXP.textContent = S.xp + ' XP';
+      S.xp = (S.xp||0) + 50;
       saveGame();
     }
   });
   S_missions.badges = currentBadges;
+
+  // ── Vérifier la montée de rang social (monde) ──
+  if (window.LV_WORLD && typeof window.LV_WORLD.checkRankUp === 'function') {
+    // On stocke l'ancien XP pour détecter le passage de seuil
+    var prevXP = (window._prevXPForRank || 0);
+    if (xp !== prevXP) {
+      window.LV_WORLD.checkRankUp(prevXP, xp, nl);
+      window._prevXPForRank = xp;
+    }
+  }
 }
+
+// Synchroniser le HUD de rang social
+function updateSocialRankHUD() {
+  if (!window.LV_WORLD) return;
+  var xp   = (window.S && S.xp) || 0;
+  var nl   = (window.S && S.nativeLang) || 'fr';
+  var rank = window.LV_WORLD.getCurrentRank(xp);
+  var next = window.LV_WORLD.getNextRank(xp);
+  var pct  = window.LV_WORLD.getProgressToNext(xp) * 100;
+
+  var hudIcon  = document.getElementById('socialRankIcon');
+  var hudLabel = document.getElementById('socialRankLabel');
+  var hudFill  = document.getElementById('socialRankFill');
+  var hudNext  = document.getElementById('socialRankNext');
+
+  if (hudIcon)  hudIcon.textContent  = rank.icon;
+  if (hudLabel) {
+    hudLabel.textContent  = rank.label[nl] || rank.label.fr;
+    hudLabel.style.color  = rank.color;
+  }
+  if (hudFill) {
+    hudFill.style.width      = pct.toFixed(1) + '%';
+    hudFill.style.background = rank.color;
+  }
+  if (hudNext && next) {
+    var xpNeeded = next.xp - xp;
+    hudNext.textContent = '→ ' + (next.label[nl]||next.label.fr) + ' (' + xpNeeded + ' XP)';
+  }
+}
+window.updateSocialRankHUD = updateSocialRankHUD;
 
 // =================================================================
 // INIT
