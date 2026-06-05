@@ -355,65 +355,18 @@ function onMessageSent(text) {
 // =================================================================
 function checkBadges() {
   if (!S || !S_missions) return;
-  var xp  = S.xp || 0;
-  var nl  = S.nativeLang || 'fr';
+  var xp = S.xp || 0;
   var currentBadges = S_missions.badges || [];
-
-  // ── Vérifier les badges XP ──
   BADGES.forEach(function(badge) {
     if (xp >= badge.xp && !currentBadges.includes(badge.id)) {
       currentBadges.push(badge.id);
-      var title = badge[nl] || badge.fr || badge.en || '';
-      var desc  = {fr:'Badge gagné !',en:'Badge earned!',es:'¡Insignia ganada!',ht:'Badj rantre!'}[nl]||'Badge earned!';
-      if (window.LV_ANIM) window.LV_ANIM.badgePop(badge.icon, title, desc);
-      else showNotif(badge.icon + ' ' + title);
-      if (window.LV_SOUND) window.LV_SOUND.play('badge');
-      S.xp = (S.xp||0) + 50;
+      showNotif(badge.icon + ' Badge débloqué: ' + (badge.fr || badge.en));
+      gainXP(50);
       saveGame();
     }
   });
   S_missions.badges = currentBadges;
-
-  // ── Vérifier la montée de rang social (monde) ──
-  if (window.LV_WORLD && typeof window.LV_WORLD.checkRankUp === 'function') {
-    // On stocke l'ancien XP pour détecter le passage de seuil
-    var prevXP = (window._prevXPForRank || 0);
-    if (xp !== prevXP) {
-      window.LV_WORLD.checkRankUp(prevXP, xp, nl);
-      window._prevXPForRank = xp;
-    }
-  }
 }
-
-// Synchroniser le HUD de rang social
-function updateSocialRankHUD() {
-  if (!window.LV_WORLD) return;
-  var xp   = (window.S && S.xp) || 0;
-  var nl   = (window.S && S.nativeLang) || 'fr';
-  var rank = window.LV_WORLD.getCurrentRank(xp);
-  var next = window.LV_WORLD.getNextRank(xp);
-  var pct  = window.LV_WORLD.getProgressToNext(xp) * 100;
-
-  var hudIcon  = document.getElementById('socialRankIcon');
-  var hudLabel = document.getElementById('socialRankLabel');
-  var hudFill  = document.getElementById('socialRankFill');
-  var hudNext  = document.getElementById('socialRankNext');
-
-  if (hudIcon)  hudIcon.textContent  = rank.icon;
-  if (hudLabel) {
-    hudLabel.textContent  = rank.label[nl] || rank.label.fr;
-    hudLabel.style.color  = rank.color;
-  }
-  if (hudFill) {
-    hudFill.style.width      = pct.toFixed(1) + '%';
-    hudFill.style.background = rank.color;
-  }
-  if (hudNext && next) {
-    var xpNeeded = next.xp - xp;
-    hudNext.textContent = '→ ' + (next.label[nl]||next.label.fr) + ' (' + xpNeeded + ' XP)';
-  }
-}
-window.updateSocialRankHUD = updateSocialRankHUD;
 
 // =================================================================
 // INIT
