@@ -438,3 +438,143 @@
   #map-info-panel  { padding: 16px 24px; }
   .npc-world-card  { padding: 18px 22px; }
 }
+
+/* ================================================================
+   VILLAGE RPG — Styles additionnels pour Krova Living World
+   ================================================================ */
+
+/* ── Panneau de lieu enrichi (lore + NPC) ── */
+.loc-lore-box {
+  margin: 0 16px 12px;
+  padding: 12px 14px;
+  background: rgba(255,255,255,0.03);
+  border-left: 3px solid rgba(255,215,0,0.20);
+  border-radius: 0 12px 12px 0;
+  font-size: 0.78rem;
+  color: rgba(255,255,255,0.42);
+  font-style: italic;
+  line-height: 1.55;
+}
+
+/* ── Carte NPC enrichie avec bio ── */
+.npc-rpg-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  width: 100%;
+  padding: 16px 18px;
+  background: rgba(255,255,255,0.04);
+  border: 1.5px solid rgba(255,255,255,0.08);
+  border-radius: 18px;
+  margin: 8px 16px;
+  cursor: pointer;
+  text-align: left;
+  color: inherit;
+  transition: all 0.2s ease;
+  max-width: calc(100% - 32px);
+  position: relative;
+  overflow: hidden;
+}
+.npc-rpg-card:active { transform: scale(0.98); background: rgba(255,255,255,0.07); }
+.npc-rpg-card::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  width: 3px;
+  background: var(--npc-accent, #4ecf70);
+  border-radius: 3px 0 0 3px;
+}
+
+/* ── Badge quête disponible ── */
+.quest-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  background: rgba(255,215,0,0.08);
+  border: 1px solid rgba(255,215,0,0.20);
+  border-radius: 10px;
+  font-size: 0.68rem;
+  color: #ffd700;
+  margin-top: 8px;
+  font-weight: 700;
+}
+
+/* ── Barre de construction ── */
+.build-progress-bar {
+  height: 6px;
+  background: rgba(255,255,255,0.08);
+  border-radius: 6px;
+  overflow: hidden;
+  margin-top: 6px;
+}
+.build-progress-fill {
+  height: 100%;
+  border-radius: 6px;
+  background: linear-gradient(90deg, #4ecf70, #ffd700);
+  transition: width 0.8s cubic-bezier(0.22,1,0.36,1);
+}
+
+/* ── Notification de construction ── */
+.build-notif {
+  position: fixed;
+  top: max(70px, env(safe-area-inset-top, 0px) + 70px);
+  left: 50%;
+  transform: translateX(-50%) translateY(-100px);
+  background: rgba(10,20,12,0.97);
+  border: 1.5px solid #4ecf70;
+  border-radius: 18px;
+  padding: 12px 20px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #4ecf70;
+  z-index: 9990;
+  box-shadow: 0 8px 32px rgba(78,207,112,0.25);
+  transition: transform 0.4s cubic-bezier(0.22,1,0.36,1);
+  white-space: nowrap;
+}
+.build-notif.show { transform: translateX(-50%) translateY(0); }
+
+/* ── Indicateur quête sur carte village ── */
+.quest-marker {
+  position: absolute;
+  font-size: 1.1rem;
+  animation: questBounce 1.2s ease-in-out infinite;
+  pointer-events: none;
+}
+@keyframes questBounce {
+  0%, 100% { transform: translateY(0); }
+  50%       { transform: translateY(-5px); }
+}
+
+/* ── Écran de lore région ── */
+.region-lore-screen {
+  padding: 20px 16px;
+  animation: worldReveal 0.35s ease both;
+}
+.region-lore-title {
+  font-family: Cinzel, serif;
+  font-size: 1.4rem;
+  font-weight: 800;
+  margin-bottom: 6px;
+}
+.region-lore-text {
+  font-size: 0.82rem;
+  color: rgba(255,255,255,0.52);
+  line-height: 1.65;
+  font-style: italic;
+  margin-bottom: 20px;
+}
+
+/* ── Journée/nuit dans le village ── */
+.village-daytime-badge {
+  font-size: 0.62rem;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 8px;
+  color: rgba(255,255,255,0.55);
+  background: rgba(255,255,255,0.06);
+}
