@@ -31,8 +31,133 @@
     /* Welcome fallback */
     #screen-welcome { align-items:center; justify-content:flex-start; overflow-y:auto;
       background: radial-gradient(ellipse 80% 50% at 50% -10%, rgba(255,215,0,0.06) 0%, transparent 70%), #090c15; }
-    /* Twinkle animation (utilisée par quote.js et welcome) */
+
+    /* ── LANG-GRID — 4 colonnes TOUJOURS ── */
+    .lang-grid {
+      display: grid !important;
+      grid-template-columns: repeat(4, 1fr) !important;
+      gap: 8px;
+      width: 100%;
+    }
+    .lang-tile {
+      background: rgba(255,255,255,0.04);
+      border: 1.5px solid rgba(255,255,255,0.07);
+      border-radius: 14px;
+      padding: 10px 4px;
+      text-align: center;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      transition: all 0.2s ease;
+    }
+    .lang-tile:active, .lang-tile.active {
+      background: rgba(255,215,0,0.10);
+      border-color: rgba(255,215,0,0.30);
+    }
+    .lang-tile .lf { font-size: 1.3rem; }
+    .lang-tile .ln { font-size: 0.58rem; font-weight: 700; color: rgba(240,234,214,0.65); }
+
+    /* ── MENU BODY & GREETING ── */
+    .menu-body { padding: 20px 18px; display:flex; flex-direction:column; gap:10px; }
+    .menu-greeting {
+      font-family: Cinzel, serif;
+      font-size: clamp(1.1rem, 5vw, 1.4rem);
+      font-weight: 700;
+      color: #F0EAD6;
+      margin-bottom: 2px;
+      letter-spacing: 0.02em;
+    }
+    .menu-greeting-sub {
+      font-size: 0.76rem;
+      color: #9B8E77;
+      margin-bottom: 12px;
+    }
+
+    /* ── STREAK BANNER ── */
+    .streak-banner {
+      background: linear-gradient(135deg, rgba(255,159,67,0.10), rgba(255,215,0,0.05)) !important;
+      border: 1px solid rgba(255,159,67,0.25) !important;
+      border-radius: 16px !important;
+      padding: 12px 16px !important;
+      display: flex !important;
+      align-items: center !important;
+      gap: 12px !important;
+    }
+    .streak-fire { font-size: 1.6rem; flex-shrink:0; }
+    .streak-info { flex:1; min-width:0; }
+    .streak-val { font-family: Cinzel,serif; font-size:1rem; font-weight:900; color:#ff9f43; line-height:1.2; }
+    .streak-label { font-size:0.66rem; color:#9B8E77; font-weight:600; }
+    .streak-protect {
+      font-size:0.68rem; font-weight:800; cursor:pointer; flex-shrink:0;
+      background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.10);
+      border-radius:10px; padding:6px 10px; color:#F0EAD6;
+    }
+
+    /* ── MENU GRID — 2x2 ── */
+    .menu-grid {
+      display: grid !important;
+      grid-template-columns: 1fr 1fr !important;
+      gap: 10px;
+    }
+    .menu-card {
+      background: #0e1322;
+      border: 1.5px solid rgba(255,255,255,0.07);
+      border-radius: 18px;
+      padding: 20px 16px;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 8px;
+      position: relative;
+      overflow: hidden;
+      transition: transform 0.18s ease;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .menu-card:active { transform: scale(0.97); }
+    .m-icon { font-size: 1.8rem; line-height:1; }
+    .m-label { font-family:Cinzel,serif; font-size:0.85rem; font-weight:700; color:#F0EAD6; }
+    .m-desc  { font-size:0.67rem; color:#9B8E77; line-height:1.4; }
+    .m-badge {
+      position:absolute; top:10px; right:10px;
+      background:#ff6b6b; color:#fff;
+      font-size:0.58rem; font-weight:800;
+      padding:2px 7px; border-radius:20px;
+    }
+    .m-badge.new { background:#4ecf70; color:#06080e; }
+
+    /* ── CAT-CHIP — wrap fluide ── */
+    .category-scroll {
+      display: flex !important;
+      flex-wrap: wrap !important;
+      gap: 7px !important;
+      padding: 10px 16px 6px !important;
+      overflow-x: unset !important;
+    }
+    .cat-chip {
+      flex-shrink: 0;
+      background: #131928;
+      border: 1.5px solid rgba(255,255,255,0.07);
+      border-radius: 999px;
+      padding: 6px 13px;
+      font-size: 0.70rem; font-weight: 700;
+      color: #9B8E77;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.15s ease;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .cat-chip.active, .cat-chip:hover {
+      background: rgba(255,215,0,0.08);
+      border-color: rgba(255,215,0,0.20);
+      color: #E8B84B;
+    }
+
+    /* Twinkle animation */
     @keyframes twinkle { from { opacity:0.1; transform:scale(0.8); } to { opacity:0.9; transform:scale(1.2); } }
+    @keyframes fireFlicker { from { transform: scale(0.95) rotate(-2deg); } to { transform: scale(1.05) rotate(2deg); } }
   </style>
 </head>
 
