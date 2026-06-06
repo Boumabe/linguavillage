@@ -586,7 +586,7 @@ function _spawnNPCs(W,H){
     var pos=_buildingPos(b,W,H);
     ISO.npcs.push({
       id:b.npcId, emoji:npc.emoji,
-      x:pos.x+20, y:pos.y,
+      x:pos.x+14, y:pos.y,
       baseX:pos.x+20, baseY:pos.y,
       vx:(Math.random()-0.5)*0.3,
       bobOffset:Math.random()*Math.PI*2,
@@ -658,7 +658,7 @@ function _drawBuildings(W,H){
 }
 
 function _drawOneBuilding(x,y,b,active,hovered,progress,W,H,nl){
-  var s=H*0.145;
+  var s=H*0.110;
   var bob=active?Math.sin(tick*0.020+x*0.008)*2.5:0;
   var sc=hovered?1.09:1;
   var by=y-s*0.80+bob;
@@ -716,7 +716,7 @@ function _drawOneBuilding(x,y,b,active,hovered,progress,W,H,nl){
 
     // Nom du lieu
     var bName=(b.name&&(b.name[((window.S&&S.nativeLang)||'fr')]||b.name.fr))||b.id;
-    ctx.font='bold '+Math.round(H*0.018)+'px Sora,Nunito,system-ui';
+    ctx.font='bold '+Math.round(H*0.014)+'px Sora,Nunito,system-ui';
     ctx.fillStyle='#fff';
     ctx.shadowColor='rgba(0,0,0,0.65)'; ctx.shadowBlur=5; ctx.shadowOffsetY=1;
     ctx.fillText(bName,0,s*0.82);
@@ -725,7 +725,7 @@ function _drawOneBuilding(x,y,b,active,hovered,progress,W,H,nl){
     // Message d'activité au survol
     if(hovered&&b.routineMsg){
       var rm=(b.routineMsg[(window.S&&S.nativeLang)||'fr']||b.routineMsg.fr);
-      ctx.font='italic '+Math.round(H*0.013)+'px Sora,system-ui';
+      ctx.font='italic '+Math.round(H*0.011)+'px Sora,system-ui';
       ctx.fillStyle='rgba(255,255,255,0.60)';
       ctx.fillText(rm,0,s*1.02);
     }
@@ -755,7 +755,7 @@ function _drawNPCs(W,H){
     var y=npc.baseY+Math.sin(tick*0.020+npc.bobOffset*1.3)*3-H*0.095*0.40;
     if(npc.x<-30||npc.x>W+30) return;
     ctx.save();
-    ctx.font=Math.round(H*0.052)+'px serif';
+    ctx.font=Math.round(H*0.038)+'px serif';
     ctx.textAlign='center';
     ctx.textBaseline='middle';
     ctx.shadowColor='rgba(0,0,0,0.35)';
@@ -773,9 +773,9 @@ function _buildingPos(b,W,H){
     return {x:b.x*W-ISO.scrollX, y:_groundY(H)};
   }
   var totalW=_totalW(W);
-  var rings=[W*0.08,W*0.22,W*0.38,W*0.56];
-  var centerX=totalW*0.45-ISO.scrollX;
-  var centerY=_groundY(H)*0.78;
+  var rings=[W*0.10,W*0.26,W*0.44,W*0.62];
+  var centerX=W*0.50-ISO.scrollX*0;
+  var centerY=_groundY(H)*0.72;
   if(b.ring===0) return {x:centerX,y:centerY};
   var r=rings[b.ring];
   var a=(b.angle-90)*Math.PI/180;
@@ -798,7 +798,7 @@ function _scrollToBuilding(id,instant){
 
 // ── Hit test ─────────────────────────────────────────────────────
 function _hitBuilding(mx,my,W,H){
-  var s=H*0.145;
+  var s=H*0.110;
   var result=null;
   window.KROVA_BUILDINGS.forEach(function(b){
     var pos=_buildingPos(b,W,H);
@@ -983,16 +983,22 @@ function _drawGround(W,H){
 
 function _drawPath(W,H){
   var gy=_groundY(H);
+  var cx=W*0.50, cy=_groundY(H)*0.72;
   ctx.save();
-  ctx.strokeStyle='rgba(0,0,0,0.14)';ctx.lineWidth=W*0.055;ctx.lineCap='round';ctx.lineJoin='round';
-  ctx.beginPath();ctx.arc(W*0.5-ISO.scrollX*0,_groundY(H)*0.78,W*0.22*0.92,0,Math.PI*2);ctx.stroke();
-  [W*0.38,W*0.22,W*0.56,W*0.08].forEach(function(r){
-    ctx.beginPath();ctx.arc(W*0.5-ISO.scrollX*0,_groundY(H)*0.78,r,0,Math.PI*2);
-    ctx.strokeStyle='rgba(196,160,80,0.25)';ctx.lineWidth=W*0.022;ctx.stroke();
+  // Anneaux concentriques discrets
+  [W*0.10,W*0.26,W*0.44].forEach(function(r){
+    ctx.beginPath();ctx.arc(cx,cy,r,0,Math.PI*2);
+    ctx.strokeStyle='rgba(196,160,80,0.15)';ctx.lineWidth=1.5;
+    ctx.setLineDash([6,8]);ctx.stroke();ctx.setLineDash([]);
   });
-  // Chemin principal de la maison
-  ctx.strokeStyle='#c4a050';ctx.lineWidth=W*0.028;
-  ctx.beginPath();ctx.moveTo(W*0.5-ISO.scrollX*0,_groundY(H)*0.78);ctx.lineTo(W*0.5-ISO.scrollX*0,_groundY(H)+H*0.02);ctx.stroke();
+  // Rayons vers chaque bâtiment
+  ctx.strokeStyle='rgba(196,160,80,0.18)';ctx.lineWidth=1.2;
+  ctx.setLineDash([3,6]);
+  [0,90,210,330,30,150,270,0,120,240].forEach(function(deg){
+    var a=(deg-90)*Math.PI/180;
+    ctx.beginPath();ctx.moveTo(cx,cy);ctx.lineTo(cx+Math.cos(a)*W*0.46,cy+Math.sin(a)*W*0.46*0.45);ctx.stroke();
+  });
+  ctx.setLineDash([]);
   ctx.restore();
 }
 
