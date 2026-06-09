@@ -179,16 +179,32 @@ function loadVocab(catKey) {
 
   const catsBar = document.getElementById('vocabCats');
   if (catsBar) {
-    catsBar.innerHTML = cats.map(function(k) {
-      const a = k === activeKey ? ' active' : '';
-      const icon = VOCAB[k].icon || '📖';
-      const label = getLocalizedStudyLabel(VOCAB[k], k);
-      const count = (VOCAB[k].words || []).length;
-      return '<button class="vcat' + a + '" onclick="loadVocab(\'' + k + '\')">'
-        + '<span>' + icon + ' ' + escapeHtml(label) + '</span>'
-        + '<span class="cat-count">' + count + '</span>'
-        + '</button>';
-    }).join('');
+    const activeCat = VOCAB[activeKey];
+    const activeIcon  = activeCat ? (activeCat.icon || '📖') : '📖';
+    const activeLabel = activeCat ? getLocalizedStudyLabel(activeCat, activeKey) : activeKey;
+    const totalCats   = cats.length;
+
+    catsBar.innerHTML = ''
+      // ── Tiroir fermé : affiche la catégorie active + bouton changer ──
+      + '<div id="catDrawerClosed" style="display:flex;align-items:center;gap:10px;padding:10px 16px;cursor:pointer;" onclick="_toggleCatDrawer(\'vocab\')">'
+      +   '<span style="font-size:1.1rem">' + activeIcon + '</span>'
+      +   '<span style="font-weight:700;font-size:0.85rem;color:#F0EAD6;flex:1;">' + escapeHtml(activeLabel) + '</span>'
+      +   '<span style="font-size:0.68rem;color:rgba(255,255,255,0.30);">' + totalCats + ' catégories</span>'
+      +   '<span id="catDrawerArrow" style="color:rgba(255,255,255,0.30);font-size:0.80rem;transition:transform 0.22s;">▼</span>'
+      + '</div>'
+      // ── Tiroir ouvert : toutes les catégories en flex-wrap ──
+      + '<div id="catDrawerOpen" style="display:none;flex-wrap:wrap;gap:6px;padding:4px 16px 12px;">'
+      + cats.map(function(k) {
+          const a = k === activeKey ? ' active' : '';
+          const icon  = VOCAB[k].icon || '📖';
+          const label = getLocalizedStudyLabel(VOCAB[k], k);
+          const count = (VOCAB[k].words || []).length;
+          return '<button class="vcat' + a + '" onclick="loadVocab(\'' + k + '\');_toggleCatDrawer(\'vocab\',false)">'
+            + '<span>' + icon + ' ' + escapeHtml(label) + '</span>'
+            + '<span class="cat-count">' + count + '</span>'
+            + '</button>';
+        }).join('')
+      + '</div>';
   }
 
   const cat = VOCAB[activeKey];
@@ -268,16 +284,28 @@ function loadPhrases(catKey) {
 
   const phraseCats = document.getElementById('phraseCats');
   if (phraseCats) {
-    phraseCats.innerHTML = cats.map(function(k) {
-      const a = k === activeKey ? ' active' : '';
-      const icon = PHRASES_DATA[k].icon || '💬';
-      const label = getLocalizedStudyLabel(PHRASES_DATA[k], k);
-      const count = (PHRASES_DATA[k].items || []).length;
-      return '<button class="pcat' + a + '" onclick="loadPhrases(\'' + k + '\')">'
-        + '<span>' + icon + ' ' + escapeHtml(label) + '</span>'
-        + '<span class="cat-count">' + count + '</span>'
-        + '</button>';
-    }).join('');
+    const activePhrCat = PHRASES_DATA[activeKey];
+    const activePhrIcon  = activePhrCat ? (activePhrCat.icon || '💬') : '💬';
+    const activePhrLabel = activePhrCat ? getLocalizedStudyLabel(activePhrCat, activeKey) : activeKey;
+    phraseCats.innerHTML = ''
+      + '<div id="catDrawerClosed" style="display:flex;align-items:center;gap:10px;padding:10px 16px;cursor:pointer;" onclick="_toggleCatDrawer(\'phrases\')">'
+      +   '<span style="font-size:1.1rem">' + activePhrIcon + '</span>'
+      +   '<span style="font-weight:700;font-size:0.85rem;color:#F0EAD6;flex:1;">' + escapeHtml(activePhrLabel) + '</span>'
+      +   '<span style="font-size:0.68rem;color:rgba(255,255,255,0.30);">' + cats.length + ' catégories</span>'
+      +   '<span id="catDrawerArrow" style="color:rgba(255,255,255,0.30);font-size:0.80rem;transition:transform 0.22s;">▼</span>'
+      + '</div>'
+      + '<div id="catDrawerOpen" style="display:none;flex-wrap:wrap;gap:6px;padding:4px 16px 12px;">'
+      + cats.map(function(k) {
+          const a = k === activeKey ? ' active' : '';
+          const icon  = PHRASES_DATA[k].icon || '💬';
+          const label = getLocalizedStudyLabel(PHRASES_DATA[k], k);
+          const count = (PHRASES_DATA[k].items || []).length;
+          return '<button class="pcat' + a + '" onclick="loadPhrases(\'' + k + '\');_toggleCatDrawer(\'phrases\',false)">'
+            + '<span>' + icon + ' ' + escapeHtml(label) + '</span>'
+            + '<span class="cat-count">' + count + '</span>'
+            + '</button>';
+        }).join('')
+      + '</div>';
   }
 
   const cat = PHRASES_DATA[activeKey];
@@ -360,16 +388,28 @@ function loadGrammar(catKey) {
 
   const grammarCats = document.getElementById('grammarCats');
   if (grammarCats) {
-    grammarCats.innerHTML = cats.map(function(k) {
-      const a = k === activeKey ? ' active' : '';
-      const icon = GRAMMAR_DATA[k].icon || '✏️';
-      const label = getLocalizedStudyLabel(GRAMMAR_DATA[k], k);
-      const count = (GRAMMAR_DATA[k].examples || []).length;
-      return '<button class="gcat' + a + '" onclick="loadGrammar(\'' + k + '\')">'
-        + '<span>' + icon + ' ' + escapeHtml(label) + '</span>'
-        + '<span class="cat-count">' + count + '</span>'
-        + '</button>';
-    }).join('');
+    const activeGrCat  = GRAMMAR_DATA[activeKey];
+    const activeGrIcon  = activeGrCat ? (activeGrCat.icon || '✏️') : '✏️';
+    const activeGrLabel = activeGrCat ? getLocalizedStudyLabel(activeGrCat, activeKey) : activeKey;
+    grammarCats.innerHTML = ''
+      + '<div id="catDrawerClosed" style="display:flex;align-items:center;gap:10px;padding:10px 16px;cursor:pointer;" onclick="_toggleCatDrawer(\'grammar\')">'
+      +   '<span style="font-size:1.1rem">' + activeGrIcon + '</span>'
+      +   '<span style="font-weight:700;font-size:0.85rem;color:#F0EAD6;flex:1;">' + escapeHtml(activeGrLabel) + '</span>'
+      +   '<span style="font-size:0.68rem;color:rgba(255,255,255,0.30);">' + cats.length + ' catégories</span>'
+      +   '<span id="catDrawerArrow" style="color:rgba(255,255,255,0.30);font-size:0.80rem;transition:transform 0.22s;">▼</span>'
+      + '</div>'
+      + '<div id="catDrawerOpen" style="display:none;flex-wrap:wrap;gap:6px;padding:4px 16px 12px;">'
+      + cats.map(function(k) {
+          const a = k === activeKey ? ' active' : '';
+          const icon  = GRAMMAR_DATA[k].icon || '✏️';
+          const label = getLocalizedStudyLabel(GRAMMAR_DATA[k], k);
+          const count = (GRAMMAR_DATA[k].examples || []).length;
+          return '<button class="gcat' + a + '" onclick="loadGrammar(\'' + k + '\');_toggleCatDrawer(\'grammar\',false)">'
+            + '<span>' + icon + ' ' + escapeHtml(label) + '</span>'
+            + '<span class="cat-count">' + count + '</span>'
+            + '</button>';
+        }).join('')
+      + '</div>';
   }
 
   const cat = GRAMMAR_DATA[activeKey];
