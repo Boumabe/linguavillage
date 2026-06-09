@@ -18,7 +18,6 @@
   <link rel="stylesheet" href="css/styles_v2.css">
   <!-- Styles écrans d'apprentissage (vocab / phrases / grammaire / dico) -->
   <link rel="stylesheet" href="css/learning_styles.css">
-  <link rel="stylesheet" href="css/world_styles.css">
 
   <style>
     /* ── Styles de secours critiques — s'appliquent avant le CSS externe ── */
@@ -31,133 +30,16 @@
     /* Welcome fallback */
     #screen-welcome { align-items:center; justify-content:flex-start; overflow-y:auto;
       background: radial-gradient(ellipse 80% 50% at 50% -10%, rgba(255,215,0,0.06) 0%, transparent 70%), #090c15; }
-
-    /* ── LANG-GRID — 4 colonnes TOUJOURS ── */
-    .lang-grid {
-      display: grid !important;
-      grid-template-columns: repeat(4, 1fr) !important;
-      gap: 8px;
-      width: 100%;
-    }
-    .lang-tile {
-      background: rgba(255,255,255,0.04);
-      border: 1.5px solid rgba(255,255,255,0.07);
-      border-radius: 14px;
-      padding: 10px 4px;
-      text-align: center;
-      cursor: pointer;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 4px;
-      transition: all 0.2s ease;
-    }
-    .lang-tile:active, .lang-tile.active {
-      background: rgba(255,215,0,0.10);
-      border-color: rgba(255,215,0,0.30);
-    }
-    .lang-tile .lf { font-size: 1.3rem; }
-    .lang-tile .ln { font-size: 0.58rem; font-weight: 700; color: rgba(240,234,214,0.65); }
-
-    /* ── MENU BODY & GREETING ── */
-    .menu-body { padding: 20px 18px; display:flex; flex-direction:column; gap:10px; }
-    .menu-greeting {
-      font-family: Cinzel, serif;
-      font-size: clamp(1.1rem, 5vw, 1.4rem);
-      font-weight: 700;
-      color: #F0EAD6;
-      margin-bottom: 2px;
-      letter-spacing: 0.02em;
-    }
-    .menu-greeting-sub {
-      font-size: 0.76rem;
-      color: #9B8E77;
-      margin-bottom: 12px;
-    }
-
-    /* ── STREAK BANNER ── */
-    .streak-banner {
-      background: linear-gradient(135deg, rgba(255,159,67,0.10), rgba(255,215,0,0.05)) !important;
-      border: 1px solid rgba(255,159,67,0.25) !important;
-      border-radius: 16px !important;
-      padding: 12px 16px !important;
-      display: flex !important;
-      align-items: center !important;
-      gap: 12px !important;
-    }
-    .streak-fire { font-size: 1.6rem; flex-shrink:0; }
-    .streak-info { flex:1; min-width:0; }
-    .streak-val { font-family: Cinzel,serif; font-size:1rem; font-weight:900; color:#ff9f43; line-height:1.2; }
-    .streak-label { font-size:0.66rem; color:#9B8E77; font-weight:600; }
-    .streak-protect {
-      font-size:0.68rem; font-weight:800; cursor:pointer; flex-shrink:0;
-      background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.10);
-      border-radius:10px; padding:6px 10px; color:#F0EAD6;
-    }
-
-    /* ── MENU GRID — 2x2 ── */
-    .menu-grid {
-      display: grid !important;
-      grid-template-columns: 1fr 1fr !important;
-      gap: 10px;
-    }
-    .menu-card {
-      background: #0e1322;
-      border: 1.5px solid rgba(255,255,255,0.07);
-      border-radius: 18px;
-      padding: 20px 16px;
-      cursor: pointer;
-      display: flex;
-      flex-direction: column;
-      align-items: flex-start;
-      gap: 8px;
-      position: relative;
-      overflow: hidden;
-      transition: transform 0.18s ease;
-      -webkit-tap-highlight-color: transparent;
-    }
-    .menu-card:active { transform: scale(0.97); }
-    .m-icon { font-size: 1.8rem; line-height:1; }
-    .m-label { font-family:Cinzel,serif; font-size:0.85rem; font-weight:700; color:#F0EAD6; }
-    .m-desc  { font-size:0.67rem; color:#9B8E77; line-height:1.4; }
-    .m-badge {
-      position:absolute; top:10px; right:10px;
-      background:#ff6b6b; color:#fff;
-      font-size:0.58rem; font-weight:800;
-      padding:2px 7px; border-radius:20px;
-    }
-    .m-badge.new { background:#4ecf70; color:#06080e; }
-
-    /* ── CAT-CHIP — wrap fluide ── */
-    .category-scroll {
-      display: flex !important;
-      flex-wrap: wrap !important;
-      gap: 7px !important;
-      padding: 10px 16px 6px !important;
-      overflow-x: unset !important;
-    }
-    .cat-chip {
-      flex-shrink: 0;
-      background: #131928;
-      border: 1.5px solid rgba(255,255,255,0.07);
-      border-radius: 999px;
-      padding: 6px 13px;
-      font-size: 0.70rem; font-weight: 700;
-      color: #9B8E77;
-      cursor: pointer;
-      white-space: nowrap;
-      transition: all 0.15s ease;
-      -webkit-tap-highlight-color: transparent;
-    }
-    .cat-chip.active, .cat-chip:hover {
-      background: rgba(255,215,0,0.08);
-      border-color: rgba(255,215,0,0.20);
-      color: #E8B84B;
-    }
-
-    /* Twinkle animation */
+    /* Twinkle animation (utilisée par quote.js et welcome) */
     @keyframes twinkle { from { opacity:0.1; transform:scale(0.8); } to { opacity:0.9; transform:scale(1.2); } }
-    @keyframes fireFlicker { from { transform: scale(0.95) rotate(-2deg); } to { transform: scale(1.05) rotate(2deg); } }
+
+    /* ── CATEGORY DRAWER ── */
+    #catDrawerOpen { display:none; flex-wrap:wrap; gap:6px; padding:4px 16px 12px; border-top:1px solid rgba(255,255,255,0.05); }
+    #catDrawerClosed { display:flex; align-items:center; gap:10px; padding:10px 16px; cursor:pointer; background:rgba(255,255,255,0.02); border-bottom:1px solid rgba(255,255,255,0.06); transition:background 0.18s; }
+    #catDrawerClosed:active { background:rgba(255,255,255,0.05); }
+    .vcat,.pcat,.gcat { display:inline-flex;align-items:center;gap:5px;background:#131928;border:1.5px solid rgba(255,255,255,0.07);border-radius:999px;padding:6px 12px;font-size:0.70rem;font-weight:700;color:#9B8E77;cursor:pointer;white-space:nowrap;transition:all 0.15s ease;-webkit-tap-highlight-color:transparent; }
+    .vcat.active,.pcat.active,.gcat.active { background:rgba(255,215,0,0.10);border-color:rgba(255,215,0,0.25);color:#E8B84B; }
+    .cat-count { background:rgba(255,255,255,0.08);border-radius:8px;padding:1px 6px;font-size:0.60rem;font-weight:800; }
   </style>
 </head>
 
@@ -271,22 +153,6 @@
       <span class="menu-xp-val" id="menuXP">0 XP</span>
       <div class="xp-bar-bg"><div class="xp-bar-fill" id="xpFill"></div></div>
     </div>
-  </div>
-
-  <!-- Barre de statut social (monde) -->
-  <div class="social-rank-bar" id="socialRankBar">
-    <span class="rank-icon" id="socialRankIcon">🚢</span>
-    <div class="rank-info">
-      <div class="rank-label" id="socialRankLabel" style="color:#8899aa;">Étranger</div>
-      <div class="rank-desc" id="socialRankNext">→ Voyageur (150 XP)</div>
-    </div>
-    <div class="rank-progress-wrap">
-      <div class="rank-progress-track">
-        <div class="rank-progress-fill" id="socialRankFill" style="width:0%;background:#8899aa;"></div>
-      </div>
-      <div class="rank-progress-label" id="socialRankPct">0%</div>
-    </div>
-    <button class="map-btn" onclick="if(window.LV_WORLD)window.LV_WORLD.openWorldMap()">🗺️ Lingoria</button>
   </div>
 
   <!-- Corps du menu -->
@@ -716,11 +582,10 @@
      SCRIPTS — ORDRE CRITIQUE
      ================================================================ -->
 
-<!-- 0. Audio + Animations — non-invasif, chargés en premier -->
+<!-- 1. État global et données -->
 <script src="js/sound.js"></script>
 <script src="js/animation.js"></script>
-
-<!-- 1. État global et données -->
+<script src="js/world.js"></script>
 <script src="js/save.js"></script>
 <script src="js/state.js"></script>
 <script src="js/ui_text.js"></script>
@@ -734,6 +599,7 @@
 <script src="js/phonemes.js"></script>
 <script src="js/sprites.js"></script>
 <script src="js/memory.js"></script>
+<script src="js/village_world.js"></script>
 
 <!-- 4. Dialogue — AVANT guided (guided patche openDialogue) -->
 <script src="js/dialogue.js"></script>
@@ -741,8 +607,6 @@
 
 <!-- 5. Modules additionnels -->
 <script src="js/alphabet.js"></script>
-<script src="js/world.js"></script>
-<script src="js/village_rpg.js"></script>
 <script src="js/pnj.js"></script>
 <script src="js/gamification.js"></script>
 <script src="js/learning.js"></script>
@@ -827,5 +691,37 @@
 })();
 </script>
 
+
+<script>
+// ── Tiroir catégories — toggle ouvert/fermé ──
+window._catDrawerState = { vocab: false, phrases: false, grammar: false };
+
+window._toggleCatDrawer = function(type, forceClose) {
+  var state = window._catDrawerState;
+  if (forceClose === false) { state[type] = false; }
+  else { state[type] = !state[type]; }
+
+  var screenId = type === 'vocab' ? 'screen-vocab' : type === 'phrases' ? 'screen-phrases' : 'screen-grammar';
+  var screen   = document.getElementById(screenId);
+  if (!screen) return;
+
+  var closed = screen.querySelector('#catDrawerClosed');
+  var open   = screen.querySelector('#catDrawerOpen');
+  var arrow  = screen.querySelector('#catDrawerArrow');
+  if (!closed || !open) return;
+
+  if (state[type]) {
+    // Ouvrir
+    open.style.display = 'flex';
+    if (arrow) arrow.style.transform = 'rotate(180deg)';
+    // Scroll vers le haut du drawer pour voir les chips
+    closed.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  } else {
+    // Fermer
+    open.style.display = 'none';
+    if (arrow) arrow.style.transform = 'rotate(0deg)';
+  }
+};
+</script>
 </body>
 </html>
