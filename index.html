@@ -18,12 +18,15 @@
   <link rel="stylesheet" href="css/styles_v2.css">
   <!-- Styles écrans d'apprentissage (vocab / phrases / grammaire / dico) -->
   <link rel="stylesheet" href="css/learning_styles.css">
+  <link rel="stylesheet" href="css/world_styles.css">
+  <link rel="stylesheet" href="css/program_styles.css">
 
   <style>
     /* ── Styles de secours critiques — s'appliquent avant le CSS externe ── */
     .screen { display:none; position:fixed; inset:0; overflow-y:auto; background:#090c15; flex-direction:column; }
     .screen.active { display:flex; }
     #screen-village { overflow:hidden !important; display:none; flex-direction:column; height:100dvh; height:100vh; max-height:100dvh; }
+    /* Programme d'apprentissage — chargé inline pour éviter un fichier externe supplémentaire */
     #screen-village.active { display:flex; }
     #screen-village .village-canvas-wrap { flex:1 1 0; min-height:0; position:relative; overflow:hidden; }
     #screen-village #villageCanvas { display:block; width:100% !important; height:100% !important; touch-action:none; }
@@ -171,6 +174,20 @@
       </div>
       <button class="streak-protect" onclick="useStreakFreeze()">🛡️ Protéger</button>
     </div>
+
+    <!-- Indicateur de niveau courant -->
+    <div id="level-indicator-bar" style="display:flex;align-items:center;gap:8px;padding:8px 4px 6px;"></div>
+
+    <!-- Bouton Programme d'apprentissage -->
+    <button class="menu-program-btn" onclick="if(window.LV_PROGRAM)window.LV_PROGRAM.open()">
+      <div class="menu-program-icon">🗺️</div>
+      <div class="menu-program-content">
+        <div class="menu-program-title">Programme d'apprentissage</div>
+        <div class="menu-program-sub">Leçons · Évaluations · Examens · Votre parcours complet</div>
+      </div>
+      <div id="program-level-badge" class="menu-program-badge">🌱 Débutant</div>
+      <div class="menu-program-arrow">›</div>
+    </button>
 
     <!-- Titre section -->
     <div style="font-size:0.62rem;font-weight:800;letter-spacing:0.14em;text-transform:uppercase;color:var(--text-ghost);margin:4px 0 8px;" id="menu-title-text">Que voulez-vous faire ?</div>
@@ -615,7 +632,13 @@
 <script src="js/onboarding.js"></script>
 <script src="js/wordgame.js"></script>
 
-<!-- 6. App principale — EN DERNIER -->
+<!-- 6. Programme pédagogique — AVANT app_v2 -->
+<script src="js/curriculum.js"></script>
+<script src="js/exam.js"></script>
+<script src="js/program.js"></script>
+<script src="js/curriculum_hooks.js"></script>
+
+<!-- 7. App principale — EN DERNIER -->
 <script src="js/app_v2.js" defer></script>
 
 
