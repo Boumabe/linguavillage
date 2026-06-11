@@ -1,0 +1,384 @@
+/* ================================================================
+   LinguaVillage — program_styles.css
+   Styles pour : Programme d'apprentissage, Évaluations, Grands Examens
+   S'ajoute après styles_v2.css et learning_styles.css
+   ================================================================ */
+
+/* ================================================================
+   BOUTON PROGRAMME — dans le menu principal
+   ================================================================ */
+.menu-program-btn {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  padding: 14px 18px;
+  margin-bottom: 10px;
+  background: linear-gradient(135deg,
+    rgba(255,215,0,0.07) 0%,
+    rgba(78,207,112,0.04) 100%);
+  border: 1.5px solid rgba(255,215,0,0.20);
+  border-radius: 18px;
+  cursor: pointer;
+  transition: all 0.22s ease;
+  -webkit-tap-highlight-color: transparent;
+  text-align: left;
+  position: relative;
+  overflow: hidden;
+}
+.menu-program-btn::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg,
+    rgba(255,215,0,0.05),
+    transparent);
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+.menu-program-btn:active {
+  transform: scale(0.98);
+}
+.menu-program-btn:active::before { opacity: 1; }
+
+.menu-program-icon { font-size: 2rem; flex-shrink: 0; }
+
+.menu-program-content { flex: 1; min-width: 0; }
+.menu-program-title {
+  font-family: Cinzel, serif;
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: #ffd700;
+  margin-bottom: 2px;
+}
+.menu-program-sub {
+  font-size: 0.68rem;
+  color: rgba(255,255,255,0.38);
+  line-height: 1.4;
+}
+
+.menu-program-badge {
+  flex-shrink: 0;
+  font-size: 0.62rem;
+  font-weight: 800;
+  background: rgba(78,207,112,0.15);
+  color: #4ecf70;
+  padding: 3px 9px;
+  border-radius: 8px;
+  white-space: nowrap;
+}
+
+.menu-program-arrow {
+  flex-shrink: 0;
+  font-size: 1.1rem;
+  color: rgba(255,215,0,0.35);
+}
+
+/* ================================================================
+   INDICATEUR DE NIVEAU — dans le header du menu
+   ================================================================ */
+.level-indicator {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background: rgba(255,255,255,0.02);
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+  font-size: 0.68rem;
+}
+.level-indicator-icon { font-size: 1rem; }
+.level-indicator-label {
+  font-family: Cinzel, serif;
+  font-weight: 700;
+  font-size: 0.72rem;
+}
+.level-indicator-progress {
+  flex: 1;
+  height: 4px;
+  background: rgba(255,255,255,0.06);
+  border-radius: 4px;
+  overflow: hidden;
+}
+.level-indicator-fill {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 0.8s cubic-bezier(0.22,1,0.36,1);
+}
+.level-indicator-pct {
+  font-size: 0.62rem;
+  font-weight: 800;
+  color: rgba(255,255,255,0.3);
+}
+
+/* ================================================================
+   BADGE NIVEAU COURANT — affiché dans le profil et le menu
+   ================================================================ */
+.current-level-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 12px;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+}
+.current-level-badge.beginner {
+  background: rgba(78,207,112,0.12);
+  border: 1px solid rgba(78,207,112,0.25);
+  color: #4ecf70;
+}
+.current-level-badge.intermediate {
+  background: rgba(74,158,255,0.12);
+  border: 1px solid rgba(74,158,255,0.25);
+  color: #4a9eff;
+}
+.current-level-badge.advanced {
+  background: rgba(192,132,252,0.12);
+  border: 1px solid rgba(192,132,252,0.25);
+  color: #c084fc;
+}
+.current-level-badge.pro {
+  background: rgba(255,215,0,0.12);
+  border: 1px solid rgba(255,215,0,0.25);
+  color: #ffd700;
+}
+
+/* ================================================================
+   NOTIFICATION DÉBLOCAGE ÉVALUATION
+   ================================================================ */
+.eval-unlock-toast {
+  position: fixed;
+  bottom: calc(80px + env(safe-area-inset-bottom, 0px));
+  left: 50%;
+  transform: translateX(-50%) translateY(100px);
+  background: rgba(10,20,12,0.97);
+  border: 1.5px solid #ffd700;
+  border-radius: 18px;
+  padding: 12px 20px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #ffd700;
+  z-index: 9990;
+  box-shadow: 0 8px 32px rgba(255,215,0,0.20);
+  transition: transform 0.4s cubic-bezier(0.22,1,0.36,1);
+  white-space: nowrap;
+  max-width: 90vw;
+  text-overflow: ellipsis;
+  overflow: hidden;
+}
+.eval-unlock-toast.show {
+  transform: translateX(-50%) translateY(0);
+}
+
+/* ================================================================
+   WIDGET PROGRESSION DANS LE VILLAGE HUD
+   ================================================================ */
+.village-progress-pill {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 12px;
+  background: rgba(255,215,0,0.06);
+  border: 1px solid rgba(255,215,0,0.14);
+  border-radius: 999px;
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: #ffd700;
+  cursor: pointer;
+  transition: all 0.18s;
+  -webkit-tap-highlight-color: transparent;
+}
+.village-progress-pill:active {
+  background: rgba(255,215,0,0.12);
+  transform: scale(0.95);
+}
+
+/* ================================================================
+   MARQUEUR EXAMEN sur les PNJ (point lumineux)
+   ================================================================ */
+.npc-exam-marker {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  width: 12px;
+  height: 12px;
+  background: #ffd700;
+  border-radius: 50%;
+  border: 2px solid #090c15;
+  animation: examPulse 1.4s ease-in-out infinite;
+  z-index: 10;
+}
+@keyframes examPulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(255,215,0,0.6); }
+  50%       { box-shadow: 0 0 0 6px rgba(255,215,0,0); }
+}
+
+/* ================================================================
+   GRAND EXAMEN — carte dans le village
+   ================================================================ */
+.grand-exam-card {
+  margin: 12px 16px;
+  padding: 16px 18px;
+  background: linear-gradient(135deg,
+    rgba(255,215,0,0.06),
+    rgba(255,215,0,0.02));
+  border: 1.5px solid rgba(255,215,0,0.22);
+  border-radius: 18px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  cursor: pointer;
+  transition: all 0.22s ease;
+  -webkit-tap-highlight-color: transparent;
+  position: relative;
+  overflow: hidden;
+}
+.grand-exam-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(255,215,0,0.08), transparent);
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+.grand-exam-card:active { transform: scale(0.98); }
+.grand-exam-card:active::before { opacity: 1; }
+
+.grand-exam-card.locked {
+  opacity: 0.4;
+  cursor: not-allowed;
+  border-color: rgba(255,255,255,0.08);
+  background: rgba(255,255,255,0.02);
+}
+.grand-exam-icon { font-size: 2.2rem; flex-shrink: 0; }
+.grand-exam-info { flex: 1; min-width: 0; }
+.grand-exam-title {
+  font-family: Cinzel, serif;
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #ffd700;
+  margin-bottom: 3px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.grand-exam-sub {
+  font-size: 0.65rem;
+  color: rgba(255,255,255,0.35);
+  line-height: 1.4;
+}
+.grand-exam-arrow {
+  font-size: 1.2rem;
+  color: rgba(255,215,0,0.35);
+  flex-shrink: 0;
+}
+
+/* ================================================================
+   RÉSULTATS D'EXAMEN — effets visuels
+   ================================================================ */
+@keyframes scoreReveal {
+  from { opacity: 0; transform: scale(0.5); }
+  to   { opacity: 1; transform: scale(1); }
+}
+.exam-score-reveal {
+  animation: scoreReveal 0.5s cubic-bezier(0.34,1.56,0.64,1) both;
+}
+
+@keyframes passedGlow {
+  0%, 100% { text-shadow: 0 0 10px rgba(78,207,112,0.4); }
+  50%       { text-shadow: 0 0 24px rgba(78,207,112,0.8), 0 0 40px rgba(78,207,112,0.3); }
+}
+.exam-passed-glow {
+  animation: passedGlow 2s ease-in-out infinite;
+}
+
+/* ================================================================
+   LESSON CARD — micro-états dans la roadmap
+   ================================================================ */
+.lesson-state-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.lesson-state-dot.locked       { background: rgba(255,255,255,0.12); }
+.lesson-state-dot.in-progress  { background: #ffd700; animation: dotPulse 1.2s ease-in-out infinite; }
+.lesson-state-dot.eval-ready   { background: #4a9eff; }
+.lesson-state-dot.completed    { background: #4ecf70; }
+
+@keyframes dotPulse {
+  0%, 100% { opacity: 0.6; transform: scale(1); }
+  50%       { opacity: 1;   transform: scale(1.4); }
+}
+
+/* ================================================================
+   PROGRAMME — carte niveau verrouillé
+   ================================================================ */
+.level-locked-overlay {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 16px;
+  font-size: 0.78rem;
+  color: rgba(255,255,255,0.3);
+  text-align: center;
+  border-top: 1px solid rgba(255,255,255,0.04);
+}
+.level-locked-icon { font-size: 1.8rem; opacity: 0.4; }
+.level-locked-text { font-size: 0.72rem; color: rgba(255,255,255,0.25); }
+
+/* ================================================================
+   ECRAN PROGRAMME — header stats
+   ================================================================ */
+.program-stats-row {
+  display: flex;
+  gap: 8px;
+  padding: 0 0 4px;
+}
+.program-stat {
+  flex: 1;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 12px;
+  padding: 10px 8px;
+  text-align: center;
+}
+.program-stat-value {
+  font-family: Cinzel, serif;
+  font-size: 1.1rem;
+  font-weight: 900;
+  color: #ffd700;
+  margin-bottom: 2px;
+}
+.program-stat-label {
+  font-size: 0.58rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.25);
+}
+
+/* ================================================================
+   ANIMATIONS PROGRAMME
+   ================================================================ */
+@keyframes lessonReveal {
+  from { opacity: 0; transform: translateX(-12px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+.lesson-card-enter {
+  animation: lessonReveal 0.25s ease both;
+}
+
+/* ================================================================
+   RESPONSIVE
+   ================================================================ */
+@media (min-width: 600px) {
+  .menu-program-btn { padding: 16px 22px; }
+  .grand-exam-card  { margin: 14px 20px; padding: 18px 22px; }
+}
