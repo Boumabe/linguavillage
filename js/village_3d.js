@@ -123,79 +123,101 @@ function _ensureLayout() {
 // ================================================================
 function _init3D() {
   canvasEl = document.getElementById('villageCanvas');
-  if (!canvasEl || !window.THREE) return;
+  if (!canvasEl) return;
+  if (!window.THREE) {
+    console.error('❌ Three.js non chargé — vérifie le CDN dans index.html');
+    if (typeof showNotif === 'function') showNotif('⚠️ Erreur 3D : bibliothèque non chargée', 4000);
+    return;
+  }
 
   var wrap = document.querySelector('.village-canvas-wrap') || document.getElementById('screen-village');
   var r    = wrap.getBoundingClientRect();
-  var W = r.width  || window.innerWidth;
-  var H = r.height || (window.innerHeight - 100);
+  // Fallback si le layout n'est pas encore calculé (rect = 0x0)
+  var W = r.width  > 0 ? r.width  : window.innerWidth;
+  var H = r.height > 0 ? r.height : (window.innerHeight - 120);
 
-  // ── Renderer ──
-  renderer = new THREE.WebGLRenderer({ canvas: canvasEl, antialias: true, alpha: false });
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
-  renderer.setSize(W, H, false);
-  renderer.shadowMap.enabled = true;
-  renderer.shadowMap.type    = THREE.PCFSoftShadowMap;
-  renderer.outputColorSpace  = THREE.SRGBColorSpace || renderer.outputColorSpace;
+  try {
+    // ── Renderer ──
+    renderer = new THREE.WebGLRenderer({ canvas: canvasEl, antialias: true, alpha: false });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+    renderer.setSize(W, H, false);
+    renderer.shadowMap.enabled = true;
+    renderer.shadowMap.type    = THREE.PCFSoftShadowMap;
 
-  // ── Scène + ciel en dégradé ──
-  scene = new THREE.Scene();
-  scene.background = _skyTexture();
-  scene.fog = new THREE.Fog(0xbfe3ff, 260, 620);
+    // ── Scène + ciel en dégradé ──
+    scene = new THREE.Scene();
+    scene.background = _skyTexture();
+    scene.fog = new THREE.Fog(0xbfe3ff, 260, 620);
 
-  // ── Caméra isométrique douce ──
-  camera = new THREE.PerspectiveCamera(32, W / H, 1, 1500);
-  camera.position.set(220, 200, 220);
-  camera.lookAt(0, 0, 20);
+    // ── Caméra isométrique douce ──
+    camera = new THREE.PerspectiveCamera(32, W / H, 1, 1500);
+    camera.position.set(220, 200, 220);
+    camera.lookAt(0, 0, 20);
 
-  // ── Lumières ──
-  var hemi = new THREE.HemisphereLight(0xcfe9ff, 0x5fb86a, 0.95);
-  scene.add(hemi);
+    // ── Lumières ──
+    var hemi = new THREE.HemisphereLight(0xcfe9ff, 0x5fb86a, 0.95);
+    scene.add(hemi);
 
-  var sun = new THREE.DirectionalLight(0xfff3da, 1.15);
-  sun.position.set(140, 220, 120);
-  sun.castShadow = true;
-  sun.shadow.mapSize.set(1024, 1024);
-  sun.shadow.camera.left   = -260;
-  sun.shadow.camera.right  =  260;
-  sun.shadow.camera.top    =  260;
-  sun.shadow.camera.bottom = -260;
-  sun.shadow.camera.near   = 1;
-  sun.shadow.camera.far    = 700;
-  sun.shadow.bias = -0.0015;
-  scene.add(sun);
+    var sun = new THREE.DirectionalLight(0xfff3da, 1.15);
+    sun.position.set(140, 220, 120);
+    sun.castShadow = true;
+    sun.shadow.mapSize.set(1024, 1024);
+    sun.shadow.camera.left   = -260;
+    sun.shadow.camera.right  =  260;
+    sun.shadow.camera.top    =  260;
+    sun.shadow.camera.bottom = -260;
+    sun.shadow.camera.near   = 1;
+    sun.shadow.camera.far    = 700;
+    sun.shadow.bias = -0.0015;
+    scene.add(sun);
 
-  var fill = new THREE.AmbientLight(0xffffff, 0.25);
-  scene.add(fill);
+    var fillLight = new THREE.AmbientLight(0xffffff, 0.25);
+    scene.add(fillLight);
 
-  // ── Sol principal (île arrondie) ──
-  _buildGround();
+    // ── Sol principal (île arrondie) ──
+    _buildGround();
 
-  // ── Chemins entre bâtiments ──
-  _buildPaths();
+    // ── Chemins entre bâtiments ──
+    _buildPaths();
 
-  // ── Bâtiments ──
-  BUILDINGS_3D.forEach(_buildBuilding);
+    // ── Bâtiments ──
+    BUILDINGS_3D.forEach(_buildBuilding);
 
-  // ── Arbres ──
-  TREE_POS.forEach(function (p) { _buildTree(p[0], p[1]); });
+    // ── Arbres ──
+    TREE_POS.forEach(function (p) { _buildTree(p[0], p[1]); });
+
+  } catch (err) {
+    console.error('❌ Erreur init scène 3D:', err);
+    if (typeof showNotif === 'function') showNotif('⚠️ Erreur 3D — voir la console', 4000);
+    return;
+  }
 
   // ── Contrôles : pan 1 doigt, pincement = zoom, pas de rotation ──
-  controls = new THREE.OrbitControls(camera, renderer.domElement);
-  controls.enableDamping   = true;
-  controls.dampingFactor   = 0.10;
-  controls.enableRotate    = false;
-  controls.screenSpacePanning = false;
-  controls.minDistance     = 140;
-  controls.maxDistance     = 520;
-  controls.target.set(0, 0, 20);
-  controls.touches.ONE = THREE.TOUCH.PAN;
-  controls.touches.TWO = THREE.TOUCH.DOLLY_PAN;
-  controls.mouseButtons.LEFT  = THREE.MOUSE.PAN;
-  controls.mouseButtons.RIGHT = THREE.MOUSE.PAN;
-  controls.panSpeed  = 0.9;
-  controls.zoomSpeed = 0.9;
-  controls.update();
+  // Dans un try/catch séparé : si OrbitControls est indisponible,
+  // la scène reste visible (statique) au lieu de tout bloquer.
+  try {
+    if (typeof THREE.OrbitControls !== 'function') {
+      throw new Error('THREE.OrbitControls indisponible');
+    }
+    controls = new THREE.OrbitControls(camera, renderer.domElement);
+    controls.enableDamping   = true;
+    controls.dampingFactor   = 0.10;
+    controls.enableRotate    = false;
+    controls.screenSpacePanning = false;
+    controls.minDistance     = 140;
+    controls.maxDistance     = 520;
+    controls.target.set(0, 0, 20);
+    controls.touches.ONE = THREE.TOUCH.PAN;
+    controls.touches.TWO = THREE.TOUCH.DOLLY_PAN;
+    controls.mouseButtons.LEFT  = THREE.MOUSE.PAN;
+    controls.mouseButtons.RIGHT = THREE.MOUSE.PAN;
+    controls.panSpeed  = 0.9;
+    controls.zoomSpeed = 0.9;
+    controls.update();
+  } catch (err) {
+    console.warn('⚠️ OrbitControls indisponible, scène statique :', err.message);
+    controls = null;
+  }
 
   // ── Raycaster pour le tap sur bâtiment ──
   raycaster = new THREE.Raycaster();
@@ -208,6 +230,12 @@ function _init3D() {
   if (window._onCanvasResize) window.removeEventListener('resize', window._onCanvasResize);
   window._onCanvasResize = _onResize;
   window.addEventListener('resize', _onCanvasResize);
+
+  // ── Premier rendu immédiat (évite l'écran noir avant la 1ère frame de boucle) ──
+  renderer.render(scene, camera);
+
+  // ── Filet de sécurité : si le layout était 0x0 au départ, recalcule après coup ──
+  setTimeout(_onResize, 300);
 }
 
 // ================================================================
@@ -458,7 +486,7 @@ function _loop() {
     g.rotation.z = Math.sin(t * 0.6 + g.userData.swayPhase) * 0.015;
   });
 
-  controls.update();
+  controls && controls.update();
   renderer.render(scene, camera);
 }
 
@@ -469,11 +497,12 @@ function _onResize() {
   if (!renderer || !camera) return;
   var wrap = document.querySelector('.village-canvas-wrap') || document.getElementById('screen-village');
   var r = wrap.getBoundingClientRect();
-  var W = r.width  || window.innerWidth;
-  var H = r.height || (window.innerHeight - 100);
+  var W = r.width  > 0 ? r.width  : window.innerWidth;
+  var H = r.height > 0 ? r.height : (window.innerHeight - 120);
   renderer.setSize(W, H, false);
   camera.aspect = W / H;
   camera.updateProjectionMatrix();
+  renderer.render(scene, camera);
 }
 
 // ================================================================
