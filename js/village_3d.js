@@ -1,57 +1,92 @@
-// village_3d.js — KROVA EN 3D (Phase 1 — Proof of Concept)
+// village_3d.js — KROVA EN 3D v3
+// Vue panoramique large, chemin sinueux, 5 bâtiments de progression,
+// montagnes en fond, rivière + pont, moulin, château, badges de statut
 // Style : low-poly arrondi (Townscaper / Animal Crossing simplifié)
-// Moteur : Three.js (CDN) + OrbitControls (pan + pinch-zoom)
-// 4 bâtiments représentatifs : home, school, market, library
 // ================================================================
 
 (function () {
 'use strict';
 
 // ================================================================
-// DONNÉES — 4 bâtiments de démonstration
-// Couleurs dérivées de la palette existante de village_world.js
+// COULEURS DE STATUT — alignées sur la palette de l'app
+// vert=#4ecf70 (succès/complété), or=#ffd700 (disponible/star), gris=#8899aa (verrouillé)
+// ================================================================
+var COL_DONE   = 0x4ecf70;
+var COL_AVAIL  = 0xffd700;
+var COL_LOCKED = 0x8899aa;
+
+// ================================================================
+// BÂTIMENTS — 5 étapes de progression le long d'un chemin sinueux
+// Positions étalées en X (≈480 unités de large), légère variation en Z
 // ================================================================
 var BUILDINGS_3D = [
   {
-    id: 'home', name: { fr:'Ta Maison', en:'Your Home', ht:'Kay Ou' },
-    x: 0, z: 0,
-    wallColor: 0xf5e3b8, roofColor: 0xffd700,
-    radius: 16, height: 22, roofHeight: 16,
+    id: 'home', badgeNum: 1,
+    name: { fr:'Ta Maison', en:'Your Home', ht:'Kay Ou' },
+    stage: { fr:'Débutant', en:'Beginner', ht:'Debitan' },
+    x: -220, z: 30,
+    wallColor: 0xf5e3b8, roofColor: 0xe8b84b,
+    radius: 16, height: 20, roofHeight: 15,
     platformColor: 0xc9a25a,
-    npc: null,
+    npc: null, lockXP: 0,
   },
   {
-    id: 'school', name: { fr:'École Amara', en:'School', ht:'Lekòl Amara' },
-    x: -62, z: -34,
+    id: 'school', badgeNum: 2,
+    name: { fr:'École Amara', en:'School', ht:'Lekòl Amara' },
+    stage: { fr:'Élémentaire', en:'Elementary', ht:'Elemantè' },
+    x: -110, z: -40,
     wallColor: 0xdcefe0, roofColor: 0x4ecf70,
-    radius: 17, height: 24, roofHeight: 17,
+    radius: 18, height: 24, roofHeight: 17,
     platformColor: 0x8fcf9a,
-    npc: '👩‍🏫',
+    npc: '👩‍🏫', lockXP: 0,
   },
   {
-    id: 'market', name: { fr:'Marché Diallo', en:'Market', ht:'Mache Diallo' },
-    x: 60, z: -22,
-    wallColor: 0xfff3cf, roofColor: 0xffb84d,
-    radius: 17, height: 20, roofHeight: 15,
+    id: 'market', badgeNum: 3,
+    name: { fr:'Marché Diallo', en:'Market', ht:'Mache Diallo' },
+    stage: { fr:'Intermédiaire', en:'Intermediate', ht:'Entèmedyè' },
+    x: 10, z: 30,
+    wallColor: 0xfff3cf, roofColor: 0x4a9eff,
+    radius: 19, height: 25, roofHeight: 18,
     platformColor: 0xe0c87a,
-    npc: '🧑‍🌾',
+    npc: '🧑‍🌾', lockXP: 0,
   },
   {
-    id: 'library', name: { fr:'Bibliothèque', en:'Library', ht:'Bibliyotèk' },
-    x: 14, z: 84,
+    id: 'library', badgeNum: 4,
+    name: { fr:'Bibliothèque', en:'Library', ht:'Bibliyotèk' },
+    stage: { fr:'Avancé', en:'Advanced', ht:'Avanse' },
+    x: 130, z: -30,
     wallColor: 0xe9dcf7, roofColor: 0xc084fc,
-    radius: 18, height: 26, roofHeight: 18,
+    radius: 20, height: 27, roofHeight: 19,
     platformColor: 0xb9a0d6,
-    npc: '🔒',
-    locked: true,
+    npc: '👩‍💼', lockXP: 400,
+  },
+  {
+    id: 'castle', badgeNum: 5,
+    name: { fr:'Château de Lingoria', en:'Lingoria Castle', ht:'Chato Lingoria' },
+    stage: { fr:'Maîtrise', en:'Mastery', ht:'Mèt' },
+    x: 270, z: 40,
+    wallColor: 0xe8e0cf, roofColor: 0x9b6fd6,
+    radius: 26, height: 36, roofHeight: 24,
+    platformColor: 0xb8aea0,
+    npc: null, lockXP: 1200, isCastle: true,
   },
 ];
 
-// Arbres décoratifs (positions autour des bâtiments)
+// Arbres — répartis sur tout le monde élargi
 var TREE_POS = [
-  [-110, 30],[-95, -90],[-30, 110],[40, 120],[100, 60],
-  [110, -70],[-130, -40],[70, -110],[-60, 90],[130, 10],
-  [-150, 70],[150, -30],
+  [-300, 80],[-280,-20],[-250,110],[-180,-90],[-150,80],
+  [-90,90],[-60,-100],[-20,-70],[40,-90],[80,90],
+  [120,100],[170,90],[200,-90],[230,-100],[300,90],
+  [320,-10],[-330,10],[-10,140],[60,150],[260,150],
+];
+
+// Montagnes en fond — formes basses, couleurs atténuées, pas d'ombre
+var MOUNTAIN_DATA = [
+  { x:-360, z:-320, r:220, h:120, c:0x86b89a },
+  { x:-160, z:-360, r:260, h:150, c:0x7aa8c2 },
+  { x:60,   z:-340, r:230, h:130, c:0x8bc09c },
+  { x:240,  z:-380, r:270, h:160, c:0x76a0bc },
+  { x:400,  z:-300, r:210, h:115, c:0x8bc09c },
 ];
 
 // ================================================================
@@ -59,14 +94,15 @@ var TREE_POS = [
 // ================================================================
 var renderer, scene, camera, controls;
 var clock;
-var sprites = [];     // billboards emoji (NPC / cadenas)
-var trees = [];        // pour animation de balancement
+var sprites = [];
+var trees = [];
+var windmillBlades = null;
 var raycaster, pointer;
 var canvasEl;
 var running = false;
 
 // ================================================================
-// POINT D'ENTRÉE — appelé depuis le menu (remplace goVillage 2D)
+// POINT D'ENTRÉE
 // ================================================================
 window.goVillage = function () {
   if (!window.S) return;
@@ -132,7 +168,6 @@ function _init3D() {
 
   var wrap = document.querySelector('.village-canvas-wrap') || document.getElementById('screen-village');
   var r    = wrap.getBoundingClientRect();
-  // Fallback si le layout n'est pas encore calculé (rect = 0x0)
   var W = r.width  > 0 ? r.width  : window.innerWidth;
   var H = r.height > 0 ? r.height : (window.innerHeight - 120);
 
@@ -144,44 +179,59 @@ function _init3D() {
     renderer.shadowMap.enabled = true;
     renderer.shadowMap.type    = THREE.PCFSoftShadowMap;
 
-    // ── Scène + ciel en dégradé ──
+    // ── Scène + ciel + brume (monde élargi) ──
     scene = new THREE.Scene();
     scene.background = _skyTexture();
-    scene.fog = new THREE.Fog(0xbfe3ff, 260, 620);
+    scene.fog = new THREE.Fog(0xbfe3ff, 420, 980);
 
-    // ── Caméra isométrique douce ──
-    camera = new THREE.PerspectiveCamera(32, W / H, 1, 1500);
-    camera.position.set(220, 200, 220);
-    camera.lookAt(0, 0, 20);
+    // ── Caméra panoramique large (vue d'ensemble dès le départ) ──
+    camera = new THREE.PerspectiveCamera(36, W / H, 1, 2000);
+    camera.position.set(160, 230, 560);
+    camera.lookAt(20, 0, 0);
 
     // ── Lumières ──
-    var hemi = new THREE.HemisphereLight(0xcfe9ff, 0x5fb86a, 0.95);
+    var hemi = new THREE.HemisphereLight(0xcfe9ff, 0x5fb86a, 1.0);
     scene.add(hemi);
 
     var sun = new THREE.DirectionalLight(0xfff3da, 1.15);
-    sun.position.set(140, 220, 120);
+    sun.position.set(180, 260, 160);
     sun.castShadow = true;
     sun.shadow.mapSize.set(1024, 1024);
-    sun.shadow.camera.left   = -260;
-    sun.shadow.camera.right  =  260;
-    sun.shadow.camera.top    =  260;
-    sun.shadow.camera.bottom = -260;
+    sun.shadow.camera.left   = -420;
+    sun.shadow.camera.right  =  420;
+    sun.shadow.camera.top    =  420;
+    sun.shadow.camera.bottom = -420;
     sun.shadow.camera.near   = 1;
-    sun.shadow.camera.far    = 700;
+    sun.shadow.camera.far    = 900;
     sun.shadow.bias = -0.0015;
     scene.add(sun);
 
-    var fillLight = new THREE.AmbientLight(0xffffff, 0.25);
+    var fillLight = new THREE.AmbientLight(0xffffff, 0.28);
     scene.add(fillLight);
 
-    // ── Sol principal (île arrondie) ──
+    // ── Sol principal (île arrondie élargie) ──
     _buildGround();
 
-    // ── Chemins entre bâtiments ──
-    _buildPaths();
+    // ── Montagnes en fond ──
+    _buildMountains();
 
-    // ── Bâtiments ──
-    BUILDINGS_3D.forEach(_buildBuilding);
+    // ── Rivière + pont + barque ──
+    _buildRiverAndBridge();
+
+    // ── Chemin sinueux reliant les 5 bâtiments ──
+    _buildWindingPath();
+
+    // ── Panneau directionnel près de la maison ──
+    _buildSignpost(-260, 60);
+
+    // ── Bâtiments (4 standards + château) ──
+    BUILDINGS_3D.forEach(function (b) {
+      if (b.isCastle) _buildCastle(b);
+      else _buildBuilding(b);
+    });
+
+    // ── Moulin décoratif ──
+    _buildWindmill(360, -50);
 
     // ── Arbres ──
     TREE_POS.forEach(function (p) { _buildTree(p[0], p[1]); });
@@ -193,8 +243,6 @@ function _init3D() {
   }
 
   // ── Contrôles : pan 1 doigt, pincement = zoom, pas de rotation ──
-  // Dans un try/catch séparé : si OrbitControls est indisponible,
-  // la scène reste visible (statique) au lieu de tout bloquer.
   try {
     if (typeof THREE.OrbitControls !== 'function') {
       throw new Error('THREE.OrbitControls indisponible');
@@ -204,9 +252,9 @@ function _init3D() {
     controls.dampingFactor   = 0.10;
     controls.enableRotate    = false;
     controls.screenSpacePanning = false;
-    controls.minDistance     = 140;
-    controls.maxDistance     = 520;
-    controls.target.set(0, 0, 20);
+    controls.minDistance     = 260;
+    controls.maxDistance     = 900;
+    controls.target.set(20, 0, 0);
     controls.touches.ONE = THREE.TOUCH.PAN;
     controls.touches.TWO = THREE.TOUCH.DOLLY_PAN;
     controls.mouseButtons.LEFT  = THREE.MOUSE.PAN;
@@ -231,15 +279,12 @@ function _init3D() {
   window._onCanvasResize = _onResize;
   window.addEventListener('resize', _onCanvasResize);
 
-  // ── Premier rendu immédiat (évite l'écran noir avant la 1ère frame de boucle) ──
   renderer.render(scene, camera);
-
-  // ── Filet de sécurité : si le layout était 0x0 au départ, recalcule après coup ──
   setTimeout(_onResize, 300);
 }
 
 // ================================================================
-// CIEL EN DÉGRADÉ (texture canvas légère, calculée une fois)
+// CIEL EN DÉGRADÉ
 // ================================================================
 function _skyTexture() {
   var c = document.createElement('canvas');
@@ -251,61 +296,165 @@ function _skyTexture() {
   g.addColorStop(1,   '#eaf6ff');
   ctx2.fillStyle = g;
   ctx2.fillRect(0, 0, 2, 256);
-  var tex = new THREE.CanvasTexture(c);
-  tex.colorSpace = THREE.SRGBColorSpace || tex.colorSpace;
-  return tex;
+  return new THREE.CanvasTexture(c);
 }
 
 // ================================================================
-// SOL — grande île arrondie
+// SOL — grande île arrondie élargie
 // ================================================================
 function _buildGround() {
-  var geo = new THREE.CylinderGeometry(230, 245, 14, 48);
+  var geo = new THREE.CylinderGeometry(420, 440, 14, 56);
   var mat = new THREE.MeshStandardMaterial({ color: 0x5fb86a, roughness: 0.95, metalness: 0 });
   var ground = new THREE.Mesh(geo, mat);
-  ground.position.y = -7;
+  ground.position.set(20, -7, 0);
   ground.receiveShadow = true;
   scene.add(ground);
 
-  // Anneau de "plage"/bordure plus claire pour la profondeur
-  var rimGeo = new THREE.TorusGeometry(238, 6, 12, 48);
+  var rimGeo = new THREE.TorusGeometry(428, 8, 12, 56);
   var rimMat = new THREE.MeshStandardMaterial({ color: 0x76cf80, roughness: 0.9 });
   var rim = new THREE.Mesh(rimGeo, rimMat);
   rim.rotation.x = Math.PI / 2;
-  rim.position.y = -0.5;
+  rim.position.set(20, -0.5, 0);
   scene.add(rim);
 }
 
 // ================================================================
-// CHEMINS — rubans plats reliant les bâtiments
+// MONTAGNES EN FOND — décor lointain, pas d'ombre, pas de clic
 // ================================================================
-function _buildPaths() {
-  var routes = [
-    ['home', 'school'], ['home', 'market'], ['home', 'library'],
-  ];
-  var mat = new THREE.MeshStandardMaterial({ color: 0xd9bf8a, roughness: 0.95 });
+function _buildMountains() {
+  MOUNTAIN_DATA.forEach(function (m) {
+    var geo = new THREE.ConeGeometry(m.r, m.h, 7);
+    var mat = new THREE.MeshStandardMaterial({ color: m.c, roughness: 1, fog: true });
+    var mesh = new THREE.Mesh(geo, mat);
+    mesh.position.set(m.x, m.h / 2 - 14, m.z);
+    mesh.castShadow = false;
+    mesh.receiveShadow = false;
+    scene.add(mesh);
 
-  routes.forEach(function (pair) {
-    var a = BUILDINGS_3D.find(function (b) { return b.id === pair[0]; });
-    var b = BUILDINGS_3D.find(function (b) { return b.id === pair[1]; });
-    if (!a || !b) return;
-    var dx = b.x - a.x, dz = b.z - a.z;
-    var len = Math.sqrt(dx * dx + dz * dz);
-    var geo = new THREE.BoxGeometry(len + 6, 0.6, 7, 1, 1, 1);
-    var path = new THREE.Mesh(geo, mat);
-    path.position.set((a.x + b.x) / 2, 0.05, (a.z + b.z) / 2);
-    path.rotation.y = -Math.atan2(dz, dx);
-    path.receiveShadow = true;
-    scene.add(path);
+    // Calotte neigeuse
+    var capGeo = new THREE.ConeGeometry(m.r * 0.32, m.h * 0.32, 7);
+    var capMat = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.8 });
+    var cap = new THREE.Mesh(capGeo, capMat);
+    cap.position.set(m.x, m.h * 0.84 - 14, m.z);
+    cap.castShadow = false;
+    scene.add(cap);
   });
 }
 
 // ================================================================
-// BÂTIMENT — plateforme + corps + toit + sprite NPC/cadenas
+// RIVIÈRE + PONT + BARQUE — coin droit, comme la référence
+// ================================================================
+function _buildRiverAndBridge() {
+  // Rivière — long ruban bleu en diagonale
+  var riverGeo = new THREE.BoxGeometry(54, 1, 420);
+  var riverMat = new THREE.MeshStandardMaterial({ color: 0x52aad0, roughness: 0.25, metalness: 0.15 });
+  var river = new THREE.Mesh(riverGeo, riverMat);
+  river.position.set(330, 0.3, 80);
+  river.rotation.y = -0.35;
+  river.receiveShadow = true;
+  scene.add(river);
+
+  // Reflets — fines bandes plus claires animées (légère variation statique)
+  for (var i = 0; i < 4; i++) {
+    var sGeo = new THREE.BoxGeometry(8, 1.2, 60);
+    var sMat = new THREE.MeshStandardMaterial({ color: 0x9fe0f5, roughness: 0.2 });
+    var shine = new THREE.Mesh(sGeo, sMat);
+    shine.position.set(330 + (i - 1.5) * 10, 0.5, 80 - 120 + i * 80);
+    shine.rotation.y = -0.35;
+    scene.add(shine);
+  }
+
+  // Pont en pierre — tablier
+  var deckGeo = new THREE.BoxGeometry(58, 6, 22);
+  var deckMat = new THREE.MeshStandardMaterial({ color: 0x9a8268, roughness: 0.9 });
+  var deck = new THREE.Mesh(deckGeo, deckMat);
+  deck.position.set(280, 5, -10);
+  deck.rotation.y = -0.35;
+  deck.castShadow = true;
+  deck.receiveShadow = true;
+  scene.add(deck);
+
+  // Arche du pont
+  var archGeo = new THREE.TorusGeometry(20, 3.5, 10, 16, Math.PI);
+  var archMat = new THREE.MeshStandardMaterial({ color: 0x7a6650, roughness: 0.9 });
+  var arch = new THREE.Mesh(archGeo, archMat);
+  arch.position.set(280, 2, -10);
+  arch.rotation.x = Math.PI;
+  arch.rotation.y = -0.35;
+  arch.rotation.z = Math.PI;
+  scene.add(arch);
+
+  // Barque — coque + mât
+  var hullGeo = new THREE.CylinderGeometry(5, 8, 22, 8);
+  var hullMat = new THREE.MeshStandardMaterial({ color: 0x8a5a32, roughness: 0.85 });
+  var hull = new THREE.Mesh(hullGeo, hullMat);
+  hull.rotation.z = Math.PI / 2;
+  hull.scale.set(1, 1, 0.55);
+  hull.position.set(350, 1.5, 160);
+  hull.castShadow = true;
+  scene.add(hull);
+
+  var mastGeo = new THREE.CylinderGeometry(0.8, 0.8, 16, 6);
+  var mastMat = new THREE.MeshStandardMaterial({ color: 0x6b4a2b, roughness: 0.8 });
+  var mast = new THREE.Mesh(mastGeo, mastMat);
+  mast.position.set(350, 9, 160);
+  scene.add(mast);
+}
+
+// ================================================================
+// CHEMIN SINUEUX — ruban courbe reliant les 5 bâtiments
+// ================================================================
+function _buildWindingPath() {
+  var pts = BUILDINGS_3D.map(function (b) { return new THREE.Vector3(b.x, 0.4, b.z); });
+  var curve = new THREE.CatmullRomCurve3(pts, false, 'catmullrom', 0.4);
+  var SEGMENTS = 60;
+  var samples = curve.getPoints(SEGMENTS);
+  var mat = new THREE.MeshStandardMaterial({ color: 0xd9bf8a, roughness: 0.95 });
+
+  for (var i = 0; i < samples.length - 1; i++) {
+    var a = samples[i], b = samples[i + 1];
+    var dx = b.x - a.x, dz = b.z - a.z;
+    var len = Math.sqrt(dx * dx + dz * dz) + 0.6;
+    var seg = new THREE.Mesh(new THREE.BoxGeometry(len, 0.6, 11), mat);
+    seg.position.set((a.x + b.x) / 2, 0.05, (a.z + b.z) / 2);
+    seg.rotation.y = -Math.atan2(dz, dx);
+    seg.receiveShadow = true;
+    scene.add(seg);
+  }
+}
+
+// ================================================================
+// PANNEAU DIRECTIONNEL
+// ================================================================
+function _buildSignpost(x, z) {
+  var postGeo = new THREE.CylinderGeometry(1, 1.2, 22, 6);
+  var postMat = new THREE.MeshStandardMaterial({ color: 0x8a5a32, roughness: 0.9 });
+  var post = new THREE.Mesh(postGeo, postMat);
+  post.position.set(x, 11, z);
+  post.castShadow = true;
+  scene.add(post);
+
+  [{ y: 17, rz: 0.12, c: 0xe0c87a }, { y: 12, rz: -0.18, c: 0xd9bf8a }].forEach(function (cfg) {
+    var plankGeo = new THREE.BoxGeometry(16, 3, 1);
+    var plankMat = new THREE.MeshStandardMaterial({ color: cfg.c, roughness: 0.85 });
+    var plank = new THREE.Mesh(plankGeo, plankMat);
+    plank.position.set(x + 6, cfg.y, z);
+    plank.rotation.z = cfg.rz;
+    plank.castShadow = true;
+    scene.add(plank);
+  });
+}
+
+// ================================================================
+// BÂTIMENT STANDARD — plateforme + corps + toit + badge + statut
 // ================================================================
 function _buildBuilding(b) {
   var group = new THREE.Group();
   group.position.set(b.x, 0, b.z);
+
+  var xp = (window.S && S.xp) || 0;
+  var locked = b.lockXP > 0 && xp < b.lockXP;
+  var alpha = locked ? 0.55 : 1;
 
   // ── Plateforme arrondie (effet diorama) ──
   var platGeo = new THREE.CylinderGeometry(b.radius + 7, b.radius + 9, 3, 24);
@@ -316,9 +465,7 @@ function _buildBuilding(b) {
   plat.castShadow = true;
   group.add(plat);
 
-  var alpha = b.locked ? 0.55 : 1;
-
-  // ── Corps du bâtiment — cylindre octogonal (silhouette douce) ──
+  // ── Corps — cylindre octogonal ──
   var bodyGeo = new THREE.CylinderGeometry(b.radius * 0.92, b.radius, b.height, 8);
   var bodyMat = new THREE.MeshStandardMaterial({
     color: b.wallColor, roughness: 0.85,
@@ -330,7 +477,7 @@ function _buildBuilding(b) {
   body.receiveShadow = true;
   group.add(body);
 
-  // ── Toit — cône arrondi (8 faces, léger débord) ──
+  // ── Toit conique ──
   var roofGeo = new THREE.ConeGeometry(b.radius * 1.18, b.roofHeight, 8);
   var roofMat = new THREE.MeshStandardMaterial({
     color: b.roofColor, roughness: 0.7,
@@ -341,7 +488,7 @@ function _buildBuilding(b) {
   roof.castShadow = true;
   group.add(roof);
 
-  // ── Petite boule au sommet (signature mignonne) ──
+  // ── Boule décorative au sommet ──
   var capGeo = new THREE.SphereGeometry(b.radius * 0.10, 12, 12);
   var capMat = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.4 });
   var cap = new THREE.Mesh(capGeo, capMat);
@@ -349,8 +496,8 @@ function _buildBuilding(b) {
   cap.castShadow = true;
   group.add(cap);
 
-  // ── Porte (détail) ──
-  if (!b.locked) {
+  // ── Porte ──
+  if (!locked) {
     var doorGeo = new THREE.BoxGeometry(b.radius * 0.5, b.height * 0.55, 1);
     var doorMat = new THREE.MeshStandardMaterial({ color: 0x6b4a2b, roughness: 0.8 });
     var door = new THREE.Mesh(doorGeo, doorMat);
@@ -360,28 +507,195 @@ function _buildBuilding(b) {
 
   scene.add(group);
 
-  // ── Sprite emoji (NPC ou cadenas) — billboard toujours face caméra ──
-  if (b.npc) {
-    var sprite = _makeEmojiSprite(b.npc, 22);
-    sprite.position.set(b.x, 3 + b.height + b.roofHeight + 10, b.z);
-    sprite.userData.baseY = sprite.position.y;
-    sprite.userData.phase = Math.random() * Math.PI * 2;
-    scene.add(sprite);
-    sprites.push(sprite);
+  var topY = 3 + b.height + b.roofHeight;
+
+  // ── Sprite NPC (flotte au-dessus) ──
+  if (b.npc && !locked) {
+    var npcSprite = _makeEmojiSprite(b.npc, 22);
+    npcSprite.position.set(b.x, topY + 14, b.z);
+    npcSprite.userData.baseY = npcSprite.position.y;
+    npcSprite.userData.phase = Math.random() * Math.PI * 2;
+    scene.add(npcSprite);
+    sprites.push(npcSprite);
   }
 
-  // ── Label nom (sprite texte) ──
-  var label = _makeTextSprite((b.name && (b.name.fr)) || b.id);
-  label.position.set(b.x, 3 + b.height + (b.locked ? 4 : b.roofHeight + 2), b.z);
+  // ── Label (badge numéroté + nom) ──
+  var statusIcon  = locked ? '🔒' : (b.badgeNum === 1 ? '✅' : '⭐');
+  var badgeColor  = locked ? COL_LOCKED : (b.badgeNum === 1 ? COL_DONE : COL_AVAIL);
+  var nl = (window.S && S.nativeLang) || 'fr';
+  var label = _makeLabelSprite(b.badgeNum, badgeColor, b.name[nl] || b.name.fr, b.stage[nl] || b.stage.fr);
+  label.position.set(b.x, topY + (b.npc && !locked ? 26 : 14), b.z);
   scene.add(label);
 
-  // userData pour le raycaster (clic = group entier)
+  // ── Icône de statut sous le bâtiment ──
+  var statusSprite = _makeEmojiSprite(statusIcon, 16);
+  statusSprite.position.set(b.x + b.radius * 1.3, 5, b.z + b.radius * 0.6);
+  scene.add(statusSprite);
+
   group.userData.buildingId = b.id;
   group.traverse(function (o) { o.userData.buildingId = b.id; });
 }
 
 // ================================================================
-// SPRITE EMOJI — texture canvas, toujours face caméra
+// CHÂTEAU — bâtiment 5, plus grand avec tours secondaires
+// ================================================================
+function _buildCastle(b) {
+  var group = new THREE.Group();
+  group.position.set(b.x, 0, b.z);
+
+  var xp = (window.S && S.xp) || 0;
+  var locked = b.lockXP > 0 && xp < b.lockXP;
+  var alpha = locked ? 0.55 : 1;
+
+  // ── Plateforme "falaise" — plus haute et plus large ──
+  var cliffGeo = new THREE.CylinderGeometry(b.radius + 12, b.radius + 22, 14, 24);
+  var cliffMat = new THREE.MeshStandardMaterial({ color: b.platformColor, roughness: 0.95 });
+  var cliff = new THREE.Mesh(cliffGeo, cliffMat);
+  cliff.position.y = 6;
+  cliff.receiveShadow = true;
+  cliff.castShadow = true;
+  group.add(cliff);
+
+  // ── Donjon central ──
+  var bodyGeo = new THREE.CylinderGeometry(b.radius * 0.9, b.radius, b.height, 8);
+  var bodyMat = new THREE.MeshStandardMaterial({ color: b.wallColor, roughness: 0.85, transparent: alpha < 1, opacity: alpha });
+  var body = new THREE.Mesh(bodyGeo, bodyMat);
+  body.position.y = 13 + b.height / 2;
+  body.castShadow = true;
+  body.receiveShadow = true;
+  group.add(body);
+
+  var roofGeo = new THREE.ConeGeometry(b.radius * 1.15, b.roofHeight, 8);
+  var roofMat = new THREE.MeshStandardMaterial({ color: b.roofColor, roughness: 0.65, transparent: alpha < 1, opacity: alpha });
+  var roof = new THREE.Mesh(roofGeo, roofMat);
+  roof.position.y = 13 + b.height + b.roofHeight / 2 - 1;
+  roof.castShadow = true;
+  group.add(roof);
+
+  var capGeo = new THREE.SphereGeometry(b.radius * 0.09, 12, 12);
+  var capMat = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.4 });
+  var cap = new THREE.Mesh(capGeo, capMat);
+  cap.position.y = 13 + b.height + b.roofHeight - 1;
+  group.add(cap);
+
+  // ── Tours secondaires (2) ──
+  [[-1, -1], [1, -1]].forEach(function (dir) {
+    var tr = b.radius * 0.42;
+    var th = b.height * 0.68;
+    var trh = b.roofHeight * 0.72;
+    var tx = dir[0] * b.radius * 0.95;
+    var tz = dir[1] * b.radius * 0.55;
+
+    var tGeo = new THREE.CylinderGeometry(tr * 0.9, tr, th, 8);
+    var tMat = new THREE.MeshStandardMaterial({ color: b.wallColor, roughness: 0.85, transparent: alpha < 1, opacity: alpha });
+    var tower = new THREE.Mesh(tGeo, tMat);
+    tower.position.set(tx, 13 + th / 2, tz);
+    tower.castShadow = true;
+    group.add(tower);
+
+    var trGeo = new THREE.ConeGeometry(tr * 1.2, trh, 8);
+    var trMat = new THREE.MeshStandardMaterial({ color: b.roofColor, roughness: 0.65, transparent: alpha < 1, opacity: alpha });
+    var trMesh = new THREE.Mesh(trGeo, trMat);
+    trMesh.position.set(tx, 13 + th + trh / 2 - 1, tz);
+    trMesh.castShadow = true;
+    group.add(trMesh);
+
+    var tCapGeo = new THREE.SphereGeometry(tr * 0.12, 10, 10);
+    var tCap = new THREE.Mesh(tCapGeo, new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.4 }));
+    tCap.position.set(tx, 13 + th + trh - 1, tz);
+    group.add(tCap);
+  });
+
+  // ── Drapeaux (petits triangles colorés) ──
+  if (!locked) {
+    [[0, 13 + b.height + b.roofHeight + 2], [-b.radius * 0.95, 13 + b.height * 0.68 + b.roofHeight * 0.72 + 2]].forEach(function (fp) {
+      var poleGeo = new THREE.CylinderGeometry(0.4, 0.4, 6, 4);
+      var pole = new THREE.Mesh(poleGeo, new THREE.MeshStandardMaterial({ color: 0x6b4a2b }));
+      pole.position.set(fp[0], fp[1] + 3, 0);
+      group.add(pole);
+      var flagGeo = new THREE.PlaneGeometry(6, 4);
+      var flag = new THREE.Mesh(flagGeo, new THREE.MeshStandardMaterial({ color: 0xc084fc, side: THREE.DoubleSide }));
+      flag.position.set(fp[0] + 3, fp[1] + 4.5, 0);
+      group.add(flag);
+    });
+  }
+
+  // ── Escalier vers la falaise ──
+  for (var s = 0; s < 5; s++) {
+    var stepGeo = new THREE.BoxGeometry(10, 1.4, 4);
+    var step = new THREE.Mesh(stepGeo, new THREE.MeshStandardMaterial({ color: 0xb8aea0, roughness: 0.95 }));
+    step.position.set(-b.radius - 14 + s * 2.2, 1 + s * 1.3, b.radius + 14 - s * 2.6);
+    step.receiveShadow = true;
+    group.add(step);
+  }
+
+  scene.add(group);
+
+  var topY = 13 + b.height + b.roofHeight;
+  var nl = (window.S && S.nativeLang) || 'fr';
+  var statusIcon = locked ? '🔒' : '✅';
+  var badgeColor = locked ? COL_LOCKED : COL_DONE;
+  var label = _makeLabelSprite(b.badgeNum, badgeColor, b.name[nl] || b.name.fr, b.stage[nl] || b.stage.fr);
+  label.position.set(b.x, topY + 16, b.z);
+  scene.add(label);
+
+  var statusSprite = _makeEmojiSprite(statusIcon, 18);
+  statusSprite.position.set(b.x + b.radius * 1.4, 9, b.z + b.radius * 0.7);
+  scene.add(statusSprite);
+
+  group.userData.buildingId = b.id;
+  group.traverse(function (o) { o.userData.buildingId = b.id; });
+}
+
+// ================================================================
+// MOULIN — tour + ailes animées
+// ================================================================
+function _buildWindmill(x, z) {
+  var towerGeo = new THREE.CylinderGeometry(5, 8, 38, 8);
+  var towerMat = new THREE.MeshStandardMaterial({ color: 0xe8e0cf, roughness: 0.9 });
+  var tower = new THREE.Mesh(towerGeo, towerMat);
+  tower.position.set(x, 19, z);
+  tower.castShadow = true;
+  tower.receiveShadow = true;
+  tower.userData.buildingId = 'windmill';
+  scene.add(tower);
+
+  var roofGeo = new THREE.ConeGeometry(7, 12, 8);
+  var roofMat = new THREE.MeshStandardMaterial({ color: 0x9b6fd6, roughness: 0.65 });
+  var roof = new THREE.Mesh(roofGeo, roofMat);
+  roof.position.set(x, 44, z);
+  roof.castShadow = true;
+  scene.add(roof);
+
+  // ── Ailes (groupe animé) ──
+  var hubGroup = new THREE.Group();
+  hubGroup.position.set(x, 38, z + 9);
+
+  var bladeMat = new THREE.MeshStandardMaterial({ color: 0xf5f0e0, roughness: 0.8, side: THREE.DoubleSide });
+  for (var i = 0; i < 4; i++) {
+    var bladeGeo = new THREE.BoxGeometry(3, 22, 0.8);
+    var blade = new THREE.Mesh(bladeGeo, bladeMat);
+    blade.position.y = 11;
+    blade.castShadow = true;
+    var pivot = new THREE.Group();
+    pivot.rotation.z = (Math.PI / 2) * i;
+    pivot.add(blade);
+    hubGroup.add(pivot);
+  }
+  var hubCap = new THREE.Mesh(new THREE.SphereGeometry(2, 10, 10), new THREE.MeshStandardMaterial({ color: 0x6b4a2b }));
+  hubGroup.add(hubCap);
+
+  scene.add(hubGroup);
+  windmillBlades = hubGroup;
+
+  // Label
+  var label = _makeSimplePillSprite('🌬️ Moulin');
+  label.position.set(x, 56, z);
+  scene.add(label);
+}
+
+// ================================================================
+// SPRITE EMOJI — billboard, toujours face caméra
 // ================================================================
 function _makeEmojiSprite(emoji, size) {
   var c = document.createElement('canvas');
@@ -399,33 +713,102 @@ function _makeEmojiSprite(emoji, size) {
 }
 
 // ================================================================
-// SPRITE TEXTE — nom du bâtiment
+// SPRITE LABEL — pastille numérotée + pilule blanche (style référence)
 // ================================================================
-function _makeTextSprite(text) {
+function _makeLabelSprite(num, badgeColorHex, title, subtitle) {
+  var dpr = 2; // netteté
+  var padX = 16, gap = 10, circleR = 16;
   var c = document.createElement('canvas');
-  var pad = 14;
   var ctx2 = c.getContext('2d');
-  ctx2.font = 'bold 28px Sora, system-ui, sans-serif';
-  var w = ctx2.measureText(text).width + pad * 2;
-  c.width  = Math.ceil(w);
-  c.height = 40;
+
+  ctx2.font = 'bold 17px Sora, system-ui, sans-serif';
+  var titleW = ctx2.measureText(title).width;
+  ctx2.font = '13px Sora, system-ui, sans-serif';
+  var subW = subtitle ? ctx2.measureText(subtitle).width : 0;
+  var textW = Math.max(titleW, subW);
+
+  var pillH = subtitle ? 56 : 40;
+  var pillW = circleR * 2 + gap + textW + padX * 2;
+  var totalW = pillW + 6;
+
+  c.width  = Math.ceil(totalW * dpr);
+  c.height = Math.ceil(pillH * dpr);
   ctx2 = c.getContext('2d');
-  ctx2.font = 'bold 28px Sora, system-ui, sans-serif';
-  ctx2.fillStyle = 'rgba(8,12,22,0.55)';
-  _roundRect(ctx2, 0, 0, c.width, c.height, 14);
+  ctx2.scale(dpr, dpr);
+
+  // Pilule blanche/crème
+  ctx2.fillStyle = 'rgba(255,255,255,0.96)';
+  _roundRect(ctx2, circleR + 4, 0, pillW - circleR, pillH, pillH / 2);
   ctx2.fill();
-  ctx2.fillStyle = '#ffffff';
+  ctx2.shadowColor = 'rgba(0,0,0,0.25)';
+  ctx2.shadowBlur = 6;
+  ctx2.shadowOffsetY = 2;
+
+  // Cercle de badge numéroté
+  var colorStr = '#' + badgeColorHex.toString(16).padStart(6, '0');
+  ctx2.shadowBlur = 0;
+  ctx2.fillStyle = colorStr;
+  ctx2.beginPath();
+  ctx2.arc(circleR + 4, pillH / 2, circleR, 0, Math.PI * 2);
+  ctx2.fill();
+  ctx2.fillStyle = (badgeColorHex === COL_AVAIL) ? '#3a2e00' : '#ffffff';
+  ctx2.font = 'bold 16px Sora, system-ui, sans-serif';
   ctx2.textAlign = 'center';
   ctx2.textBaseline = 'middle';
-  ctx2.fillText(text, c.width / 2, c.height / 2 + 2);
+  ctx2.fillText(String(num), circleR + 4, pillH / 2 + 1);
+
+  // Texte
+  var textX = circleR * 2 + gap + 2;
+  ctx2.textAlign = 'left';
+  ctx2.fillStyle = '#1a2233';
+  if (subtitle) {
+    ctx2.font = 'bold 16px Sora, system-ui, sans-serif';
+    ctx2.fillText(title, textX, pillH / 2 - 10);
+    ctx2.font = '12px Sora, system-ui, sans-serif';
+    ctx2.fillStyle = '#6b7688';
+    ctx2.fillText(subtitle, textX, pillH / 2 + 10);
+  } else {
+    ctx2.font = 'bold 16px Sora, system-ui, sans-serif';
+    ctx2.fillText(title, textX, pillH / 2 + 1);
+  }
 
   var tex = new THREE.CanvasTexture(c);
   var mat = new THREE.SpriteMaterial({ map: tex, depthWrite: false });
   var sprite = new THREE.Sprite(mat);
-  var scale = 0.34;
-  sprite.scale.set(c.width * scale, c.height * scale, 1);
+  var scale = 0.42;
+  sprite.scale.set((totalW) * scale, pillH * scale, 1);
   return sprite;
 }
+
+// ================================================================
+// SPRITE PILULE SIMPLE — pour labels décoratifs (moulin etc.)
+// ================================================================
+function _makeSimplePillSprite(text) {
+  var dpr = 2;
+  var c = document.createElement('canvas');
+  var ctx2 = c.getContext('2d');
+  ctx2.font = 'bold 16px Sora, system-ui, sans-serif';
+  var w = ctx2.measureText(text).width + 28;
+  var h = 32;
+  c.width = Math.ceil(w * dpr); c.height = Math.ceil(h * dpr);
+  ctx2 = c.getContext('2d');
+  ctx2.scale(dpr, dpr);
+  ctx2.fillStyle = 'rgba(255,255,255,0.92)';
+  _roundRect(ctx2, 0, 0, w, h, h / 2);
+  ctx2.fill();
+  ctx2.fillStyle = '#1a2233';
+  ctx2.font = 'bold 16px Sora, system-ui, sans-serif';
+  ctx2.textAlign = 'center';
+  ctx2.textBaseline = 'middle';
+  ctx2.fillText(text, w / 2, h / 2 + 1);
+
+  var tex = new THREE.CanvasTexture(c);
+  var mat = new THREE.SpriteMaterial({ map: tex, depthWrite: false });
+  var sprite = new THREE.Sprite(mat);
+  sprite.scale.set(w * 0.42, h * 0.42, 1);
+  return sprite;
+}
+
 function _roundRect(ctx2, x, y, w, h, r) {
   ctx2.beginPath();
   ctx2.moveTo(x + r, y);
@@ -437,7 +820,7 @@ function _roundRect(ctx2, x, y, w, h, r) {
 }
 
 // ================================================================
-// ARBRES — blobs arrondis (3 sphères empilées) + tronc
+// ARBRES — blobs arrondis + tronc
 // ================================================================
 function _buildTree(x, z) {
   var group = new THREE.Group();
@@ -451,7 +834,7 @@ function _buildTree(x, z) {
   group.add(trunk);
 
   var blobCols = [0x3f9a4f, 0x4cb05e, 0x5ec06f];
-  [{ y: 9,  r: 7.5 }, { y: 14, r: 6.0 }, { y: 18.5, r: 4.2 }].forEach(function (cfg, i) {
+  [{ y: 9, r: 7.5 }, { y: 14, r: 6.0 }, { y: 18.5, r: 4.2 }].forEach(function (cfg, i) {
     var geo = new THREE.IcosahedronGeometry(cfg.r, 1);
     var mat = new THREE.MeshStandardMaterial({ color: blobCols[i], roughness: 0.85 });
     var blob = new THREE.Mesh(geo, mat);
@@ -473,18 +856,18 @@ function _buildTree(x, z) {
 function _loop() {
   if (!running) return;
   requestAnimationFrame(_loop);
-  var dt = clock.getDelta();
-  var t  = clock.elapsedTime;
+  var t = clock.elapsedTime;
+  clock.getDelta();
 
-  // Sprites NPC : léger flottement vertical
   sprites.forEach(function (s) {
     s.position.y = s.userData.baseY + Math.sin(t * 1.6 + s.userData.phase) * 1.6;
   });
 
-  // Arbres : léger balancement
   trees.forEach(function (g) {
     g.rotation.z = Math.sin(t * 0.6 + g.userData.swayPhase) * 0.015;
   });
+
+  if (windmillBlades) windmillBlades.rotation.z += 0.012;
 
   controls && controls.update();
   renderer.render(scene, camera);
@@ -525,7 +908,7 @@ function _raycastAt(x, y, rect) {
   var hits = raycaster.intersectObjects(scene.children, true);
   for (var i = 0; i < hits.length; i++) {
     var id = hits[i].object.userData.buildingId;
-    if (id) { _onTapBuilding(id); return; }
+    if (id && id !== 'windmill') { _onTapBuilding(id); return; }
   }
 }
 
@@ -539,10 +922,11 @@ function _onTapBuilding(id) {
   var xp = (window.S && S.xp) || 0;
   if (window.LV_SOUND) window.LV_SOUND.play('tap');
 
-  if (b.locked) {
-    var msg = nl === 'en' ? '🔒 Locked — keep learning to unlock ' + (b.name.en || b.name.fr)
-            : nl === 'ht' ? '🔒 Fèmen — kontinye aprann pou debloke ' + (b.name.ht || b.name.fr)
-            : '🔒 Verrouillé — continue d\'apprendre pour débloquer ' + b.name.fr;
+  var locked = b.lockXP > 0 && xp < b.lockXP;
+  if (locked) {
+    var msg = nl === 'en' ? '🔒 Locked — ' + (b.lockXP - xp) + ' XP to unlock ' + (b.name.en || b.name.fr)
+            : nl === 'ht' ? '🔒 Fèmen — ' + (b.lockXP - xp) + ' XP pou debloke ' + (b.name.ht || b.name.fr)
+            : '🔒 Verrouillé — ' + (b.lockXP - xp) + ' XP pour débloquer ' + b.name.fr;
     if (typeof showNotif === 'function') showNotif(msg, 3000);
     return;
   }
@@ -583,7 +967,7 @@ function _onTapBuilding(id) {
 }
 
 // ================================================================
-// NAV BAR (identique à village_world.js, autonome)
+// NAV BAR
 // ================================================================
 var _NL = {
   village:  { fr:'Krova', en:'Krova', ht:'Krova' },
@@ -663,7 +1047,7 @@ window._navTo = function (s) {
 };
 
 // ================================================================
-// MÉTÉO / TEMPS — compatibilité avec le reste de l'app
+// MÉTÉO / TEMPS — compatibilité
 // ================================================================
 function setWeather(w) { window.currentWeather = w || 'sun'; }
 function updateTime() {
@@ -678,6 +1062,6 @@ window.alignLocationsToRings = function () {};
 window.initCanvas = function () {};
 window.drawVillage = function () {};
 
-console.log('✅ village_3d.js — KROVA 3D (Phase 1 POC) chargé');
+console.log('✅ village_3d.js v3 — KROVA panoramique chargé');
 
 })();
