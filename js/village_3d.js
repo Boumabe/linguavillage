@@ -24,51 +24,66 @@ var BUILDINGS_3D = [
     id: 'home', badgeNum: 1,
     name: { fr:'Ta Maison', en:'Your Home', ht:'Kay Ou' },
     stage: { fr:'Débutant', en:'Beginner', ht:'Debitan' },
+    desc: { fr:'C\'est ici que tu te reposes et prépares tes journées à Krova.', en:'This is where you rest and prepare your days in Krova.', ht:'Se isit ou repoze ak prepare jou ou yo nan Krova.' },
     x: -220, z: 30,
-    wallColor: 0xf5e3b8, roofColor: 0xe8b84b,
+    wallColor: 0xffd780, roofColor: 0xe8900a,
+    emissiveWall: 0x8b6200, emissiveRoof: 0x6b3800,
     radius: 16, height: 20, roofHeight: 15,
-    platformColor: 0xc9a25a,
-    npc: null, lockXP: 0,
+    platformColor: 0xd4880a,
+    npc: null, npcId: null, lockXP: 0,
+    action: null,
   },
   {
     id: 'school', badgeNum: 2,
-    name: { fr:'École Amara', en:'School', ht:'Lekòl Amara' },
+    name: { fr:'École de Mme Amara', en:'Ms. Amara\'s School', ht:'Lekòl Madan Amara' },
     stage: { fr:'Élémentaire', en:'Elementary', ht:'Elemantè' },
+    desc: { fr:'Mme Amara enseigne ici depuis 15 ans. Elle t\'apprend les bases de la langue.', en:'Ms. Amara has taught here for 15 years. She teaches you the language basics.', ht:'Madan Amara ap anseye isit depi 15 an. Li anseye ou baz lang lan.' },
     x: -110, z: -40,
-    wallColor: 0xdcefe0, roofColor: 0x4ecf70,
+    wallColor: 0x68e88a, roofColor: 0x0fa83c,
+    emissiveWall: 0x006620, emissiveRoof: 0x004a18,
     radius: 18, height: 24, roofHeight: 17,
-    platformColor: 0x8fcf9a,
-    npc: '👩‍🏫', lockXP: 0,
+    platformColor: 0x18a840,
+    npc: '👩‍🏫', npcId: 'teacher', lockXP: 0,
+    action: 'lessons',
   },
   {
     id: 'market', badgeNum: 3,
-    name: { fr:'Marché Diallo', en:'Market', ht:'Mache Diallo' },
+    name: { fr:'Marché de Diallo', en:'Diallo\'s Market', ht:'Mache Diallo' },
     stage: { fr:'Intermédiaire', en:'Intermediate', ht:'Entèmedyè' },
+    desc: { fr:'Diallo vend de tout. Ici, tu apprends à négocier, compter et te débrouiller.', en:'Diallo sells everything. Here you learn to negotiate, count and get by.', ht:'Diallo vann tout bagay. Isit ou aprann negosye, konte epi degaje ou.' },
     x: 10, z: 30,
-    wallColor: 0xfff3cf, roofColor: 0x4a9eff,
+    wallColor: 0xffdf50, roofColor: 0x1a7eff,
+    emissiveWall: 0x886200, emissiveRoof: 0x003a88,
     radius: 19, height: 25, roofHeight: 18,
-    platformColor: 0xe0c87a,
-    npc: '🧑‍🌾', lockXP: 0,
+    platformColor: 0xd4a800,
+    npc: '🧑‍🌾', npcId: 'merchant', lockXP: 0,
+    action: 'practice',
   },
   {
     id: 'library', badgeNum: 4,
-    name: { fr:'Bibliothèque', en:'Library', ht:'Bibliyotèk' },
+    name: { fr:'Bibliothèque de Sorana', en:'Sorana\'s Library', ht:'Bibliyotèk Sorana' },
     stage: { fr:'Avancé', en:'Advanced', ht:'Avanse' },
+    desc: { fr:'Sorana garde des centaines de livres. Elle cherche quelqu\'un pour déchiffrer les manuscrits anciens.', en:'Sorana keeps hundreds of books. She seeks someone to decipher ancient manuscripts.', ht:'Sorana kenbe dè santèn liv. Li chache yon moun pou dechifre maniskri ansyen.' },
     x: 130, z: -30,
-    wallColor: 0xe9dcf7, roofColor: 0xc084fc,
+    wallColor: 0xd97fff, roofColor: 0x9900e8,
+    emissiveWall: 0x5a008a, emissiveRoof: 0x3c0060,
     radius: 20, height: 27, roofHeight: 19,
-    platformColor: 0xb9a0d6,
-    npc: '👩‍💼', lockXP: 400,
+    platformColor: 0x8800cc,
+    npc: '👩‍💼', npcId: 'librarian', lockXP: 400,
+    action: 'practice',
   },
   {
     id: 'castle', badgeNum: 5,
     name: { fr:'Château de Lingoria', en:'Lingoria Castle', ht:'Chato Lingoria' },
     stage: { fr:'Maîtrise', en:'Mastery', ht:'Mèt' },
+    desc: { fr:'Le Gouverneur Isabeau attend les meilleurs linguistes. Lingoria a besoin de toi.', en:'Governor Isabeau awaits the best linguists. Lingoria needs you.', ht:'Gouvènè Isabeau ap tann pi bon lengwis yo. Lingoria bezwen ou.' },
     x: 270, z: 40,
-    wallColor: 0xe8e0cf, roofColor: 0x9b6fd6,
+    wallColor: 0xd8d0b8, roofColor: 0xaa44ff,
+    emissiveWall: 0x3a2e10, emissiveRoof: 0x4a00aa,
     radius: 26, height: 36, roofHeight: 24,
-    platformColor: 0xb8aea0,
-    npc: null, lockXP: 1200, isCastle: true,
+    platformColor: 0x9a8878,
+    npc: null, npcId: 'governor', lockXP: 1200, isCastle: true,
+    action: null,
   },
 ];
 
@@ -468,7 +483,10 @@ function _buildBuilding(b) {
   // ── Corps — cylindre octogonal ──
   var bodyGeo = new THREE.CylinderGeometry(b.radius * 0.92, b.radius, b.height, 8);
   var bodyMat = new THREE.MeshStandardMaterial({
-    color: b.wallColor, roughness: 0.85,
+    color: b.wallColor,
+    emissive: b.emissiveWall || 0x000000,
+    emissiveIntensity: 0.55,
+    roughness: 0.75,
     transparent: alpha < 1, opacity: alpha,
   });
   var body = new THREE.Mesh(bodyGeo, bodyMat);
@@ -480,7 +498,10 @@ function _buildBuilding(b) {
   // ── Toit conique ──
   var roofGeo = new THREE.ConeGeometry(b.radius * 1.18, b.roofHeight, 8);
   var roofMat = new THREE.MeshStandardMaterial({
-    color: b.roofColor, roughness: 0.7,
+    color: b.roofColor,
+    emissive: b.emissiveRoof || 0x000000,
+    emissiveIntensity: 0.50,
+    roughness: 0.60,
     transparent: alpha < 1, opacity: alpha,
   });
   var roof = new THREE.Mesh(roofGeo, roofMat);
@@ -558,7 +579,13 @@ function _buildCastle(b) {
 
   // ── Donjon central ──
   var bodyGeo = new THREE.CylinderGeometry(b.radius * 0.9, b.radius, b.height, 8);
-  var bodyMat = new THREE.MeshStandardMaterial({ color: b.wallColor, roughness: 0.85, transparent: alpha < 1, opacity: alpha });
+  var bodyMat = new THREE.MeshStandardMaterial({
+    color: b.wallColor,
+    emissive: b.emissiveWall || 0x000000,
+    emissiveIntensity: 0.45,
+    roughness: 0.85,
+    transparent: alpha < 1, opacity: alpha,
+  });
   var body = new THREE.Mesh(bodyGeo, bodyMat);
   body.position.y = 13 + b.height / 2;
   body.castShadow = true;
@@ -566,7 +593,13 @@ function _buildCastle(b) {
   group.add(body);
 
   var roofGeo = new THREE.ConeGeometry(b.radius * 1.15, b.roofHeight, 8);
-  var roofMat = new THREE.MeshStandardMaterial({ color: b.roofColor, roughness: 0.65, transparent: alpha < 1, opacity: alpha });
+  var roofMat = new THREE.MeshStandardMaterial({
+    color: b.roofColor,
+    emissive: b.emissiveRoof || 0x000000,
+    emissiveIntensity: 0.55,
+    roughness: 0.65,
+    transparent: alpha < 1, opacity: alpha,
+  });
   var roof = new THREE.Mesh(roofGeo, roofMat);
   roof.position.y = 13 + b.height + b.roofHeight / 2 - 1;
   roof.castShadow = true;
@@ -913,47 +946,147 @@ function _raycastAt(x, y, rect) {
 }
 
 // ================================================================
-// OUVERTURE DU PANNEAU DE LIEU
+// OUVERTURE DU PANNEAU DE LIEU — PNJ + bio + action
 // ================================================================
 function _onTapBuilding(id) {
   var b = BUILDINGS_3D.find(function (b) { return b.id === id; });
   if (!b) return;
-  var nl = (window.S && S.nativeLang) || 'fr';
-  var xp = (window.S && S.xp) || 0;
+  var nl  = (window.S && S.nativeLang) || 'fr';
+  var tl  = (window.S && S.targetLang) || 'fr';
+  var xp  = (window.S && S.xp) || 0;
   if (window.LV_SOUND) window.LV_SOUND.play('tap');
 
+  // Bâtiment verrouillé
   var locked = b.lockXP > 0 && xp < b.lockXP;
   if (locked) {
-    var msg = nl === 'en' ? '🔒 Locked — ' + (b.lockXP - xp) + ' XP to unlock ' + (b.name.en || b.name.fr)
-            : nl === 'ht' ? '🔒 Fèmen — ' + (b.lockXP - xp) + ' XP pou debloke ' + (b.name.ht || b.name.fr)
-            : '🔒 Verrouillé — ' + (b.lockXP - xp) + ' XP pour débloquer ' + b.name.fr;
+    var remaining = b.lockXP - xp;
+    var msg = {
+      fr: '🔒 ' + remaining + ' XP pour débloquer ' + b.name.fr,
+      en: '🔒 ' + remaining + ' XP to unlock ' + b.name.en,
+      ht: '🔒 ' + remaining + ' XP pou debloke ' + b.name.ht,
+    }[nl] || '🔒 ' + remaining + ' XP';
     if (typeof showNotif === 'function') showNotif(msg, 3000);
     return;
   }
 
   var name = b.name[nl] || b.name.fr;
+  var desc = b.desc ? (b.desc[nl] || b.desc.fr) : '';
+
+  // Récupérer le NPC depuis world.js ou KROVA_NPCS
+  var npcData = null;
+  if (b.npcId) {
+    npcData = (window.WORLD_NPCS && window.WORLD_NPCS[b.npcId])
+           || (window.KROVA_NPCS && window.KROVA_NPCS[b.npcId])
+           || null;
+  }
+
+  // Libellés d'action selon la langue
+  var actionLabels = {
+    lessons:  { fr:'📖 Ouvrir les leçons',    en:'📖 Open lessons',      ht:'📖 Ouvri leson' },
+    practice: { fr:'💬 Pratiquer la langue',   en:'💬 Practice language', ht:'💬 Pratike lang' },
+    dialogue: { fr:'🗣️ Parler avec ce PNJ',   en:'🗣️ Talk to this NPC', ht:'🗣️ Pale ak PNJ sa' },
+  };
+
+  // Construire le contenu du panneau
   var locTitle = document.getElementById('locTitle');
   var npcList  = document.getElementById('npcList');
-  if (locTitle) locTitle.textContent = name;
-  if (npcList) {
-    if (!b.npc) {
-      npcList.innerHTML = '<div style="padding:40px 20px;text-align:center;color:rgba(255,255,255,0.25);font-size:0.88rem;">Aucun habitant ici.</div>';
-    } else {
-      npcList.innerHTML = '<button onclick="if(typeof openDialogue===\'function\')openDialogue(\'' + b.id + '\',\'' + b.id + '\')" style="'
-        + 'display:flex;align-items:center;gap:16px;width:100%;padding:18px 20px;'
-        + 'background:rgba(255,255,255,0.04);border:1.5px solid rgba(255,255,255,0.08);'
-        + 'border-radius:18px;cursor:pointer;text-align:left;color:inherit;">'
-        + '<div style="font-size:2.6rem;flex-shrink:0">' + b.npc + '</div>'
-        + '<div><div style="font-weight:800;font-size:1rem;color:#f0e8d0">' + name + '</div>'
-        + '<div style="font-size:0.68rem;color:rgba(255,255,255,0.35);margin-top:3px">Discuter</div></div>'
-        + '<div style="margin-left:auto;color:rgba(255,215,0,0.45);font-size:1.5rem">›</div>'
-        + '</button>';
-    }
+  if (locTitle) locTitle.textContent = b.npc ? (b.npc + ' ') + name : name;
+
+  if (!npcList) { running = false; if (typeof showScreen==='function') showScreen('screen-location'); return; }
+
+  var html = '';
+
+  // ── Lore du lieu ──
+  if (desc) {
+    html += '<div style="margin:0 16px 12px;padding:12px 14px;'
+      + 'background:rgba(255,255,255,0.04);border-left:3px solid rgba(255,215,0,0.28);'
+      + 'border-radius:0 12px 12px 0;font-size:0.78rem;color:rgba(255,255,255,0.50);'
+      + 'font-style:italic;line-height:1.55;">' + desc + '</div>';
   }
+
+  // ── Carte PNJ ──
+  if (npcData) {
+    var npcName  = npcData.name || '';
+    var npcEmoji = npcData.emoji || (b.npc || '👤');
+    var npcRole  = npcData.role  ? (npcData.role[nl] || npcData.role.fr || '') : '';
+    var npcBio   = npcData.bio   ? (npcData.bio[nl]  || npcData.bio.fr  || '') : '';
+    var npcFirst = npcData.firstMeet ? (npcData.firstMeet[nl] || npcData.firstMeet.fr || '') : '';
+    var accentColor = '#4ecf70';
+    if (b.id === 'market')  accentColor = '#ffd700';
+    if (b.id === 'library') accentColor = '#c084fc';
+    if (b.id === 'school')  accentColor = '#4ecf70';
+    if (b.id === 'castle')  accentColor = '#aa44ff';
+
+    html += '<div style="margin:0 16px 12px;display:flex;align-items:flex-start;gap:14px;'
+      + 'padding:16px 16px;background:rgba(255,255,255,0.04);'
+      + 'border:1.5px solid rgba(255,255,255,0.08);border-radius:18px;position:relative;overflow:hidden;">'
+      // Barre couleur gauche
+      + '<div style="position:absolute;left:0;top:0;bottom:0;width:3px;background:' + accentColor + ';border-radius:3px 0 0 3px;"></div>'
+      // Avatar
+      + '<div style="width:50px;height:50px;border-radius:50%;background:rgba(255,255,255,0.06);'
+      + 'border:2px solid ' + accentColor + ';display:flex;align-items:center;justify-content:center;'
+      + 'font-size:1.7rem;flex-shrink:0;">' + npcEmoji + '</div>'
+      // Info
+      + '<div style="flex:1;min-width:0;">'
+      + '<div style="font-weight:800;font-size:0.95rem;color:#f0e8d0;">' + npcName + '</div>'
+      + '<div style="font-size:0.68rem;color:rgba(255,255,255,0.38);margin-top:2px;">' + npcRole + '</div>'
+      + (npcBio ? '<div style="font-size:0.74rem;color:rgba(255,255,255,0.50);margin-top:6px;line-height:1.45;">' + npcBio + '</div>' : '')
+      + (npcFirst ? '<div style="font-size:0.72rem;color:' + accentColor + ';margin-top:8px;font-style:italic;line-height:1.4;">'
+        + '"' + npcFirst + '"</div>' : '')
+      + '</div>'
+      + '</div>';
+
+    // ── Bouton Dialogue (parler avec le PNJ) ──
+    html += '<button onclick="_v3dDialogue(\'' + b.id + '\',\'' + b.npcId + '\')" style="'
+      + 'display:flex;align-items:center;gap:14px;width:calc(100% - 32px);margin:0 16px 10px;'
+      + 'padding:14px 18px;background:linear-gradient(135deg,' + accentColor + '18,' + accentColor + '08);'
+      + 'border:1.5px solid ' + accentColor + '55;border-radius:16px;cursor:pointer;'
+      + 'color:#f0e8d0;text-align:left;transition:all 0.18s;"'
+      + ' onmouseover="this.style.background=\'' + accentColor + '28\'"'
+      + ' onmouseout="this.style.background=\'linear-gradient(135deg,' + accentColor + '18,' + accentColor + '08)\'">'
+      + '<span style="font-size:1.6rem;">🗣️</span>'
+      + '<div><div style="font-weight:800;font-size:0.88rem;">'
+      + (actionLabels.dialogue[nl] || actionLabels.dialogue.fr)
+      + '</div><div style="font-size:0.68rem;color:rgba(255,255,255,0.38);margin-top:2px;">'
+      + {fr:'Pratique la langue cible',en:'Practice the target language',ht:'Pratike lang sib la'}[nl]
+      + '</div></div>'
+      + '<span style="margin-left:auto;color:' + accentColor + ';font-size:1.3rem;">›</span>'
+      + '</button>';
+  } else if (b.npc) {
+    // PNJ emoji sans données world.js
+    html += '<div style="padding:20px 16px;text-align:center;font-size:3rem;">' + b.npc + '</div>';
+  }
+
+  // ── Bouton action secondaire (leçons / pratique) ──
+  if (b.action && b.action !== 'dialogue') {
+    var actLabel = actionLabels[b.action] ? (actionLabels[b.action][nl] || actionLabels[b.action].fr) : b.action;
+    html += '<button onclick="_v3dAction(\'' + b.action + '\')" style="'
+      + 'display:flex;align-items:center;gap:14px;width:calc(100% - 32px);margin:0 16px 10px;'
+      + 'padding:14px 18px;background:rgba(255,255,255,0.04);'
+      + 'border:1.5px solid rgba(255,255,255,0.08);border-radius:16px;cursor:pointer;'
+      + 'color:#f0e8d0;text-align:left;">'
+      + '<span style="font-size:1.4rem;">' + (b.action === 'lessons' ? '📖' : '💬') + '</span>'
+      + '<div><div style="font-weight:800;font-size:0.88rem;">' + actLabel + '</div>'
+      + '<div style="font-size:0.68rem;color:rgba(255,255,255,0.38);margin-top:2px;">'
+      + {fr:'Apprends avec ce lieu',en:'Learn with this location',ht:'Aprann ak kote sa a'}[nl]
+      + '</div></div>'
+      + '<span style="margin-left:auto;color:rgba(255,255,255,0.25);font-size:1.3rem;">›</span>'
+      + '</button>';
+  }
+
+  // Si ni NPC ni action — maison de base
+  if (!npcData && !b.npc && !b.action) {
+    html += '<div style="padding:32px 20px;text-align:center;color:rgba(255,255,255,0.28);font-size:0.88rem;">'
+      + {fr:'C\'est chez toi. Ici tu te reposes.',en:'This is your home. Rest here.',ht:'Se lakay ou. Repoze isit.'}[nl]
+      + '</div>';
+  }
+
+  npcList.innerHTML = html;
 
   running = false;
   if (typeof showScreen === 'function') showScreen('screen-location');
 
+  // Patch bouton retour — relancer la boucle 3D
   var back = document.querySelector('#screen-location .back-btn');
   if (back && !back._v3dPatched) {
     back._v3dPatched = true;
@@ -965,6 +1098,36 @@ function _onTapBuilding(id) {
     };
   }
 }
+
+// Dialogue avec un PNJ — ouvre la conversation IA
+window._v3dDialogue = function(locId, npcId) {
+  running = false;
+  if (typeof openDialogue === 'function') {
+    openDialogue(locId, npcId);
+  } else {
+    if (typeof showScreen === 'function') showScreen('screen-dialogue');
+  }
+};
+
+// Action rapide — ouvre l'écran correspondant
+window._v3dAction = function(action) {
+  running = false;
+  switch (action) {
+    case 'lessons':
+      if (typeof ensureLearningBindings === 'function') ensureLearningBindings();
+      var fk = window.VOCAB ? Object.keys(window.VOCAB)[0] : null;
+      if (fk && typeof loadVocab === 'function') loadVocab(fk);
+      if (typeof showScreen === 'function') showScreen('screen-vocab');
+      break;
+    case 'practice':
+      var fp = window.PHRASES_DATA ? Object.keys(window.PHRASES_DATA)[0] : null;
+      if (fp && typeof loadPhrases === 'function') loadPhrases(fp);
+      if (typeof showScreen === 'function') showScreen('screen-phrases');
+      break;
+    default:
+      if (typeof showScreen === 'function') showScreen('screen-' + action);
+  }
+};
 
 // ================================================================
 // NAV BAR
