@@ -16,88 +16,145 @@ var COL_LOCKED = 0x94a3b8;   // slate-400
 // Positions étalées en X (≈480 unités de large), légère variation en Z
 // ================================================================
 var BUILDINGS_3D = [
-  {
-    id: 'home', badgeNum: 1,
-    name: { fr:'Ta Maison', en:'Your Home', ht:'Kay Ou' },
-    stage: { fr:'Débutant', en:'Beginner', ht:'Debitan' },
-    desc: { fr:'C\'est ici que tu te reposes et prépares tes journées à Krova.', en:'This is where you rest and prepare your days in Krova.', ht:'Se isit ou repoze ak prepare jou ou yo nan Krova.' },
-    x: -220, z: 30,
-    wallColor: 0xffd780, roofColor: 0xe8900a,
-    emissiveWall: 0x8b6200, emissiveRoof: 0x6b3800,
-    radius: 16, height: 20, roofHeight: 15,
-    platformColor: 0xd4880a,
-    npc: null, npcId: null, lockXP: 0,
-    action: null,
-  },
-  {
-    id: 'school', badgeNum: 2,
-    name: { fr:'École de Mme Amara', en:'Ms. Amara\'s School', ht:'Lekòl Madan Amara' },
-    stage: { fr:'Élémentaire', en:'Elementary', ht:'Elemantè' },
-    desc: { fr:'Mme Amara enseigne ici depuis 15 ans. Elle t\'apprend les bases de la langue.', en:'Ms. Amara has taught here for 15 years. She teaches you the language basics.', ht:'Madan Amara ap anseye isit depi 15 an. Li anseye ou baz lang lan.' },
-    x: -110, z: -40,
-    wallColor: 0x68e88a, roofColor: 0x0fa83c,
-    emissiveWall: 0x006620, emissiveRoof: 0x004a18,
-    radius: 18, height: 24, roofHeight: 17,
-    platformColor: 0x18a840,
-    npc: '👩‍🏫', npcId: 'teacher', lockXP: 0,
-    action: 'lessons',
-  },
-  {
-    id: 'market', badgeNum: 3,
-    name: { fr:'Marché de Diallo', en:'Diallo\'s Market', ht:'Mache Diallo' },
-    stage: { fr:'Intermédiaire', en:'Intermediate', ht:'Entèmedyè' },
-    desc: { fr:'Diallo vend de tout. Ici, tu apprends à négocier, compter et te débrouiller.', en:'Diallo sells everything. Here you learn to negotiate, count and get by.', ht:'Diallo vann tout bagay. Isit ou aprann negosye, konte epi degaje ou.' },
-    x: 10, z: 30,
-    wallColor: 0xffdf50, roofColor: 0x1a7eff,
-    emissiveWall: 0x886200, emissiveRoof: 0x003a88,
-    radius: 19, height: 25, roofHeight: 18,
-    platformColor: 0xd4a800,
-    npc: '🧑‍🌾', npcId: 'merchant', lockXP: 0,
-    action: 'practice',
-  },
-  {
-    id: 'library', badgeNum: 4,
-    name: { fr:'Bibliothèque de Sorana', en:'Sorana\'s Library', ht:'Bibliyotèk Sorana' },
-    stage: { fr:'Avancé', en:'Advanced', ht:'Avanse' },
-    desc: { fr:'Sorana garde des centaines de livres. Elle cherche quelqu\'un pour déchiffrer les manuscrits anciens.', en:'Sorana keeps hundreds of books. She seeks someone to decipher ancient manuscripts.', ht:'Sorana kenbe dè santèn liv. Li chache yon moun pou dechifre maniskri ansyen.' },
-    x: 130, z: -30,
-    wallColor: 0xd97fff, roofColor: 0x9900e8,
-    emissiveWall: 0x5a008a, emissiveRoof: 0x3c0060,
-    radius: 20, height: 27, roofHeight: 19,
-    platformColor: 0x8800cc,
-    npc: '👩‍💼', npcId: 'librarian', lockXP: 400,
-    action: 'practice',
-  },
-  {
-    id: 'castle', badgeNum: 5,
-    name: { fr:'Château de Lingoria', en:'Lingoria Castle', ht:'Chato Lingoria' },
-    stage: { fr:'Maîtrise', en:'Mastery', ht:'Mèt' },
-    desc: { fr:'Le Gouverneur Isabeau attend les meilleurs linguistes. Lingoria a besoin de toi.', en:'Governor Isabeau awaits the best linguists. Lingoria needs you.', ht:'Gouvènè Isabeau ap tann pi bon lengwis yo. Lingoria bezwen ou.' },
-    x: 270, z: 40,
-    wallColor: 0xd8d0b8, roofColor: 0xaa44ff,
-    emissiveWall: 0x3a2e10, emissiveRoof: 0x4a00aa,
-    radius: 26, height: 36, roofHeight: 24,
-    platformColor: 0x9a8878,
-    npc: null, npcId: 'governor', lockXP: 1200, isCastle: true,
-    action: null,
-  },
+
+  // ─── ZONE 1 : Cœur du village ────────────────────────────────
+  { id:'park',     locId:'park',     npcId:'elder',    badgeNum:1,
+    name:{fr:'Parc du Sage',         en:"Elder's Park",           ht:'Pak Granmoun'},
+    stage:{fr:'Salutations',         en:'Greetings',              ht:'Bonjou'},
+    desc:{fr:'Grand-père Koffi enseigne les salutations de base.',
+          en:'Grandpa Koffi teaches basic greetings.', ht:'Gran-pè Koffi anseye salitasyon debaz.'},
+    x:-260, z:20,
+    wallColor:0xfde68a, roofColor:0x16a34a, emissiveWall:0x78350f, emissiveRoof:0x052e16,
+    radius:16, height:20, roofHeight:14, platformColor:0x15803d,
+    emoji:'🌳', npc:'👴', lockXP:0, action:'dialogue' },
+
+  { id:'school',   locId:'school',   npcId:'teacher',  badgeNum:2,
+    name:{fr:'École Dupont',         en:"Dupont's School",        ht:'Lekòl Dupont'},
+    stage:{fr:'Alphabet & Chiffres', en:'Alphabet & Numbers',     ht:'Alfabè ak Chif'},
+    desc:{fr:'Mme Dupont enseigne alphabet et chiffres.',
+          en:'Ms. Dupont teaches alphabet and numbers.', ht:'Madan Dupont anseye alfabè ak chif.'},
+    x:-170, z:-50,
+    wallColor:0x86efac, roofColor:0x1d4ed8, emissiveWall:0x14532d, emissiveRoof:0x1e3a8a,
+    radius:18, height:24, roofHeight:16, platformColor:0x1e40af,
+    emoji:'🏫', npc:'👩‍🏫', lockXP:0, action:'dialogue' },
+
+  { id:'friends',  locId:'friends',  npcId:'friend',   badgeNum:3,
+    name:{fr:'Maison de Léa',        en:"Léa's House",            ht:'Kay Léa'},
+    stage:{fr:'Amis & Famille',      en:'Friends & Family',       ht:'Zanmi ak Fanmi'},
+    desc:{fr:"Léa est toujours prête à papoter! Conversations informelles.",
+          en:'Léa is always ready to chat! Informal conversations.', ht:'Léa toujou prèt pou pale!'},
+    x:-80, z:55,
+    wallColor:0xfca5a5, roofColor:0xbe185d, emissiveWall:0x7f1d1d, emissiveRoof:0x500724,
+    radius:15, height:19, roofHeight:13, platformColor:0x9d174d,
+    emoji:'🏠', npc:'👧', lockXP:0, action:'dialogue' },
+
+  // ─── ZONE 2 : Commerce ───────────────────────────────────────
+  { id:'market',   locId:'market',   npcId:'merchant', badgeNum:4,
+    name:{fr:'Marché Diallo',        en:"Diallo's Market",        ht:'Mache Diallo'},
+    stage:{fr:'Commerce & Nombres',  en:'Shopping & Numbers',     ht:'Komès ak Nimewo'},
+    desc:{fr:'Diallo vend de tout. Apprenez à négocier et compter.',
+          en:'Diallo sells everything. Learn to negotiate and count.', ht:'Diallo vann tout bagay.'},
+    x:10, z:-30,
+    wallColor:0xfde68a, roofColor:0xd97706, emissiveWall:0x78350f, emissiveRoof:0x92400e,
+    radius:19, height:23, roofHeight:16, platformColor:0xb45309,
+    emoji:'🏪', npc:'🧑‍🌾', lockXP:0, action:'dialogue' },
+
+  { id:'bank',     locId:'bank',     npcId:'banker',   badgeNum:5,
+    name:{fr:'Banque Dupuis',        en:'Dupuis Bank',             ht:'Bank Dupuis'},
+    stage:{fr:'Argent & Finances',   en:'Money & Finance',         ht:'Lajan ak Finans'},
+    desc:{fr:'M. Dupuis parle vocabulaire financier et formel.',
+          en:'Mr. Dupuis speaks financial and formal vocabulary.', ht:'Msye Dupuis pale vokabilè finansye.'},
+    x:90, z:50,
+    wallColor:0xd4d4d4, roofColor:0x1e293b, emissiveWall:0x404040, emissiveRoof:0x0f172a,
+    radius:17, height:22, roofHeight:14, platformColor:0x334155,
+    emoji:'🏦', npc:'👨‍💼', lockXP:80, action:'dialogue' },
+
+  // ─── ZONE 3 : Vie sociale ────────────────────────────────────
+  { id:'tavern',   locId:'tavern',   npcId:'bartender',badgeNum:6,
+    name:{fr:'Taverne Marco',        en:"Marco's Tavern",          ht:'Tavèn Marco'},
+    stage:{fr:'Boissons & Détente',  en:'Drinks & Leisure',        ht:'Bwason ak Detant'},
+    desc:{fr:'Marco sert les meilleures boissons. Conversations décontractées.',
+          en:'Marco serves the best drinks. Relaxed conversations.', ht:'Marco sèvi pi bon bwason yo.'},
+    x:170, z:-55,
+    wallColor:0xfed7aa, roofColor:0x9a3412, emissiveWall:0x7c2d12, emissiveRoof:0x431407,
+    radius:17, height:21, roofHeight:15, platformColor:0xc2410c,
+    emoji:'🍺', npc:'🍺', lockXP:120, action:'dialogue' },
+
+  { id:'church',   locId:'church',   npcId:'pastor',   badgeNum:7,
+    name:{fr:'Église Saint-Antoine', en:'Saint-Antoine Church',    ht:'Legliz Sen-Antoine'},
+    stage:{fr:'Valeurs & Formel',    en:'Values & Formal',         ht:'Valè ak Fòmèl'},
+    desc:{fr:'Père Antoine: expressions formelles et respectueuses.',
+          en:'Father Antoine: formal and respectful expressions.', ht:'Pè Antoine: ekspresyon fòmèl.'},
+    x:250, z:60,
+    wallColor:0xe5e7eb, roofColor:0x4338ca, emissiveWall:0x374151, emissiveRoof:0x312e81,
+    radius:18, height:26, roofHeight:18, platformColor:0x3730a3,
+    emoji:'⛪', npc:'⛪', lockXP:150, action:'dialogue' },
+
+  // ─── ZONE 4 : Services publics ───────────────────────────────
+  { id:'hospital', locId:'hospital', npcId:'doctor',   badgeNum:8,
+    name:{fr:'Hôpital Martin',       en:'Martin Hospital',         ht:'Lopital Martin'},
+    stage:{fr:'Santé & Corps',       en:'Health & Body',           ht:'Sante ak Kò'},
+    desc:{fr:'Dr. Martin: vocabulaire médical de base.',
+          en:'Dr. Martin: basic medical vocabulary.', ht:'Doktè Martin: vokabilè medikal debaz.'},
+    x:330, z:-25,
+    wallColor:0xbfdbfe, roofColor:0x0369a1, emissiveWall:0x1e3a5f, emissiveRoof:0x082f49,
+    radius:20, height:25, roofHeight:16, platformColor:0x0284c7,
+    emoji:'🏥', npc:'👨‍⚕️', lockXP:200, action:'dialogue' },
+
+  { id:'station',  locId:'station',  npcId:'officer',  badgeNum:9,
+    name:{fr:'Gare de Krova',        en:'Krova Station',           ht:'Estasyon Krova'},
+    stage:{fr:'Voyages & Directions',en:'Travel & Directions',     ht:'Vwayaj ak Direksyon'},
+    desc:{fr:'Agent Kofi: directions, transports et voyages.',
+          en:'Agent Kofi: directions, transport and travel.', ht:'Ajan Kofi: direksyon ak transpò.'},
+    x:400, z:65,
+    wallColor:0xe2e8f0, roofColor:0x475569, emissiveWall:0x334155, emissiveRoof:0x1e293b,
+    radius:17, height:22, roofHeight:14, platformColor:0x64748b,
+    emoji:'🚉', npc:'👮', lockXP:250, action:'dialogue' },
+
+  // ─── ZONE 5 : Culture & Loi ──────────────────────────────────
+  { id:'cinema',   locId:'cinema',   npcId:'director', badgeNum:10,
+    name:{fr:'Théâtre Félix',        en:'Félix Theater',           ht:'Teyat Félix'},
+    stage:{fr:'Culture & Cinéma',    en:'Culture & Cinema',        ht:'Kilti ak Sinema'},
+    desc:{fr:'Réalisateur Félix: culture et expressions artistiques.',
+          en:'Director Félix: culture and artistic expressions.', ht:'Reyalizatè Félix: kilti ak atistik.'},
+    x:470, z:-15,
+    wallColor:0xe9d5ff, roofColor:0x7c3aed, emissiveWall:0x4c1d95, emissiveRoof:0x2e1065,
+    radius:20, height:26, roofHeight:18, platformColor:0x6d28d9,
+    emoji:'🎬', npc:'🎥', lockXP:350, action:'dialogue' },
+
+  { id:'police',   locId:'police',   npcId:'officer2', badgeNum:11,
+    name:{fr:'Commissariat Koné',    en:'Koné Police Station',     ht:'Komisarya Koné'},
+    stage:{fr:'Sécurité & Règles',   en:'Safety & Rules',          ht:'Sekirite ak Règ'},
+    desc:{fr:'Capitaine Koné: vocabulaire civique et urgences.',
+          en:'Captain Koné: civic and emergency vocabulary.', ht:'Kaptèn Koné: vokabilè sivik ak ijans.'},
+    x:540, z:70,
+    wallColor:0xdbeafe, roofColor:0x1d4ed8, emissiveWall:0x1e3a5f, emissiveRoof:0x1e3a8a,
+    radius:17, height:22, roofHeight:14, platformColor:0x2563eb,
+    emoji:'🚔', npc:'👮‍♂️', lockXP:400, action:'dialogue' },
+
 ];
 
 // Arbres — répartis sur tout le monde élargi
 var TREE_POS = [
-  [-300, 80],[-280,-20],[-250,110],[-180,-90],[-150,80],
-  [-90,90],[-60,-100],[-20,-70],[40,-90],[80,90],
-  [120,100],[170,90],[200,-90],[230,-100],[300,90],
-  [320,-10],[-330,10],[-10,140],[60,150],[260,150],
+  // Gauche (zone 1)
+  [-320,80],[-300,-20],[-280,110],[-200,-90],[-185,80],
+  // Centre (zone 2-3)
+  [-50,120],[30,-100],[55,-75],[130,-110],[145,110],
+  // Droite (zone 4-5)
+  [280,100],[295,-80],[360,110],[380,-110],[440,90],
+  [460,-90],[490,130],[510,-60],[560,90],[570,-30],
+  // Lointain (décor fond)
+  [-350,10],[-10,160],[200,160],[390,160],[570,40],
 ];
 
 // Montagnes en fond — formes basses, couleurs atténuées, pas d'ombre
 var MOUNTAIN_DATA = [
-  { x:-360, z:-320, r:220, h:120, c:0x86b89a },
-  { x:-160, z:-360, r:260, h:150, c:0x7aa8c2 },
-  { x:60,   z:-340, r:230, h:130, c:0x8bc09c },
-  { x:240,  z:-380, r:270, h:160, c:0x76a0bc },
-  { x:400,  z:-300, r:210, h:115, c:0x8bc09c },
+  { x:-400, z:-320, r:220, h:130, c:0x86b89a },
+  { x:-180, z:-380, r:260, h:160, c:0x7aa8c2 },
+  { x: 40,  z:-360, r:240, h:140, c:0x8bc09c },
+  { x: 260, z:-400, r:270, h:170, c:0x76a0bc },
+  { x: 480, z:-340, r:230, h:130, c:0x6ea89a },
+  { x: 640, z:-300, r:200, h:120, c:0x8bc09c },
 ];
 
 // ================================================================
@@ -1208,6 +1265,7 @@ function _onTapBuilding(id) {
 // qui utilise LOCATIONS de data.js, le système guidé de guided_v2.js,
 // et déclenche les récompenses via updateWeeklyProgress/updateDailyProgress
 window._v3dDialogue = function(locId, npcId) {
+  // locId maps to GUIDED_DIALOGUES + LOCATIONS in data.js
   running = false;
 
   // Vérifier que LOCATIONS existe (data.js chargé)
@@ -1220,7 +1278,8 @@ window._v3dDialogue = function(locId, npcId) {
   // openDialogue est défini dans dialogue.js et patché par guided_v2.js
   // Il gère automatiquement : mode guidé (débutants <300XP), mode libre, NPC AI, corrections
   if (typeof openDialogue === 'function') {
-    openDialogue(locId, npcId);
+    var locationId = b.locId || b.id;
+    openDialogue(locationId, npcId);
     // Compter la visite pour les défis quotidiens
     if (typeof updateDailyProgress === 'function') updateDailyProgress('dialogue', 1);
     if (typeof updateWeeklyProgress === 'function') updateWeeklyProgress('talk_npc', 1);
