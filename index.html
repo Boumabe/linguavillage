@@ -319,7 +319,16 @@
       <div class="dial-name" id="dialName"></div>
       <div class="dial-role" id="dialRole"></div>
     </div>
-    <button class="back-btn" style="margin-left:auto;flex-shrink:0;" onclick="showScreen('screen-location')">←</button>
+    <button class="back-btn" style="margin-left:auto;flex-shrink:0;" onclick="
+      if(window._villageDialogueMode){
+        window._villageDialogueMode=false;
+        if(typeof window.goVillage==='function'){
+          window.running=true;
+          showScreen('screen-village');
+          requestAnimationFrame(function(){if(window.renderer)window._loop&&window._loop();});
+        } else { showScreen('screen-location'); }
+      } else { showScreen('screen-location'); }
+    ">←</button>
   </div>
 
   <!-- PLI Bar — Progressive Linguistic Immersion -->
