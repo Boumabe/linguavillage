@@ -250,7 +250,7 @@ function _init3D() {
     // ── Scène + ciel + brume (monde élargi) ──
     scene = new THREE.Scene();
     scene.background = _skyTexture();
-    scene.fog = new THREE.Fog(0xbfe3ff, 420, 980);
+    scene.fog = new THREE.Fog(0xc8dfa0, 420, 980); // brume herbe
 
     // ── Caméra panoramique large (vue d'ensemble dès le départ) ──
     camera = new THREE.PerspectiveCamera(36, W / H, 1, 2000);
@@ -365,10 +365,10 @@ function _skyTexture() {
   c.width = 2; c.height = 256;
   var ctx2 = c.getContext('2d');
   var g = ctx2.createLinearGradient(0, 0, 0, 256);
-  g.addColorStop(0,    '#2e86de');   // bleu cobalt vif en haut
-  g.addColorStop(0.35, '#54a0ff');   // bleu moyen
-  g.addColorStop(0.65, '#8ecae6');   // bleu pâle
-  g.addColorStop(1,    '#d4f1f9');   // quasi blanc-bleu à l'horizon
+  g.addColorStop(0,    '#1a6bb5');   // bleu ciel profond
+  g.addColorStop(0.40, '#5ba4d4');   // bleu ciel moyen
+  g.addColorStop(0.75, '#a8c8e8');   // horizon doux
+  g.addColorStop(1,    '#d4e8c2');   // horizon verdâtre réaliste
   ctx2.fillStyle = g;
   ctx2.fillRect(0, 0, 2, 256);
   return new THREE.CanvasTexture(c);
@@ -380,20 +380,20 @@ function _skyTexture() {
 function _buildGround() {
   // Base — vert sombre profond
   var geo = new THREE.CylinderGeometry(420, 445, 16, 64);
-  var mat = new THREE.MeshStandardMaterial({ color: 0x16a34a, roughness: 0.88,
-    emissive: 0x052e16, emissiveIntensity: 0.20 });
+  var mat = new THREE.MeshStandardMaterial({ color: 0x2d7d32, roughness: 0.92,
+    emissive: 0x1b5e20, emissiveIntensity: 0.15 });
   var ground = new THREE.Mesh(geo, mat);
   ground.position.set(20, -8, 0); ground.receiveShadow = true; scene.add(ground);
   // Couche herbe verte vive
   var topGeo = new THREE.CylinderGeometry(418, 418, 2, 64);
-  var topMat = new THREE.MeshStandardMaterial({ color: 0x4ade80, roughness: 0.82,
-    emissive: 0x14532d, emissiveIntensity: 0.25 });
+  var topMat = new THREE.MeshStandardMaterial({ color: 0x43a047, roughness: 0.85,
+    emissive: 0x2e7d32, emissiveIntensity: 0.20 });
   var top = new THREE.Mesh(topGeo, topMat);
   top.position.set(20, 0.5, 0); top.receiveShadow = true; scene.add(top);
   // Bordure lumineuse
   var rimGeo = new THREE.TorusGeometry(430, 9, 12, 64);
-  var rimMat = new THREE.MeshStandardMaterial({ color: 0x86efac, roughness: 0.82,
-    emissive: 0x166534, emissiveIntensity: 0.18 });
+  var rimMat = new THREE.MeshStandardMaterial({ color: 0x66bb6a, roughness: 0.85,
+    emissive: 0x388e3c, emissiveIntensity: 0.15 });
   var rim = new THREE.Mesh(rimGeo, rimMat);
   rim.rotation.x = Math.PI / 2; rim.position.set(20, 0.2, 0); scene.add(rim);
 }
@@ -1249,14 +1249,19 @@ function _onTapBuilding(id) {
   if (typeof showScreen === 'function') showScreen('screen-location');
 
   // Patch bouton retour — relancer la boucle 3D
+  // Patch bouton retour screen-location
   var back = document.querySelector('#screen-location .back-btn');
+  if (back) {
+    back._v3dPatched = false; // reset pour re-patcher à chaque ouverture
+  }
   if (back && !back._v3dPatched) {
     back._v3dPatched = true;
     var orig = back.onclick;
     back.onclick = function () {
       if (typeof orig === 'function') orig.call(this);
       else if (typeof showScreen === 'function') showScreen('screen-village');
-      running = true; _loop();
+      running = true;
+      requestAnimationFrame(function(){ _loop(); });
     };
   }
 }
@@ -1265,27 +1270,63 @@ function _onTapBuilding(id) {
 // qui utilise LOCATIONS de data.js, le système guidé de guided_v2.js,
 // et déclenche les récompenses via updateWeeklyProgress/updateDailyProgress
 window._v3dDialogue = function(locId, npcId) {
-  // locId maps to GUIDED_DIALOGUES + LOCATIONS in data.js
-  running = false;
+  running = false; // stoppe le rendu 3D pendant la conversation
 
-  // Vérifier que LOCATIONS existe (data.js chargé)
-  if (typeof LOCATIONS === 'undefined') {
-    console.warn('LOCATIONS non disponible');
+  // Vérifier LOCATIONS (data.js)
+  if (typeof LOCATIONS === 'undefined' || typeof openDialogue !== 'function') {
+    console.warn('LOCATIONS ou openDialogue non disponible');
     if (typeof showScreen === 'function') showScreen('screen-dialogue');
     return;
   }
 
-  // openDialogue est défini dans dialogue.js et patché par guided_v2.js
-  // Il gère automatiquement : mode guidé (débutants <300XP), mode libre, NPC AI, corrections
-  if (typeof openDialogue === 'function') {
-    var locationId = b.locId || b.id;
-    openDialogue(locationId, npcId);
-    // Compter la visite pour les défis quotidiens
-    if (typeof updateDailyProgress === 'function') updateDailyProgress('dialogue', 1);
-    if (typeof updateWeeklyProgress === 'function') updateWeeklyProgress('talk_npc', 1);
-  } else {
-    if (typeof showScreen === 'function') showScreen('screen-dialogue');
+  // Vérifier que la location existe
+  var loc = LOCATIONS.find(function(l){ return l.id === locId; });
+  if (!loc) {
+    console.warn('Location introuvable:', locId, '— locations dispo:', LOCATIONS.map(function(l){return l.id;}));
+    if (typeof showNotif === 'function') showNotif('⚠️ Lieu introuvable: ' + locId, 2500);
+    return;
   }
+
+  // Vérifier que le NPC existe dans cette location
+  var npc = (loc.npcs||[]).find(function(n){ return n.id === npcId; });
+  if (!npc) {
+    // Essayer avec le premier NPC disponible si l'ID exact ne correspond pas
+    npc = (loc.npcs||[])[0];
+    if (!npc) {
+      console.warn('NPC introuvable:', npcId, 'dans', locId);
+      if (typeof showNotif === 'function') showNotif('⚠️ Personnage introuvable', 2500);
+      return;
+    }
+    npcId = npc.id; // utiliser le premier NPC disponible
+  }
+
+  // Signal pour que le bouton retour sache où aller
+  window._villageDialogueMode = true;
+
+  // Démarrer le dialogue — openDialogue gère tout :
+  // mode guidé (<300 XP) via guided_v2.js, mode libre IA, corrections
+  openDialogue(locId, npcId);
+
+  // Défis quotidiens / hebdomadaires
+  if (typeof updateDailyProgress === 'function') updateDailyProgress('dialogue', 1);
+  if (typeof updateWeeklyProgress === 'function') updateWeeklyProgress('talk_npc', 1);
+
+  // Patch du bouton retour de screen-dialogue → relance le village 3D
+  setTimeout(function() {
+    var backBtns = document.querySelectorAll('#screen-dialogue .back-btn, #screen-dialogue [onclick*="screen-location"], #screen-dialogue [onclick*="goVillage"]');
+    backBtns.forEach(function(btn) {
+      if (!btn._v3dDialPatch) {
+        btn._v3dDialPatch = true;
+        var origClick = btn.onclick;
+        btn.onclick = function(e) {
+          running = true;
+          if (typeof origClick === 'function') origClick.call(this, e);
+          else if (typeof showScreen === 'function') showScreen('screen-village');
+          requestAnimationFrame(function(){ if(renderer) _loop(); });
+        };
+      }
+    });
+  }, 200);
 };
 
 // Action rapide — ouvre l'écran correspondant
