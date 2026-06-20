@@ -112,6 +112,12 @@ window.LV_PNJ = (function() {
     const favWords = (window.LV_MEMORY && window.LV_MEMORY.get('favoriteWords') || [])
       .slice(-5).map(f => f.word).join(', ');
 
+    // Pièges pédagogiques extraits des 6 manuels analysés (curriculum.js),
+    // filtrés pour la paire langue native → langue cible du joueur.
+    const pitfallSnippet = (window.CURRICULUM && typeof window.CURRICULUM.buildPitfallPromptSnippet === 'function')
+      ? window.CURRICULUM.buildPitfallPromptSnippet(S.targetLang, S.nativeLang)
+      : '';
+
     return `Tu es ${npc.name}, ${role} à ${locName} dans un village d'apprentissage des langues.
 L'apprenant s'appelle ${S.playerName || 'l\'apprenant'}.
 Sa langue maternelle est le ${nativeLang}.
@@ -135,7 +141,8 @@ ${favWords ? `- Réutilise naturellement ces mots que l'apprenant aime : ${favWo
 - Si hors sujet, redirige : "En tant que ${role}, parlons plutôt de [ton domaine]."
 - Maximum 2-3 phrases par réponse.
 - Ne traduis pas. N'explique pas en ${nativeLang} sauf si l'apprenant est complètement bloqué.
-- Sois pédagogique et chaleureux, pas un jeu — une vraie interaction formatrice.`;
+- Sois pédagogique et chaleureux, pas un jeu — une vraie interaction formatrice.
+${pitfallSnippet ? `\n${pitfallSnippet}\nSi l'apprenant tombe dans un de ces pièges précis, corrige-le en citant la nuance exacte ci-dessus plutôt qu'une correction générique.` : ''}`;
   }
 
   // ── Appel API enrichi (remplace callAPIWithFallback pour les PNJ) ──
