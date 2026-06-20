@@ -277,6 +277,7 @@
     <div style="display:flex;gap:5px;flex-shrink:0;">
       <button class="hud-btn" onclick="showScreen('screen-menu')">← Menu</button>
       <button class="hud-btn" onclick="showDetailedStats()">📊</button>
+      <button class="hud-btn" onclick="if(window.LV_EXERCISES)window.LV_EXERCISES.openExercise()" title="Exercices">📚</button>
       <button class="hud-btn" onclick="showLeaderboard()">🏆</button>
       <button class="hud-btn" onclick="launchSurpriseMode()">⚡</button>
       <button class="hud-btn" onclick="openShop()">🏪</button>
@@ -600,6 +601,7 @@
 <script src="js/ui_text.js"></script>
 <script src="js/data.js"></script>
 <script src="js/curriculum.js"></script>
+<script src="js/curriculum_exercises.js"></script>
 <script src="js/curriculum_ui.js"></script>
 
 <!-- 2. Citations (avant app pour être disponible à l'onboarding) -->
