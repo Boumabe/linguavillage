@@ -1243,6 +1243,26 @@ function _onTapBuilding(id) {
       + '</div>';
   }
 
+  // ── Carte curriculum (additive, non-invasive) ──
+  // Si curriculum.js est chargé et qu'une unité pédagogique correspond à ce
+  // bâtiment, on ajoute une carte courte avant le contenu existant. Si
+  // curriculum.js n'est pas chargé, ce bloc ne fait rien — zéro impact.
+  if (window.CURRICULUM && typeof window.CURRICULUM.getUnitsForLang === 'function') {
+    var currUnits = window.CURRICULUM.getUnitsForLang(tl);
+    var matchedUnit = currUnits.find(function (u) { return u.unlocksBuilding === b.id; });
+    if (matchedUnit) {
+      var uTitle = matchedUnit.title[nl] || matchedUnit.title.fr || matchedUnit.title.en;
+      var uRule  = matchedUnit.rule ? (matchedUnit.rule[nl] || matchedUnit.rule.fr) : '';
+      var currHtml = '<div style="margin:0 16px 12px;padding:12px 14px;'
+        + 'background:rgba(255,215,0,0.05);border:1px solid rgba(255,215,0,0.15);'
+        + 'border-radius:14px;">'
+        + '<div style="font-size:0.66rem;font-weight:800;letter-spacing:0.05em;color:#ffd700;text-transform:uppercase;margin-bottom:4px;">📚 ' + uTitle + '</div>'
+        + (uRule ? '<div style="font-size:0.74rem;color:rgba(255,255,255,0.55);line-height:1.4;">' + uRule + '</div>' : '')
+        + '</div>';
+      html = currHtml + html;
+    }
+  }
+
   npcList.innerHTML = html;
 
   running = false;
