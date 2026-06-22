@@ -43,6 +43,14 @@ function openDialogue(locId, npcId) {
   _dlgState.isOpen   = true;
   _dlgState.xpEarned = 0;
 
+  // Mémoire : nouvelle session de conversation (no-op silencieux si LV_MEMORY absent)
+  if (window.LV_MEMORY && typeof window.LV_MEMORY.newSession === 'function') {
+    try { window.LV_MEMORY.newSession(); } catch(e) {}
+  }
+  if (window.LV_SPRITES && typeof window.LV_SPRITES.setExpression === 'function') {
+    try { window.LV_SPRITES.setExpression('neutral', 0); } catch(e) {}
+  }
+
   _buildDialogueUI(npc, locId, useGuided ? guided : null);
 
   if (useGuided) {
@@ -342,6 +350,75 @@ function _sendFreeMsg() {
 }
 
 // ================================================================
+// PÉDAGOGIE PAR RÔLE DE PNJ
+// Reprise de la table NPC_PEDAGOGY (anciennement dans pnj.js, qui n'était
+// jamais exécuté en pratique — voir js/_archive/pnj.js). Indexée par
+// npc.id (ex: 'merchant', 'teacher') plutôt que par le libellé traduit,
+// pour fonctionner quelle que soit la langue native du joueur.
+// ================================================================
+var NPC_PEDAGOGY = {
+  teacher:   { style:'formel et encourageant', domain:'grammaire, vocabulaire scolaire, prononciation', corrects:true,  introduces:'règles grammaticales' },
+  merchant:  { style:'familier et pratique', domain:'nombres, prix, marchandises, négociation', corrects:false, introduces:'vocabulaire commercial' },
+  doctor:    { style:'professionnel et clair', domain:'corps humain, symptômes, soins, urgences', corrects:true,  introduces:'vocabulaire médical de base' },
+  pastor:    { style:'solennel et bienveillant', domain:'valeurs, communauté, expressions formelles', corrects:false, introduces:'expressions formelles et de respect' },
+  bartender: { style:'décontracté et sociable', domain:'boissons, nourriture, conversations informelles', corrects:false, introduces:'expressions du quotidien' },
+  officer:   { style:'formel et direct', domain:'directions, identité, urgences, règles', corrects:true,  introduces:'vocabulaire civique et de la sécurité' },
+  officer2:  { style:'formel et direct', domain:'directions, identité, urgences, règles', corrects:true,  introduces:'vocabulaire civique et de la sécurité' },
+  banker:    { style:'professionnel et précis', domain:'argent, chiffres, transactions, formulaires', corrects:true,  introduces:'vocabulaire financier de base' },
+  nurse:     { style:'chaleureux et rassurant', domain:'santé, symptômes, soins courants, émotions', corrects:false, introduces:'vocabulaire de la santé et du bien-être' },
+  friend:    { style:'très informel et enthousiaste', domain:'vie quotidienne, loisirs, émotions, amitié', corrects:false, introduces:'argot doux et expressions courantes' },
+  default:   { style:'simple et pédagogique', domain:'vocabulaire général', corrects:true,  introduces:'expressions de base' },
+};
+
+function _getNpcPedagogy(npcId) {
+  return NPC_PEDAGOGY[npcId] || NPC_PEDAGOGY.default;
+}
+
+// ================================================================
+// ANALYSE DE LA RÉPONSE IA — détecte succès / correction
+// Reprise fidèle de analyzeResponse() (anciennement pnj.js).
+// ================================================================
+function _analyzeNpcReply(reply) {
+  var lower = String(reply || '').toLowerCase();
+  var correctionSignals = ['on dit', 'il faut dire', 'la forme correcte', 'vous devriez dire', 'devrait être', "c'est plutôt", 'mais on dit', 'koreksyon', 'correction', 'correcto', 'richtig ist'];
+  var successSignals    = ['parfait', 'excellent', 'bravo', 'très bien', 'super', 'fantastique', 'félicitations', 'exselans', 'perfecto', 'genau richtig', 'sehr gut', 'perfectly', 'great job', 'well done'];
+  return {
+    hasCorrection: correctionSignals.some(function(s){ return lower.indexOf(s) !== -1; }),
+    hasSuccess:    successSignals.some(function(s){ return lower.indexOf(s) !== -1; })
+  };
+}
+
+// ================================================================
+// CONTEXTE ENRICHI (mémoire + pièges pédagogiques)
+// Construit une note additionnelle, envoyée au backend dans le champ
+// systemContext, en plus des champs déjà utilisés par l'API existante.
+// N'ALTÈRE PAS les champs déjà consommés par le backend ; ajoute des
+// informations facultatives qu'il peut ignorer s'il ne les lit pas.
+// ================================================================
+function _buildEnrichedContext(npc, nl, tl) {
+  var parts = [];
+
+  var pedagogy = _getNpcPedagogy(npc ? npc.id : null);
+  parts.push('Style du PNJ: ' + pedagogy.style + '. Domaine: ' + pedagogy.domain + '. Introduit: ' + pedagogy.introduces + '.');
+  parts.push(pedagogy.corrects
+    ? "Si l'apprenant fait une faute, corrige-le gentiment en incluant la forme correcte."
+    : "Si l'apprenant fait une faute, reformule naturellement la phrase correcte sans le signaler explicitement.");
+
+  if (window.LV_MEMORY && typeof window.LV_MEMORY.getLVContext === 'function') {
+    try { parts.push(window.LV_MEMORY.getLVContext()); } catch(e) {}
+  }
+
+  if (window.CURRICULUM && typeof window.CURRICULUM.buildPitfallPromptSnippet === 'function') {
+    try {
+      var snippet = window.CURRICULUM.buildPitfallPromptSnippet(tl, nl);
+      if (snippet) parts.push(snippet);
+    } catch(e) {}
+  }
+
+  return parts.join('\n');
+}
+
+// ================================================================
 // APPEL API NPC
 // ================================================================
 async function _callNPCAPI(userMsg, onSuccess, onError) {
@@ -361,6 +438,11 @@ async function _callNPCAPI(userMsg, onSuccess, onError) {
 
   _dlgState.history.push({role:'player', text: userMsg});
 
+  // Mémoire : incrémenter le compteur de messages (no-op silencieux si LV_MEMORY absent)
+  if (window.LV_MEMORY && typeof window.LV_MEMORY.newMessage === 'function') {
+    try { window.LV_MEMORY.newMessage(); } catch(e) {}
+  }
+
   try {
     var result = await callAPIWithFallback('/dialogue', {
       userMessage:  userMsg,
@@ -373,6 +455,10 @@ async function _callNPCAPI(userMsg, onSuccess, onError) {
       playerXP:     xp,
       scriptPref:   (window.S && S.scriptPref) || 'both',
       history:      history,
+      // Champ additionnel : mémoire utilisateur + pièges pédagogiques +
+      // profil du PNJ. Le backend peut l'ignorer s'il ne le consomme pas
+      // encore — aucun champ existant n'est modifié.
+      systemContext: _buildEnrichedContext(npc, nl, tl),
     });
 
     var reply       = result.reply       || result.message || '';
@@ -386,6 +472,24 @@ async function _callNPCAPI(userMsg, onSuccess, onError) {
     }
 
     _dlgState.history.push({role:'npc', text: reply});
+
+    // Réaction sprite + mémoire selon le contenu de la réponse
+    var analysis = _analyzeNpcReply(reply);
+    if (window.LV_SPRITES) {
+      try {
+        if (analysis.hasSuccess)         window.LV_SPRITES.reactToMission();
+        else if (analysis.hasCorrection) window.LV_SPRITES.reactToCorrection(false);
+        else                              window.LV_SPRITES.reactToCorrection(true);
+      } catch(e) {}
+    }
+    if (window.LV_MEMORY) {
+      var firstWord = (userMsg.split(' ').filter(function(w){ return w.length > 2; })[0]) || null;
+      try {
+        if (analysis.hasCorrection && firstWord) window.LV_MEMORY.markWeak(firstWord);
+        if (analysis.hasSuccess && firstWord)    window.LV_MEMORY.markMastered(firstWord);
+      } catch(e) {}
+    }
+
     onSuccess(reply, translation !== reply ? translation : null);
   } catch(e) {
     console.error('API dialogue error:', e);
