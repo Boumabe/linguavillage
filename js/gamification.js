@@ -29,16 +29,49 @@ var BADGES = [
   {id:'b7', xp:3500, icon:'🌟', fr:'Légende',           en:'Legend'}
 ];
 
-// SURPRISE VIDEOS (inchangé)
+// [CORRECTION] Fusion de la version de save.js (plus riche : plusieurs
+// vidéos par langue avec niveaux de difficulté 🟢/🟡) avec celle qui
+// existait ici (1-2 vidéos par langue, toutes 🟢). save.js étant chargé
+// avant gamification.js, sa version était jusqu'ici écrasée
+// silencieusement par celle-ci à chaque chargement de page — les vidéos
+// intermédiaires (🟡) n'étaient donc jamais piochées par
+// launchSurpriseMode(). Cette fusion restaure l'ensemble du contenu.
 var SURPRISE_VIDEOS = {
-  fr:[ {id:'French1.3', t:'FSI Français — Unité 1', diff:'🟢'}, {id:'LearnToSpeakFrenchVideo1-11', t:'Learn French — Video 1-11', diff:'🟢'} ],
-  en:[ {id:'FSIEnglishBasic_Vol1', t:'FSI English Basic Vol.1', diff:'🟢'} ],
-  es:[ {id:'FsiSpanishBasicCourseVolume1Unit01a', t:'FSI Español Básico Vol.1', diff:'🟢'} ],
-  ht:[ {id:'HaitianCreoleBasic_Archive', t:'Kreyòl Ayisyen — Baz', diff:'🟢'} ],
-  de:[ {id:'GermanFSI_Basic_Vol1', t:'FSI Deutsch Basiskurs Vol.1', diff:'🟢'} ],
-  ru:[ {id:'RussianFSI_Basic', t:'FSI Русский — Базовый', diff:'🟢'} ],
-  zh:[ {id:'MandarinFSI_Basic', t:'FSI 普通话 基础', diff:'🟢'} ],
-  ja:[ {id:'JapaneseFSI_Basic', t:'FSI 日本語 基礎', diff:'🟢'} ],
+  fr:[
+    {id:'French1.3',                             t:'FSI Français — Unité 1',         diff:'🟢'},
+    {id:'LearnToSpeakFrenchVideo1-11',           t:'Learn French — Video 1-11',       diff:'🟢'},
+    {id:'ll-french',                             t:"Let's Learn French",              diff:'🟢'},
+    {id:'FrenchIntermediateFSI',                 t:'FSI Français Intermédiaire',      diff:'🟡'},
+  ],
+  en:[
+    {id:'FSIEnglishBasic_Vol1',                  t:'FSI English Basic Vol.1',         diff:'🟢'},
+    {id:'PeaceCorpsEnglishCourse',               t:'Peace Corps English',             diff:'🟢'},
+    {id:'AmericanEnglishIntermediateFSI',        t:'American English Intermediate',   diff:'🟡'},
+  ],
+  es:[
+    {id:'FsiSpanishBasicCourseVolume1Unit01a',   t:'FSI Español Básico Vol.1',        diff:'🟢'},
+    {id:'Fsi-SpanishProgrammaticCourse-Volume1', t:'FSI Español Programático',        diff:'🟡'},
+  ],
+  ht:[
+    {id:'HaitianCreoleBasic_Archive',            t:'Kreyòl Ayisyen — Baz',            diff:'🟢'},
+    {id:'PaleKreyol_Archive',                    t:'Pale Kreyòl — Salitasyon',        diff:'🟢'},
+  ],
+  de:[
+    {id:'GermanFSI_Basic_Vol1',                  t:'FSI Deutsch Basiskurs Vol.1',     diff:'🟢'},
+    {id:'GermanFSI_Intermediate',                t:'FSI Deutsch Mittelstufe',          diff:'🟡'},
+  ],
+  ru:[
+    {id:'RussianFSI_Basic',                      t:'FSI Русский — Базовый',           diff:'🟢'},
+    {id:'RussianFSI_Intermediate',               t:'FSI Русский — Средний',           diff:'🟡'},
+  ],
+  zh:[
+    {id:'MandarinFSI_Basic',                     t:'FSI 普通话 基础',                  diff:'🟢'},
+    {id:'MandarinFSI_Intermediate',              t:'FSI 普通话 中级',                  diff:'🟡'},
+  ],
+  ja:[
+    {id:'JapaneseFSI_Basic',                     t:'FSI 日本語 基礎',                  diff:'🟢'},
+    {id:'JapaneseFSI_Intermediate',              t:'FSI 日本語 中級',                  diff:'🟡'},
+  ],
 };
 
 // =================================================================
