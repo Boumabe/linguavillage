@@ -400,181 +400,29 @@ function updateAdaptiveWeather() {
   _sunMoonAngle = (h / 24) * Math.PI * 2;
 }
 
-function drawAdaptiveSky(ctx, W, H, tick) {
-  var tod  = getDetailedTimeOfDay();
-  var h    = new Date().getHours();
-  var m    = new Date().getMinutes();
-  var frac = h + m/60;
 
-  // Ciel gradient selon l'heure
-  var sky = ctx.createLinearGradient(0, 0, 0, H * 0.6);
-  if (tod === 'dawn') {
-    sky.addColorStop(0, '#1a0a3a');
-    sky.addColorStop(0.5, '#ff6b35');
-    sky.addColorStop(1, '#ffaa55');
-  } else if (tod === 'morning') {
-    sky.addColorStop(0, '#1a4a8a');
-    sky.addColorStop(1, '#4a9aff');
-  } else if (tod === 'noon') {
-    sky.addColorStop(0, '#0a3070');
-    sky.addColorStop(1, '#2a7aff');
-  } else if (tod === 'afternoon') {
-    sky.addColorStop(0, '#1a3a7a');
-    sky.addColorStop(1, '#3a6aee');
-  } else if (tod === 'dusk') {
-    sky.addColorStop(0, '#2a1a4a');
-    sky.addColorStop(0.5, '#ee4433');
-    sky.addColorStop(1, '#ff9955');
-  } else if (tod === 'evening') {
-    sky.addColorStop(0, '#050510');
-    sky.addColorStop(1, '#1a1040');
-  } else { // night
-    sky.addColorStop(0, '#01020a');
-    sky.addColorStop(1, '#050520');
-  }
-  ctx.fillStyle = sky;
-  ctx.fillRect(0, 0, W, H * 0.6);
-
-  // Soleil ou Lune avec position orbitale
-  var angle     = ((frac / 24) * Math.PI * 2) - Math.PI / 2;
-  var orbitR    = W * 0.42;
-  var sunX      = W * 0.5 + Math.cos(angle) * orbitR;
-  var sunY      = H * 0.3 + Math.sin(angle) * orbitR * 0.4;
-  var isDay     = tod !== 'night' && tod !== 'evening';
-
-  if (sunY < H * 0.55) { // Seulement si visible
-    if (isDay) {
-      // Soleil avec halo
-      var grd = ctx.createRadialGradient(sunX, sunY, 0, sunX, sunY, 30);
-      grd.addColorStop(0, tod==='noon'?'#ffffff':'#ffe080');
-      grd.addColorStop(0.3, tod==='noon'?'#ffe060':'#ffaa40');
-      grd.addColorStop(1, 'rgba(255,180,60,0)');
-      ctx.beginPath();
-      ctx.arc(sunX, sunY, 30, 0, Math.PI*2);
-      ctx.fillStyle = grd;
-      ctx.fill();
-      ctx.beginPath();
-      ctx.arc(sunX, sunY, 14, 0, Math.PI*2);
-      ctx.fillStyle = tod==='noon'?'#ffffff':'#ffe080';
-      ctx.fill();
-    } else {
-      // Lune
-      ctx.beginPath();
-      ctx.arc(sunX, sunY, 13, 0, Math.PI*2);
-      ctx.fillStyle = '#f0e0a0';
-      ctx.fill();
-      // Phase lunaire (croissant)
-      ctx.beginPath();
-      ctx.arc(sunX+4, sunY, 10, 0, Math.PI*2);
-      ctx.fillStyle = tod==='evening'?'#050520':'#01020a';
-      ctx.fill();
-    }
-  }
-
-  // Étoiles la nuit + étoiles filantes
-  if (tod === 'night' || tod === 'evening') {
-    var opacity = tod === 'night' ? 0.9 : 0.4;
-    for (var i = 0; i < 60; i++) {
-      var sx = (Math.sin(i*437)*0.5+0.5)*W;
-      var sy = (Math.sin(i*293)*0.5+0.5)*H*0.45;
-      var tw = 0.4 + 0.5*Math.sin(tick*0.02+i);
-      ctx.beginPath();
-      ctx.arc(sx, sy, 1+Math.sin(i*127)*0.5, 0, Math.PI*2);
-      ctx.fillStyle = 'rgba(255,255,200,'+(tw*opacity)+')';
-      ctx.fill();
-    }
-
-    // Étoiles filantes
-    if (Math.random() < 0.003) {
-      _shootingStars.push({x:Math.random()*W, y:Math.random()*H*0.3, vx:3+Math.random()*4, vy:1+Math.random()*2, life:40});
-    }
-    _shootingStars = _shootingStars.filter(function(s){ return s.life>0; });
-    _shootingStars.forEach(function(s) {
-      ctx.beginPath();
-      ctx.moveTo(s.x, s.y);
-      ctx.lineTo(s.x-s.vx*6, s.y-s.vy*6);
-      ctx.strokeStyle = 'rgba(255,255,200,'+(s.life/40)+')';
-      ctx.lineWidth = 1.5;
-      ctx.stroke();
-      s.x += s.vx; s.y += s.vy; s.life--;
-    });
-  }
-
-  // Nuages animés le jour
-  if (isDay && currentWeather !== 'night') {
-    var cloudCount = currentWeather === 'rain' ? 5 : 2;
-    for (var c = 0; c < cloudCount; c++) {
-      var cx2 = ((tick*0.3+c*W/cloudCount) % (W+200)) - 100;
-      var cy2 = H*0.1 + c*30;
-      var ca  = currentWeather==='rain'?0.5:0.25;
-      ctx.beginPath();
-      ctx.ellipse(cx2, cy2, 50, 22, 0, 0, Math.PI*2);
-      ctx.fillStyle = 'rgba(220,230,255,'+ca+')';
-      ctx.fill();
-      ctx.beginPath();
-      ctx.ellipse(cx2+30, cy2-8, 35, 18, 0, 0, Math.PI*2);
-      ctx.fillStyle = 'rgba(220,230,255,'+ca+')';
-      ctx.fill();
-    }
-  }
-}
-
-// Patcher drawVillage pour utiliser le nouveau ciel
-var _origDrawVillage = drawVillage;
-drawVillage = function() {
-  if (!canvas || !ctx) return;
-  var W = canvas.width, H = canvas.height;
-  var cx = W*0.5, cy = H*0.5;
-
-  // Vérifier changement d'heure toutes les minutes
-  updateAdaptiveWeather();
-
-  // Ciel adaptatif
-  drawAdaptiveSky(ctx, W, H, tick);
-
-  // Terrain (repris de l'original — pelouse)
-  var night2 = currentWeather === 'night' || getDetailedTimeOfDay() === 'night';
-  var grass = ctx.createRadialGradient(cx, cy, 0, cx, cy, W*0.55);
-  grass.addColorStop(0, night2?'#1a3020':currentWeather==='snow'?'#d0d8e0':'#3a6b30');
-  grass.addColorStop(1, night2?'#0a1a0a':currentWeather==='snow'?'#b0b8c0':'#1e3d1a');
-  ctx.fillStyle = grass;
-  ctx.fillRect(0, 0, W, H);
-
-  // Cercles muraux
-  var rings = [{r:0.46,w:6,c:'#6a5030'},{r:0.32,w:5,c:'#7a6040'},{r:0.20,w:4,c:'#8a7050'},{r:0.10,w:3,c:'#c0a870'}];
-  rings.forEach(function(ring) {
-    ctx.beginPath();
-    ctx.arc(cx, cy, ring.r*W, 0, Math.PI*2);
-    ctx.strokeStyle = night2?darken(ring.c):ring.c;
-    ctx.lineWidth = ring.w;
-    ctx.stroke();
-  });
-
-  // Routes
-  var wallRadii = [W*0.46,W*0.32,W*0.20,W*0.10];
-  var wallColors= ['#8a7040','#9a8050','#aa9060','#c0a870'];
-  for (var ri=0;ri<4;ri++) {
-    var wc = night2?darken(wallColors[ri]):wallColors[ri];
-    var diag = [[0.3,0.3],[0.7,0.3],[0.3,0.7],[0.7,0.7]];
-    diag.forEach(function(d){
-      ctx.beginPath();
-      ctx.moveTo(cx,cy);
-      ctx.lineTo(d[0]*W,d[1]*H);
-      ctx.strokeStyle = 'rgba('+parseInt(wc.slice(1,3),16)+','+parseInt(wc.slice(3,5),16)+','+parseInt(wc.slice(5,7),16)+',0.3)';
-      ctx.lineWidth = 2;
-      ctx.stroke();
-    });
-  }
-
-  // Lieux
-  LOCATIONS.forEach(function(loc) {
-    var lx = loc.x*W, ly = loc.y*H, lw = loc.w*W, lh = loc.h*H;
-    var hov = hoveredLoc && hoveredLoc.id === loc.id;
-    var xp  = S.xp || 0;
-    var unlocked = !loc.xpMin || xp >= loc.xpMin;
-    drawLocWithLock(loc, lx, ly, lw, lh, hov, unlocked);
-  });
-};
+// ════════════════════════════════════════════════════════════════
+// [SECTION RETIRÉE] drawAdaptiveSky() + patch de drawVillage()
+// ────────────────────────────────────────────────────────────────
+// Ce bloc redessinait un ciel jour/nuit (soleil, lune, étoiles,
+// étoiles filantes, nuages) sur un canvas 2D, en patchant
+// window.drawVillage. Depuis le passage à village_3d.js (Three.js),
+// window.drawVillage est un stub vide (function(){}) jamais appelé
+// par la boucle de rendu réelle : ce patch ne provoque pas d'erreur
+// au chargement (canvas/ctx ne sont lus qu'à l'INTÉRIEUR de la
+// fonction, pas au moment du patch), mais il ne s'exécute jamais et
+// n'a donc aucun effet visible dans le jeu.
+//
+// getDetailedTimeOfDay() et updateAdaptiveWeather() (juste au-dessus)
+// sont CONSERVÉES : elles sont utilisées par initAllFeatures() plus
+// bas et ont un effet réel sur le moteur 3D actif via setWeather()
+// (défini dans village_3d.js).
+//
+// Le code original de drawAdaptiveSky() et du patch drawVillage est
+// conservé tel quel dans js/_archive/advanced_2d_sky_system.js pour
+// référence future, au cas où un cycle jour/nuit visuel équivalent
+// serait porté vers le rendu Three.js de village_3d.js.
+// ════════════════════════════════════════════════════════════════
 
 // ════════════════════════════════════════════════════════════════
 // 5. 📊 STATISTIQUES DÉTAILLÉES — Graphe progression
@@ -882,147 +730,28 @@ onMessageSent = function(text) {
 };
 
 // ════════════════════════════════════════════════════════════════
-// 8. 🗺️ CARTE — Lieux verrouillés visuellement avec cadenas
+// [SECTION RETIRÉE] 8. 🗺️ CARTE — Lieux verrouillés avec cadenas
+// ────────────────────────────────────────────────────────────────
+// Ce bloc patchait onVillageClick / onVillageTouch et utilisait des
+// variables globales ctx / canvas issues de l'ancien moteur de rendu
+// 2D (canvas). Depuis le passage à village_3d.js (Three.js), ni
+// onVillageClick, ni onVillageTouch, ni ctx/canvas globaux n'existent
+// plus : la ligne "var _origOnVillageClick = onVillageClick;"
+// provoquait un ReferenceError au chargement du script, empêchant
+// l'exécution de tout le code situé après elle dans ce fichier
+// (notamment l'initialisation SRS, les rappels intelligents et la
+// mise à jour météo périodique).
+//
+// Le code original (LOC_XP_REQUIREMENTS, drawLocWithLock, et les
+// patches onVillageClick/onVillageTouch) est conservé tel quel dans
+// js/_archive/advanced_2d_lock_system.js pour référence future, au
+// cas où un verrouillage de lieux par XP serait réintroduit sur le
+// moteur 3D (il faudrait alors l'adapter aux objets/clics Three.js
+// de village_3d.js, qui fonctionnent différemment d'un canvas 2D).
 // ════════════════════════════════════════════════════════════════
 
-// Mapping lieux → XP requis
-var LOC_XP_REQUIREMENTS = {
-  church:   0,   school:  0,   friends: 0,
-  market:   50,  tavern:  50,  park:    50,
-  hospital: 150, bank:    150, station: 150,
-  police:   300, factory: 300, cinema:  400,
-};
-
-function drawLocWithLock(loc, x, y, w, h, hov, unlocked) {
-  if (!ctx) return;
-  var a    = hov ? 1 : 0.85;
-  var isNight = currentWeather === 'night' || getDetailedTimeOfDay()==='night';
-  var r    = Math.min(w, h) * 0.5;
-  var bx   = x + w * 0.5, by = y + h * 0.5;
-
-  // Ombre
-  ctx.beginPath();
-  ctx.arc(bx+3, by+4, r, 0, Math.PI*2);
-  ctx.fillStyle = 'rgba(0,0,0,0.30)';
-  ctx.fill();
-
-  if (!unlocked) {
-    // Lieu verrouillé — gris avec cadenas
-    ctx.beginPath();
-    ctx.arc(bx, by, r, 0, Math.PI*2);
-    ctx.fillStyle = isNight ? 'rgba(20,20,30,0.8)' : 'rgba(40,40,60,0.7)';
-    ctx.fill();
-    ctx.beginPath();
-    ctx.arc(bx, by, r, 0, Math.PI*2);
-    ctx.strokeStyle = 'rgba(100,100,140,0.5)';
-    ctx.lineWidth = 2;
-    ctx.stroke();
-    // Emoji cadenas
-    ctx.font = Math.round(r*0.9)+'px serif';
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    ctx.fillStyle = 'rgba(150,150,200,0.7)';
-    ctx.fillText('🔒', bx, by);
-    // XP requis
-    var xpReq = LOC_XP_REQUIREMENTS[loc.id] || 0;
-    if (xpReq > 0) {
-      ctx.font = 'bold '+(Math.round(r*0.35))+'px sans-serif';
-      ctx.fillStyle = 'rgba(200,180,100,0.8)';
-      ctx.fillText(xpReq+' XP', bx, by+r*0.75);
-    }
-    ctx.textAlign = 'left';
-    ctx.textBaseline = 'alphabetic';
-  } else {
-    // Lieu débloqué — rendu normal enrichi
-    // Halo couleur + animation hover
-    if (hov) {
-      ctx.beginPath();
-      ctx.arc(bx, by, r+5, 0, Math.PI*2);
-      ctx.fillStyle = hexA(loc.color, 0.15);
-      ctx.fill();
-    }
-    ctx.beginPath();
-    ctx.arc(bx, by, r, 0, Math.PI*2);
-    ctx.fillStyle = hexA(loc.color, a*(isNight?0.7:1));
-    ctx.fill();
-    if (hov) {
-      ctx.beginPath();
-      ctx.arc(bx, by, r, 0, Math.PI*2);
-      ctx.strokeStyle = '#FFD700';
-      ctx.lineWidth = 2.5;
-      ctx.stroke();
-    } else {
-      ctx.beginPath();
-      ctx.arc(bx, by, r, 0, Math.PI*2);
-      ctx.strokeStyle = hexA(darken(loc.color), isNight?0.3:0.6);
-      ctx.lineWidth = 2;
-      ctx.stroke();
-    }
-    // Emoji lieu
-    ctx.font = Math.round(r*1.05)+'px serif';
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    ctx.fillStyle = 'rgba(255,255,255,'+(isNight?0.7:1)+')';
-    var bob = Math.sin(tick*0.025+loc.x*10)*1.5;
-    ctx.fillText(loc.emoji, bx, by+bob);
-
-    // Nom du lieu
-    ctx.font = 'bold '+(Math.round(r*0.38))+'px sans-serif';
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'top';
-    ctx.fillStyle = isNight?'rgba(255,255,200,0.65)':'rgba(255,255,255,0.8)';
-    var nm = LOC_NAMES[loc.id] ? (LOC_NAMES[loc.id][S.nativeLang||'fr']||loc.id) : loc.id;
-    ctx.fillText(nm, bx, by+r+4);
-
-    // Point vert si missions disponibles
-    var mForLoc = _MISSIONS_DATA && _MISSIONS_DATA[loc.id];
-    if (mForLoc && mForLoc.length > 0) {
-      var doneAll = mForLoc.every(function(m){ return S_missions.completed && S_missions.completed[m.id]; });
-      if (!doneAll) {
-        ctx.beginPath();
-        ctx.arc(bx+r*0.7, by-r*0.7, r*0.18, 0, Math.PI*2);
-        ctx.fillStyle = '#4ecf70';
-        ctx.fill();
-      }
-    }
-
-    ctx.textAlign = 'left';
-    ctx.textBaseline = 'alphabetic';
-  }
-}
-
-// Patcher onVillageClick pour bloquer les lieux verrouillés
-var _origOnVillageClick = onVillageClick;
-onVillageClick = function(e) {
-  var rect = canvas.getBoundingClientRect();
-  var loc  = getLocAt(e.clientX - rect.left, e.clientY - rect.top);
-  if (loc) {
-    var xpReq = LOC_XP_REQUIREMENTS[loc.id] || 0;
-    if ((S.xp||0) < xpReq) {
-      showNotif('🔒 '+((LOC_NAMES[loc.id]&&LOC_NAMES[loc.id][S.nativeLang||'fr'])||loc.id)+' — '+xpReq+' XP requis');
-      return;
-    }
-  }
-  _origOnVillageClick(e);
-};
-
-var _origOnVillageTouch = onVillageTouch;
-onVillageTouch = function(e) {
-  var rect = canvas.getBoundingClientRect();
-  var t    = e.touches[0];
-  var loc  = getLocAt(t.clientX - rect.left, t.clientY - rect.top);
-  if (loc) {
-    var xpReq = LOC_XP_REQUIREMENTS[loc.id] || 0;
-    if ((S.xp||0) < xpReq) {
-      showNotif('🔒 '+((LOC_NAMES[loc.id]&&LOC_NAMES[loc.id][S.nativeLang||'fr'])||loc.id)+' — '+xpReq+' XP requis');
-      return;
-    }
-  }
-  _origOnVillageTouch(e);
-};
-
 // ════════════════════════════════════════════════════════════════
-// INITIALISATION DES 8 FONCTIONNALITÉS
+// INITIALISATION DES FONCTIONNALITÉS
 // ════════════════════════════════════════════════════════════════
 (function initAllFeatures() {
   _srsLoad();
@@ -1040,6 +769,5 @@ onVillageTouch = function(e) {
   // Mettre à jour le ciel toutes les minutes
   setInterval(updateAdaptiveWeather, 60000);
 
-  console.log('✅ LinguaVillage Features Pack — 8 systèmes chargés');
+  console.log('✅ LinguaVillage Features Pack — 7 systèmes chargés (oral, SRS, leaderboard, défis, stats, rappels, quiz adaptatif)');
 })();
-
