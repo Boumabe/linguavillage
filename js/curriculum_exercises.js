@@ -66,7 +66,15 @@ function _genTransform(targetLang, nativeLang, count) {
   var markers = TRANSFORM_MARKERS[targetLang];
   if (!markers) return []; // langue non couverte par ce format — silencieux
   var pool = [];
-  Object.values(window.PHRASES_DATA || {}).forEach(function (c) {
+  // [CORRECTION] La catégorie 'expressions_complementaires' (data.js) n'a
+  // jamais été traduite : son champ t[en|es|de|ht|ru|zh|ja] contient en
+  // réalité le texte français (voir le commentaire "// simplifié, pour
+  // démonstration" dans data.js). Si targetLang !== 'fr', piocher dedans
+  // générerait un exercice sur du français présenté comme la langue cible.
+  // On l'exclut donc du pool sauf si la langue cible est le français.
+  Object.keys(window.PHRASES_DATA || {}).forEach(function (catKey) {
+    if (catKey === 'expressions_complementaires' && targetLang !== 'fr') return;
+    var c = window.PHRASES_DATA[catKey];
     (c.items || []).forEach(function (it) {
       if (it.t && it.t[targetLang]) pool.push(it);
     });
