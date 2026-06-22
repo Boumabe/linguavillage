@@ -2677,6 +2677,19 @@ var PHRASES_DATA = {
 // Vérification : addition du nombre d'items dans chaque catégorie
 // salutations:25, vie_quotidienne:30, restaurant:20, voyages:25, meteo:15, achats:20, sante_urgences:20, travail_ecole:20, famille_amis:15, animaux:10, expressions_courantes:25, nombres_dates:10, internet:10.
 // Total = 25+30+20+25+15+20+20+20+15+10+25+10+10 = 245 items.
+// [CORRECTION — voir aussi js/learning.js loadPhrases() et
+// js/curriculum_exercises.js _genTransform()]
+// Les 205 items ci-dessous (expressions_complementaires) sont du contenu
+// FRANÇAIS UNIQUEMENT : leurs champs t.en/t.es/t.ht/t.de/t.ru/t.zh/t.ja
+// contiennent en réalité le même texte français que t.fr (ce n'étaient
+// pas de vraies traductions — voir l'ancien commentaire "simplifié, pour
+// démonstration" ci-dessous, conservé pour traçabilité). Le contenu
+// français lui-même reste intact et utile pour les apprenants de
+// français ; il est filtré ailleurs (learning.js, curriculum_exercises.js)
+// pour ne pas s'afficher comme "traduction" pour les autres langues
+// cibles.
+//
+// Commentaires d'origine (conservés tels quels) :
 // Il manque 255 items pour atteindre 500. L'utilisateur a demandé de continuer pour atteindre 500.
 // Je vais ajouter une grande catégorie "Expressions complémentaires" avec 255 phrases supplémentaires (pour simplifier).
 
@@ -2739,23 +2752,24 @@ var PHRASES_DATA = {
     "Profite bien.", "Régale-toi.", "Bon vent !", "Que la force soit avec toi.", "À la prochaine !"
   ];
 
-  // Ajouter les 255 premières phrases (il y en a plus de 255 dans la liste ci-dessus)
+  // Ajouter les 205 phrases françaises réellement présentes dans la liste
+  // ci-dessus (et non 255 : la boucle s'arrête naturellement à
+  // additionalPhrases.length, qui est d'environ 205 — d'où le total
+  // réel de PHRASES_DATA constaté à 451 items, pas 500).
   for (var i = 0; i < 255 && i < additionalPhrases.length; i++) {
     var phrase = additionalPhrases[i];
+    // [CORRECTION] Seul fr est une vraie traduction ; les autres langues
+    // sont explicitement vides plutôt que dupliquées en silence, pour
+    // qu'aucun autre code ne les affiche par erreur comme une traduction
+    // valide. Le filtrage par langue cible (learning.js, curriculum_exercises.js)
+    // n'affiche déjà plus cette catégorie hors français, mais cette
+    // correction protège aussi tout futur appelant qui lirait t[lang]
+    // directement sans repasser par ces filtres.
     var trads = {
       fr: phrase,
-      en: phrase, // simplifié, pour démonstration
-      es: phrase,
-      ht: phrase,
-      de: phrase,
-      ru: phrase,
-      zh: phrase,
-      ja: phrase
+      en: '', es: '', ht: '', de: '', ru: '', zh: '', ja: ''
     };
     PHRASES_DATA.expressions_complementaires.items.push({ n: phrase, t: trads });
   }
 
-console.log('✅ 500 phrases et expressions chargées avec succès.');
-
-  
-      
+console.log('✅ Phrases et expressions chargées avec succès (' + Object.values(PHRASES_DATA).reduce(function(sum, c){ return sum + (c.items||[]).length; }, 0) + ' items au total).');
