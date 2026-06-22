@@ -1,5 +1,24 @@
 // curriculum_ui.js — Pont léger entre curriculum.js et l'interface existante
 // ============================================================================
+// ÉTAT (constaté lors de cet audit) : CHARGÉ dans index.html mais JAMAIS
+// APPELÉ. Ses deux points d'entrée prévus sont :
+//   - maybeShowRelevantPitfall(unitId) : n'est invoqué que par
+//     js/_archive/curriculum_hooks.js, qui est désormais archivé (non
+//     chargé) car il dépend lui-même de window.LV_CURRICULUM, jamais
+//     défini. Preuve : grep "CURRICULUM_UI\." sur tout le projet hors
+//     curriculum_ui.js et curriculum_hooks.js → aucun résultat.
+//   - updateCurriculumBadge() : même situation, jamais appelée.
+// De plus, showPitfallHint() dépend de addSysMsg(), une fonction que le
+// commentaire ci-dessous affirme être "déjà présente" dans dialogue.js —
+// or elle n'existe nulle part dans le projet (vérifié par recherche
+// exhaustive). Même réactivé, ce fichier ne ferait donc rien tant que
+// addSysMsg() ne sera pas implémentée quelque part.
+//
+// CE FICHIER N'A PAS ÉTÉ MODIFIÉ FONCTIONNELLEMENT NI ARCHIVÉ : il reste
+// chargé tel quel dans index.html, sans effet, en attendant une décision
+// explicite (le brancher en créant addSysMsg() + un appelant réel comme
+// js/dialogue.js, ou l'archiver comme curriculum_hooks.js).
+// ============================================================================
 // N'ajoute AUCUN écran. Utilise addSysMsg() déjà présente dans dialogue.js
 // pour afficher, sous forme de bulle système discrète dans le fil de
 // conversation, le piège pédagogique précis quand l'IA vient de corriger
