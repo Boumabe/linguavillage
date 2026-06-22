@@ -408,9 +408,18 @@ window.showQuoteThenMenu = function() {
 // ================================================================
 
 // Remplace gainXP avec animation toast
+// [CORRECTION] Cette fonction écrasait silencieusement celle de state.js
+// (chargé avant, mais app_v2.js est `defer` donc s'exécute après et gagne
+// toujours). La version state.js jouait un son XP, une animation popup
+// dorée avec gestion de combo, et surtout déclenchait
+// LV_WORLD.checkRankUp() — le système de progression sociale "Lingoria"
+// (cérémonies de montée de rang). Ces appels sont restaurés ci-dessous ;
+// le toast visuel et la mise à jour de la barre PLI propres à cette
+// version sont conservés tels quels.
 window.gainXP = function(amount, sourceEl) {
   if (!S || !amount) return;
-  S.xp = (S.xp || 0) + amount;
+  var oldXP = S.xp || 0;
+  S.xp = oldXP + amount;
 
   // Mise à jour HUD
   var hudXP   = document.getElementById('hudXP');
@@ -420,8 +429,27 @@ window.gainXP = function(amount, sourceEl) {
   if (menuXP) menuXP.textContent = S.xp + ' XP';
   if (xpFill) xpFill.style.width = (S.xp % 100) + '%';
 
-  // Toast visuel XP flottant
+  // Toast visuel XP flottant (apport app_v2.js, conservé)
   _showXPToast('+' + amount + ' XP', sourceEl);
+
+  // Son + animation popup dorée avec combo (restauré depuis state.js).
+  // xpPop() joue déjà LV_SOUND.play('xp') en interne (voir animation.js).
+  if (window.LV_ANIM && typeof window.LV_ANIM.xpPop === 'function') {
+    window.LV_ANIM.xpPop(amount, sourceEl);
+  }
+  window._comboCount = (window._comboCount || 0) + 1;
+  clearTimeout(window._comboTimer);
+  window._comboTimer = setTimeout(function() { window._comboCount = 0; }, 4000);
+  if (window._comboCount >= 3 && window.LV_ANIM && typeof window.LV_ANIM.comboFlash === 'function') {
+    window.LV_ANIM.comboFlash(window._comboCount);
+  }
+
+  // Rang social Lingoria (restauré depuis state.js) — déclenche la
+  // cérémonie de montée de rang si le joueur vient de passer un seuil.
+  if (window.LV_WORLD && typeof window.LV_WORLD.checkRankUp === 'function') {
+    window.LV_WORLD.checkRankUp(oldXP, S.xp, S.nativeLang || 'fr');
+  }
+  if (typeof updateSocialRankHUD === 'function') updateSocialRankHUD();
 
   // PLI bar update si en dialogue
   if (typeof PLI !== 'undefined') PLI.updateBar();
