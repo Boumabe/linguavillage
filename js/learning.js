@@ -276,10 +276,21 @@ function speakW(w) {
 function loadPhrases(catKey) {
   ensureLearningBindings();
 
-  const cats = Object.keys(PHRASES_DATA || {});
+  // [CORRECTION] La catégorie 'expressions_complementaires' (data.js) n'a
+  // jamais été réellement traduite : ses 205 items ont la même valeur
+  // pour fr/en/es/ht/de/ru/zh/ja (voir le commentaire "// simplifié, pour
+  // démonstration" dans data.js). Pour ne pas afficher du texte français
+  // non traduit comme si c'était la traduction cible, cette catégorie
+  // n'est proposée que si la langue cible du joueur est le français —
+  // elle reste alors authentique et utile.
+  const allCats = Object.keys(PHRASES_DATA || {});
+  const cats = (S.targetLang === 'fr')
+    ? allCats
+    : allCats.filter(function(k) { return k !== 'expressions_complementaires'; });
   if (!cats.length) return;
   LEARNING_STATE.phraseCat = catKey || LEARNING_STATE.phraseCat || cats[0];
-  const activeKey = PHRASES_DATA[LEARNING_STATE.phraseCat] ? LEARNING_STATE.phraseCat : cats[0];
+  const activeKey = (PHRASES_DATA[LEARNING_STATE.phraseCat] && cats.indexOf(LEARNING_STATE.phraseCat) !== -1)
+    ? LEARNING_STATE.phraseCat : cats[0];
   LEARNING_STATE.phraseCat = activeKey;
 
   const phraseCats = document.getElementById('phraseCats');
@@ -519,18 +530,17 @@ async function searchDict() {
         });
       } catch(e) { resultData = null; }
     }
+    // [CORRECTION] L'ancien fallback appelait directement
+    // https://api.anthropic.com/v1/messages depuis le navigateur avec
+    // 'x-api-key': '' (clé vide). Cet appel échouait toujours (401) et,
+    // s'il avait un jour reçu une vraie clé, l'aurait exposée publiquement
+    // dans le code source livré au client. Retiré : en cas d'échec de
+    // callAPIWithFallback, on tombe directement sur le bloc catch
+    // ci-dessous, qui affichait déjà un message "Indisponible pour le
+    // moment" — comportement final inchangé pour l'utilisateur, sans le
+    // risque de sécurité ni l'appel mort.
     if (!resultData || !resultData.reply) {
-      const apiResp = await fetch('https://api.anthropic.com/v1/messages', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'anthropic-version': '2023-06-01', 'x-api-key': '' },
-        body: JSON.stringify({
-          model: 'claude-haiku-4-5-20251001',
-          max_tokens: 300,
-          messages: [{ role: 'user', content: prompt }]
-        })
-      });
-      const apiData = await apiResp.json();
-      resultData = { reply: (apiData.content && apiData.content[0] && apiData.content[0].text) || '{}' };
+      throw new Error('Dictionnaire indisponible : callAPIWithFallback a échoué ou est absent.');
     }
     let p;
     try {
@@ -664,4 +674,4 @@ function loadProfileData() {
   if (masteredEl) masteredEl.textContent = masteredCount;
   if (messagesEl) messagesEl.textContent = totalMessages;
   if (sessionsEl) sessionsEl.textContent = sessions;
-  }
+    }
