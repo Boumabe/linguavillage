@@ -44,78 +44,34 @@ var PALETTE = {
 // DONNÉES BÂTIMENTS — conservées, visuels enrichis
 // ═══════════════════════════════════════════════════════════════
 var BUILDINGS_3D = [
-    { id:'park',     locId:'park',     npcId:'elder',    badgeNum:1,
-      name:{fr:'Parc du Sage',         en:"Elder's Park",           ht:'Pak Granmoun'},
-      stage:{fr:'Salutations',         en:'Greetings',              ht:'Bonjou'},
-      desc:{fr:'Grand-père Koffi enseigne les salutations de base.',
-            en:'Grandpa Koffi teaches basic greetings.', ht:'Gran-pè Koffi anseye salitasyon debaz.'},
-      x:-260, z:20,
-      wallColor:0xf5f5dc, roofColor:0x2e7d32, emissiveWall:0x3e2723, emissiveRoof:0x1b5e20,
-      radius:16, height:20, roofHeight:14, platformColor:0x33691e,
-      emoji:'🌳', npc:'👴', lockXP:0, action:'dialogue',
-      style:'cottage', chimney:true, balcony:false, sign:true, lanterns:2 },
-
     { id:'school',   locId:'school',   npcId:'teacher',  badgeNum:2,
       name:{fr:'École Dupont',         en:"Dupont's School",        ht:'Lekòl Dupont'},
       stage:{fr:'Alphabet & Chiffres', en:'Alphabet & Numbers',     ht:'Alfabè ak Chif'},
       desc:{fr:'Mme Dupont enseigne alphabet et chiffres.',
             en:'Ms. Dupont teaches alphabet and numbers.', ht:'Madan Dupont anseye alfabè ak chif.'},
-      x:-170, z:-50,
+      x:0, z:-190,
       wallColor:0xffecb3, roofColor:0x1565c0, emissiveWall:0x4e342e, emissiveRoof:0x0d47a1,
       radius:18, height:24, roofHeight:16, platformColor:0x0d47a1,
       emoji:'🏫', npc:'👩‍🏫', lockXP:0, action:'dialogue',
       style:'school', chimney:true, balcony:true, sign:true, lanterns:3 },
 
-    { id:'friends',  locId:'friends',  npcId:'friend',   badgeNum:3,
-      name:{fr:'Maison de Léa',        en:"Léa's House",            ht:'Kay Léa'},
-      stage:{fr:'Amis & Famille',      en:'Friends & Family',       ht:'Zanmi ak Fanmi'},
-      desc:{fr:"Léa est toujours prête à papoter! Conversations informelles.",
-            en:'Léa is always ready to chat! Informal conversations.', ht:'Léa toujou prèt pou pale!'},
-      x:-80, z:55,
-      wallColor:0xffccbc, roofColor:0xc62828, emissiveWall:0x3e2723, emissiveRoof:0xb71c1c,
-      radius:15, height:19, roofHeight:13, platformColor:0xc62828,
-      emoji:'🏠', npc:'👧', lockXP:0, action:'dialogue',
-      style:'cottage', chimney:true, balcony:true, sign:false, lanterns:2 },
-
-    { id:'market',   locId:'market',   npcId:'merchant', badgeNum:4,
-      name:{fr:'Marché Diallo',        en:"Diallo's Market",        ht:'Mache Diallo'},
-      stage:{fr:'Commerce & Nombres',  en:'Shopping & Numbers',     ht:'Komès ak Nimewo'},
-      desc:{fr:'Diallo vend de tout. Apprenez à négocier et compter.',
-            en:'Diallo sells everything. Learn to negotiate and count.', ht:'Diallo vann tout bagay.'},
-      x:10, z:-30,
-      wallColor:0xfff8e1, roofColor:0xe65100, emissiveWall:0x4e342e, emissiveRoof:0xbf360c,
-      radius:19, height:23, roofHeight:16, platformColor:0xe65100,
-      emoji:'🏪', npc:'🧑‍🌾', lockXP:0, action:'dialogue',
-      style:'market', chimney:false, balcony:true, sign:true, lanterns:4 },
-
-    { id:'bank',     locId:'bank',     npcId:'banker',   badgeNum:5,
-      name:{fr:'Banque Dupuis',        en:'Dupuis Bank',             ht:'Bank Dupuis'},
-      stage:{fr:'Argent & Finances',   en:'Money & Finance',         ht:'Lajan ak Finans'},
-      desc:{fr:'M. Dupuis parle vocabulaire financier et formel.',
-            en:'Mr. Dupuis speaks financial and formal vocabulary.', ht:'Msye Dupuis pale vokabilè finansye.'},
-      x:90, z:50,
-      wallColor:0xe0e0e0, roofColor:0x37474f, emissiveWall:0x424242, emissiveRoof:0x263238,
-      radius:17, height:22, roofHeight:14, platformColor:0x455a64,
-      emoji:'🏦', npc:'👨‍💼', lockXP:80, action:'dialogue',
-      style:'official', chimney:false, balcony:false, sign:true, lanterns:2 },
-
-    { id:'tavern',   locId:'tavern',   npcId:'bartender',badgeNum:6,
-      name:{fr:'Taverne Marco',        en:"Marco's Tavern",          ht:'Tavèn Marco'},
-      stage:{fr:'Boissons & Détente',  en:'Drinks & Leisure',        ht:'Bwason ak Detant'},
-      desc:{fr:'Marco sert les meilleures boissons. Conversations décontractées.',
-            en:'Marco serves the best drinks. Relaxed conversations.', ht:'Marco sèvi pi bon bwason yo.'},
-      x:170, z:-55,
-      wallColor:0xffe0b2, roofColor:0xbf360c, emissiveWall:0x4e342e, emissiveRoof:0x870000,
-      radius:17, height:21, roofHeight:15, platformColor:0xd84315,
-      emoji:'🍺', npc:'🍺', lockXP:120, action:'dialogue',
-      style:'tavern', chimney:true, balcony:true, sign:true, lanterns:5 },
+    { id:'cinema',   locId:'cinema',   npcId:'director', badgeNum:10,
+      name:{fr:'Théâtre Félix',        en:'Félix Theater',           ht:'Teyat Félix'},
+      stage:{fr:'Culture & Cinéma',    en:'Culture & Cinema',        ht:'Kilti ak Sinema'},
+      desc:{fr:'Réalisateur Félix: culture et expressions artistiques.',
+            en:'Director Félix: culture and artistic expressions.', ht:'Reyalizatè Félix: kilti ak atistik.'},
+      x:71, z:-176,
+      wallColor:0xf3e5f5, roofColor:0x6a1b9a, emissiveWall:0x4a148c, emissiveRoof:0x4a148c,
+      radius:20, height:26, roofHeight:18, platformColor:0x7b1fa2,
+      emoji:'🎬', npc:'🎥', lockXP:350, action:'dialogue',
+      style:'theater', chimney:false, balcony:true, sign:true, lanterns:4 },
 
     { id:'church',   locId:'church',   npcId:'pastor',   badgeNum:7,
       name:{fr:'Église Saint-Antoine', en:'Saint-Antoine Church',    ht:'Legliz Sen-Antoine'},
       stage:{fr:'Valeurs & Formel',    en:'Values & Formal',         ht:'Valè ak Fòmèl'},
       desc:{fr:'Père Antoine: expressions formelles et respectueuses.',
             en:'Father Antoine: formal and respectful expressions.', ht:'Pè Antoine: ekspresyon fòmèl.'},
-      x:250, z:60,
+      x:134, z:-134,
       wallColor:0xf5f5f5, roofColor:0x303f9f, emissiveWall:0x424242, emissiveRoof:0x1a237e,
       radius:18, height:26, roofHeight:18, platformColor:0x283593,
       emoji:'⛪', npc:'⛪', lockXP:150, action:'dialogue',
@@ -126,44 +82,88 @@ var BUILDINGS_3D = [
       stage:{fr:'Santé & Corps',       en:'Health & Body',           ht:'Sante ak Kò'},
       desc:{fr:'Dr. Martin: vocabulaire médical de base.',
             en:'Dr. Martin: basic medical vocabulary.', ht:'Doktè Martin: vokabilè medikal debaz.'},
-      x:330, z:-25,
+      x:190, z:0,
       wallColor:0xe3f2fd, roofColor:0x0277bd, emissiveWall:0x37474f, emissiveRoof:0x01579b,
       radius:20, height:25, roofHeight:16, platformColor:0x0288d1,
       emoji:'🏥', npc:'👨‍⚕️', lockXP:200, action:'dialogue',
       style:'official', chimney:false, balcony:false, sign:true, lanterns:3 },
 
-    { id:'station',  locId:'station',  npcId:'officer',  badgeNum:9,
-      name:{fr:'Gare de Krova',        en:'Krova Station',           ht:'Estasyon Krova'},
-      stage:{fr:'Voyages & Directions',en:'Travel & Directions',     ht:'Vwayaj ak Direksyon'},
-      desc:{fr:'Agent Kofi: directions, transports et voyages.',
-            en:'Agent Kofi: directions, transport and travel.', ht:'Ajan Kofi: direksyon ak transpò.'},
-      x:400, z:65,
-      wallColor:0xeceff1, roofColor:0x546e7a, emissiveWall:0x455a64, emissiveRoof:0x37474f,
-      radius:17, height:22, roofHeight:14, platformColor:0x607d8b,
-      emoji:'🚉', npc:'👮', lockXP:250, action:'dialogue',
+    { id:'bank',     locId:'bank',     npcId:'banker',   badgeNum:5,
+      name:{fr:'Banque Dupuis',        en:'Dupuis Bank',             ht:'Bank Dupuis'},
+      stage:{fr:'Argent & Finances',   en:'Money & Finance',         ht:'Lajan ak Finans'},
+      desc:{fr:'M. Dupuis parle vocabulaire financier et formel.',
+            en:'Mr. Dupuis speaks financial and formal vocabulary.', ht:'Msye Dupuis pale vokabilè finansye.'},
+      x:134, z:134,
+      wallColor:0xe0e0e0, roofColor:0x37474f, emissiveWall:0x424242, emissiveRoof:0x263238,
+      radius:17, height:22, roofHeight:14, platformColor:0x455a64,
+      emoji:'🏦', npc:'👨‍💼', lockXP:80, action:'dialogue',
       style:'official', chimney:false, balcony:false, sign:true, lanterns:2 },
-
-    { id:'cinema',   locId:'cinema',   npcId:'director', badgeNum:10,
-      name:{fr:'Théâtre Félix',        en:'Félix Theater',           ht:'Teyat Félix'},
-      stage:{fr:'Culture & Cinéma',    en:'Culture & Cinema',        ht:'Kilti ak Sinema'},
-      desc:{fr:'Réalisateur Félix: culture et expressions artistiques.',
-            en:'Director Félix: culture and artistic expressions.', ht:'Reyalizatè Félix: kilti ak atistik.'},
-      x:470, z:-15,
-      wallColor:0xf3e5f5, roofColor:0x6a1b9a, emissiveWall:0x4a148c, emissiveRoof:0x4a148c,
-      radius:20, height:26, roofHeight:18, platformColor:0x7b1fa2,
-      emoji:'🎬', npc:'🎥', lockXP:350, action:'dialogue',
-      style:'theater', chimney:false, balcony:true, sign:true, lanterns:4 },
 
     { id:'police',   locId:'police',   npcId:'officer2', badgeNum:11,
       name:{fr:'Commissariat Koné',    en:'Koné Police Station',     ht:'Komisarya Koné'},
       stage:{fr:'Sécurité & Règles',   en:'Safety & Rules',          ht:'Sekirite ak Règ'},
       desc:{fr:'Capitaine Koné: vocabulaire civique et urgences.',
             en:'Captain Koné: civic and emergency vocabulary.', ht:'Kaptèn Koné: vokabilè sivik ak ijans.'},
-      x:540, z:70,
+      x:0, z:190,
       wallColor:0xe8eaf6, roofColor:0x283593, emissiveWall:0x1a237e, emissiveRoof:0x1a237e,
       radius:17, height:22, roofHeight:14, platformColor:0x303f9f,
       emoji:'🚔', npc:'👮‍♂️', lockXP:400, action:'dialogue',
       style:'official', chimney:false, balcony:false, sign:true, lanterns:3 },
+
+    { id:'friends',  locId:'friends',  npcId:'friend',   badgeNum:3,
+      name:{fr:'Maison de Léa',        en:"Léa's House",            ht:'Kay Léa'},
+      stage:{fr:'Amis & Famille',      en:'Friends & Family',       ht:'Zanmi ak Fanmi'},
+      desc:{fr:"Léa est toujours prête à papoter! Conversations informelles.",
+            en:'Léa is always ready to chat! Informal conversations.', ht:'Léa toujou prèt pou pale!'},
+      x:-134, z:134,
+      wallColor:0xffccbc, roofColor:0xc62828, emissiveWall:0x3e2723, emissiveRoof:0xb71c1c,
+      radius:15, height:19, roofHeight:13, platformColor:0xc62828,
+      emoji:'🏠', npc:'👧', lockXP:0, action:'dialogue',
+      style:'cottage', chimney:true, balcony:true, sign:false, lanterns:2 },
+
+    { id:'tavern',   locId:'tavern',   npcId:'bartender',badgeNum:6,
+      name:{fr:'Taverne Marco',        en:"Marco's Tavern",          ht:'Tavèn Marco'},
+      stage:{fr:'Boissons & Détente',  en:'Drinks & Leisure',        ht:'Bwason ak Detant'},
+      desc:{fr:'Marco sert les meilleures boissons. Conversations décontractées.',
+            en:'Marco serves the best drinks. Relaxed conversations.', ht:'Marco sèvi pi bon bwason yo.'},
+      x:-175, z:74,
+      wallColor:0xffe0b2, roofColor:0xbf360c, emissiveWall:0x4e342e, emissiveRoof:0x870000,
+      radius:17, height:21, roofHeight:15, platformColor:0xd84315,
+      emoji:'🍺', npc:'🍺', lockXP:120, action:'dialogue',
+      style:'tavern', chimney:true, balcony:true, sign:true, lanterns:5 },
+
+    { id:'market',   locId:'market',   npcId:'merchant', badgeNum:4,
+      name:{fr:'Marché Diallo',        en:"Diallo's Market",        ht:'Mache Diallo'},
+      stage:{fr:'Commerce & Nombres',  en:'Shopping & Numbers',     ht:'Komès ak Nimewo'},
+      desc:{fr:'Diallo vend de tout. Apprenez à négocier et compter.',
+            en:'Diallo sells everything. Learn to negotiate and count.', ht:'Diallo vann tout bagay.'},
+      x:-190, z:0,
+      wallColor:0xfff8e1, roofColor:0xe65100, emissiveWall:0x4e342e, emissiveRoof:0xbf360c,
+      radius:19, height:23, roofHeight:16, platformColor:0xe65100,
+      emoji:'🏪', npc:'🧑‍🌾', lockXP:0, action:'dialogue',
+      style:'market', chimney:false, balcony:true, sign:true, lanterns:4 },
+
+    { id:'park',     locId:'park',     npcId:'elder',    badgeNum:1,
+      name:{fr:'Parc du Sage',         en:"Elder's Park",           ht:'Pak Granmoun'},
+      stage:{fr:'Salutations',         en:'Greetings',              ht:'Bonjou'},
+      desc:{fr:'Grand-père Koffi enseigne les salutations de base.',
+            en:'Grandpa Koffi teaches basic greetings.', ht:'Gran-pè Koffi anseye salitasyon debaz.'},
+      x:-176, z:-71,
+      wallColor:0xf5f5dc, roofColor:0x2e7d32, emissiveWall:0x3e2723, emissiveRoof:0x1b5e20,
+      radius:16, height:20, roofHeight:14, platformColor:0x33691e,
+      emoji:'🌳', npc:'👴', lockXP:0, action:'dialogue',
+      style:'cottage', chimney:true, balcony:false, sign:true, lanterns:2 },
+
+    { id:'station',  locId:'station',  npcId:'officer',  badgeNum:9,
+      name:{fr:'Gare de Krova',        en:'Krova Station',           ht:'Estasyon Krova'},
+      stage:{fr:'Voyages & Directions',en:'Travel & Directions',     ht:'Vwayaj ak Direksyon'},
+      desc:{fr:'Agent Kofi: directions, transports et voyages.',
+            en:'Agent Kofi: directions, transport and travel.', ht:'Ajan Kofi: direksyon ak transpò.'},
+      x:-134, z:-134,
+      wallColor:0xeceff1, roofColor:0x546e7a, emissiveWall:0x455a64, emissiveRoof:0x37474f,
+      radius:17, height:22, roofHeight:14, platformColor:0x607d8b,
+      emoji:'🚉', npc:'👮', lockXP:250, action:'dialogue',
+      style:'official', chimney:false, balcony:false, sign:true, lanterns:2 },
 ];
 
 // ═══════════════════════════════════════════════════════════════
@@ -187,6 +187,11 @@ var _smokeParticles = [];
 var _lanternLights = [];
 var _npcWalkers = [];
 var _waterMesh = null;
+// [AJOUTÉ] Liste de toutes les surfaces d'eau animées par shader (rivière
+// + future fontaine). _waterMesh continue de désigner spécifiquement la
+// rivière (pour compatibilité), mais la mise à jour de uTime dans _loop()
+// parcourt maintenant cette liste pour inclure aussi la fontaine.
+var _animatedWaterMeshes = [];
 var _sunLight = null;
 var _moonLight = null;
 var _hemiLight = null;
@@ -224,6 +229,18 @@ function _hash(x, z) {
 
 function _randRange(min, max) {
     return min + Math.random() * (max - min);
+}
+
+// [AJOUTÉ] Génère un point (x,z) aléatoire dans un anneau circulaire
+// centré sur l'origine, entre minR et maxR. Remplace l'ancienne
+// répartition rectangulaire (_randRange sur x ET z indépendamment), qui
+// était adaptée à l'ancien village aligné en couloir mais laisserait des
+// zones vides au nord/sud avec la nouvelle disposition circulaire des
+// bâtiments autour de la place centrale.
+function _randInRing(minR, maxR) {
+    var angle = Math.random() * Math.PI * 2;
+    var r = Math.sqrt(_randRange(minR * minR, maxR * maxR)); // racine pour densité uniforme par aire
+    return { x: Math.cos(angle) * r, z: Math.sin(angle) * r };
 }
 
 function _getMaterial(key, creator) {
@@ -338,8 +355,8 @@ function _init3D() {
 
         // ── Caméra panoramique ──
         camera = new THREE.PerspectiveCamera(40, W / H, 1, 2000);
-        camera.position.set(160, 180, 480);
-        camera.lookAt(120, 0, 0);
+        camera.position.set(0, 220, 380);
+        camera.lookAt(0, 0, 0);
 
         // ── ÉCLAIRAGE CINÉMATOGRAPHIQUE ──
         _setupLighting(isLowEnd);
@@ -363,6 +380,14 @@ function _init3D() {
         BUILDINGS_3D.forEach(function (b) {
             _buildDetailedBuilding(b, isLowEnd);
         });
+
+        // ── PLACE CENTRALE : FONTAINE, BANCS, LAMPADAIRES ──
+        // [AJOUTÉ] Demandé explicitement par l'utilisateur : centre du
+        // village réorganisé en place circulaire avec fontaine animée,
+        // bancs et lampadaires.
+        _buildFountain(isLowEnd);
+        _buildBenches();
+        _buildLampposts(isLowEnd);
 
         // ── MOULIN ──
         _buildWindmill(360, -50);
@@ -399,14 +424,28 @@ function _init3D() {
         controls = new THREE.OrbitControls(camera, renderer.domElement);
         controls.enableDamping = true;
         controls.dampingFactor = 0.08;
-        controls.enableRotate = false;
+        // [MODIFIÉ] Rotation limitée autour de la nouvelle place centrale
+        // circulaire, demandée explicitement par l'utilisateur. Les bornes
+        // azimutales/polaires empêchent de passer sous le terrain ou de
+        // voir l'envers du décor (les éléments de fond — montagnes, forêt —
+        // ne sont construits que sur un arc partiel autour de la scène).
+        controls.enableRotate = true;
+        controls.minAzimuthAngle = -Math.PI / 3;   // -60°
+        controls.maxAzimuthAngle =  Math.PI / 3;   // +60°
+        controls.minPolarAngle = Math.PI / 6;       // 30° depuis le zénith (pas trop plongeant)
+        controls.maxPolarAngle = Math.PI / 2.4;     // ~75° (pas trop à l'horizontale)
+        controls.rotateSpeed = 0.6;
         controls.screenSpacePanning = false;
         controls.minDistance = 200;
         controls.maxDistance = 800;
-        controls.target.set(120, 0, 0);
-        controls.touches.ONE = THREE.TOUCH.PAN;
+        controls.target.set(0, 0, 0);
+        // [MODIFIÉ] Un doigt / clic gauche = rotation ; deux doigts / clic
+        // droit = pan+zoom. Avant cette modification, tout était en pan
+        // (enableRotate=false), ce qui n'est plus suffisant pour explorer
+        // visuellement le pourtour de la place circulaire.
+        controls.touches.ONE = THREE.TOUCH.ROTATE;
         controls.touches.TWO = THREE.TOUCH.DOLLY_PAN;
-        controls.mouseButtons.LEFT = THREE.MOUSE.PAN;
+        controls.mouseButtons.LEFT = THREE.MOUSE.ROTATE;
         controls.mouseButtons.RIGHT = THREE.MOUSE.PAN;
         controls.panSpeed = 0.7;
         controls.zoomSpeed = 0.8;
@@ -420,6 +459,12 @@ function _init3D() {
     raycaster = new THREE.Raycaster();
     pointer = new THREE.Vector2();
     canvasEl.addEventListener('click', _onCanvasClick);
+    // [AJOUTÉ] Mémorise la position de départ du toucher pour distinguer
+    // un vrai tap (clic sur bâtiment) d'un drag de rotation/pan en fin de
+    // geste. Nécessaire depuis l'activation de la rotation tactile
+    // (touches.ONE = ROTATE) : sans cette protection, terminer une
+    // rotation au-dessus d'un bâtiment déclencherait un clic involontaire.
+    canvasEl.addEventListener('touchstart', _onCanvasTouchStart, { passive: true });
     canvasEl.addEventListener('touchend', _onCanvasTouchEnd, { passive: true });
 
     clock = new THREE.Clock();
@@ -611,24 +656,20 @@ function _buildMountains() {
     });
 }
 
-// ═══════════════════════════════════════════════════════════════
-// RIVIÈRE + PONT + BARQUE — AVEC SHADER D'EAU
-// ═══════════════════════════════════════════════════════════════
-function _buildRiverAndBridge(isLowEnd) {
-    var riverWidth = 55;
-    var riverLength = 420;
-
-    var riverGeo = new THREE.PlaneGeometry(riverWidth, riverLength, 20, 40);
-    riverGeo.rotateX(-Math.PI / 2);
-
+// [AJOUTÉ] Shader d'eau extrait en fonction réutilisable (auparavant
+// codé en ligne uniquement dans _buildRiverAndBridge). Comportement
+// visuel strictement identique à l'original ; permet maintenant de
+// l'utiliser aussi pour la fontaine de la place centrale sans dupliquer
+// le code GLSL. Chaque appel crée un matériau et des uniforms séparés
+// (un par surface d'eau), car chaque plan d'eau a sa propre géométrie.
+function _createWaterMaterial() {
     var waterUniforms = {
         uTime: { value: 0 },
         uColorDeep: { value: new THREE.Color(PALETTE.waterDeep) },
         uColorMid: { value: new THREE.Color(PALETTE.waterMid) },
         uColorLight: { value: new THREE.Color(PALETTE.waterLight) },
     };
-
-    var waterMat = new THREE.ShaderMaterial({
+    var mat = new THREE.ShaderMaterial({
         uniforms: waterUniforms,
         vertexShader: `
             uniform float uTime;
@@ -666,18 +707,35 @@ function _buildRiverAndBridge(isLowEnd) {
         transparent: true,
         side: THREE.DoubleSide,
     });
+    return mat;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// RIVIÈRE + PONT + BARQUE — AVEC SHADER D'EAU
+// ═══════════════════════════════════════════════════════════════
+function _buildRiverAndBridge(isLowEnd) {
+    var riverWidth = 55;
+    var riverLength = 210;
+
+    var riverGeo = new THREE.PlaneGeometry(riverWidth, riverLength, 20, 40);
+    riverGeo.rotateX(-Math.PI / 2);
+
+    // [MODIFIÉ] Réutilise _createWaterMaterial() au lieu de dupliquer le
+    // shader en ligne. Résultat visuel strictement identique.
+    var waterMat = _createWaterMaterial();
 
     _waterMesh = new THREE.Mesh(riverGeo, waterMat);
-    _waterMesh.position.set(330, 0.5, 80);
-    _waterMesh.rotation.y = -0.35;
+    _waterMesh.position.set(293, 0.5, 122);
+    _waterMesh.rotation.y = 1.178;
     scene.add(_waterMesh);
+    _animatedWaterMeshes.push(_waterMesh);
 
     // Bords de rivière
     var bankGeo = new THREE.BoxGeometry(riverWidth + 12, 2, riverLength);
     var bankMat = new THREE.MeshStandardMaterial({ color: PALETTE.dirt, roughness: 0.95 });
     var bank = new THREE.Mesh(bankGeo, bankMat);
-    bank.position.set(330, -0.5, 80);
-    bank.rotation.y = -0.35;
+    bank.position.set(293, -0.5, 122);
+    bank.rotation.y = 1.178;
     scene.add(bank);
 
     // Pont en pierre amélioré
@@ -725,8 +783,8 @@ function _buildImprovedBridge() {
         }
     });
 
-    group.position.set(280, 0, -10);
-    group.rotation.y = -0.35;
+    group.position.set(231, 0, 96);
+    group.rotation.y = 0.393;
     scene.add(group);
 }
 
@@ -766,7 +824,7 @@ function _buildBoat() {
     sail.rotation.y = Math.PI / 2;
     group.add(sail);
 
-    group.position.set(350, 1.2, 160);
+    group.position.set(333, 1.2, 138);
     scene.add(group);
 }
 
@@ -775,7 +833,11 @@ function _buildBoat() {
 // ═══════════════════════════════════════════════════════════════
 function _buildNaturalPaths() {
     var pts = BUILDINGS_3D.map(function (b) { return new THREE.Vector3(b.x, 0.3, b.z); });
-    var curve = new THREE.CatmullRomCurve3(pts, false, 'catmullrom', 0.4);
+    // [MODIFIÉ] closed=true : la disposition circulaire des bâtiments
+    // autour de la place centrale demande un chemin qui boucle, sinon il
+    // resterait un trou de ~145 unités entre le dernier bâtiment du
+    // tableau (station) et le premier (school).
+    var curve = new THREE.CatmullRomCurve3(pts, true, 'catmullrom', 0.4);
     var SEGMENTS = 80;
     var samples = curve.getPoints(SEGMENTS);
 
@@ -869,8 +931,7 @@ function _buildVariedTrees(count, isLowEnd) {
         var foliageIdx = 0;
 
         for (var i = 0; i < typeCount * 3 && placed < typeCount; i++) {
-            var x = _randRange(-350, 580);
-            var z = _randRange(-120, 120);
+            var _pos = _randInRing(205, 440); var x = _pos.x, z = _pos.z;
             
             var nearBuilding = false;
             BUILDINGS_3D.forEach(function(b) {
@@ -878,7 +939,7 @@ function _buildVariedTrees(count, isLowEnd) {
                 if (Math.sqrt(dx*dx + dz*dz) < b.radius + 12) nearBuilding = true;
             });
             if (nearBuilding) continue;
-            if (Math.abs(x - 330) < 40 && Math.abs(z - 80) < 60) continue;
+            if (Math.hypot(x - 293, z - 122) < 70) continue;
 
             var scale = _randRange(0.7, 1.4);
             var y = _smoothNoise(x, z);
@@ -928,8 +989,7 @@ function _buildBushes(count) {
     var dummy = new THREE.Object3D();
 
     for (var i = 0; i < count; i++) {
-        var x = _randRange(-350, 580);
-        var z = _randRange(-120, 120);
+        var _pos = _randInRing(205, 440); var x = _pos.x, z = _pos.z;
         var scale = _randRange(0.6, 1.8);
         var y = _smoothNoise(x, z);
         
@@ -955,8 +1015,7 @@ function _buildFlowers(count) {
         var dummy = new THREE.Object3D();
 
         for (var i = 0; i < typeCount; i++) {
-            var x = _randRange(-350, 580);
-            var z = _randRange(-120, 120);
+            var _pos = _randInRing(205, 440); var x = _pos.x, z = _pos.z;
             var y = _smoothNoise(x, z);
             
             dummy.position.set(x, y + 0.6, z);
@@ -982,8 +1041,7 @@ function _buildTallGrass(count) {
     var dummy = new THREE.Object3D();
 
     for (var i = 0; i < count; i++) {
-        var x = _randRange(-350, 580);
-        var z = _randRange(-120, 120);
+        var _pos = _randInRing(205, 440); var x = _pos.x, z = _pos.z;
         var y = _smoothNoise(x, z);
         
         dummy.position.set(x, y + 0.6, z);
@@ -1010,8 +1068,7 @@ function _buildFerns(count) {
     var dummy = new THREE.Object3D();
 
     for (var i = 0; i < count; i++) {
-        var x = _randRange(-350, 580);
-        var z = _randRange(-120, 120);
+        var _pos = _randInRing(205, 440); var x = _pos.x, z = _pos.z;
         var y = _smoothNoise(x, z);
         
         dummy.position.set(x, y + 0.75, z);
@@ -1040,8 +1097,7 @@ function _buildMushrooms(count) {
         var dummy = new THREE.Object3D();
 
         for (var i = 0; i < typeCount; i++) {
-            var x = _randRange(-350, 580);
-            var z = _randRange(-120, 120);
+            var _pos = _randInRing(205, 440); var x = _pos.x, z = _pos.z;
             var y = _smoothNoise(x, z);
             
             dummy.position.set(x, y + 0.25, z);
@@ -1073,8 +1129,7 @@ function _buildStumps(count) {
     var dummy = new THREE.Object3D();
 
     for (var i = 0; i < count; i++) {
-        var x = _randRange(-350, 580);
-        var z = _randRange(-120, 120);
+        var _pos = _randInRing(205, 440); var x = _pos.x, z = _pos.z;
         var y = _smoothNoise(x, z);
         
         dummy.position.set(x, y + 1, z);
@@ -1451,6 +1506,188 @@ function _buildChimneySmoke(group, x, y, z) {
 }
 
 // ═══════════════════════════════════════════════════════════════
+// FONTAINE CENTRALE — vasque animée + jet de particules
+// [AJOUTÉ] Demandé explicitement par l'utilisateur. Réutilise
+// _createWaterMaterial() (même shader que la rivière) et le pattern de
+// particules déjà utilisé par _buildFireflies, pour rester cohérent avec
+// le reste du rendu et ne pas alourdir le budget de shaders.
+// ═══════════════════════════════════════════════════════════════
+function _buildFountain(isLowEnd) {
+    var group = new THREE.Group();
+    group.position.set(0, 0, 0);
+
+    // Socle en pierre (anneau bas)
+    var baseGeo = _getGeometry('fountainBase', function () {
+        return new THREE.CylinderGeometry(22, 24, 3, 24);
+    });
+    var baseMat = _getMaterial('fountainStone', function () {
+        return new THREE.MeshStandardMaterial({ color: 0xb0a89a, roughness: 0.9 });
+    });
+    var base = new THREE.Mesh(baseGeo, baseMat);
+    base.position.y = 1.5;
+    base.castShadow = true;
+    base.receiveShadow = true;
+    group.add(base);
+
+    // Vasque d'eau (disque animé par le shader d'eau partagé)
+    var waterGeo = new THREE.CircleGeometry(19, 32);
+    var waterMat = _createWaterMaterial();
+    var waterDisc = new THREE.Mesh(waterGeo, waterMat);
+    waterDisc.rotation.x = -Math.PI / 2;
+    waterDisc.position.y = 3.2;
+    group.add(waterDisc);
+    _animatedWaterMeshes.push(waterDisc);
+
+    // Colonne centrale + vasque supérieure (étage)
+    var pillarGeo = _getGeometry('fountainPillar', function () {
+        return new THREE.CylinderGeometry(2.2, 3, 11, 12);
+    });
+    var pillar = new THREE.Mesh(pillarGeo, baseMat);
+    pillar.position.y = 8.5;
+    pillar.castShadow = true;
+    group.add(pillar);
+
+    var topBowlGeo = _getGeometry('fountainTopBowl', function () {
+        return new THREE.CylinderGeometry(7, 6, 2, 20);
+    });
+    var topBowl = new THREE.Mesh(topBowlGeo, baseMat);
+    topBowl.position.y = 13.5;
+    topBowl.castShadow = true;
+    group.add(topBowl);
+
+    // Petite vasque d'eau supérieure (étage du haut, même shader)
+    var topWaterGeo = new THREE.CircleGeometry(6, 24);
+    var topWaterMat = _createWaterMaterial();
+    var topWaterDisc = new THREE.Mesh(topWaterGeo, topWaterMat);
+    topWaterDisc.rotation.x = -Math.PI / 2;
+    topWaterDisc.position.y = 14.3;
+    group.add(topWaterDisc);
+    _animatedWaterMeshes.push(topWaterDisc);
+
+    scene.add(group);
+
+    // Jet de particules (désactivé sur les appareils faibles, comme les
+    // autres effets de particules du fichier — cohérent avec _buildFireflies).
+    if (!isLowEnd) {
+        var count = 60;
+        var geo = new THREE.BufferGeometry();
+        var positions = new Float32Array(count * 3);
+        var phases = new Float32Array(count);
+        var speeds = new Float32Array(count);
+        for (var i = 0; i < count; i++) {
+            positions[i * 3] = (Math.random() - 0.5) * 2;
+            positions[i * 3 + 1] = 14 + Math.random() * 4;
+            positions[i * 3 + 2] = (Math.random() - 0.5) * 2;
+            phases[i] = Math.random() * Math.PI * 2;
+            speeds[i] = 4 + Math.random() * 3;
+        }
+        geo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+        var mat = new THREE.PointsMaterial({
+            color: 0xbfe9ff,
+            size: 0.6,
+            transparent: true,
+            opacity: 0.75,
+            blending: THREE.AdditiveBlending
+        });
+        var jet = new THREE.Points(geo, mat);
+        jet.userData.phases = phases;
+        jet.userData.speeds = speeds;
+        jet.userData.baseY = positions.slice(); // copie des positions de départ
+        jet.position.copy(group.position);
+        scene.add(jet);
+        _instancedMeshes['fountainJet'] = jet;
+    }
+}
+
+// ═══════════════════════════════════════════════════════════════
+// BANCS — autour de la place centrale
+// [AJOUTÉ] Demandé explicitement par l'utilisateur.
+// ═══════════════════════════════════════════════════════════════
+function _buildBenches() {
+    var benchGeo = _getGeometry('benchSeat', function () {
+        return new THREE.BoxGeometry(8, 0.8, 2.6);
+    });
+    var legGeo = _getGeometry('benchLeg', function () {
+        return new THREE.BoxGeometry(0.6, 2.2, 2.6);
+    });
+    var woodMat = _getMaterial('benchWood', function () {
+        return new THREE.MeshStandardMaterial({ color: 0x8d5a3b, roughness: 0.85 });
+    });
+
+    var count = 8;
+    var ringRadius = 38; // à l'intérieur de la place, hors de la vasque (rayon 24)
+    for (var i = 0; i < count; i++) {
+        var angle = (i / count) * Math.PI * 2;
+        var x = Math.sin(angle) * ringRadius;
+        var z = -Math.cos(angle) * ringRadius;
+
+        var group = new THREE.Group();
+        var seat = new THREE.Mesh(benchGeo, woodMat);
+        seat.position.y = 2.4;
+        seat.castShadow = true;
+        group.add(seat);
+
+        [-3.2, 3.2].forEach(function (lx) {
+            var leg = new THREE.Mesh(legGeo, woodMat);
+            leg.position.set(lx, 1.1, 0);
+            group.add(leg);
+        });
+
+        group.position.set(x, _smoothNoise(x, z), z);
+        group.rotation.y = angle + Math.PI; // dossier vers l'extérieur, assise vers la fontaine
+        scene.add(group);
+    }
+}
+
+// ═══════════════════════════════════════════════════════════════
+// LAMPADAIRES — autour de la place centrale
+// [AJOUTÉ] Demandé explicitement par l'utilisateur.
+// ═══════════════════════════════════════════════════════════════
+function _buildLampposts(isLowEnd) {
+    var poleGeo = _getGeometry('lamppostPole', function () {
+        return new THREE.CylinderGeometry(0.4, 0.5, 12, 8);
+    });
+    var capGeo = _getGeometry('lamppostCap', function () {
+        return new THREE.SphereGeometry(1.1, 10, 10);
+    });
+    var poleMat = _getMaterial('lamppostMetal', function () {
+        return new THREE.MeshStandardMaterial({ color: 0x2b2b2b, roughness: 0.6, metalness: 0.4 });
+    });
+    var glowMat = _getMaterial('lamppostGlow', function () {
+        return new THREE.MeshStandardMaterial({
+            color: 0xffe9a8, emissive: 0xffd76b, emissiveIntensity: 0.9, roughness: 0.4
+        });
+    });
+
+    var count = 6;
+    var ringRadius = 52; // un peu plus loin que les bancs, vers la limite de la place
+    for (var i = 0; i < count; i++) {
+        var angle = (i / count) * Math.PI * 2 + 0.5; // décalé des bancs pour ne pas se superposer
+        var x = Math.sin(angle) * ringRadius;
+        var z = -Math.cos(angle) * ringRadius;
+
+        var group = new THREE.Group();
+        var pole = new THREE.Mesh(poleGeo, poleMat);
+        pole.position.y = 6;
+        pole.castShadow = true;
+        group.add(pole);
+
+        var cap = new THREE.Mesh(capGeo, glowMat);
+        cap.position.y = 12.3;
+        group.add(cap);
+
+        if (!isLowEnd) {
+            var light = new THREE.PointLight(0xffd76b, 0.6, 26, 2);
+            light.position.y = 12.3;
+            group.add(light);
+        }
+
+        group.position.set(x, _smoothNoise(x, z), z);
+        scene.add(group);
+    }
+}
+
+// ═══════════════════════════════════════════════════════════════
 // MOULIN — tour + ailes animées
 // ═══════════════════════════════════════════════════════════════
 function _buildWindmill(x, z) {
@@ -1596,8 +1833,9 @@ function _buildButterflies() {
         wingR.position.x = 0.2;
         group.add(wingR);
 
-        var startX = _randRange(-300, 500);
-        var startZ = _randRange(-100, 100);
+        var _bpos = _randInRing(0, 260);
+        var startX = _bpos.x;
+        var startZ = _bpos.z;
         group.position.set(startX, _smoothNoise(startX, startZ) + 3, startZ);
         
         group.userData = {
@@ -1626,9 +1864,10 @@ function _buildFireflies(isLowEnd) {
     var phases = new Float32Array(count);
     
     for (var i = 0; i < count; i++) {
-        positions[i * 3] = _randRange(-300, 500);
+        var _fpos = _randInRing(0, 260);
+        positions[i * 3] = _fpos.x;
         positions[i * 3 + 1] = _randRange(2, 15);
-        positions[i * 3 + 2] = _randRange(-100, 100);
+        positions[i * 3 + 2] = _fpos.z;
         phases[i] = Math.random() * Math.PI * 2;
     }
     
@@ -1934,10 +2173,12 @@ function _loop() {
     // Cycle jour/nuit
     _updateDayNightCycle(t);
 
-    // Shader eau
-    if (_waterMesh && _waterMesh.material.uniforms) {
-        _waterMesh.material.uniforms.uTime.value = t;
-    }
+    // Shader eau (rivière + fontaine)
+    _animatedWaterMeshes.forEach(function (m) {
+        if (m && m.material && m.material.uniforms) {
+            m.material.uniforms.uTime.value = t;
+        }
+    });
 
     // Sprites NPC : flottement
     sprites.forEach(function (s) {
@@ -2023,6 +2264,22 @@ function _loop() {
         ff.geometry.attributes.position.needsUpdate = true;
     }
 
+    // [AJOUTÉ] Jet de particules de la fontaine centrale : chaque
+    // particule retombe en cycle (style jet d'eau continu) plutôt que de
+    // simplement osciller comme les lucioles.
+    if (_instancedMeshes['fountainJet']) {
+        var jet = _instancedMeshes['fountainJet'];
+        var jpos = jet.geometry.attributes.position.array;
+        var jphases = jet.userData.phases;
+        var jspeeds = jet.userData.speeds;
+        var jbase = jet.userData.baseY;
+        for (var j = 0; j < jphases.length; j++) {
+            var cycle = (t * jspeeds[j] + jphases[j]) % 6.0;
+            jpos[j * 3 + 1] = jbase[j * 3 + 1] + cycle * 1.4 - cycle * cycle * 0.22;
+        }
+        jet.geometry.attributes.position.needsUpdate = true;
+    }
+
     controls && controls.update();
     renderer.render(scene, camera);
 }
@@ -2049,10 +2306,23 @@ function _onCanvasClick(e) {
     var rect = canvasEl.getBoundingClientRect();
     _raycastAt(e.clientX - rect.left, e.clientY - rect.top, rect);
 }
+// [AJOUTÉ] Mémorise la position de départ du toucher.
+var _touchStartX = 0, _touchStartY = 0;
+function _onCanvasTouchStart(e) {
+    if (!e.touches || !e.touches[0]) return;
+    _touchStartX = e.touches[0].clientX;
+    _touchStartY = e.touches[0].clientY;
+}
 function _onCanvasTouchEnd(e) {
     if (!e.changedTouches || !e.changedTouches[0]) return;
-    var rect = canvasEl.getBoundingClientRect();
     var t = e.changedTouches[0];
+    // [AJOUTÉ] Si le doigt a parcouru plus de 12px entre touchstart et
+    // touchend, on considère que c'était un geste de rotation/pan, pas un
+    // tap sur un bâtiment : on ignore le raycast pour éviter un clic
+    // accidentel en fin de rotation de caméra.
+    var movedDist = Math.hypot(t.clientX - _touchStartX, t.clientY - _touchStartY);
+    if (movedDist > 12) return;
+    var rect = canvasEl.getBoundingClientRect();
     _raycastAt(t.clientX - rect.left, t.clientY - rect.top, rect);
 }
 function _raycastAt(x, y, rect) {
@@ -2407,4 +2677,3 @@ window.drawVillage = function () {};
 console.log('✅ village_3d.js v6 — KROVA Overhaul Visuel chargé');
 
 })();
-
