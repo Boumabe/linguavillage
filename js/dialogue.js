@@ -404,6 +404,15 @@ function _buildEnrichedContext(npc, nl, tl) {
     ? "Si l'apprenant fait une faute, corrige-le gentiment en incluant la forme correcte."
     : "Si l'apprenant fait une faute, reformule naturellement la phrase correcte sans le signaler explicitement.");
 
+  // [AJOUTÉ] Personnalité/émotions/objectifs/relations du citoyen
+  // (citizens.js), en complément du profil pédagogique ci-dessus.
+  if (window.LV_CITIZENS && npc && typeof window.LV_CITIZENS.getCitizenContext === 'function') {
+    try {
+      var citizenCtx = window.LV_CITIZENS.getCitizenContext(npc.id);
+      if (citizenCtx) parts.push(citizenCtx);
+    } catch (e) {}
+  }
+
   if (window.LV_MEMORY && typeof window.LV_MEMORY.getLVContext === 'function') {
     try { parts.push(window.LV_MEMORY.getLVContext()); } catch(e) {}
   }
