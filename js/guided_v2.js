@@ -18,6 +18,12 @@ window.GUIDED_XP_THRESHOLD = 300;
     var orig = window.openDialogue;
     if (!orig || orig._v2_patched) return;
 
+    // [CORRIGÉ] Marqueur posé dès que ce patch est en place, pour que
+    // dialogue.js sache qu'il ne doit plus construire sa propre scène 0
+    // (voir openDialogue dans dialogue.js) — évite le clignotement
+    // afficher-puis-effacer et la fenêtre d'écran vide qui en résultait.
+    window.LV_GUIDED_V2_ACTIVE = true;
+
     window.openDialogue = function(locId, npcId) {
       var xp      = (window.S && S.xp) || 0;
       var guided  = window.GUIDED_DIALOGUES && window.GUIDED_DIALOGUES[locId];
@@ -25,7 +31,11 @@ window.GUIDED_XP_THRESHOLD = 300;
 
       if (useGuided) {
         orig(locId, npcId);
-        setTimeout(function() { _hijackForGuided(locId, npcId, guided); }, 50);
+        // [CORRIGÉ] Plus de setTimeout(...,50) : comme dialogue.js ne
+        // construit plus la scène 0 lui-même quand ce module est actif,
+        // il n'y a plus rien à effacer — _hijackForGuided peut construire
+        // directement la scène, sans délai ni clignotement intermédiaire.
+        _hijackForGuided(locId, npcId, guided);
       } else {
         orig(locId, npcId);
       }
@@ -93,8 +103,12 @@ function _hijackForGuided(locId, npcId, guided) {
   // Injecter styles
   _injectGuidedStyles();
 
-  // Lancer la première scène
-  setTimeout(function() { _runScene(0); }, 200);
+  // [CORRIGÉ] Plus de setTimeout(...,200) : ce délai ne servait à rien
+  // techniquement (le DOM est déjà prêt, _buildDialogueUI ayant construit
+  // l'overlay de façon synchrone) et créait une fenêtre visible où
+  // l'utilisateur voyait la barre PLI sans aucun message ni bouton de
+  // choix — exactement l'écran vide observé.
+  _runScene(0);
 }
 
 function _injectPLIBar(overlay, tl) {
