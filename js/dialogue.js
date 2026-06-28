@@ -509,6 +509,26 @@ async function _callNPCAPI(userMsg, onSuccess, onError) {
 // ================================================================
 // BULLES DE DIALOGUE
 // ================================================================
+
+// [AJOUTÉ] Gestionnaire délégué unique pour les boutons de lecture audio
+// des bulles NPC. Posé une seule fois par conteneur #dlg-messages (qui
+// est recréé à chaque ouverture de dialogue par _buildDialogueUI), grâce
+// au marqueur _speakDelegationSet sur l'élément lui-même.
+function _ensureSpeakDelegation(msgsEl) {
+  if (!msgsEl || msgsEl._speakDelegationSet) return;
+  msgsEl._speakDelegationSet = true;
+  msgsEl.addEventListener('click', function (e) {
+    var btn = e.target.closest ? e.target.closest('.dlg-speak-btn') : null;
+    if (!btn) return;
+    var txt = btn.getAttribute('data-speak-text');
+    if (txt && typeof window.speakW === 'function') {
+      // data-speak-text est échappé en HTML (lecture via getAttribute
+      // renvoie déjà le texte décodé, donc speakW reçoit le vrai texte).
+      window.speakW(txt);
+    }
+  });
+}
+
 function _addBubble(role, text, subtitle, color) {
   var msgsEl = document.getElementById('dlg-messages');
   if (!msgsEl) return null;
@@ -528,7 +548,36 @@ function _addBubble(role, text, subtitle, color) {
       : 'background:rgba(255,255,255,0.07);border:1.5px solid rgba(255,255,255,0.10);color:#f0e8d0;',
     color ? 'border-color:' + color + '33;' : ''
   ].join('');
-  bubble.textContent = text;
+
+  // [AJOUTÉ] Bouton de lecture audio sur les bulles de PNJ uniquement
+  // (pas sur les messages du joueur — lire ses propres mots n'a pas de
+  // sens). Réutilise speakW() (learning.js), déjà fonctionnelle pour les
+  // 8 langues du jeu (fr/en/es/ht/de/ru/zh/ja) via la table de codes
+  // BCP-47 qu'elle contient déjà — aucune duplication de logique audio.
+  // Échappement de secours local si window.escapeHtml (app_v2.js, chargé
+  // en defer) n'est pas encore prêt — ne jamais retomber sur du texte
+  // brut non échappé puisqu'il peut venir de l'IA.
+  var _escFn = window.escapeHtml || function (t) {
+    return String(t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  };
+  var safeText = _escFn(text);
+  if (isNpc) {
+    // [SÉCURITÉ] Le texte est passé via data-speak-text (échappé HTML
+    // uniquement) plutôt que dans un attribut onclick. Un onclick inline
+    // aurait demandé un DEUXIÈME niveau d'échappement (HTML d'attribut +
+    // JavaScript), et un texte IA contenant un guillemet double aurait pu
+    // casser l'attribut et permettre une injection. Un data-attribute lu
+    // par un gestionnaire délégué (voir _ensureSpeakDelegation ci-dessous)
+    // évite ce risque : un seul niveau d'échappement HTML suffit.
+    bubble.innerHTML =
+      '<span class="dlg-bubble-text">' + safeText + '</span>' +
+      '<button type="button" class="dlg-speak-btn" data-speak-text="' + safeText + '" ' +
+      'style="margin-left:8px;background:none;border:none;cursor:pointer;font-size:0.95em;opacity:0.7;vertical-align:middle;padding:2px 4px;" ' +
+      'aria-label="Écouter">🔊</button>';
+    _ensureSpeakDelegation(msgsEl);
+  } else {
+    bubble.textContent = text;
+  }
   div.appendChild(bubble);
 
   if (subtitle) {
