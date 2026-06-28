@@ -54,7 +54,20 @@ function openDialogue(locId, npcId) {
   _buildDialogueUI(npc, locId, useGuided ? guided : null);
 
   if (useGuided) {
-    _showGuidedScene(0);
+    // [CORRIGÉ] Si guided_v2.js est chargé, il va de toute façon effacer
+    // et reconstruire cette même scène 50ms plus tard (_hijackForGuided),
+    // pour ajouter sa barre de progression PLI. Afficher puis effacer
+    // produisait un clignotement, et laissait une fenêtre de quelques
+    // centaines de ms où l'écran de dialogue restait vide (description du
+    // lieu visible, aucun message ni bouton de choix) — c'est exactement
+    // ce qui pouvait être observé si l'utilisateur regardait l'écran
+    // pendant cette transition. window.LV_GUIDED_V2_ACTIVE est posé par
+    // guided_v2.js dès que son patch sur openDialogue est en place (voir
+    // ce fichier) ; s'il est absent (guided_v2.js non chargé ou pas
+    // encore patché), on garde le comportement original ci-dessous.
+    if (!window.LV_GUIDED_V2_ACTIVE) {
+      _showGuidedScene(0);
+    }
   }
 }
 
