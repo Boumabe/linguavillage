@@ -1892,11 +1892,18 @@ function _buildFireflies(isLowEnd) {
 // PNJ AMBULANTS
 // ═══════════════════════════════════════════════════════════════
 function _buildNPCWalkers() {
+    // [MODIFIÉ] Les marcheurs représentent maintenant de vrais citoyens
+    // identifiés (citizenId + emoji approprié à leur métier) plutôt que
+    // des emoji anonymes. Nécessaire pour le système de rencontres
+    // ambiantes (ambient_dialogue.js) qui a besoin de savoir QUI croise
+    // QUI pour choisir des fragments de dialogue cohérents. La mécanique
+    // de déplacement ci-dessous (start/end/progress/speed/waitTime) reste
+    // strictement identique à avant.
     var npcConfigs = [
-        { emoji: '🚶', color: 0x4fc3f7 },
-        { emoji: '🏃', color: 0xffb74d },
-        { emoji: '🧍', color: 0xce93d8 },
-        { emoji: '👫', color: 0xa5d6a7 },
+        { citizenId: 'merchant',  emoji: '🧑‍🌾', color: 0x4fc3f7 },
+        { citizenId: 'friend',    emoji: '👧',   color: 0xffb74d },
+        { citizenId: 'pastor',    emoji: '⛪',   color: 0xce93d8 },
+        { citizenId: 'bartender', emoji: '🍺',   color: 0xa5d6a7 },
     ];
 
     npcConfigs.forEach(function(cfg, idx) {
@@ -1907,6 +1914,7 @@ function _buildNPCWalkers() {
         sprite.position.set(startBuilding.x, _smoothNoise(startBuilding.x, startBuilding.z) + 3, startBuilding.z);
         
         sprite.userData = {
+            citizenId: cfg.citizenId,
             start: new THREE.Vector3(startBuilding.x, _smoothNoise(startBuilding.x, startBuilding.z) + 3, startBuilding.z),
             end: new THREE.Vector3(endBuilding.x, _smoothNoise(endBuilding.x, endBuilding.z) + 3, endBuilding.z),
             progress: Math.random(),
@@ -1919,6 +1927,13 @@ function _buildNPCWalkers() {
         scene.add(sprite);
         _npcWalkers.push(sprite);
     });
+
+    // [AJOUTÉ] Délègue à ambient_dialogue.js si présent, pour activer la
+    // détection de croisement entre marcheurs. N'a aucun effet si ce
+    // fichier n'est pas chargé (garde défensive standard du projet).
+    if (window.LV_AMBIENT && typeof window.LV_AMBIENT.registerWalkers === 'function') {
+        try { window.LV_AMBIENT.registerWalkers(_npcWalkers, scene); } catch (e) {}
+    }
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -2253,6 +2268,17 @@ function _loop() {
         npc.position.y = _smoothNoise(npc.position.x, npc.position.z) + 3;
     });
 
+    // [AJOUTÉ] Détection de croisement entre marcheurs + affichage des
+    // bulles de dialogue ambiant. Délègue entièrement à
+    // ambient_dialogue.js ; n'a aucun effet si ce fichier n'est pas
+    // chargé. Ne modifie ni ne remplace la logique de déplacement
+    // ci-dessus : ce hook agit en lecture/pause uniquement (il peut
+    // déclencher npc.userData.isWaiting, déjà géré par cette même boucle
+    // à la frame suivante).
+    if (window.LV_AMBIENT && typeof window.LV_AMBIENT.update === 'function') {
+        try { window.LV_AMBIENT.update(t, deltaTime); } catch (e) {}
+    }
+
     // Lucioles
     if (_instancedMeshes['fireflies']) {
         var ff = _instancedMeshes['fireflies'];
@@ -2333,6 +2359,14 @@ function _raycastAt(x, y, rect) {
     for (var i = 0; i < hits.length; i++) {
         var id = hits[i].object.userData.buildingId;
         if (id && id !== 'windmill') { _onTapBuilding(id); return; }
+        // [AJOUTÉ] Clic sur une bulle de rencontre ambiante entre deux
+        // PNJ (point 3 de la demande : "le joueur touche la conversation").
+        // N'interfère pas avec la détection buildingId ci-dessus.
+        var meetingId = hits[i].object.userData.ambientMeetingId;
+        if (meetingId && window.LV_AMBIENT && typeof window.LV_AMBIENT.onTapMeeting === 'function') {
+            try { window.LV_AMBIENT.onTapMeeting(meetingId); } catch (e) {}
+            return;
+        }
     }
 }
 
@@ -2673,6 +2707,49 @@ window.updateTime = updateTime;
 window.alignLocationsToRings = function () {};
 window.initCanvas = function () {};
 window.drawVillage = function () {};
+
+// [AJOUTÉ] Permet à un module externe (ambient_dialogue.js) de déclencher
+// une transition de caméra douce vers un point du monde, sans accéder
+// directement à camera/controls (qui restent privées à cette IIFE).
+// onDone est appelé une fois la transition terminée — c'est à ce moment
+// que l'appelant doit ouvrir le vrai dialogue (window._v3dDialogue),
+// car celui-ci met running=false et arrête cette boucle de rendu.
+// [AJOUTÉ] Résout un npcId vers son locId, pour les modules externes
+// (ambient_dialogue.js) qui doivent appeler _v3dDialogue(locId, npcId)
+// sans avoir un accès direct à BUILDINGS_3D (privé à cette IIFE).
+// Renvoie null si ce npcId n'a pas de bâtiment dans la scène actuelle
+// (cas des citoyens "homeless" définis dans citizens.js mais pas encore
+// intégrés au village 3D).
+window._v3dResolveLocId = function (npcId) {
+    var b = BUILDINGS_3D.find(function (b) { return b.npcId === npcId; });
+    return b ? b.locId : null;
+};
+
+window._v3dFlyTo = function (targetX, targetZ, durationMs, onDone) {
+    if (!camera || !controls) { if (onDone) onDone(); return; }
+    var startCamPos = camera.position.clone();
+    var startTarget = controls.target.clone();
+    // Garde la même hauteur/distance relative, recentre juste sur le point visé.
+    var offset = startCamPos.clone().sub(startTarget);
+    var endTarget = new THREE.Vector3(targetX, 0, targetZ);
+    var endCamPos = endTarget.clone().add(offset.multiplyScalar(0.7)); // légèrement plus proche
+    var t0 = performance.now();
+    var dur = durationMs || 900;
+
+    function step() {
+        var p = Math.min(1, (performance.now() - t0) / dur);
+        var ease = p < 0.5 ? 2 * p * p : 1 - Math.pow(-2 * p + 2, 2) / 2; // easeInOutQuad
+        camera.position.lerpVectors(startCamPos, endCamPos, ease);
+        controls.target.lerpVectors(startTarget, endTarget, ease);
+        controls.update();
+        if (p < 1) {
+            requestAnimationFrame(step);
+        } else if (onDone) {
+            onDone();
+        }
+    }
+    requestAnimationFrame(step);
+};
 
 console.log('✅ village_3d.js v6 — KROVA Overhaul Visuel chargé');
 
