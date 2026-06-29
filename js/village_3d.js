@@ -2397,12 +2397,42 @@ function _onTapBuilding(id) {
     var name = b.name[nl] || b.name.fr;
     var desc = b.desc ? (b.desc[nl] || b.desc.fr) : '';
 
-    // Récupérer le NPC depuis world.js ou KROVA_NPCS
+    // [CORRIGÉ] Récupérer le NPC. Avant cette correction :
+    //   - window.WORLD_NPCS n'a jamais existé : world.js expose ces
+    //     données sous window.LV_WORLD.WORLD_NPCS (à l'intérieur d'une
+    //     IIFE), donc cette lecture renvoyait toujours undefined.
+    //   - window.KROVA_NPCS n'a jamais existé nulle part dans le projet.
+    //   - Conséquence : npcData était TOUJOURS null, pour TOUS les PNJ,
+    //     dans TOUS les lieux — pas seulement l'école. Le code tombait
+    //     systématiquement dans le cas "else if (b.npc)" plus bas, qui
+    //     affiche seulement l'emoji du PNJ sans aucun bouton cliquable
+    //     pour ouvrir le dialogue (exactement le symptôme observé : écran
+    //     avec la description du lieu et l'emoji du PNJ flottant seul,
+    //     sans aucun bouton "Parler avec ce PNJ").
+    // LOCATIONS (data.js) est la source du nom/rôle/emoji : c'est elle
+    // que le vrai dialogue (openDialogue, dialogue.js) utilise déjà avec
+    // succès pour les 11 npcId du jeu. window.LV_WORLD.WORLD_NPCS n'a
+    // d'ailleurs que 4 entrées en commun avec ces 11 npcId (teacher,
+    // doctor, merchant, elder), et lui donne parfois un nom différent
+    // (ex. "Professeure Amara" contre "Mme Dupont" pour teacher) — s'y
+    // fier pour le nom aurait affiché un nom ici et un autre une fois le
+    // dialogue ouvert. WORLD_NPCS n'est donc utilisée que pour ENRICHIR
+    // (bio, firstMeet) quand elle couvre ce npcId, jamais pour décider du
+    // nom/rôle affiché.
     var npcData = null;
-    if (b.npcId) {
-        npcData = (window.WORLD_NPCS && window.WORLD_NPCS[b.npcId])
-               || (window.KROVA_NPCS && window.KROVA_NPCS[b.npcId])
-               || null;
+    if (b.npcId && typeof LOCATIONS !== 'undefined') {
+        var _locForNpc = LOCATIONS.find(function (l) { return l.id === b.locId; });
+        var _rawNpc = _locForNpc ? (_locForNpc.npcs || []).find(function (n) { return n.id === b.npcId; }) : null;
+        if (_rawNpc) {
+            var worldExtra = (window.LV_WORLD && window.LV_WORLD.WORLD_NPCS && window.LV_WORLD.WORLD_NPCS[b.npcId]) || null;
+            npcData = {
+                name: _rawNpc.name,
+                emoji: _rawNpc.emoji,
+                role: _rawNpc.role,
+                bio: worldExtra ? worldExtra.bio : null,
+                firstMeet: worldExtra ? worldExtra.firstMeet : null
+            };
+        }
     }
 
     // Libellés d'action selon la langue
