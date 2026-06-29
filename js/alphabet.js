@@ -402,7 +402,9 @@ function _renderMnemoScreen(lang, nativeLang) {
 
 function _speak(text, lang) {
   if (!('speechSynthesis' in window)) return;
-  var lmap = {fr:'fr-FR',en:'en-US',es:'es-ES',ht:'fr-HT',de:'de-DE',ru:'ru-RU',zh:'zh-CN',ja:'ja-JP'};
+  // [CORRIGÉ] 'fr-HT' demandait une voix française avec variante
+  // haïtienne, pas du créole — le vrai code BCP-47 est 'ht-HT'.
+  var lmap = {fr:'fr-FR',en:'en-US',es:'es-ES',ht:'ht-HT',de:'de-DE',ru:'ru-RU',zh:'zh-CN',ja:'ja-JP'};
   var u = new SpeechSynthesisUtterance(text);
   u.lang = lmap[lang] || 'en-US';
   u.rate = 0.8;
