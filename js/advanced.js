@@ -28,7 +28,13 @@ function oralStartListening() {
   var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
   if (!SR) { showNotif('🎤 Micro non supporté sur ce navigateur'); return; }
 
-  var langMap = {fr:'fr-FR',en:'en-US',es:'es-ES',ht:'fr-HT',de:'de-DE',ru:'ru-RU',zh:'zh-CN',ja:'ja-JP'};
+  // [CORRIGÉ] 'fr-HT' demandait au moteur de reconnaissance une voix
+  // française avec variante haïtienne, pas du créole — le vrai code
+  // BCP-47 est 'ht-HT'. Note : la reconnaissance vocale en créole est
+  // rarement supportée par les moteurs grand public (Google/Apple), donc
+  // cette correction rend le code correct mais ne garantit pas la
+  // reconnaissance effective sur tous les appareils.
+  var langMap = {fr:'fr-FR',en:'en-US',es:'es-ES',ht:'ht-HT',de:'de-DE',ru:'ru-RU',zh:'zh-CN',ja:'ja-JP'};
   var mic     = document.getElementById('oralMic');
   var status  = document.getElementById('oralStatus');
   var scoreEl = document.getElementById('oralScore');
