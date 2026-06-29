@@ -266,8 +266,32 @@ function loadVocab(catKey) {
 function speakW(w) {
   if ('speechSynthesis' in window) {
     const u = new SpeechSynthesisUtterance(w);
-    const lm = { en: 'en-US', fr: 'fr-FR', es: 'es-ES', ht: 'fr-HT', de: 'de-DE', ru: 'ru-RU', zh: 'zh-CN', ja: 'ja-JP' };
-    u.lang = lm[S.targetLang] || 'en-US';
+    // [CORRIGÉ] 'fr-HT' demandait au moteur de synthèse une voix
+    // FRANÇAISE avec variante régionale haïtienne, pas du créole — le
+    // vrai code BCP-47 pour le créole haïtien est 'ht-HT'.
+    const lm = { en: 'en-US', fr: 'fr-FR', es: 'es-ES', ht: 'ht-HT', de: 'de-DE', ru: 'ru-RU', zh: 'zh-CN', ja: 'ja-JP' };
+    const targetLangCode = lm[S.targetLang] || 'en-US';
+    u.lang = targetLangCode;
+
+    // [AJOUTÉ] Détection d'une voix manquante pour cette langue. Sur de
+    // nombreux appareils Android, certaines langues (créole, japonais,
+    // mandarin, russe, allemand selon le téléphone) n'ont pas de voix
+    // installée par défaut : speechSynthesis.speak() échouait alors
+    // silencieusement (aucun son, aucune erreur visible). On vérifie ici
+    // si une voix correspond réellement à la langue demandée ; si non,
+    // on le signale clairement plutôt que de laisser croire que le
+    // bouton audio est cassé. C'est une limite de l'appareil/navigateur,
+    // pas du code : aucune voix n'existe à installer depuis le site.
+    var voices = speechSynthesis.getVoices ? speechSynthesis.getVoices() : [];
+    var langPrefix = targetLangCode.split('-')[0];
+    var hasMatchingVoice = voices.some(function (v) {
+      return v.lang && v.lang.replace('_', '-').toLowerCase().indexOf(langPrefix) === 0;
+    });
+    if (voices.length && !hasMatchingVoice) {
+      showNotif('🔇 Aucune voix ' + targetLangCode + ' installée sur cet appareil. Activable dans Paramètres → Langues → Synthèse vocale.', 4000);
+      return;
+    }
+
     speechSynthesis.speak(u);
   }
   showNotif('🔊 ' + w);
