@@ -1,4 +1,3 @@
-
 // LinguaVillage — wordgame.js
 // Mini-jeu : aligner des lettres pour former un mot dans la langue cible
 // Difficulté adaptative, collection personnelle, mots favoris dans les PNJ
@@ -400,8 +399,10 @@ window.LV_WORDGAME = (function() {
     // Énoncer le mot
     if ('speechSynthesis' in window) {
       setTimeout(() => {
+        // [CORRIGÉ] 'fr-HT' demandait une voix française avec variante
+        // haïtienne, pas du créole — le vrai code BCP-47 est 'ht-HT'.
         const langMap = {fr:'fr-FR',es:'es-ES',en:'en-US',de:'de-DE',
-                         ru:'ru-RU',zh:'zh-CN',ja:'ja-JP',ht:'fr-HT'};
+                         ru:'ru-RU',zh:'zh-CN',ja:'ja-JP',ht:'ht-HT'};
         const u = new SpeechSynthesisUtterance(_state.targetWord);
         u.lang = langMap[_state.lang] || 'fr-FR';
         u.rate = 0.7;
