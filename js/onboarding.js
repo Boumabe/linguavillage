@@ -987,7 +987,9 @@ window.LV_ONBOARDING = (function() {
   function speakWord(word, lang) {
     if ('speechSynthesis' in window) {
       var u = new SpeechSynthesisUtterance(word);
-      var m = { fr:'fr-FR', en:'en-US', es:'es-ES', ht:'fr-HT', de:'de-DE', ru:'ru-RU', zh:'zh-CN', ja:'ja-JP' };
+      // [CORRIGÉ] 'fr-HT' demandait une voix française avec variante
+      // haïtienne, pas du créole — le vrai code BCP-47 est 'ht-HT'.
+      var m = { fr:'fr-FR', en:'en-US', es:'es-ES', ht:'ht-HT', de:'de-DE', ru:'ru-RU', zh:'zh-CN', ja:'ja-JP' };
       u.lang = m[lang] || 'fr-FR';
       u.rate = 0.8;
       speechSynthesis.cancel();
