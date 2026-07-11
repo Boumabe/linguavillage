@@ -432,6 +432,203 @@ var CONJUGATION_TABLE = {
 };
 
 // ============================================================================
+// 3bis. NIVEAUX / LEÇONS / GRANDS EXAMENS — couche de progression
+// ----------------------------------------------------------------------------
+// [AJOUTÉ] Cette section n'existait dans AUCUNE version antérieure de
+// curriculum.js. program.js, exam.js et curriculum_hooks.js appellent tous
+// window.LV_CURRICULUM en attendant LEVELS, getLessons(), getLevelProgress(),
+// getProgress(), isEvalPassed()/isEvalUnlocked(), isGrandExamUnlocked(),
+// markLessonXP()/markEvalPassed()/markGrandExamPassed(), getGrandExam() — rien
+// de tout cela n'était défini nulle part (window.LV_CURRICULUM était
+// `undefined`), donc l'écran Programme et les Grands Examens n'ont jamais pu
+// fonctionner. Cette section les ajoute directement à CURRICULUM (voir alias
+// window.LV_CURRICULUM = window.CURRICULUM en fin de fichier) plutôt que de
+// créer un second moteur séparé, pour n'avoir qu'une seule source de vérité.
+//
+// Les 3 niveaux sont indépendants de la langue cible (chaque langue a ses
+// propres UNITS avec pitfalls ci-dessus ; ici on structure la PROGRESSION,
+// modules par modules déjà existants : alphabet, vocab, phrases, grammar,
+// dialogue) pour rester simple et cohérent quelle que soit la langue apprise.
+// ============================================================================
+
+var LEVELS = {
+  beginner:     { icon: '🌱', color: '#4ecf70', order: 1 },
+  intermediate: { icon: '⭐', color: '#4a9eff', order: 2 },
+  advanced:     { icon: '🏆', color: '#c084fc', order: 3 },
+};
+
+var LESSONS = {
+  beginner: [
+    { id: 'alphabet_basics', icon: '🔤', modules: ['alphabet'], xpToUnlockEval: 80, evalType: 'alphabet_recognition', evalNPC: 'teacher',
+      title: { fr: 'Alphabet & sons de base', en: 'Alphabet & basic sounds', ht: 'Alfabè ak son debaz' },
+      desc:  { fr: 'Reconnaître les lettres et sons essentiels.', en: 'Recognize essential letters and sounds.', ht: 'Rekonèt lèt ak son esansyèl yo.' } },
+    { id: 'vocab_essentials', icon: '📖', modules: ['vocab'], xpToUnlockEval: 100, evalType: 'word_match', evalNPC: 'merchant',
+      title: { fr: 'Vocabulaire essentiel', en: 'Essential vocabulary', ht: 'Vokabilè esansyèl' },
+      desc:  { fr: 'Les mots les plus utiles du quotidien.', en: 'The most useful everyday words.', ht: 'Mo ki pi itil chak jou yo.' } },
+    { id: 'first_phrases', icon: '💬', modules: ['phrases'], xpToUnlockEval: 100, evalType: 'dialogue_choice', evalNPC: 'friend',
+      title: { fr: 'Premières phrases', en: 'First phrases', ht: 'Premye fraz' },
+      desc:  { fr: 'Se présenter et échanger simplement.', en: 'Introduce yourself and chat simply.', ht: 'Prezante tèt ou ak pale senp.' } },
+    { id: 'basic_dialogue', icon: '🗣️', modules: ['dialogue'], xpToUnlockEval: 120, evalType: 'free_dialogue', evalNPC: 'elder',
+      title: { fr: 'Premier dialogue', en: 'First dialogue', ht: 'Premye dyalòg' },
+      desc:  { fr: 'Tenir une courte conversation avec un PNJ.', en: 'Hold a short conversation with an NPC.', ht: 'Fè yon ti konvèsasyon ak yon PNJ.' } },
+  ],
+  intermediate: [
+    { id: 'grammar_foundations', icon: '📐', modules: ['grammar'], xpToUnlockEval: 150, evalType: 'grammar_correction', evalNPC: 'teacher',
+      title: { fr: 'Bases grammaticales', en: 'Grammar foundations', ht: 'Baz gramè' },
+      desc:  { fr: 'Corriger des erreurs de structure courantes.', en: 'Correct common structural mistakes.', ht: 'Korije erè estrikti komen.' } },
+    { id: 'everyday_vocab', icon: '🛒', modules: ['vocab'], xpToUnlockEval: 150, evalType: 'fill_blank', evalNPC: 'merchant',
+      title: { fr: 'Vocabulaire du quotidien', en: 'Everyday vocabulary', ht: 'Vokabilè chak jou' },
+      desc:  { fr: 'Compléter des phrases de la vie courante.', en: 'Complete everyday sentences.', ht: 'Konplete fraz lavi chak jou.' } },
+    { id: 'social_phrases', icon: '🤝', modules: ['phrases'], xpToUnlockEval: 150, evalType: 'sentence_building', evalNPC: 'banker',
+      title: { fr: 'Expressions sociales', en: 'Social expressions', ht: 'Ekspresyon sosyal' },
+      desc:  { fr: 'Construire des phrases dans un contexte formel.', en: 'Build sentences in a formal context.', ht: 'Konstwi fraz nan yon kontèks fòmèl.' } },
+    { id: 'conversations', icon: '💭', modules: ['dialogue'], xpToUnlockEval: 180, evalType: 'free_dialogue', evalNPC: 'doctor',
+      title: { fr: 'Conversations guidées', en: 'Guided conversations', ht: 'Konvèsasyon gide' },
+      desc:  { fr: 'Échanger sur des sujets concrets.', en: 'Discuss concrete topics.', ht: 'Pale sou sijè konkrè.' } },
+  ],
+  advanced: [
+    { id: 'advanced_grammar', icon: '🎓', modules: ['grammar'], xpToUnlockEval: 200, evalType: 'conjugation', evalNPC: 'teacher',
+      title: { fr: 'Grammaire avancée', en: 'Advanced grammar', ht: 'Gramè avanse' },
+      desc:  { fr: 'Maîtriser des conjugaisons plus complexes.', en: 'Master more complex conjugations.', ht: 'Metrize konjigezon pi konplèks.' } },
+    { id: 'nuanced_vocab', icon: '📚', modules: ['vocab'], xpToUnlockEval: 200, evalType: 'register_match', evalNPC: 'pastor',
+      title: { fr: 'Vocabulaire nuancé', en: 'Nuanced vocabulary', ht: 'Vokabilè avèk nyans' },
+      desc:  { fr: 'Choisir le bon registre selon le contexte.', en: 'Choose the right register for context.', ht: 'Chwazi bon rejis dapre kontèks.' } },
+    { id: 'culture_context', icon: '🌍', modules: ['dialogue'], xpToUnlockEval: 200, evalType: 'comprehension', evalNPC: 'director',
+      title: { fr: 'Culture & contexte', en: 'Culture & context', ht: 'Kilti ak kontèks' },
+      desc:  { fr: 'Comprendre des références culturelles.', en: 'Understand cultural references.', ht: 'Konprann referans kiltirèl.' } },
+    { id: 'fluent_conversation', icon: '✨', modules: ['dialogue'], xpToUnlockEval: 250, evalType: 'free_dialogue', evalNPC: 'elder',
+      title: { fr: 'Conversation fluide', en: 'Fluent conversation', ht: 'Konvèsasyon fliyid' },
+      desc:  { fr: 'Échanger naturellement sans support.', en: 'Converse naturally without support.', ht: 'Pale natirèlman san sipò.' } },
+  ],
+};
+
+var GRAND_EXAMS = {
+  beginner: {
+    title: { fr: 'Grand Examen — Débutant', en: 'Major Exam — Beginner', ht: 'Gran Egzamen — Debitant' },
+    examinerNPC: 'elder', passingScore: 60, sections: ['vocabulary', 'phrases'],
+    xpReward: 100, gemReward: 5, badgeReward: { id: 'badge_beginner_grad' },
+    examinerIntro: { fr: 'Alors, {name}, montre-moi ce que tu as appris jusqu\'ici.', en: 'So, {name}, show me what you\'ve learned so far.' },
+  },
+  intermediate: {
+    title: { fr: 'Grand Examen — Intermédiaire', en: 'Major Exam — Intermediate', ht: 'Gran Egzamen — Entèmedyè' },
+    examinerNPC: 'teacher', passingScore: 65, sections: ['grammar', 'phrases', 'vocabulary'],
+    xpReward: 150, gemReward: 8, badgeReward: { id: 'badge_intermediate_grad' },
+    examinerIntro: { fr: '{name}, il est temps de vérifier tes progrès en profondeur.', en: '{name}, time to check your progress in depth.' },
+  },
+  advanced: {
+    title: { fr: 'Grand Examen — Avancé', en: 'Major Exam — Advanced', ht: 'Gran Egzamen — Avanse' },
+    examinerNPC: 'director', passingScore: 70, sections: ['grammar', 'culture', 'vocabulary'],
+    xpReward: 250, gemReward: 12, badgeReward: { id: 'badge_advanced_grad' },
+    examinerIntro: { fr: '{name}, voici l\'épreuve finale. Montre ta maîtrise.', en: '{name}, here is the final test. Show your mastery.' },
+  },
+};
+
+var _PROGRESS_KEY = 'lv_curriculum_progress_v1';
+var _levelOrder = ['beginner', 'intermediate', 'advanced'];
+
+function _defaultProgress() {
+  return { currentLevel: 'beginner', unlockedLevels: ['beginner'], lessons: {}, grandExams: {} };
+}
+
+function _loadProgress() {
+  try {
+    var raw = localStorage.getItem(_PROGRESS_KEY);
+    if (raw) {
+      var parsed = JSON.parse(raw);
+      var d = _defaultProgress();
+      d.currentLevel    = parsed.currentLevel    || d.currentLevel;
+      d.unlockedLevels  = parsed.unlockedLevels   || d.unlockedLevels;
+      d.lessons         = parsed.lessons          || d.lessons;
+      d.grandExams      = parsed.grandExams       || d.grandExams;
+      return d;
+    }
+  } catch (e) {}
+  return _defaultProgress();
+}
+
+var _progress = _loadProgress();
+
+function _saveProgress() {
+  try { localStorage.setItem(_PROGRESS_KEY, JSON.stringify(_progress)); } catch (e) {}
+}
+
+function getProgress() {
+  return _progress;
+}
+
+function getLessons(levelId) {
+  return LESSONS[levelId] || [];
+}
+
+function getLesson(levelId, lessonId) {
+  var lessons = getLessons(levelId);
+  return lessons.find(function (l) { return l.id === lessonId; }) || null;
+}
+
+function _lessonKey(levelId, lessonId) {
+  return levelId + '.' + lessonId;
+}
+
+function isEvalUnlocked(levelId, lessonId) {
+  var lesson = getLesson(levelId, lessonId);
+  if (!lesson) return false;
+  var data = _progress.lessons[_lessonKey(levelId, lessonId)];
+  var xpEarned = (data && data.xpEarned) || 0;
+  return xpEarned >= lesson.xpToUnlockEval;
+}
+
+function isEvalPassed(levelId, lessonId) {
+  var data = _progress.lessons[_lessonKey(levelId, lessonId)];
+  return !!(data && data.passed);
+}
+
+function getLevelProgress(levelId) {
+  var lessons = getLessons(levelId);
+  if (!lessons.length) return 0;
+  var passedCount = lessons.filter(function (l) { return isEvalPassed(levelId, l.id); }).length;
+  return Math.round((passedCount / lessons.length) * 100);
+}
+
+function isGrandExamUnlocked(levelId) {
+  var lessons = getLessons(levelId);
+  if (!lessons.length) return false;
+  return lessons.every(function (l) { return isEvalPassed(levelId, l.id); });
+}
+
+function getGrandExam(levelId) {
+  return GRAND_EXAMS[levelId] || null;
+}
+
+function markLessonXP(levelId, lessonId, xpAmount) {
+  var key = _lessonKey(levelId, lessonId);
+  var data = _progress.lessons[key] || { xpEarned: 0, passed: false, evalScore: 0 };
+  data.xpEarned = (data.xpEarned || 0) + (xpAmount || 0);
+  _progress.lessons[key] = data;
+  _saveProgress();
+}
+
+function markEvalPassed(levelId, lessonId, pct) {
+  var key = _lessonKey(levelId, lessonId);
+  var data = _progress.lessons[key] || { xpEarned: 0 };
+  data.passed = true;
+  data.evalScore = pct;
+  _progress.lessons[key] = data;
+  _saveProgress();
+}
+
+function markGrandExamPassed(levelId, pct) {
+  _progress.grandExams[levelId] = { passed: true, score: pct };
+  // Débloquer le niveau suivant
+  var idx = _levelOrder.indexOf(levelId);
+  var next = _levelOrder[idx + 1];
+  if (next) {
+    if (_progress.unlockedLevels.indexOf(next) === -1) _progress.unlockedLevels.push(next);
+    _progress.currentLevel = next;
+  }
+  _saveProgress();
+}
+
+// ============================================================================
 // 4. API PUBLIQUE
 // ============================================================================
 
@@ -506,8 +703,31 @@ return {
   getPitfallsForPrompt: getPitfallsForPrompt,
   buildPitfallPromptSnippet: buildPitfallPromptSnippet,
   getConjugation: getConjugation,
+
+  // [AJOUTÉ] Couche de progression (niveaux/leçons/grands examens),
+  // attendue par program.js, exam.js et curriculum_hooks.js — voir note
+  // en section 3bis ci-dessus.
+  LEVELS: LEVELS,
+  getLessons: getLessons,
+  getLesson: getLesson,
+  getProgress: getProgress,
+  getLevelProgress: getLevelProgress,
+  isEvalUnlocked: isEvalUnlocked,
+  isEvalPassed: isEvalPassed,
+  isGrandExamUnlocked: isGrandExamUnlocked,
+  getGrandExam: getGrandExam,
+  markLessonXP: markLessonXP,
+  markEvalPassed: markEvalPassed,
+  markGrandExamPassed: markGrandExamPassed,
 };
 
 })();
+
+// [AJOUTÉ] Alias attendu par program.js / exam.js / curriculum_hooks.js, qui
+// référencent tous window.LV_CURRICULUM (jamais défini auparavant — c'était
+// la cause principale de leur non-fonctionnement). Un seul moteur réel
+// (window.CURRICULUM) ; LV_CURRICULUM n'est qu'un second nom vers le même
+// objet, pour ne pas avoir à toucher aux 3 fichiers qui l'utilisent déjà.
+window.LV_CURRICULUM = window.CURRICULUM;
 
 console.log('✅ curriculum.js chargé —', Object.keys(window.CURRICULUM.UNITS).length, 'langues structurées');
