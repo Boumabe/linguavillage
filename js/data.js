@@ -682,6 +682,14 @@ var LOCATIONS = [
        emoji:'👩‍🏫'}
     ]
   },
+  {
+    id:'psychology', emoji:'🧠', color:'#9a8ac0',
+    npcs:[
+      {id:'psychologist', name:'Dr. Camille',
+       role:{fr:'Psychologue', en:'Psychologist', es:'Psicóloga', ht:'Sikològ', de:'Psychologin', ru:'Психолог', zh:'心理医生', ja:'心理士'},
+       emoji:'🧑‍⚕️'}
+    ]
+  },
 ];
 
 // =================================================================
@@ -703,6 +711,7 @@ var _locMeta = {
   police:   {fr:'Police',    en:'Police',   es:'Policía',   ht:'Polis',    de:'Polizei',        ru:'Полиция',  zh:'警察局', ja:'警察署'},
   cinema:   {fr:'Cinéma',    en:'Cinema',   es:'Cine',      ht:'Sinema',   de:'Kino',           ru:'Кино',     zh:'电影院', ja:'映画館'},
   factory:  {fr:'Ferme',     en:'Farm',     es:'Granja',    ht:'Fèm',      de:'Bauernhof',      ru:'Ферма',    zh:'农场',   ja:'農場'},
+  psychology: {fr:'Cabinet du Dr. Camille', en:'Dr. Camille\'s Office', es:'Consultorio de la Dra. Camille', ht:'Kabinè Doktè Camille', de:'Praxis von Dr. Camille', ru:'Кабинет доктора Камиль', zh:'卡米尔医生诊所', ja:'カミーユ先生の診療所'},
 };
 
 LOCATIONS.forEach(function(loc) {
