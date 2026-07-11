@@ -18,6 +18,10 @@
   <link rel="stylesheet" href="css/styles_v2.css">
   <!-- Styles écrans d'apprentissage (vocab / phrases / grammaire / dico) -->
   <link rel="stylesheet" href="css/learning_styles.css">
+  <!-- Styles monde/village RPG (carte, rangs sociaux, quêtes, construction) -->
+  <link rel="stylesheet" href="css/world_styles.css">
+  <!-- Styles Programme d'apprentissage / Évaluations / Grands Examens -->
+  <link rel="stylesheet" href="css/program_styles.css">
 
   <style>
     /* ── Styles de secours critiques — s'appliquent avant le CSS externe ── */
@@ -254,6 +258,19 @@
         </div>
         <div style="margin-left:auto;color:var(--text-ghost);font-size:1rem;">›</div>
       </div>
+    </div>
+
+    <!-- Programme d'apprentissage (niveaux, leçons, évaluations, Grands Examens) -->
+    <div style="margin-top:8px;">
+      <button class="menu-program-btn" onclick="if(window.LV_PROGRAM)window.LV_PROGRAM.open()" style="border:1.5px solid rgba(255,215,0,0.20);font:inherit;color:inherit;">
+        <div class="menu-program-icon">📊</div>
+        <div class="menu-program-content">
+          <div class="menu-program-title">Programme d'apprentissage</div>
+          <div class="menu-program-sub">Niveaux, leçons, évaluations & Grands Examens</div>
+        </div>
+        <div class="menu-program-badge" id="program-level-badge">🌱 Débutant · 0%</div>
+        <div class="menu-program-arrow">›</div>
+      </button>
     </div>
 
   </div><!-- /.menu-body -->
@@ -603,6 +620,9 @@
 <script src="js/curriculum.js"></script>
 <script src="js/curriculum_exercises.js"></script>
 <script src="js/curriculum_ui.js"></script>
+<script src="js/program.js"></script>
+<script src="js/exam.js"></script>
+<script src="js/curriculum_hooks.js"></script>
 
 <!-- 2. Citations (avant app pour être disponible à l'onboarding) -->
 <script src="js/quote_v2.js"></script>
@@ -745,4 +765,4 @@ window._toggleCatDrawer = function(type, forceClose) {
 };
 </script>
 </body>
-                                                </html>
+          </html>
