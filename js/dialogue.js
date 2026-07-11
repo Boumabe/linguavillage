@@ -380,8 +380,31 @@ var NPC_PEDAGOGY = {
   banker:    { style:'professionnel et précis', domain:'argent, chiffres, transactions, formulaires', corrects:true,  introduces:'vocabulaire financier de base' },
   nurse:     { style:'chaleureux et rassurant', domain:'santé, symptômes, soins courants, émotions', corrects:false, introduces:'vocabulaire de la santé et du bien-être' },
   friend:    { style:'très informel et enthousiaste', domain:'vie quotidienne, loisirs, émotions, amitié', corrects:false, introduces:'argot doux et expressions courantes' },
+  psychologist: { style:"à l'écoute, douce, jamais pressée ni jugeante", domain:'émotions, ressenti, vie intérieure', corrects:false, introduces:'vocabulaire des émotions et du ressenti', openQuestionsOnly:true },
   default:   { style:'simple et pédagogique', domain:'vocabulaire général', corrects:true,  introduces:'expressions de base' },
 };
+
+// Marqueurs de première personne (je/moi/mon/ma/mes...) déclenchant le
+// mode "questions ouvertes forcées" du psychologue, par langue native
+// (pour détecter ces marqueurs même si l'apprenant écrit dans sa langue
+// maternelle en cas de blocage) et par langue cible (cas normal).
+var _FIRST_PERSON_MARKERS = {
+  fr: ['je ', "j'", 'moi', 'mon ', 'ma ', 'mes '],
+  en: ['i ', "i'm", 'my ', 'me ', 'mine'],
+  es: ['yo ', 'mi ', 'mis ', 'me '],
+  ht: ['mwen', 'mwen an'],
+  de: ['ich ', 'mein', 'mir '],
+  ru: ['я ', 'мой', 'моя', 'мне'],
+  zh: ['我'],
+  ja: ['私', 'わたし', '僕', 'ぼく'],
+};
+
+function _messageHasFirstPersonMarker(msg, lang) {
+  if (!msg) return false;
+  var lower = String(msg).toLowerCase();
+  var markers = _FIRST_PERSON_MARKERS[lang] || _FIRST_PERSON_MARKERS.fr;
+  return markers.some(function (m) { return lower.indexOf(m) !== -1; });
+}
 
 function _getNpcPedagogy(npcId) {
   return NPC_PEDAGOGY[npcId] || NPC_PEDAGOGY.default;
@@ -408,7 +431,7 @@ function _analyzeNpcReply(reply) {
 // N'ALTÈRE PAS les champs déjà consommés par le backend ; ajoute des
 // informations facultatives qu'il peut ignorer s'il ne les lit pas.
 // ================================================================
-function _buildEnrichedContext(npc, nl, tl) {
+function _buildEnrichedContext(npc, nl, tl, userMsg) {
   var parts = [];
 
   var pedagogy = _getNpcPedagogy(npc ? npc.id : null);
@@ -416,6 +439,20 @@ function _buildEnrichedContext(npc, nl, tl) {
   parts.push(pedagogy.corrects
     ? "Si l'apprenant fait une faute, corrige-le gentiment en incluant la forme correcte."
     : "Si l'apprenant fait une faute, reformule naturellement la phrase correcte sans le signaler explicitement.");
+
+  // [AJOUTÉ] Profil spécial du psychologue (Dr. Camille) : dès que
+  // l'apprenant parle de lui-même (je/moi/mon/ma/mes ou équivalent dans
+  // sa langue cible/native), forcer une relance en question ouverte
+  // plutôt qu'une réponse fermée ou un conseil.
+  if (pedagogy.openQuestionsOnly) {
+    var mentionsSelf = _messageHasFirstPersonMarker(userMsg, tl) || _messageHasFirstPersonMarker(userMsg, nl);
+    if (mentionsSelf) {
+      parts.push("L'apprenant vient de parler de lui-même (je/moi/mon/ma/mes ou équivalent). "
+        + "Réponds UNIQUEMENT par une question ouverte qui l'invite à développer ce qu'il ressent "
+        + "(jamais une question fermée oui/non, jamais de conseil, jamais de jugement). "
+        + "Laisse de la place au silence : reste bref.");
+    }
+  }
 
   // [AJOUTÉ] Personnalité/émotions/objectifs/relations du citoyen
   // (citizens.js), en complément du profil pédagogique ci-dessus.
@@ -480,7 +517,7 @@ async function _callNPCAPI(userMsg, onSuccess, onError) {
       // Champ additionnel : mémoire utilisateur + pièges pédagogiques +
       // profil du PNJ. Le backend peut l'ignorer s'il ne le consomme pas
       // encore — aucun champ existant n'est modifié.
-      systemContext: _buildEnrichedContext(npc, nl, tl),
+      systemContext: _buildEnrichedContext(npc, nl, tl, userMsg),
     });
 
     var reply       = result.reply       || result.message || '';
