@@ -2,7 +2,7 @@
 // LinguaVillage — Lieux thématiques + progression pédagogique
 // ================================================================
 
-window.API = window.API || 'https://linguavillage-api--marckensbou2.replit.app';
+window.API = window.API || 'https://linguavillage.vercel.app';
 
 var _apiCache = {};
 var lastAPICall = 0;
