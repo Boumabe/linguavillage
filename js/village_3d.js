@@ -7,6 +7,86 @@
 'use strict';
 
 // ═══════════════════════════════════════════════════════════════
+// CHARGEUR DE MODÈLES 3D GLB (Tripo AI) — ajouté pour remplacer
+// la génération procédurale par de vrais modèles 3D
+// ═══════════════════════════════════════════════════════════════
+
+var gltfLoader = new THREE.GLTFLoader();
+var _modelCache = {};
+var _decorCache = {};
+
+// Mapping bâtiment (id de BUILDINGS_3D) → fichier GLB à utiliser
+// "scale" est un point de départ — ajuste-le après le premier test
+// visuel selon la taille réelle exportée depuis Tripo.
+var BUILDING_MODEL_MAP = {
+    school:   { file: 'assets/models/ecole.glb',       scale: 4.5 },
+    market:   { file: 'assets/models/marche.glb',       scale: 4.5 },
+    friends:  { file: 'assets/models/maison.glb',       scale: 4.0 },
+    tavern:   { file: 'assets/models/cafe.glb',         scale: 4.2 },
+    cinema:   { file: 'assets/models/boulangerie.glb',  scale: 4.2 },
+    church:   { file: 'assets/models/ecole.glb',        scale: 5.0 },
+    hospital: { file: 'assets/models/maison.glb',       scale: 4.5 },
+    bank:     { file: 'assets/models/cafe.glb',         scale: 4.0 },
+    police:   { file: 'assets/models/boulangerie.glb',  scale: 4.0 },
+    park:     { file: 'assets/models/maison.glb',       scale: 3.5 },
+};
+
+// Recale un modèle chargé pour que sa base touche exactement y=0,
+// peu importe où Tripo a placé son pivot d'origine (aucun de nos
+// exports n'a le pivot au sol, donc cette correction est obligatoire).
+function _groundModel(model) {
+    var box = new THREE.Box3().setFromObject(model);
+    var lowestPoint = box.min.y;
+    model.position.y -= lowestPoint;
+    return model;
+}
+
+function _loadBuildingModel(path, onLoaded) {
+    if (_modelCache[path]) {
+        onLoaded(_modelCache[path].clone());
+        return;
+    }
+    gltfLoader.load(
+        path,
+        function (gltf) {
+            _groundModel(gltf.scene);
+            _modelCache[path] = gltf.scene;
+            onLoaded(gltf.scene.clone());
+        },
+        undefined,
+        function (error) {
+            console.error('Erreur chargement bâtiment GLB:', path, error);
+        }
+    );
+}
+
+// Pour tout objet de décor hors bâtiment (arbres, bancs, fontaine,
+// lampadaires, props, oiseaux, linge)
+function loadDecorModel(path, position, scale, rotationY, onLoaded) {
+    function place(model) {
+        model.scale.set(scale, scale, scale);
+        model.position.set(position.x, position.y, position.z);
+        model.rotation.y = rotationY || 0;
+        scene.add(model);
+        if (onLoaded) onLoaded(model);
+    }
+    if (_decorCache[path]) {
+        place(_decorCache[path].clone());
+        return;
+    }
+    gltfLoader.load(path, function (gltf) {
+        _groundModel(gltf.scene);
+        _decorCache[path] = gltf.scene;
+        place(gltf.scene.clone());
+    }, undefined, function (error) {
+        console.error('Erreur chargement décor GLB:', path, error);
+    });
+}
+// ═══════════════════════════════════════════════════════════════
+// FIN DU CHARGEUR DE MODÈLES 3D
+// ═══════════════════════════════════════════════════════════════
+
+// ═══════════════════════════════════════════════════════════════
 // CONFIGURATION & PALETTE — Tons naturels, moins saturés
 // ═══════════════════════════════════════════════════════════════
 
@@ -87,18 +167,6 @@ var BUILDINGS_3D = [
       radius:20, height:25, roofHeight:16, platformColor:0x0288d1,
       emoji:'🏥', npc:'👨‍⚕️', lockXP:200, action:'dialogue',
       style:'official', chimney:false, balcony:false, sign:true, lanterns:3 },
-
-    { id:'psychology', locId:'psychology', npcId:'psychologist', badgeNum:12,
-      name:{fr:'Cabinet du Dr. Camille', en:"Dr. Camille's Office", ht:'Kabinè Doktè Camille'},
-      stage:{fr:'Émotions & Ressenti',  en:'Emotions & Feelings',    ht:'Santiman ak Emosyon'},
-      desc:{fr:'Dr. Camille écoute, sans jamais juger. Un endroit pour mettre des mots sur ce qu\'on ressent.',
-            en:"Dr. Camille listens, without ever judging. A place to put words on what you feel.",
-            ht:'Doktè Camille koute, san jije. Yon kote pou mete mo sou sa ou santi.'},
-      x:125, z:-120,
-      wallColor:0xede7f6, roofColor:0x6a4c93, emissiveWall:0x311b47, emissiveRoof:0x4a148c,
-      radius:15, height:19, roofHeight:13, platformColor:0x5e3a80,
-      emoji:'🧠', npc:'🧑‍⚕️', lockXP:60, action:'dialogue',
-      style:'cottage', chimney:true, balcony:false, sign:true, lanterns:2 },
 
     { id:'bank',     locId:'bank',     npcId:'banker',   badgeNum:5,
       name:{fr:'Banque Dupuis',        en:'Dupuis Bank',             ht:'Bank Dupuis'},
@@ -418,9 +486,6 @@ function _init3D() {
 
         // ── PNJ AMBULANTS ──
         _buildNPCWalkers();
-
-        // ── FIGURANTS DÉCORATIFS (silhouettes, sans dialogue) ──
-        _buildFigurants(isLowEnd);
 
         // ── CYCLE JOUR/NUIT ──
         _buildCelestialBodies();
@@ -1184,15 +1249,32 @@ function _buildDetailedBuilding(b, isLowEnd) {
     plat.castShadow = !isLowEnd;
     group.add(plat);
 
-    // Corps principal avec détails selon style
-    _buildBuildingBody(group, b, locked, alpha, isLowEnd);
-
-    // Toit détaillé
-    _buildBuildingRoof(group, b, locked, alpha, isLowEnd);
-
-    // Détails architecturaux
-    if (!locked) {
-        _buildBuildingDetails(group, b, isLowEnd);
+    // Corps du bâtiment : modèle GLB Tripo (remplace l'ancienne génération procédurale)
+    var modelInfo = BUILDING_MODEL_MAP[b.id];
+    if (modelInfo) {
+        _loadBuildingModel(modelInfo.file, function (model) {
+            model.scale.set(modelInfo.scale, modelInfo.scale, modelInfo.scale);
+            model.position.y = 2;
+            model.traverse(function (child) {
+                if (child.isMesh) {
+                    child.castShadow = !isLowEnd;
+                    child.receiveShadow = !isLowEnd;
+                    if (alpha < 1) {
+                        child.material = child.material.clone();
+                        child.material.transparent = true;
+                        child.material.opacity = alpha;
+                    }
+                    child.userData.buildingId = b.id;
+                }
+            });
+            model.userData.buildingId = b.id;
+            group.add(model);
+        });
+    } else {
+        // Sécurité : id sans mapping GLB → on garde l'ancien système procédural
+        _buildBuildingBody(group, b, locked, alpha, isLowEnd);
+        _buildBuildingRoof(group, b, locked, alpha, isLowEnd);
+        if (!locked) _buildBuildingDetails(group, b, isLowEnd);
     }
 
     scene.add(group);
@@ -1952,103 +2034,6 @@ function _buildNPCWalkers() {
 }
 
 // ═══════════════════════════════════════════════════════════════
-// FIGURANTS DÉCORATIFS — silhouettes de fond, SANS dialogue
-// ═══════════════════════════════════════════════════════════════
-// Différence volontaire avec _buildNPCWalkers() ci-dessus : ces ~46
-// silhouettes ne sont QUE du décor (foule/vie de fond du village). Elles
-// ne sont PAS ajoutées à _npcWalkers et ne sont donc JAMAIS passées à
-// window.LV_AMBIENT.registerWalkers() — pas de citizenId, pas de bulle
-// de dialogue possible entre elles ni avec le joueur. Rendu en
-// InstancedMesh (2 draw calls : corps + tête, pour ~46 figurants) plutôt
-// qu'en sprites individuels, pour rester léger sur mobile.
-var _figurantsGroup = null;
-var _figurantsData  = [];
-
-function _buildFigurants(isLowEnd) {
-    var total = isLowEnd ? 22 : 46;
-
-    var bodyGeo = _getGeometry('figurantBody', function () {
-        return new THREE.CylinderGeometry(0.42, 0.55, 1.7, 6);
-    });
-    var headGeo = _getGeometry('figurantHead', function () {
-        return new THREE.SphereGeometry(0.3, 7, 6);
-    });
-
-    // NOTE : three@0.128.0 (version chargée par index.html) ne supporte
-    // pas encore InstancedMesh.setColorAt()/instanceColor (ajouté en
-    // r131). Pour varier quand même les teintes des silhouettes sans
-    // dépendre de cette API, on répartit les figurants en petits groupes
-    // à couleur fixe (un InstancedMesh corps + un tête par groupe) plutôt
-    // qu'un seul gros InstancedMesh coloré par instance. Toujours très
-    // léger : 6 couleurs × 2 meshes = 12 draw calls pour ~46 figurants,
-    // contre 46 sprites individuels avant.
-    var silhouetteColors = [0x3a3550, 0x4a3f4a, 0x30405a, 0x4a4030, 0x2e3a3a, 0x453548];
-    var groupCount = silhouetteColors.length;
-    var perGroup = Math.ceil(total / groupCount);
-
-    var dummy = new THREE.Object3D();
-    _figurantsData = [];
-    var placed = 0;
-
-    silhouetteColors.forEach(function (hex, gIdx) {
-        var count = Math.min(perGroup, total - placed);
-        if (count <= 0) return;
-
-        var bodyMat = new THREE.MeshStandardMaterial({ color: hex, roughness: 0.95 });
-        var headMat = new THREE.MeshStandardMaterial({ color: hex, roughness: 0.95 });
-        var bodies  = new THREE.InstancedMesh(bodyGeo, bodyMat, count);
-        var heads   = new THREE.InstancedMesh(headGeo, headMat, count);
-
-        for (var i = 0; i < count; i++) {
-            // Bande de placement : entre les bancs de la place (rayon
-            // ~38+8) et les bâtiments (rayon ~120+), sur les chemins/la
-            // place du village — jamais dans la fontaine ni un bâtiment.
-            var angle  = Math.random() * Math.PI * 2;
-            var radius = 48 + Math.random() * 75;
-            var x = Math.sin(angle) * radius;
-            var z = -Math.cos(angle) * radius;
-
-            var tooClose = false;
-            BUILDINGS_3D.forEach(function (b) {
-                var dx = x - b.x, dz = z - b.z;
-                if (Math.sqrt(dx * dx + dz * dz) < b.radius + 10) tooClose = true;
-            });
-            if (tooClose) { i--; continue; }
-
-            var baseY = _smoothNoise(x, z);
-            var scale = 0.85 + Math.random() * 0.3;
-
-            dummy.position.set(x, baseY + 0.85 * scale, z);
-            dummy.rotation.set(0, Math.random() * Math.PI * 2, 0);
-            dummy.scale.set(scale, scale, scale);
-            dummy.updateMatrix();
-            bodies.setMatrixAt(i, dummy.matrix);
-
-            dummy.position.set(x, baseY + 1.85 * scale, z);
-            dummy.updateMatrix();
-            heads.setMatrixAt(i, dummy.matrix);
-
-            // Micro-mouvement d'idle (respiration/balancement léger),
-            // sans déplacement — figurants purement statiques au sol,
-            // pas de pathfinding ni de collision à gérer.
-            _figurantsData.push({ baseY: baseY, scale: scale, phase: Math.random() * Math.PI * 2 });
-            placed++;
-        }
-
-        bodies.castShadow = !isLowEnd;
-        heads.castShadow  = !isLowEnd;
-        scene.add(bodies);
-        scene.add(heads);
-        _instancedMeshes['figurantsBody_' + gIdx] = bodies;
-        _instancedMeshes['figurantsHead_' + gIdx] = heads;
-    });
-
-    // NOTE INTENTIONNELLE : aucun appel à window.LV_AMBIENT.registerWalkers
-    // ici — ces figurants sont du décor pur (voir commentaire en tête de
-    // fichier de cette section), sans citizenId ni dialogue possible.
-}
-
-// ═══════════════════════════════════════════════════════════════
 // CYCLE JOUR/NUIT — Soleil, Lune, Étoiles
 // ═══════════════════════════════════════════════════════════════
 function _buildCelestialBodies() {
@@ -2662,8 +2647,6 @@ function _onTapBuilding(id) {
 
     npcList.innerHTML = html;
 
-    if (typeof openMissionsPanel === 'function') openMissionsPanel(b.id);
-
     running = false;
     if (typeof showScreen === 'function') showScreen('screen-location');
 
@@ -2756,7 +2739,7 @@ window._v3dAction = function(action) {
     }
 };
 
-// ═══════════════════════════════════════════════════════════════
+ // ═══════════════════════════════════════════════════════════════
 // NAV BAR — API inchangée
 // ═══════════════════════════════════════════════════════════════
 var _NL = {
@@ -2832,7 +2815,6 @@ window._navTo = function (s) {
         case 'profile':
             running = false;
             if (typeof showScreen === 'function') showScreen('screen-profile');
-            if (typeof loadProfileData === 'function') loadProfileData();
             break;
     }
 };
