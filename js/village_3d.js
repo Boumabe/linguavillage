@@ -19,16 +19,16 @@ var _decorCache = {};
 // "scale" est un point de départ — ajuste-le après le premier test
 // visuel selon la taille réelle exportée depuis Tripo.
 var BUILDING_MODEL_MAP = {
-    school:   { file: 'assets/models/ecole.glb',       scale: 4.5 },
-    market:   { file: 'assets/models/marche.glb',       scale: 4.5 },
-    friends:  { file: 'assets/models/maison.glb',       scale: 4.0 },
-    tavern:   { file: 'assets/models/cafe.glb',         scale: 4.2 },
-    cinema:   { file: 'assets/models/boulangerie.glb',  scale: 4.2 },
-    church:   { file: 'assets/models/ecole.glb',        scale: 5.0 },
-    hospital: { file: 'assets/models/maison.glb',       scale: 4.5 },
-    bank:     { file: 'assets/models/cafe.glb',         scale: 4.0 },
-    police:   { file: 'assets/models/boulangerie.glb',  scale: 4.0 },
-    park:     { file: 'assets/models/maison.glb',       scale: 3.5 },
+    school:   { file: 'assets/models/ecole.glb',          scale: 4.5 },
+    market:   { file: 'assets/models/market.glb',         scale: 4.5 },
+    friends:  { file: 'assets/models/bakery2building.glb',scale: 4.0 },
+    tavern:   { file: 'assets/models/cafebuilding.glb',   scale: 4.2 },
+    cinema:   { file: 'assets/models/bakerybuilding.glb', scale: 4.2 },
+    church:   { file: 'assets/models/bibliotheque.glb',   scale: 5.0 },
+    hospital: { file: 'assets/models/pharmacy.glb',       scale: 4.5 },
+    bank:     { file: 'assets/models/mairie.glb',         scale: 4.5 },
+    police:   { file: 'assets/models/marketshop.glb',     scale: 4.0 },
+    park:     { file: 'assets/models/busstop.glb',        scale: 3.5 },
 };
 
 // Recale un modèle chargé pour que sa base touche exactement y=0,
@@ -2666,7 +2666,6 @@ function _onTapBuilding(id) {
         };
     }
 }
-
 // ═══════════════════════════════════════════════════════════════
 // DIALOGUE & ACTION — API inchangées
 // ═══════════════════════════════════════════════════════════════
@@ -2739,7 +2738,7 @@ window._v3dAction = function(action) {
     }
 };
 
- // ═══════════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════
 // NAV BAR — API inchangée
 // ═══════════════════════════════════════════════════════════════
 var _NL = {
