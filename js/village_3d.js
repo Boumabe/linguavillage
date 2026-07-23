@@ -540,11 +540,12 @@ function _init3D() {
         // voir l'envers du décor (les éléments de fond — montagnes, forêt —
         // ne sont construits que sur un arc partiel autour de la scène).
         controls.enableRotate = true;
-        controls.minAzimuthAngle = -Math.PI / 3;   // -60°
-        controls.maxAzimuthAngle =  Math.PI / 3;   // +60°
-        controls.minPolarAngle = Math.PI / 6;       // 30° depuis le zénith (pas trop plongeant)
-        controls.maxPolarAngle = Math.PI / 2.4;     // ~75° (pas trop à l'horizontale)
-        controls.rotateSpeed = 0.6;
+        controls.minAzimuthAngle = -Math.PI / 4.5;   // -40° (resserré, moins de tournis)
+        controls.maxAzimuthAngle =  Math.PI / 4.5;   // +40°
+        controls.minPolarAngle = Math.PI / 5;        // 36° depuis le zénith
+        controls.maxPolarAngle = Math.PI / 2.6;       // ~69°
+        controls.rotateSpeed = 0.32;                  // moitié moins sensible qu'avant
+        controls.dampingFactor = 0.12;                // amortissement plus fluide
         controls.screenSpacePanning = false;
         controls.minDistance = 200;
         controls.maxDistance = 800;
@@ -670,9 +671,11 @@ function _buildTerrain(isLowEnd) {
         }
         
         var variation = (_hash(x * 10, z * 10) - 0.5) * 0.08;
-        color.r += variation;
-        color.g += variation;
-        color.b += variation;
+        var microVariation = (_hash(x * 37, z * 41) - 0.5) * 0.05;
+        var patchVariation = (_hash(x * 3, z * 3) - 0.5) * 0.06;
+        color.r += variation + microVariation + patchVariation;
+        color.g += variation + microVariation + patchVariation * 1.1;
+        color.b += variation + microVariation * 0.6 + patchVariation * 0.7;
         
         colors.push(color.r, color.g, color.b);
     }
@@ -806,10 +809,13 @@ function _createWaterMaterial() {
             void main() {
                 float mixFactor = smoothstep(-0.3, 0.3, vElevation);
                 vec3 color = mix(uColorDeep, uColorMid, mixFactor);
-                color = mix(color, uColorLight, smoothstep(0.1, 0.4, mixFactor));
-                float sparkle = sin(vUv.x * 30.0 + uTime * 2.0) * sin(vUv.y * 20.0 + uTime * 1.5);
-                sparkle = smoothstep(0.8, 1.0, sparkle) * 0.3;
+                color = mix(color, uColorLight, smoothstep(0.05, 0.35, mixFactor));
+                float sparkle = sin(vUv.x * 45.0 + uTime * 2.2) * sin(vUv.y * 30.0 + uTime * 1.7);
+                sparkle = smoothstep(0.75, 0.98, sparkle) * 0.45;
                 color += vec3(sparkle);
+                float foam = sin(vUv.x * 8.0 + uTime * 0.6) * sin(vUv.y * 6.0 - uTime * 0.4);
+                foam = smoothstep(0.9, 1.0, foam) * 0.15;
+                color += vec3(foam);
                 float alpha = 0.85 + vElevation * 0.3;
                 gl_FragColor = vec4(color, clamp(alpha, 0.7, 0.95));
             }
@@ -996,15 +1002,15 @@ function _buildNaturalPaths() {
 // VÉGÉTATION PROCÉDURALE DENSE — InstancedMesh
 // ═══════════════════════════════════════════════════════════════
 function _buildVegetation(isLowEnd) {
-    var density = isLowEnd ? 0.3 : 1.0;
+    var density = isLowEnd ? 0.5 : 1.0;
 
-    _buildVariedTrees(Math.floor(25 * density), isLowEnd);
-    _buildBushes(Math.floor(40 * density));
-    _buildFlowers(Math.floor(60 * density));
-    _buildTallGrass(Math.floor(80 * density));
-    _buildFerns(Math.floor(30 * density));
-    _buildMushrooms(Math.floor(20 * density));
-    _buildStumps(Math.floor(8 * density));
+    _buildVariedTrees(Math.floor(55 * density), isLowEnd);
+    _buildBushes(Math.floor(75 * density));
+    _buildFlowers(Math.floor(100 * density));
+    _buildTallGrass(Math.floor(140 * density));
+    _buildFerns(Math.floor(50 * density));
+    _buildMushrooms(Math.floor(30 * density));
+    _buildStumps(Math.floor(12 * density));
 }
 
 function _buildVariedTrees(count, isLowEnd) {
@@ -2696,8 +2702,7 @@ function _onTapBuilding(id) {
         };
     }
 }
-
-// ═══════════════════════════════════════════════════════════════
+    // ═══════════════════════════════════════════════════════════════
 // DIALOGUE & ACTION — API inchangées
 // ═══════════════════════════════════════════════════════════════
 window._v3dDialogue = function(locId, npcId) {
@@ -2768,7 +2773,8 @@ window._v3dAction = function(action) {
             if (typeof showScreen === 'function') showScreen('screen-' + action);
     }
 };
-    // ═══════════════════════════════════════════════════════════════
+
+// ═══════════════════════════════════════════════════════════════
 // NAV BAR — API inchangée
 // ═══════════════════════════════════════════════════════════════
 var _NL = {
