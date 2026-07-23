@@ -54,6 +54,8 @@ function _showDebug(msg) {
     console.error(msg);
 }
 
+var _debugSizeShown = false;
+
 function _loadBuildingModel(path, onLoaded) {
     if (_modelCache[path]) {
         onLoaded(_modelCache[path].clone());
@@ -64,6 +66,17 @@ function _loadBuildingModel(path, onLoaded) {
         function (gltf) {
             try {
                 _groundModel(gltf.scene);
+                if (!_debugSizeShown) {
+                    _debugSizeShown = true;
+                    var box = new THREE.Box3().setFromObject(gltf.scene);
+                    var size = box.getSize(new THREE.Vector3());
+                    var el = document.getElementById('debug');
+                    if (el) {
+                        el.textContent = 'MODELE OK: ' + path + ' taille native = ' + size.x.toFixed(2) + ' x ' + size.y.toFixed(2) + ' x ' + size.z.toFixed(2);
+                        el.style.background = '#2980b9';
+                        el.style.color = '#fff';
+                    }
+                }
                 _modelCache[path] = gltf.scene;
                 onLoaded(gltf.scene.clone());
             } catch (e) {
@@ -2568,7 +2581,7 @@ function _onTapBuilding(id) {
     // ── Lore du lieu ──
     if (desc) {
         html += '<div style="margin:0 16px 12px;padding:12px 14px;'
-              + 'background:rgba(255,255,255,0.04);border-left:3px solid rgba(255,215,0,0.28);'
+          + 'background:rgba(255,255,255,0.04);border-left:3px solid rgba(255,215,0,0.28);'
           + 'border-radius:0 12px 12px 0;font-size:0.78rem;color:rgba(255,255,255,0.50);'
           + 'font-style:italic;line-height:1.55;">' + desc + '</div>';
     }
@@ -2683,8 +2696,7 @@ function _onTapBuilding(id) {
         };
     }
 }
-
-// ═══════════════════════════════════════════════════════════════
+    // ═══════════════════════════════════════════════════════════════
 // DIALOGUE & ACTION — API inchangées
 // ═══════════════════════════════════════════════════════════════
 window._v3dDialogue = function(locId, npcId) {
@@ -2755,6 +2767,7 @@ window._v3dAction = function(action) {
             if (typeof showScreen === 'function') showScreen('screen-' + action);
     }
 };
+
 // ═══════════════════════════════════════════════════════════════
 // NAV BAR — API inchangée
 // ═══════════════════════════════════════════════════════════════
