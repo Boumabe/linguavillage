@@ -24,16 +24,16 @@ var _decorCache = {};
 // "scale" est un point de départ — ajuste-le après le premier test
 // visuel selon la taille réelle exportée depuis Tripo.
 var BUILDING_MODEL_MAP = {
-    school:   { file: 'assets/models/ecole.glb',          scale: 18 },
-    market:   { file: 'assets/models/market.glb',         scale: 18 },
-    friends:  { file: 'assets/models/bakery2building.glb',scale: 16 },
-    tavern:   { file: 'assets/models/cafebuilding.glb',   scale: 17 },
-    cinema:   { file: 'assets/models/bakerybuilding.glb', scale: 17 },
-    church:   { file: 'assets/models/bibliotheque.glb',   scale: 20 },
-    hospital: { file: 'assets/models/pharmacy.glb',       scale: 18 },
-    bank:     { file: 'assets/models/mairie.glb',         scale: 18 },
-    police:   { file: 'assets/models/marketshop.glb',     scale: 16 },
-    park:     { file: 'assets/models/busstop.glb',        scale: 14 },
+    school:   { file: 'assets/models/ecole.glb',          scale: 34 },  // radius 18
+    market:   { file: 'assets/models/market.glb',         scale: 36 },  // radius 19
+    friends:  { file: 'assets/models/bakery2building.glb',scale: 28 },  // radius 15
+    tavern:   { file: 'assets/models/cafebuilding.glb',   scale: 32 },  // radius 17
+    cinema:   { file: 'assets/models/bakerybuilding.glb', scale: 38 },  // radius 20
+    church:   { file: 'assets/models/bibliotheque.glb',   scale: 34 },  // radius 18
+    hospital: { file: 'assets/models/pharmacy.glb',       scale: 38 },  // radius 20
+    bank:     { file: 'assets/models/mairie.glb',         scale: 32 },  // radius 17
+    police:   { file: 'assets/models/marketshop.glb',     scale: 32 },  // radius 17
+    park:     { file: 'assets/models/busstop.glb',        scale: 30 },  // radius 16
 };
 
 // Recale un modèle chargé pour que sa base touche exactement y=0,
@@ -1737,38 +1737,14 @@ function _buildFountain(isLowEnd) {
 // [AJOUTÉ] Demandé explicitement par l'utilisateur.
 // ═══════════════════════════════════════════════════════════════
 function _buildBenches() {
-    var benchGeo = _getGeometry('benchSeat', function () {
-        return new THREE.BoxGeometry(8, 0.8, 2.6);
-    });
-    var legGeo = _getGeometry('benchLeg', function () {
-        return new THREE.BoxGeometry(0.6, 2.2, 2.6);
-    });
-    var woodMat = _getMaterial('benchWood', function () {
-        return new THREE.MeshStandardMaterial({ color: 0x8d5a3b, roughness: 0.85 });
-    });
-
     var count = 8;
     var ringRadius = 38; // à l'intérieur de la place, hors de la vasque (rayon 24)
     for (var i = 0; i < count; i++) {
         var angle = (i / count) * Math.PI * 2;
         var x = Math.sin(angle) * ringRadius;
         var z = -Math.cos(angle) * ringRadius;
-
-        var group = new THREE.Group();
-        var seat = new THREE.Mesh(benchGeo, woodMat);
-        seat.position.y = 2.4;
-        seat.castShadow = true;
-        group.add(seat);
-
-        [-3.2, 3.2].forEach(function (lx) {
-            var leg = new THREE.Mesh(legGeo, woodMat);
-            leg.position.set(lx, 1.1, 0);
-            group.add(leg);
-        });
-
-        group.position.set(x, _smoothNoise(x, z), z);
-        group.rotation.y = angle + Math.PI; // dossier vers l'extérieur, assise vers la fontaine
-        scene.add(group);
+        var y = _smoothNoise(x, z);
+        loadDecorModel('assets/models/woodenpark.glb', {x: x, y: y, z: z}, 9, angle + Math.PI);
     }
 }
 
@@ -1777,46 +1753,23 @@ function _buildBenches() {
 // [AJOUTÉ] Demandé explicitement par l'utilisateur.
 // ═══════════════════════════════════════════════════════════════
 function _buildLampposts(isLowEnd) {
-    var poleGeo = _getGeometry('lamppostPole', function () {
-        return new THREE.CylinderGeometry(0.4, 0.5, 12, 8);
-    });
-    var capGeo = _getGeometry('lamppostCap', function () {
-        return new THREE.SphereGeometry(1.1, 10, 10);
-    });
-    var poleMat = _getMaterial('lamppostMetal', function () {
-        return new THREE.MeshStandardMaterial({ color: 0x2b2b2b, roughness: 0.6, metalness: 0.4 });
-    });
-    var glowMat = _getMaterial('lamppostGlow', function () {
-        return new THREE.MeshStandardMaterial({
-            color: 0xffe9a8, emissive: 0xffd76b, emissiveIntensity: 0.9, roughness: 0.4
-        });
-    });
-
     var count = 6;
     var ringRadius = 52; // un peu plus loin que les bancs, vers la limite de la place
     for (var i = 0; i < count; i++) {
         var angle = (i / count) * Math.PI * 2 + 0.5; // décalé des bancs pour ne pas se superposer
         var x = Math.sin(angle) * ringRadius;
         var z = -Math.cos(angle) * ringRadius;
+        var y = _smoothNoise(x, z);
 
-        var group = new THREE.Group();
-        var pole = new THREE.Mesh(poleGeo, poleMat);
-        pole.position.y = 6;
-        pole.castShadow = true;
-        group.add(pole);
-
-        var cap = new THREE.Mesh(capGeo, glowMat);
-        cap.position.y = 12.3;
-        group.add(cap);
-
-        if (!isLowEnd) {
-            var light = new THREE.PointLight(0xffd76b, 0.6, 26, 2);
-            light.position.y = 12.3;
-            group.add(light);
-        }
-
-        group.position.set(x, _smoothNoise(x, z), z);
-        scene.add(group);
+        loadDecorModel('assets/models/lamp.glb', {x: x, y: y, z: z}, 11, 0, function (model) {
+            if (!isLowEnd) {
+                var box = new THREE.Box3().setFromObject(model);
+                var topY = box.max.y;
+                var light = new THREE.PointLight(0xffd76b, 0.6, 26, 2);
+                light.position.set(model.position.x, topY, model.position.z);
+                scene.add(light);
+            }
+        });
     }
 }
 
@@ -2702,7 +2655,7 @@ function _onTapBuilding(id) {
         };
     }
 }
-    // ═══════════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════
 // DIALOGUE & ACTION — API inchangées
 // ═══════════════════════════════════════════════════════════════
 window._v3dDialogue = function(locId, npcId) {
