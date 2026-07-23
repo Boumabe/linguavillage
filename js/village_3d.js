@@ -11,6 +11,11 @@
 // la génération procédurale par de vrais modèles 3D
 // ═══════════════════════════════════════════════════════════════
 
+window.addEventListener('error', function (e) {
+    var el = document.getElementById('debug');
+    if (el) { el.textContent = 'ERREUR JS: ' + e.message + ' (' + (e.filename || '').split('/').pop() + ':' + e.lineno + ')'; el.style.background = '#c0392b'; el.style.color = '#fff'; }
+});
+
 var gltfLoader = new THREE.GLTFLoader();
 var _modelCache = {};
 var _decorCache = {};
@@ -41,6 +46,14 @@ function _groundModel(model) {
     return model;
 }
 
+// Affiche un message directement dans la barre debug du jeu (#debug)
+// pour diagnostiquer sans avoir besoin de la console navigateur.
+function _showDebug(msg) {
+    var el = document.getElementById('debug');
+    if (el) { el.textContent = msg; el.style.background = '#c0392b'; el.style.color = '#fff'; }
+    console.error(msg);
+}
+
 function _loadBuildingModel(path, onLoaded) {
     if (_modelCache[path]) {
         onLoaded(_modelCache[path].clone());
@@ -49,13 +62,17 @@ function _loadBuildingModel(path, onLoaded) {
     gltfLoader.load(
         path,
         function (gltf) {
-            _groundModel(gltf.scene);
-            _modelCache[path] = gltf.scene;
-            onLoaded(gltf.scene.clone());
+            try {
+                _groundModel(gltf.scene);
+                _modelCache[path] = gltf.scene;
+                onLoaded(gltf.scene.clone());
+            } catch (e) {
+                _showDebug('ERREUR TRAITEMENT: ' + path + ' → ' + e.message);
+            }
         },
         undefined,
         function (error) {
-            console.error('Erreur chargement bâtiment GLB:', path, error);
+            _showDebug('ERREUR CHARGEMENT: ' + path + ' → ' + (error && error.message ? error.message : 'fichier introuvable ou invalide'));
         }
     );
 }
@@ -2551,7 +2568,7 @@ function _onTapBuilding(id) {
     // ── Lore du lieu ──
     if (desc) {
         html += '<div style="margin:0 16px 12px;padding:12px 14px;'
-          + 'background:rgba(255,255,255,0.04);border-left:3px solid rgba(255,215,0,0.28);'
+              + 'background:rgba(255,255,255,0.04);border-left:3px solid rgba(255,215,0,0.28);'
           + 'border-radius:0 12px 12px 0;font-size:0.78rem;color:rgba(255,255,255,0.50);'
           + 'font-style:italic;line-height:1.55;">' + desc + '</div>';
     }
@@ -2666,6 +2683,7 @@ function _onTapBuilding(id) {
         };
     }
 }
+
 // ═══════════════════════════════════════════════════════════════
 // DIALOGUE & ACTION — API inchangées
 // ═══════════════════════════════════════════════════════════════
@@ -2737,7 +2755,6 @@ window._v3dAction = function(action) {
             if (typeof showScreen === 'function') showScreen('screen-' + action);
     }
 };
-
 // ═══════════════════════════════════════════════════════════════
 // NAV BAR — API inchangée
 // ═══════════════════════════════════════════════════════════════
