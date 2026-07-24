@@ -281,6 +281,11 @@ var BUILDINGS_3D = [
 // ═══════════════════════════════════════════════════════════════
 var renderer, scene, camera, controls;
 var clock, deltaTime;
+var playerAvatar = null;
+var playerSpeed = 46;
+var playerFacing = Math.PI; // orientation actuelle (radians)
+var joystick = { active: false, dx: 0, dy: 0, baseEl: null, handleEl: null, maxRadius: 42, pointerId: null };
+var PLAYER_MODE = true; // true = caméra suiveuse derrière le joueur, false = ancien mode orbite libre
 var sprites = [];
 var trees = [];
 var windmillBlades = null;
@@ -517,6 +522,14 @@ function _init3D() {
         // ── PNJ AMBULANTS ──
         _buildNPCWalkers();
 
+        // ── AVATAR JOUEUR + JOYSTICK ──
+        // [AJOUTÉ] Demandé explicitement par l'utilisateur : le village
+        // reste statique, le joueur se déplace dedans, la caméra le suit.
+        if (PLAYER_MODE) {
+            _initPlayerAvatar();
+            _initJoystick();
+        }
+
         // ── CYCLE JOUR/NUIT ──
         _buildCelestialBodies();
 
@@ -561,6 +574,7 @@ function _init3D() {
         controls.panSpeed = 0.7;
         controls.zoomSpeed = 0.8;
         controls.update();
+        if (PLAYER_MODE) controls.enabled = false; // caméra pilotée par _updatePlayerAndCamera
     } catch (err) {
         console.warn('⚠️ OrbitControls indisponible:', err.message);
         controls = null;
@@ -2265,6 +2279,121 @@ function _roundRect(ctx2, x, y, w, h, r) {
 // ═══════════════════════════════════════════════════════════════
 // BOUCLE D'ANIMATION — Tous les systèmes vivants
 // ═══════════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════
+// AVATAR JOUEUR — modèle GLB déplaçable au joystick
+// [AJOUTÉ] Demandé explicitement par l'utilisateur : remplace la
+// caméra orbitale par un personnage qu'on dirige dans un village fixe.
+// ═══════════════════════════════════════════════════════════════
+function _initPlayerAvatar() {
+    // Modèle par défaut — change juste ce chemin pour utiliser un autre
+    // personnage généré (ex: 'assets/models/teacher.glb').
+    loadDecorModel('assets/models/baker.glb', { x: 0, y: 0, z: 70 }, 12, Math.PI, function (model) {
+        playerAvatar = model;
+        model.traverse(function (child) {
+            if (child.isMesh) { child.castShadow = true; child.receiveShadow = true; }
+        });
+    });
+}
+
+function _initJoystick() {
+    var wrap = document.querySelector('.village-canvas-wrap') || document.getElementById('screen-village') || document.body;
+
+    var base = document.createElement('div');
+    base.id = 'lv-joystick-base';
+    base.style.cssText = 'position:absolute;left:24px;bottom:28px;width:100px;height:100px;'
+        + 'border-radius:50%;background:rgba(255,255,255,0.15);border:2px solid rgba(255,255,255,0.35);'
+        + 'z-index:500;touch-action:none;';
+    var handle = document.createElement('div');
+    handle.id = 'lv-joystick-handle';
+    handle.style.cssText = 'position:absolute;left:50%;top:50%;width:44px;height:44px;margin:-22px;'
+        + 'border-radius:50%;background:rgba(255,255,255,0.55);border:2px solid rgba(255,255,255,0.8);'
+        + 'pointer-events:none;';
+    base.appendChild(handle);
+    wrap.style.position = wrap.style.position || 'relative';
+    wrap.appendChild(base);
+
+    joystick.baseEl = base;
+    joystick.handleEl = handle;
+
+    function getCenter() {
+        var r = base.getBoundingClientRect();
+        return { x: r.left + r.width / 2, y: r.top + r.height / 2 };
+    }
+
+    function onStart(e) {
+        joystick.active = true;
+        joystick.pointerId = e.pointerId;
+        base.setPointerCapture && base.setPointerCapture(e.pointerId);
+        onMove(e);
+    }
+    function onMove(e) {
+        if (!joystick.active || (joystick.pointerId !== null && e.pointerId !== joystick.pointerId)) return;
+        var c = getCenter();
+        var dx = e.clientX - c.x;
+        var dy = e.clientY - c.y;
+        var dist = Math.min(Math.sqrt(dx * dx + dy * dy), joystick.maxRadius);
+        var angle = Math.atan2(dy, dx);
+        var hx = Math.cos(angle) * dist;
+        var hy = Math.sin(angle) * dist;
+        handle.style.left = 'calc(50% + ' + hx + 'px)';
+        handle.style.top = 'calc(50% + ' + hy + 'px)';
+        joystick.dx = hx / joystick.maxRadius;
+        joystick.dy = hy / joystick.maxRadius;
+    }
+    function onEnd(e) {
+        if (joystick.pointerId !== null && e.pointerId !== joystick.pointerId) return;
+        joystick.active = false;
+        joystick.dx = 0;
+        joystick.dy = 0;
+        joystick.pointerId = null;
+        handle.style.left = '50%';
+        handle.style.top = '50%';
+    }
+
+    base.addEventListener('pointerdown', onStart);
+    window.addEventListener('pointermove', onMove);
+    window.addEventListener('pointerup', onEnd);
+    window.addEventListener('pointercancel', onEnd);
+}
+
+function _updatePlayerAndCamera(dt) {
+    if (!playerAvatar) return;
+
+    var moving = joystick.active && (Math.abs(joystick.dx) > 0.08 || Math.abs(joystick.dy) > 0.08);
+
+    if (moving) {
+        // Joystick haut (dy<0) = avancer vers le fond du village (-z)
+        var moveX = joystick.dx;
+        var moveZ = joystick.dy;
+        var len = Math.sqrt(moveX * moveX + moveZ * moveZ) || 1;
+        moveX /= len; moveZ /= len;
+
+        var nx = playerAvatar.position.x + moveX * playerSpeed * dt;
+        var nz = playerAvatar.position.z + moveZ * playerSpeed * dt;
+        playerAvatar.position.x = nx;
+        playerAvatar.position.z = nz;
+        playerAvatar.position.y = _smoothNoise(nx, nz);
+
+        var targetFacing = Math.atan2(moveX, moveZ) + Math.PI;
+        var diff = targetFacing - playerFacing;
+        while (diff > Math.PI) diff -= Math.PI * 2;
+        while (diff < -Math.PI) diff += Math.PI * 2;
+        playerFacing += diff * Math.min(1, dt * 8);
+        playerAvatar.rotation.y = playerFacing;
+    }
+
+    // Caméra troisième personne : derrière et au-dessus, suit avec un
+    // léger amortissement pour éviter les à-coups.
+    var behindDist = 60, height = 34;
+    var camTargetX = playerAvatar.position.x - Math.sin(playerFacing) * behindDist;
+    var camTargetZ = playerAvatar.position.z - Math.cos(playerFacing) * behindDist;
+    var camTargetY = playerAvatar.position.y + height;
+
+    camera.position.x += (camTargetX - camera.position.x) * Math.min(1, dt * 4);
+    camera.position.y += (camTargetY - camera.position.y) * Math.min(1, dt * 4);
+    camera.position.z += (camTargetZ - camera.position.z) * Math.min(1, dt * 4);
+    camera.lookAt(playerAvatar.position.x, playerAvatar.position.y + 14, playerAvatar.position.z);
+}
 function _loop() {
     if (!running) return;
     requestAnimationFrame(_loop);
@@ -2392,7 +2521,11 @@ function _loop() {
         jet.geometry.attributes.position.needsUpdate = true;
     }
 
-    controls && controls.update();
+    if (PLAYER_MODE) {
+        _updatePlayerAndCamera(deltaTime);
+    } else {
+        controls && controls.update();
+    }
     renderer.render(scene, camera);
 }
 
