@@ -2287,7 +2287,7 @@ function _roundRect(ctx2, x, y, w, h, r) {
 function _initPlayerAvatar() {
     // Modèle par défaut — change juste ce chemin pour utiliser un autre
     // personnage généré (ex: 'assets/models/teacher.glb').
-    loadDecorModel('assets/models/baker.glb', { x: 0, y: 0, z: 70 }, 12, Math.PI, function (model) {
+    loadDecorModel('assets/models/baker.glb', { x: 0, y: 0, z: 70 }, 12, 0, function (model) {
         playerAvatar = model;
         model.traverse(function (child) {
             if (child.isMesh) { child.castShadow = true; child.receiveShadow = true; }
@@ -2374,12 +2374,20 @@ function _updatePlayerAndCamera(dt) {
         playerAvatar.position.z = nz;
         playerAvatar.position.y = _smoothNoise(nx, nz);
 
-        var targetFacing = Math.atan2(moveX, moveZ) + Math.PI;
+        var targetFacing = Math.atan2(moveX, moveZ);
         var diff = targetFacing - playerFacing;
         while (diff > Math.PI) diff -= Math.PI * 2;
         while (diff < -Math.PI) diff += Math.PI * 2;
         playerFacing += diff * Math.min(1, dt * 8);
         playerAvatar.rotation.y = playerFacing;
+
+        // Rebond de marche simulé (pas de squelette animé dans le GLB actuel)
+        playerAvatar.userData.walkPhase = (playerAvatar.userData.walkPhase || 0) + dt * 9;
+        var bob = Math.abs(Math.sin(playerAvatar.userData.walkPhase)) * 1.6;
+        playerAvatar.position.y += bob;
+        playerAvatar.rotation.z = Math.sin(playerAvatar.userData.walkPhase) * 0.05;
+    } else if (playerAvatar.rotation.z) {
+        playerAvatar.rotation.z *= 0.8; // retour au repos si arrêté
     }
 
     // Caméra troisième personne : derrière et au-dessus, suit avec un
@@ -2788,7 +2796,7 @@ function _onTapBuilding(id) {
         };
     }
 }
-// ═══════════════════════════════════════════════════════════════
+    // ═══════════════════════════════════════════════════════════════
 // DIALOGUE & ACTION — API inchangées
 // ═══════════════════════════════════════════════════════════════
 window._v3dDialogue = function(locId, npcId) {
@@ -2939,8 +2947,7 @@ window._navTo = function (s) {
             break;
     }
 };
-
-// ═══════════════════════════════════════════════════════════════
+    // ═══════════════════════════════════════════════════════════════
 // MÉTÉO / TEMPS — Compatibilité inchangée
 // ═══════════════════════════════════════════════════════════════
 function setWeather(w) { window.currentWeather = w || 'sun'; }
