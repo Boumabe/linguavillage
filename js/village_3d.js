@@ -1307,8 +1307,8 @@ function _buildDetailedBuilding(b, isLowEnd) {
             model.position.y = 2;
             model.traverse(function (child) {
                 if (child.isMesh) {
-                    child.castShadow = !isLowEnd;
-                    child.receiveShadow = !isLowEnd;
+                    child.castShadow = false;
+                    child.receiveShadow = false;
                     if (alpha < 1) {
                         child.material = child.material.clone();
                         child.material.transparent = true;
@@ -2290,7 +2290,7 @@ function _initPlayerAvatar() {
     loadDecorModel('assets/models/baker.glb', { x: 0, y: 0, z: 70 }, 12, 0, function (model) {
         playerAvatar = model;
         model.traverse(function (child) {
-            if (child.isMesh) { child.castShadow = true; child.receiveShadow = true; }
+            if (child.isMesh) { child.castShadow = false; child.receiveShadow = false; }
         });
     });
 }
@@ -2554,7 +2554,7 @@ function _onResize() {
 
 // ═══════════════════════════════════════════════════════════════
 // CLIC / TAP SUR BÂTIMENT — API inchangée
-// ═══════════════════════════════════════════════════════════════
+// ═════════════════════════════════════════════════════════════
 function _onCanvasClick(e) {
     var rect = canvasEl.getBoundingClientRect();
     _raycastAt(e.clientX - rect.left, e.clientY - rect.top, rect);
@@ -2795,7 +2795,7 @@ function _onTapBuilding(id) {
             requestAnimationFrame(function(){ _loop(); });
         };
     }
-}
+        }
     // ═══════════════════════════════════════════════════════════════
 // DIALOGUE & ACTION — API inchangées
 // ═══════════════════════════════════════════════════════════════
