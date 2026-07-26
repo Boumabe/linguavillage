@@ -283,7 +283,8 @@ var renderer, scene, camera, controls;
 var clock, deltaTime;
 var playerAvatar = null;
 var playerSpeed = 46;
-var playerFacing = Math.PI; // orientation actuelle (radians)
+var playerFacing = 0; // orientation actuelle (radians) — 0 = cohérent avec la rotation de spawn du modèle
+var cameraSnapped = false; // évite le glissement visible de l'ancienne vue au premier chargement
 var joystick = { active: false, dx: 0, dy: 0, baseEl: null, handleEl: null, maxRadius: 42, pointerId: null };
 var PLAYER_MODE = true; // true = caméra suiveuse derrière le joueur, false = ancien mode orbite libre
 var sprites = [];
@@ -470,7 +471,7 @@ function _init3D() {
 
         // ── Caméra panoramique ──
         camera = new THREE.PerspectiveCamera(40, W / H, 1, 2000);
-        camera.position.set(0, 220, 380);
+        camera.position.set(0, PLAYER_MODE ? 34 : 220, PLAYER_MODE ? 130 : 380);
         camera.lookAt(0, 0, 0);
 
         // ── ÉCLAIRAGE CINÉMATOGRAPHIQUE ──
@@ -484,6 +485,16 @@ function _init3D() {
 
         // ── RIVIÈRE AVEC SHADER D'EAU ──
         _buildRiverAndBridge(isLowEnd);
+
+        // ── AVATAR JOUEUR + JOYSTICK ──
+        // [AJOUTÉ] Demandé explicitement par l'utilisateur : le village
+        // reste statique, le joueur se déplace dedans, la caméra le suit.
+        // Chargé EN PREMIER (avant bâtiments/décor) pour que le joystick
+        // réponde immédiatement, sans attendre les 20+ autres fichiers GLB.
+        if (PLAYER_MODE) {
+            _initPlayerAvatar();
+            _initJoystick();
+        }
 
         // ── CHEMINS NATURELS ──
         _buildNaturalPaths();
@@ -521,14 +532,6 @@ function _init3D() {
 
         // ── PNJ AMBULANTS ──
         _buildNPCWalkers();
-
-        // ── AVATAR JOUEUR + JOYSTICK ──
-        // [AJOUTÉ] Demandé explicitement par l'utilisateur : le village
-        // reste statique, le joueur se déplace dedans, la caméra le suit.
-        if (PLAYER_MODE) {
-            _initPlayerAvatar();
-            _initJoystick();
-        }
 
         // ── CYCLE JOUR/NUIT ──
         _buildCelestialBodies();
@@ -2382,10 +2385,10 @@ function _updatePlayerAndCamera(dt) {
         playerAvatar.rotation.y = playerFacing;
 
         // Rebond de marche simulé (pas de squelette animé dans le GLB actuel)
-        playerAvatar.userData.walkPhase = (playerAvatar.userData.walkPhase || 0) + dt * 9;
-        var bob = Math.abs(Math.sin(playerAvatar.userData.walkPhase)) * 1.6;
+        playerAvatar.userData.walkPhase = (playerAvatar.userData.walkPhase || 0) + dt * 11;
+        var bob = Math.abs(Math.sin(playerAvatar.userData.walkPhase)) * 3.2;
         playerAvatar.position.y += bob;
-        playerAvatar.rotation.z = Math.sin(playerAvatar.userData.walkPhase) * 0.05;
+        playerAvatar.rotation.z = Math.sin(playerAvatar.userData.walkPhase) * 0.09;
     } else if (playerAvatar.rotation.z) {
         playerAvatar.rotation.z *= 0.8; // retour au repos si arrêté
     }
@@ -2396,6 +2399,15 @@ function _updatePlayerAndCamera(dt) {
     var camTargetX = playerAvatar.position.x - Math.sin(playerFacing) * behindDist;
     var camTargetZ = playerAvatar.position.z - Math.cos(playerFacing) * behindDist;
     var camTargetY = playerAvatar.position.y + height;
+
+    if (!cameraSnapped) {
+        // Premier frame avec le joueur chargé : on saute directement à la
+        // bonne position, pas de glissement visible depuis l'ancienne vue.
+        camera.position.set(camTargetX, camTargetY, camTargetZ);
+        camera.lookAt(playerAvatar.position.x, playerAvatar.position.y + 14, playerAvatar.position.z);
+        cameraSnapped = true;
+        return;
+    }
 
     camera.position.x += (camTargetX - camera.position.x) * Math.min(1, dt * 4);
     camera.position.y += (camTargetY - camera.position.y) * Math.min(1, dt * 4);
@@ -2554,7 +2566,7 @@ function _onResize() {
 
 // ═══════════════════════════════════════════════════════════════
 // CLIC / TAP SUR BÂTIMENT — API inchangée
-// ═════════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════
 function _onCanvasClick(e) {
     var rect = canvasEl.getBoundingClientRect();
     _raycastAt(e.clientX - rect.left, e.clientY - rect.top, rect);
@@ -2795,8 +2807,8 @@ function _onTapBuilding(id) {
             requestAnimationFrame(function(){ _loop(); });
         };
     }
-        }
-    // ═══════════════════════════════════════════════════════════════
+}
+// ═══════════════════════════════════════════════════════════════
 // DIALOGUE & ACTION — API inchangées
 // ═══════════════════════════════════════════════════════════════
 window._v3dDialogue = function(locId, npcId) {
@@ -2947,7 +2959,8 @@ window._navTo = function (s) {
             break;
     }
 };
-    // ═══════════════════════════════════════════════════════════════
+
+// ═══════════════════════════════════════════════════════════════
 // MÉTÉO / TEMPS — Compatibilité inchangée
 // ═══════════════════════════════════════════════════════════════
 function setWeather(w) { window.currentWeather = w || 'sun'; }
