@@ -445,8 +445,8 @@ function _init3D() {
 
     // Détection capacité appareil
     var isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-    var pixelRatio = Math.min(window.devicePixelRatio || 1, isMobile ? 2 : 2);
     var isLowEnd = isMobile && (navigator.hardwareConcurrency || 4) <= 4;
+    var pixelRatio = Math.min(window.devicePixelRatio || 1, isLowEnd ? 1.2 : (isMobile ? 1.5 : 2));
 
     try {
         // ── Renderer optimisé ──
@@ -2299,20 +2299,19 @@ function _initPlayerAvatar() {
 }
 
 function _initJoystick() {
-    var wrap = document.querySelector('.village-canvas-wrap') || document.getElementById('screen-village') || document.body;
+    var wrap = document.body;
 
     var base = document.createElement('div');
     base.id = 'lv-joystick-base';
-    base.style.cssText = 'position:absolute;left:24px;bottom:28px;width:100px;height:100px;'
-        + 'border-radius:50%;background:rgba(255,255,255,0.15);border:2px solid rgba(255,255,255,0.35);'
-        + 'z-index:500;touch-action:none;';
+    base.style.cssText = 'position:fixed;left:24px;bottom:100px;width:110px;height:110px;'
+        + 'border-radius:50%;background:rgba(255,255,255,0.18);border:2px solid rgba(255,255,255,0.4);'
+        + 'z-index:99999;touch-action:none;';
     var handle = document.createElement('div');
     handle.id = 'lv-joystick-handle';
-    handle.style.cssText = 'position:absolute;left:50%;top:50%;width:44px;height:44px;margin:-22px;'
-        + 'border-radius:50%;background:rgba(255,255,255,0.55);border:2px solid rgba(255,255,255,0.8);'
+    handle.style.cssText = 'position:absolute;left:50%;top:50%;width:48px;height:48px;margin:-24px;'
+        + 'border-radius:50%;background:rgba(255,255,255,0.6);border:2px solid rgba(255,255,255,0.85);'
         + 'pointer-events:none;';
     base.appendChild(handle);
-    wrap.style.position = wrap.style.position || 'relative';
     wrap.appendChild(base);
 
     joystick.baseEl = base;
@@ -2365,9 +2364,18 @@ function _updatePlayerAndCamera(dt) {
     var moving = joystick.active && (Math.abs(joystick.dx) > 0.08 || Math.abs(joystick.dy) > 0.08);
 
     if (moving) {
-        // Joystick haut (dy<0) = avancer vers le fond du village (-z)
-        var moveX = joystick.dx;
-        var moveZ = joystick.dy;
+        // Mouvement relatif à ta vue actuelle : "haut" du joystick = avancer
+        // tel que TU le vois à l'écran, "gauche/droite" = ta gauche/droite
+        // à l'écran — pas des axes fixes du monde. Basé sur l'orientation
+        // de la caméra au frame précédent (cohérent visuellement, pas de dérive).
+        var forwardX = Math.sin(playerFacing), forwardZ = Math.cos(playerFacing);
+        var rightX = Math.cos(playerFacing), rightZ = -Math.sin(playerFacing);
+
+        var inputForward = -joystick.dy; // joystick vers le haut = avancer
+        var inputRight = joystick.dx;     // joystick vers la droite = aller à droite
+
+        var moveX = forwardX * inputForward + rightX * inputRight;
+        var moveZ = forwardZ * inputForward + rightZ * inputRight;
         var len = Math.sqrt(moveX * moveX + moveZ * moveZ) || 1;
         moveX /= len; moveZ /= len;
 
@@ -2419,6 +2427,26 @@ function _loop() {
     requestAnimationFrame(_loop);
     var t = clock.elapsedTime;
     deltaTime = clock.getDelta();
+
+    // ── Compteur FPS visible (diagnostic performance) ──
+    _fpsFrames = (_fpsFrames || 0) + 1;
+    _fpsAccum = (_fpsAccum || 0) + deltaTime;
+    if (_fpsAccum >= 0.5) {
+        var fps = Math.round(_fpsFrames / _fpsAccum);
+        var fpsEl = document.getElementById('lv-fps-counter');
+        if (!fpsEl) {
+            fpsEl = document.createElement('div');
+            fpsEl.id = 'lv-fps-counter';
+            fpsEl.style.cssText = 'position:fixed;top:6px;right:6px;z-index:99999;'
+                + 'background:rgba(0,0,0,0.55);color:#fff;font:12px monospace;'
+                + 'padding:3px 7px;border-radius:6px;pointer-events:none;';
+            document.body.appendChild(fpsEl);
+        }
+        fpsEl.textContent = fps + ' FPS';
+        fpsEl.style.color = fps >= 45 ? '#4ade80' : (fps >= 25 ? '#fbbf24' : '#f87171');
+        _fpsFrames = 0;
+        _fpsAccum = 0;
+    }
 
     // Cycle jour/nuit
     _updateDayNightCycle(t);
@@ -2696,8 +2724,7 @@ function _onTapBuilding(id) {
           + 'background:rgba(255,255,255,0.04);border-left:3px solid rgba(255,215,0,0.28);'
           + 'border-radius:0 12px 12px 0;font-size:0.78rem;color:rgba(255,255,255,0.50);'
           + 'font-style:italic;line-height:1.55;">' + desc + '</div>';
-    }
-
+        }
     // ── Carte PNJ ──
     if (npcData) {
         var npcName  = npcData.name || '';
@@ -2807,8 +2834,8 @@ function _onTapBuilding(id) {
             requestAnimationFrame(function(){ _loop(); });
         };
     }
-}
-// ═══════════════════════════════════════════════════════════════
+            }
+    // ═══════════════════════════════════════════════════════════════
 // DIALOGUE & ACTION — API inchangées
 // ═══════════════════════════════════════════════════════════════
 window._v3dDialogue = function(locId, npcId) {
@@ -2879,8 +2906,7 @@ window._v3dAction = function(action) {
             if (typeof showScreen === 'function') showScreen('screen-' + action);
     }
 };
-
-// ═══════════════════════════════════════════════════════════════
+    // ═══════════════════════════════════════════════════════════════
 // NAV BAR — API inchangée
 // ═══════════════════════════════════════════════════════════════
 var _NL = {
