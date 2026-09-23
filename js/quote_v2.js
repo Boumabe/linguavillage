@@ -245,7 +245,7 @@ function _buildStarsHTML() {
     html += '<div style="' +
       'position:absolute;' +
       'width:2px;height:80px;' +
-      'background:linear-gradient(to bottom,rgba(255,215,0,0.8),transparent);' +
+      'background:linear-gradient(to bottom,rgba(255,138,91,0.8),transparent);' +
       'top:' + (10 + Math.random() * 30) + '%;' +
       'left:' + (20 + Math.random() * 60) + '%;' +
       'transform:rotate(-45deg);' +
@@ -289,24 +289,10 @@ window.quoteTranslate = function() {
 
   if (btn) btn.textContent = '⏳';
 
-  var prompt = 'Traduis ce proverbe en ' + (nativeNames[nativeLang] || nativeLang) +
-    ' et explique-le en une phrase simple : "' + q.text + '"';
-
-  // Appel API (dialogue endpoint réutilisé)
-  fetch(window.API + '/api/dialogue', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      npcName: '', npcRole: '', location: '',
-      language: 'français',
-      playerName: (S && S.playerName) || '',
-      playerMessage: prompt,
-      history: []
-    })
-  })
-  .then(function(r) { return r.json(); })
+  // Traduction + explication d'une phrase : route dédiée /api/translate (mode "explain").
+  LV.api.post('/api/translate', { text: q.text, targetLang: nativeLang, nativeLang: nativeLang, mode: 'explain' })
   .then(function(d) {
-    div.textContent = d.reply || 'Traduction indisponible.';
+    div.textContent = d.translation || 'Traduction indisponible.';
     div.classList.add('show');
     if (btn) btn.textContent = '🙈 Cacher';
   })

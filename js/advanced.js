@@ -10,15 +10,15 @@ function openOralPractice(word, targetLang) {
   ov.id = 'oralOverlay';
   ov.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.93);z-index:9700;display:flex;align-items:center;justify-content:center;padding:20px;';
   ov.innerHTML =
-    '<div style="background:linear-gradient(135deg,#0f1830,#0a0a14);border:1px solid rgba(78,207,112,0.3);border-radius:22px;padding:26px;max-width:340px;width:100%;text-align:center">'
-    +'<div style="font-size:0.62rem;letter-spacing:3px;color:rgba(78,207,112,0.6);margin-bottom:8px">🎤 PRONONCIATION</div>'
-    +'<div style="font-size:2rem;font-weight:900;color:#f0e8d0;margin-bottom:4px" id="oralWord">'+escapeHtml(word)+'</div>'
+    '<div style="background:linear-gradient(135deg,#10262b,#081a1e);border:1px solid rgba(55,214,165,0.3);border-radius:22px;padding:26px;max-width:340px;width:100%;text-align:center">'
+    +'<div style="font-size:0.62rem;letter-spacing:3px;color:rgba(55,214,165,0.6);margin-bottom:8px">🎤 PRONONCIATION</div>'
+    +'<div style="font-size:2rem;font-weight:900;color:#eaf4f0;margin-bottom:4px" id="oralWord">'+escapeHtml(word)+'</div>'
     +'<div style="font-size:0.7rem;color:rgba(255,255,255,0.4);margin-bottom:20px">Prononce ce mot en '+(_oralTargetLang)+'</div>'
     +'<div id="oralMic" style="font-size:4rem;margin-bottom:16px;cursor:pointer;transition:transform .2s" onclick="oralStartListening()">🎤</div>'
     +'<div id="oralStatus" style="font-size:0.78rem;color:rgba(255,255,255,0.5);margin-bottom:10px">Appuie sur le micro pour parler</div>'
     +'<div id="oralScore" style="display:none;margin-bottom:14px"></div>'
     +'<div style="display:flex;gap:8px;justify-content:center">'
-    +'<button onclick="speakW(\''+escapeHtml(word).replace(/'/g,"\\'")+'\');gainXP(2)" style="background:rgba(78,207,112,0.1);border:1px solid rgba(78,207,112,0.3);border-radius:10px;padding:7px 14px;color:#4ecf70;font-size:0.75rem;cursor:pointer">🔊 Écouter</button>'
+    +'<button onclick="speakW(\''+escapeHtml(word).replace(/'/g,"\\'")+'\');gainXP(2)" style="background:rgba(55,214,165,0.1);border:1px solid rgba(55,214,165,0.3);border-radius:10px;padding:7px 14px;color:#37d6a5;font-size:0.75rem;cursor:pointer">🔊 Écouter</button>'
     +'<button onclick="document.getElementById(\'oralOverlay\').remove()" style="background:transparent;border:1px solid rgba(255,255,255,0.12);border-radius:10px;padding:7px 14px;color:rgba(255,255,255,0.4);font-size:0.75rem;cursor:pointer">Fermer</button>'
     +'</div></div>';
   document.body.appendChild(ov);
@@ -59,7 +59,7 @@ function oralStartListening() {
 
     if (scoreEl) {
       scoreEl.style.display = 'block';
-      var color = score >= 80 ? '#4ecf70' : score >= 50 ? '#FFD700' : '#e05555';
+      var color = score >= 80 ? '#37d6a5' : score >= 50 ? '#ff8a5b' : '#ff6b7f';
       var emoji = score >= 80 ? '🏆' : score >= 50 ? '👍' : '💪';
       var msg   = score >= 80 ? 'Excellent!' : score >= 50 ? 'Bien!' : 'Essaie encore!';
       scoreEl.innerHTML =
@@ -208,25 +208,25 @@ function openFlashcards(catKey) {
     var roman  = m ? m[2].trim() : '';
 
     ov.innerHTML =
-      '<div style="background:linear-gradient(135deg,#0f1830,#0a0a14);border:1px solid rgba(255,215,0,0.25);border-radius:22px;padding:22px;max-width:360px;width:100%;margin:auto">'
+      '<div style="background:linear-gradient(135deg,#10262b,#081a1e);border:1px solid rgba(255,138,91,0.25);border-radius:22px;padding:22px;max-width:360px;width:100%;margin:auto">'
       +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">'
-      +'<div style="font-family:Cinzel,serif;font-size:0.9rem;color:#FFD700">🃏 Flashcards</div>'
+      +'<div style="font-family:var(--font-display);font-size:0.9rem;color:#ff8a5b">🃏 Flashcards</div>'
       +'<div style="display:flex;align-items:center;gap:10px">'
       +'<span style="font-size:0.62rem;color:rgba(255,255,255,0.35)">'+(idx+1)+'/'+words.length+'</span>'
       +'<button onclick="document.getElementById(\'flashOverlay\').remove()" style="background:transparent;border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:2px 8px;color:rgba(255,255,255,0.35);font-size:0.65rem;cursor:pointer">✕</button>'
       +'</div></div>'
       // Barre progression
       +'<div style="height:4px;background:rgba(255,255,255,0.07);border-radius:2px;margin-bottom:18px;overflow:hidden">'
-      +'<div style="height:100%;width:'+(Math.round((idx/words.length)*100))+'%;background:linear-gradient(90deg,#FFD700,#4ecf70);border-radius:2px"></div>'
+      +'<div style="height:100%;width:'+(Math.round((idx/words.length)*100))+'%;background:linear-gradient(90deg,#ff8a5b,#37d6a5);border-radius:2px"></div>'
       +'</div>'
       // Carte
-      +'<div id="flashCard" onclick="flashFlip()" style="background:rgba(255,255,255,0.04);border:2px solid '+(overdue?'rgba(255,100,100,0.3)':'rgba(255,215,0,0.15)')+';border-radius:16px;padding:30px 20px;text-align:center;cursor:pointer;min-height:160px;display:flex;flex-direction:column;align-items:center;justify-content:center;transition:all .3s">'
+      +'<div id="flashCard" onclick="flashFlip()" style="background:rgba(255,255,255,0.04);border:2px solid '+(overdue?'rgba(255,100,100,0.3)':'rgba(255,138,91,0.15)')+';border-radius:16px;padding:30px 20px;text-align:center;cursor:pointer;min-height:160px;display:flex;flex-direction:column;align-items:center;justify-content:center;transition:all .3s">'
       +(flipped
-        ? '<div style="font-size:1.7rem;font-weight:900;color:#f0e8d0;margin-bottom:8px">'+escapeHtml(chars)+'</div>'
-          +(roman?'<div style="font-size:0.85rem;color:rgba(255,215,0,0.6);margin-bottom:8px">'+escapeHtml(roman)+'</div>':'')
-          +'<button onclick="event.stopPropagation();speakW(\''+escapeHtml(chars).replace(/'/g,"\\'")+'\');gainXP(1)" style="background:rgba(78,207,112,0.1);border:1px solid rgba(78,207,112,0.3);border-radius:8px;padding:4px 12px;color:#4ecf70;font-size:0.7rem;cursor:pointer;margin-top:6px">🔊 Écouter</button>'
+        ? '<div style="font-size:1.7rem;font-weight:900;color:#eaf4f0;margin-bottom:8px">'+escapeHtml(chars)+'</div>'
+          +(roman?'<div style="font-size:0.85rem;color:rgba(255,138,91,0.6);margin-bottom:8px">'+escapeHtml(roman)+'</div>':'')
+          +'<button onclick="event.stopPropagation();speakW(\''+escapeHtml(chars).replace(/'/g,"\\'")+'\');gainXP(1)" style="background:rgba(55,214,165,0.1);border:1px solid rgba(55,214,165,0.3);border-radius:8px;padding:4px 12px;color:#37d6a5;font-size:0.7rem;cursor:pointer;margin-top:6px">🔊 Écouter</button>'
         : '<div style="font-size:0.7rem;color:rgba(255,255,255,0.4);margin-bottom:10px">'+cat.icon+' '+escapeHtml(cat[nl]||cat.fr||'')+'</div>'
-          +'<div style="font-size:1.4rem;color:#f0e8d0;font-weight:800">'+escapeHtml(native)+'</div>'
+          +'<div style="font-size:1.4rem;color:#eaf4f0;font-weight:800">'+escapeHtml(native)+'</div>'
           +'<div style="font-size:0.65rem;color:rgba(255,255,255,0.3);margin-top:12px">Touche pour révéler →</div>')
       +'</div>'
       // Stats session
@@ -238,10 +238,10 @@ function openFlashcards(catKey) {
       // Boutons réponse (visibles seulement après flip)
       +(flipped
         ? '<div style="display:flex;gap:8px">'
-          +'<button onclick="flashAnswer(false)" style="flex:1;background:rgba(224,85,85,0.12);border:1px solid rgba(224,85,85,0.3);border-radius:12px;padding:10px;color:#e05555;font-weight:800;cursor:pointer;font-size:0.8rem">❌ Raté</button>'
-          +'<button onclick="flashAnswer(true)" style="flex:1;background:rgba(78,207,112,0.12);border:1px solid rgba(78,207,112,0.3);border-radius:12px;padding:10px;color:#4ecf70;font-weight:800;cursor:pointer;font-size:0.8rem">✅ Su!</button>'
+          +'<button onclick="flashAnswer(false)" style="flex:1;background:rgba(255,107,127,0.12);border:1px solid rgba(255,107,127,0.3);border-radius:12px;padding:10px;color:#ff6b7f;font-weight:800;cursor:pointer;font-size:0.8rem">❌ Raté</button>'
+          +'<button onclick="flashAnswer(true)" style="flex:1;background:rgba(55,214,165,0.12);border:1px solid rgba(55,214,165,0.3);border-radius:12px;padding:10px;color:#37d6a5;font-weight:800;cursor:pointer;font-size:0.8rem">✅ Su!</button>'
           +'</div>'
-        : '<button onclick="flashFlip()" style="width:100%;background:rgba(255,215,0,0.08);border:1px solid rgba(255,215,0,0.2);border-radius:12px;padding:10px;color:#FFD700;font-weight:800;cursor:pointer;font-size:0.8rem">👁 Révéler</button>')
+        : '<button onclick="flashFlip()" style="width:100%;background:rgba(255,138,91,0.08);border:1px solid rgba(255,138,91,0.2);border-radius:12px;padding:10px;color:#ff8a5b;font-weight:800;cursor:pointer;font-size:0.8rem">👁 Révéler</button>')
       +'</div>';
   }
 
@@ -261,13 +261,13 @@ function openFlashcards(catKey) {
       var ov = document.getElementById('flashOverlay');
       if (!ov) return;
       var pct = session.total ? Math.round((session.correct/session.total)*100) : 0;
-      ov.innerHTML = '<div style="background:linear-gradient(135deg,#0f1830,#0a0a14);border:1px solid rgba(255,215,0,0.25);border-radius:22px;padding:30px;max-width:360px;width:100%;margin:auto;text-align:center">'
+      ov.innerHTML = '<div style="background:linear-gradient(135deg,#10262b,#081a1e);border:1px solid rgba(255,138,91,0.25);border-radius:22px;padding:30px;max-width:360px;width:100%;margin:auto;text-align:center">'
         +'<div style="font-size:3rem;margin-bottom:10px">'+(pct>=80?'🏆':pct>=50?'⭐':'📚')+'</div>'
-        +'<div style="font-family:Cinzel,serif;color:#FFD700;font-size:1.1rem;margin-bottom:6px">Session terminée!</div>'
-        +'<div style="font-size:0.88rem;color:#f0e8d0;margin-bottom:4px">'+session.correct+'/'+session.total+' mots sus ('+pct+'%)</div>'
+        +'<div style="font-family:var(--font-display);color:#ff8a5b;font-size:1.1rem;margin-bottom:6px">Session terminée!</div>'
+        +'<div style="font-size:0.88rem;color:#eaf4f0;margin-bottom:4px">'+session.correct+'/'+session.total+' mots sus ('+pct+'%)</div>'
         +'<div style="font-size:0.72rem;color:rgba(255,255,255,0.4);margin-bottom:20px">La répétition espacée planifie tes révisions</div>'
         +'<div style="display:flex;gap:8px;justify-content:center">'
-        +'<button onclick="document.getElementById(\'flashOverlay\').remove();openFlashcards(\''+catKey+'\')" style="background:rgba(255,215,0,0.1);border:1px solid #FFD700;border-radius:12px;padding:9px 18px;color:#FFD700;font-weight:800;cursor:pointer;font-size:0.78rem">🔄 Recommencer</button>'
+        +'<button onclick="document.getElementById(\'flashOverlay\').remove();openFlashcards(\''+catKey+'\')" style="background:rgba(255,138,91,0.1);border:1px solid #ff8a5b;border-radius:12px;padding:9px 18px;color:#ff8a5b;font-weight:800;cursor:pointer;font-size:0.78rem">🔄 Recommencer</button>'
         +'<button onclick="document.getElementById(\'flashOverlay\').remove()" style="background:transparent;border:1px solid rgba(255,255,255,0.12);border-radius:12px;padding:9px 18px;color:rgba(255,255,255,0.4);cursor:pointer;font-size:0.78rem">Fermer</button>'
         +'</div></div>';
       if (pct >= 80) launchConfetti();
@@ -289,7 +289,7 @@ function openFlashcards(catKey) {
 // ════════════════════════════════════════════════════════════════
 function showLeaderboard() {
   var nl     = S.nativeLang || 'fr';
-  var today  = new Date().toISOString().split('T')[0];
+  var today  = LV.dateKey();
 
   // Charger scores locaux
   var scores = {};
@@ -320,32 +320,32 @@ function showLeaderboard() {
   ov.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.93);z-index:9500;overflow-y:auto;display:flex;align-items:flex-start;justify-content:center;padding:20px;';
   ov.innerHTML =
     '<div style="max-width:380px;width:100%;margin:auto">'
-    +'<div style="background:linear-gradient(135deg,#0f1830,#0a0a14);border:1px solid rgba(255,215,0,0.25);border-radius:22px;padding:22px">'
+    +'<div style="background:linear-gradient(135deg,#10262b,#081a1e);border:1px solid rgba(255,138,91,0.25);border-radius:22px;padding:22px">'
     +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">'
-    +'<div style="font-family:Cinzel,serif;font-size:1rem;color:#FFD700">🏆 Classement & Défis</div>'
+    +'<div style="font-family:var(--font-display);font-size:1rem;color:#ff8a5b">🏆 Classement & Défis</div>'
     +'<button onclick="this.closest(\'div\').parentElement.parentElement.remove()" style="background:transparent;border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:2px 8px;color:rgba(255,255,255,0.35);font-size:0.65rem;cursor:pointer">✕</button>'
     +'</div>'
     // Stats joueur
-    +'<div style="background:rgba(255,215,0,0.05);border:1px solid rgba(255,215,0,0.15);border-radius:14px;padding:14px;margin-bottom:14px">'
-    +'<div style="font-size:0.62rem;color:rgba(255,215,0,0.6);letter-spacing:2px;margin-bottom:10px">TON SCORE AUJOURD\'HUI</div>'
+    +'<div style="background:rgba(255,138,91,0.05);border:1px solid rgba(255,138,91,0.15);border-radius:14px;padding:14px;margin-bottom:14px">'
+    +'<div style="font-size:0.62rem;color:rgba(255,138,91,0.6);letter-spacing:2px;margin-bottom:10px">TON SCORE AUJOURD\'HUI</div>'
     +'<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px">'
-    +'<div style="text-align:center"><div style="font-size:1.2rem;font-weight:900;color:#FFD700">'+(S.xp||0)+'</div><div style="font-size:0.58rem;color:rgba(255,255,255,0.35)">XP</div></div>'
-    +'<div style="text-align:center"><div style="font-size:1.2rem;font-weight:900;color:#4a9eff">'+(S_missions.gems||0)+'</div><div style="font-size:0.58rem;color:rgba(255,255,255,0.35)">💎</div></div>'
-    +'<div style="text-align:center"><div style="font-size:1.2rem;font-weight:900;color:#ff9f43">'+(G.streak||0)+'</div><div style="font-size:0.58rem;color:rgba(255,255,255,0.35)">🔥</div></div>'
-    +'<div style="text-align:center"><div style="font-size:1.2rem;font-weight:900;color:#e040fb">'+(G.stats.msgSent||0)+'</div><div style="font-size:0.58rem;color:rgba(255,255,255,0.35)">msgs</div></div>'
+    +'<div style="text-align:center"><div style="font-size:1.2rem;font-weight:900;color:#ff8a5b">'+(S.xp||0)+'</div><div style="font-size:0.58rem;color:rgba(255,255,255,0.35)">XP</div></div>'
+    +'<div style="text-align:center"><div style="font-size:1.2rem;font-weight:900;color:#5ab8ff">'+(S_missions.gems||0)+'</div><div style="font-size:0.58rem;color:rgba(255,255,255,0.35)">💎</div></div>'
+    +'<div style="text-align:center"><div style="font-size:1.2rem;font-weight:900;color:#ffc15a">'+(G.streak||0)+'</div><div style="font-size:0.58rem;color:rgba(255,255,255,0.35)">🔥</div></div>'
+    +'<div style="text-align:center"><div style="font-size:1.2rem;font-weight:900;color:#ff7eb6">'+(G.stats.msgSent||0)+'</div><div style="font-size:0.58rem;color:rgba(255,255,255,0.35)">msgs</div></div>'
     +'</div></div>'
     // Défi quotidien
-    +(dcData ? '<div style="background:rgba(78,207,112,0.05);border:1px solid rgba(78,207,112,0.2);border-radius:14px;padding:14px;margin-bottom:14px">'
-      +'<div style="font-size:0.62rem;color:rgba(78,207,112,0.7);letter-spacing:2px;margin-bottom:8px">🎯 DÉFI DU JOUR</div>'
+    +(dcData ? '<div style="background:rgba(55,214,165,0.05);border:1px solid rgba(55,214,165,0.2);border-radius:14px;padding:14px;margin-bottom:14px">'
+      +'<div style="font-size:0.62rem;color:rgba(55,214,165,0.7);letter-spacing:2px;margin-bottom:8px">🎯 DÉFI DU JOUR</div>'
       +'<div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">'
       +'<span style="font-size:1.5rem">'+dcData.icon+'</span>'
       +'<div style="flex:1">'
-      +'<div style="font-weight:800;font-size:0.82rem;color:#f0e8d0">'+escapeHtml(dcData.fr)+'</div>'
+      +'<div style="font-weight:800;font-size:0.82rem;color:#eaf4f0">'+escapeHtml(dcData.fr)+'</div>'
       +'<div style="font-size:0.65rem;color:rgba(255,255,255,0.35)">Récompense: +'+dcData.reward.xp+' XP · 💎'+dcData.reward.gems+'</div>'
       +'</div>'
-      +(dc.done ? '<span style="color:#4ecf70;font-size:1.2rem">✅</span>' : '')
+      +(dc.done ? '<span style="color:#37d6a5;font-size:1.2rem">✅</span>' : '')
       +'</div>'
-      +'<div style="height:6px;background:rgba(255,255,255,0.06);border-radius:3px;overflow:hidden"><div style="height:100%;width:'+dcProg+'%;background:linear-gradient(90deg,#4ecf70,#4a9eff);border-radius:3px;transition:width .5s"></div></div>'
+      +'<div style="height:6px;background:rgba(255,255,255,0.06);border-radius:3px;overflow:hidden"><div style="height:100%;width:'+dcProg+'%;background:linear-gradient(90deg,#37d6a5,#5ab8ff);border-radius:3px;transition:width .5s"></div></div>'
       +'<div style="font-size:0.6rem;color:rgba(255,255,255,0.3);margin-top:4px">'+((dc.progress||0)+' / '+(dc.target||1))+'</div>'
       +'</div>' : '')
     // Top scores historiques
@@ -368,9 +368,9 @@ function _buildLeaderboard(scores, current) {
     var medal = i===0?'🥇':i===1?'🥈':i===2?'🥉':'#'+(i+1);
     return '<div style="display:flex;align-items:center;gap:10px;padding:8px;background:rgba(255,255,255,0.03);border-radius:10px;margin-bottom:5px">'
       +'<span style="font-size:1.1rem;width:28px;text-align:center">'+medal+'</span>'
-      +'<div style="flex:1"><div style="font-size:0.78rem;font-weight:800;color:#f0e8d0">'+escapeHtml(score.name||'Joueur')+'</div>'
+      +'<div style="flex:1"><div style="font-size:0.78rem;font-weight:800;color:#eaf4f0">'+escapeHtml(score.name||'Joueur')+'</div>'
       +'<div style="font-size:0.6rem;color:rgba(255,255,255,0.3)">'+date+'</div></div>'
-      +'<div style="text-align:right"><div style="font-size:0.82rem;font-weight:900;color:#FFD700">'+(score.xp||0)+' XP</div>'
+      +'<div style="text-align:right"><div style="font-size:0.82rem;font-weight:900;color:#ff8a5b">'+(score.xp||0)+' XP</div>'
       +'<div style="font-size:0.6rem;color:rgba(255,255,255,0.3)">🔥'+(score.streak||0)+'</div></div>'
       +'</div>';
   }).join('');
@@ -439,14 +439,14 @@ function showDetailedStats() {
   try { history = JSON.parse(localStorage.getItem('lv_xp_history') || '{}'); } catch(e) {}
 
   // Enregistrer XP du jour
-  var today = new Date().toISOString().split('T')[0];
+  var today = LV.dateKey();
   history[today] = S.xp || 0;
   try { localStorage.setItem('lv_xp_history', JSON.stringify(history)); } catch(e) {}
 
   // Générer les 14 derniers jours
   var days = [];
   for (var d = 13; d >= 0; d--) {
-    var dt = new Date(Date.now() - d*86400000).toISOString().split('T')[0];
+    var dt = LV.dateKey(new Date(Date.now() - d*86400000));
     days.push({ date:dt, xp:history[dt]||0, label: new Date(Date.now()-d*86400000).toLocaleDateString('fr-FR',{weekday:'short'}) });
   }
   var maxXP = Math.max.apply(null, days.map(function(d){ return d.xp; })) || 100;
@@ -464,9 +464,9 @@ function showDetailedStats() {
     var bh = maxXP > 0 ? Math.round((d.xp/maxXP)*gh) : 0;
     var by = gh - bh;
     var isToday = d.date === today;
-    var color   = isToday ? '#FFD700' : d.xp > 0 ? '#4a9eff' : '#1a1a2e';
+    var color   = isToday ? '#ff8a5b' : d.xp > 0 ? '#5ab8ff' : '#1a1a2e';
     return '<rect x="'+(i*(bw+gap)+10)+'" y="'+by+'" width="'+bw+'" height="'+Math.max(2,bh)+'" fill="'+color+'" rx="3"/>'
-      +(isToday?'<rect x="'+(i*(bw+gap)+10+bw/2-1)+'" y="'+(by-6)+'" width="2" height="6" fill="#FFD700"/>':'')
+      +(isToday?'<rect x="'+(i*(bw+gap)+10+bw/2-1)+'" y="'+(by-6)+'" width="2" height="6" fill="#ff8a5b"/>':'')
       +'<text x="'+(i*(bw+gap)+10+bw/2)+'" y="'+(gh+12)+'" text-anchor="middle" fill="rgba(255,255,255,0.3)" font-size="8">'+d.label.slice(0,2)+'</text>';
   }).join('');
 
@@ -474,34 +474,34 @@ function showDetailedStats() {
   ov.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.93);z-index:9500;overflow-y:auto;display:flex;align-items:flex-start;justify-content:center;padding:20px;';
   ov.innerHTML =
     '<div style="max-width:380px;width:100%;margin:auto">'
-    +'<div style="background:linear-gradient(135deg,#0f1830,#0a0a14);border:1px solid rgba(255,215,0,0.22);border-radius:22px;padding:22px">'
+    +'<div style="background:linear-gradient(135deg,#10262b,#081a1e);border:1px solid rgba(255,138,91,0.22);border-radius:22px;padding:22px">'
     +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">'
-    +'<div style="font-family:Cinzel,serif;font-size:1rem;color:#FFD700">📊 Statistiques</div>'
+    +'<div style="font-family:var(--font-display);font-size:1rem;color:#ff8a5b">📊 Statistiques</div>'
     +'<button onclick="this.closest(\'div\').parentElement.parentElement.remove()" style="background:transparent;border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:2px 8px;color:rgba(255,255,255,0.35);font-size:0.65rem;cursor:pointer">✕</button>'
     +'</div>'
     // Graphe 14 jours
     +'<div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:14px;padding:14px;margin-bottom:14px;overflow-x:auto">'
-    +'<div style="font-size:0.62rem;color:rgba(255,215,0,0.6);letter-spacing:2px;margin-bottom:10px">XP — 14 DERNIERS JOURS</div>'
+    +'<div style="font-size:0.62rem;color:rgba(255,138,91,0.6);letter-spacing:2px;margin-bottom:10px">XP — 14 DERNIERS JOURS</div>'
     +'<svg viewBox="0 0 '+(svgW)+' '+(gh+20)+'" style="width:100%;min-width:260px;height:'+(gh+20)+'px">'+bars+'</svg>'
     +'</div>'
     // Stats grille
     +'<div style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:14px">'
-    +_statBox('XP Total', S.xp||0, '⭐', '#FFD700')
-    +_statBox('Moy./jour', avgXP+' XP', '📈', '#4a9eff')
-    +_statBox('Mots SRS', wordsLearned, '🃏', '#e040fb')
-    +_statBox('Streak', (G.streak||0)+' jours', '🔥', '#ff9f43')
-    +_statBox('Sessions', G.stats.sessionsPlayed||0, '🎮', '#4ecf70')
-    +_statBox('Temps ~', sessTime+'min', '⏱', '#FFD700')
-    +_statBox('Messages', G.stats.msgSent||0, '💬', '#4a9eff')
-    +_statBox('Gemmes', S_missions.gems||0, '💎', '#e040fb')
+    +_statBox('XP Total', S.xp||0, '⭐', '#ff8a5b')
+    +_statBox('Moy./jour', avgXP+' XP', '📈', '#5ab8ff')
+    +_statBox('Mots SRS', wordsLearned, '🃏', '#ff7eb6')
+    +_statBox('Streak', (G.streak||0)+' jours', '🔥', '#ffc15a')
+    +_statBox('Sessions', G.stats.sessionsPlayed||0, '🎮', '#37d6a5')
+    +_statBox('Temps ~', sessTime+'min', '⏱', '#ff8a5b')
+    +_statBox('Messages', G.stats.msgSent||0, '💬', '#5ab8ff')
+    +_statBox('Gemmes', S_missions.gems||0, '💎', '#ff7eb6')
     +'</div>'
     // Langues pratiquées
     +'<div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:12px;padding:12px;margin-bottom:12px">'
     +'<div style="font-size:0.62rem;color:rgba(255,255,255,0.35);letter-spacing:2px;margin-bottom:8px">LANGUE PRATIQUÉE</div>'
-    +'<div style="font-size:1.1rem">'+((FLAGS||{})[S.targetLang]||'🌍')+' <span style="font-size:0.82rem;color:#f0e8d0;font-weight:800">'+((LANG_NAMES||{})[S.targetLang]||S.targetLang||'—')+'</span></div>'
+    +'<div style="font-size:1.1rem">'+((FLAGS||{})[S.targetLang]||'🌍')+' <span style="font-size:0.82rem;color:#eaf4f0;font-weight:800">'+((LANG_NAMES||{})[S.targetLang]||S.targetLang||'—')+'</span></div>'
     +'</div>'
     // Bouton flashcards
-    +'<button onclick="this.closest(\'div\').parentElement.parentElement.remove();openFlashcards(Object.keys(VOCAB)[0])" style="width:100%;background:rgba(224,64,251,0.08);border:1px solid rgba(224,64,251,0.25);border-radius:12px;padding:10px;color:#e040fb;font-weight:800;cursor:pointer;font-size:0.78rem">🃏 Lancer les Flashcards SRS</button>'
+    +'<button onclick="this.closest(\'div\').parentElement.parentElement.remove();openFlashcards(Object.keys(VOCAB)[0])" style="width:100%;background:rgba(255,126,182,0.08);border:1px solid rgba(255,126,182,0.25);border-radius:12px;padding:10px;color:#ff7eb6;font-weight:800;cursor:pointer;font-size:0.78rem">🃏 Lancer les Flashcards SRS</button>'
     +'</div></div>';
   document.body.appendChild(ov);
 }
@@ -544,11 +544,11 @@ function _proposeNotifications() {
   var ov = document.createElement('div');
   ov.style.cssText = 'position:fixed;bottom:20px;left:50%;transform:translateX(-50%);z-index:9999;max-width:320px;width:90%;';
   ov.innerHTML =
-    '<div style="background:linear-gradient(135deg,#0f1830,#0a0a14);border:1px solid rgba(255,215,0,0.3);border-radius:16px;padding:16px;box-shadow:0 8px 32px rgba(0,0,0,0.5)">'
-    +'<div style="font-size:0.85rem;font-weight:800;color:#FFD700;margin-bottom:4px">🔔 Rappels d\'apprentissage</div>'
+    '<div style="background:linear-gradient(135deg,#10262b,#081a1e);border:1px solid rgba(255,138,91,0.3);border-radius:16px;padding:16px;box-shadow:0 8px 32px rgba(0,0,0,0.5)">'
+    +'<div style="font-size:0.85rem;font-weight:800;color:#ff8a5b;margin-bottom:4px">🔔 Rappels d\'apprentissage</div>'
     +'<div style="font-size:0.72rem;color:rgba(255,255,255,0.55);margin-bottom:12px">Reçois un rappel si tu n\'as pas pratiqué depuis 4h</div>'
     +'<div style="display:flex;gap:8px">'
-    +'<button onclick="requestNotifPermission();this.closest(\'div\').parentElement.remove()" style="flex:1;background:rgba(255,215,0,0.12);border:1px solid #FFD700;border-radius:10px;padding:8px;color:#FFD700;font-weight:800;font-size:0.72rem;cursor:pointer">✅ Activer</button>'
+    +'<button onclick="requestNotifPermission();this.closest(\'div\').parentElement.remove()" style="flex:1;background:rgba(255,138,91,0.12);border:1px solid #ff8a5b;border-radius:10px;padding:8px;color:#ff8a5b;font-weight:800;font-size:0.72rem;cursor:pointer">✅ Activer</button>'
     +'<button onclick="localStorage.setItem(\'lv_notif_asked\',\'no\');this.closest(\'div\').parentElement.remove()" style="background:transparent;border:1px solid rgba(255,255,255,0.12);border-radius:10px;padding:8px 12px;color:rgba(255,255,255,0.35);font-size:0.72rem;cursor:pointer">Non merci</button>'
     +'</div></div>';
   document.body.appendChild(ov);
@@ -584,16 +584,16 @@ function openReminderSettings() {
   var ov = document.createElement('div');
   ov.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.92);z-index:9500;display:flex;align-items:center;justify-content:center;padding:20px;';
   ov.innerHTML =
-    '<div style="background:linear-gradient(135deg,#0f1830,#0a0a14);border:1px solid rgba(255,165,0,0.3);border-radius:22px;padding:24px;max-width:340px;width:100%">'
+    '<div style="background:linear-gradient(135deg,#10262b,#081a1e);border:1px solid rgba(255,165,0,0.3);border-radius:22px;padding:24px;max-width:340px;width:100%">'
     +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">'
-    +'<div style="font-family:Cinzel,serif;font-size:0.95rem;color:#ff9f43">🔔 Rappels</div>'
+    +'<div style="font-family:var(--font-display);font-size:0.95rem;color:#ffc15a">🔔 Rappels</div>'
     +'<button onclick="this.closest(\'div\').parentElement.remove()" style="background:transparent;border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:2px 8px;color:rgba(255,255,255,0.35);font-size:0.65rem;cursor:pointer">✕</button>'
     +'</div>'
-    +'<div style="font-size:0.75rem;color:rgba(255,255,255,0.5);margin-bottom:14px">Permission: <span style="color:'+(perm==='granted'?'#4ecf70':perm==='denied'?'#e05555':'#FFD700')+'">'+perm+'</span></div>'
+    +'<div style="font-size:0.75rem;color:rgba(255,255,255,0.5);margin-bottom:14px">Permission: <span style="color:'+(perm==='granted'?'#37d6a5':perm==='denied'?'#ff6b7f':'#ff8a5b')+'">'+perm+'</span></div>'
     +'<div style="display:flex;flex-direction:column;gap:8px">'
     +(perm !== 'granted'
-      ? '<button onclick="requestNotifPermission()" style="background:rgba(255,165,0,0.1);border:1px solid #ff9f43;border-radius:12px;padding:10px;color:#ff9f43;font-weight:800;cursor:pointer;font-size:0.8rem">🔔 Activer les rappels</button>'
-      : '<div style="background:rgba(78,207,112,0.08);border:1px solid rgba(78,207,112,0.25);border-radius:12px;padding:10px;font-size:0.75rem;color:#4ecf70;text-align:center">✅ Notifications activées</div>')
+      ? '<button onclick="requestNotifPermission()" style="background:rgba(255,165,0,0.1);border:1px solid #ffc15a;border-radius:12px;padding:10px;color:#ffc15a;font-weight:800;cursor:pointer;font-size:0.8rem">🔔 Activer les rappels</button>'
+      : '<div style="background:rgba(55,214,165,0.08);border:1px solid rgba(55,214,165,0.25);border-radius:12px;padding:10px;font-size:0.75rem;color:#37d6a5;text-align:center">✅ Notifications activées</div>')
     +'<div style="font-size:0.7rem;color:rgba(255,255,255,0.35);text-align:center;padding-top:6px">Rappel envoyé après 4h sans ouvrir l\'app</div>'
     +'</div></div>';
   document.body.appendChild(ov);
@@ -659,19 +659,19 @@ function launchAdaptiveQuiz() {
   function renderQ() {
     var q = questions[current];
     ov.innerHTML =
-      '<div style="background:linear-gradient(135deg,#0f1830,#0a0a14);border:1px solid rgba(74,158,255,0.3);border-radius:22px;padding:24px;max-width:340px;width:100%">'
+      '<div style="background:linear-gradient(135deg,#10262b,#081a1e);border:1px solid rgba(90,184,255,0.3);border-radius:22px;padding:24px;max-width:340px;width:100%">'
       +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">'
-      +'<div style="font-family:Cinzel,serif;font-size:0.88rem;color:#4a9eff">🎯 Quiz du dialogue</div>'
+      +'<div style="font-family:var(--font-display);font-size:0.88rem;color:#5ab8ff">🎯 Quiz du dialogue</div>'
       +'<span style="font-size:0.65rem;color:rgba(255,255,255,0.35)">'+(current+1)+'/'+questions.length+'</span>'
       +'</div>'
       +'<div style="height:4px;background:rgba(255,255,255,0.07);border-radius:2px;margin-bottom:18px;overflow:hidden">'
-      +'<div style="height:100%;width:'+Math.round((current/questions.length)*100)+'%;background:#4a9eff;border-radius:2px"></div>'
+      +'<div style="height:100%;width:'+Math.round((current/questions.length)*100)+'%;background:#5ab8ff;border-radius:2px"></div>'
       +'</div>'
       +'<div style="font-size:0.72rem;color:rgba(255,255,255,0.4);margin-bottom:8px">Comment dit-on en '+tl+' :</div>'
-      +'<div style="font-size:1.2rem;font-weight:900;color:#f0e8d0;margin-bottom:20px;text-align:center">'+escapeHtml(q.q)+'</div>'
+      +'<div style="font-size:1.2rem;font-weight:900;color:#eaf4f0;margin-bottom:20px;text-align:center">'+escapeHtml(q.q)+'</div>'
       +'<div style="display:flex;flex-direction:column;gap:8px">'
       +q.opts.map(function(opt,i){
-        return '<button data-opt="'+i+'" onclick="adaptQuizAnswer(this,\''+escapeHtml(opt).replace(/'/g,"\\'")+'\')" style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:11px;color:#f0e8d0;font-size:0.82rem;cursor:pointer;text-align:left;transition:all .2s">'+escapeHtml(opt)+'</button>';
+        return '<button data-opt="'+i+'" onclick="adaptQuizAnswer(this,\''+escapeHtml(opt).replace(/'/g,"\\'")+'\')" style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:11px;color:#eaf4f0;font-size:0.82rem;cursor:pointer;text-align:left;transition:all .2s">'+escapeHtml(opt)+'</button>';
       }).join('')
       +'</div></div>';
     document.body.appendChild(ov);
@@ -680,11 +680,11 @@ function launchAdaptiveQuiz() {
   window.adaptQuizAnswer = function(btn, chosen) {
     var q = questions[current];
     var correct = chosen === q.answer;
-    btn.style.background = correct ? 'rgba(78,207,112,0.2)' : 'rgba(224,85,85,0.2)';
-    btn.style.borderColor = correct ? '#4ecf70' : '#e05555';
+    btn.style.background = correct ? 'rgba(55,214,165,0.2)' : 'rgba(255,107,127,0.2)';
+    btn.style.borderColor = correct ? '#37d6a5' : '#ff6b7f';
     // Montrer la bonne réponse
     ov.querySelectorAll('button').forEach(function(b){
-      if (b.textContent.trim() === q.answer) { b.style.background='rgba(78,207,112,0.2)'; b.style.borderColor='#4ecf70'; }
+      if (b.textContent.trim() === q.answer) { b.style.background='rgba(55,214,165,0.2)'; b.style.borderColor='#37d6a5'; }
       b.disabled = true;
     });
     if (correct) score++;
@@ -694,12 +694,12 @@ function launchAdaptiveQuiz() {
       if (current >= questions.length) {
         var pct = Math.round((score/questions.length)*100);
         ov.innerHTML =
-          '<div style="background:linear-gradient(135deg,#0f1830,#0a0a14);border:1px solid rgba(74,158,255,0.3);border-radius:22px;padding:28px;max-width:340px;width:100%;text-align:center">'
+          '<div style="background:linear-gradient(135deg,#10262b,#081a1e);border:1px solid rgba(90,184,255,0.3);border-radius:22px;padding:28px;max-width:340px;width:100%;text-align:center">'
           +'<div style="font-size:2.8rem;margin-bottom:8px">'+(pct>=80?'🏆':pct>=50?'⭐':'📚')+'</div>'
-          +'<div style="font-family:Cinzel,serif;color:#4a9eff;font-size:1rem;margin-bottom:5px">Quiz terminé!</div>'
-          +'<div style="font-size:1.4rem;font-weight:900;color:#f0e8d0;margin-bottom:4px">'+score+'/'+questions.length+'</div>'
-          +'<div style="font-size:0.78rem;color:#4ecf70;margin-bottom:18px;font-weight:800">+'+score*15+' XP</div>'
-          +'<button onclick="document.getElementById(\'adaptQuizOv\').remove()" style="background:linear-gradient(135deg,#1a3a8a,#4a9eff);border:none;border-radius:13px;padding:11px 26px;font-family:Cinzel,serif;font-weight:700;cursor:pointer;font-size:0.85rem;color:#fff">Super! 🎉</button>'
+          +'<div style="font-family:var(--font-display);color:#5ab8ff;font-size:1rem;margin-bottom:5px">Quiz terminé!</div>'
+          +'<div style="font-size:1.4rem;font-weight:900;color:#eaf4f0;margin-bottom:4px">'+score+'/'+questions.length+'</div>'
+          +'<div style="font-size:0.78rem;color:#37d6a5;margin-bottom:18px;font-weight:800">+'+score*15+' XP</div>'
+          +'<button onclick="document.getElementById(\'adaptQuizOv\').remove()" style="background:linear-gradient(135deg,#1a3a8a,#5ab8ff);border:none;border-radius:13px;padding:11px 26px;font-family:var(--font-display);font-weight:700;cursor:pointer;font-size:0.85rem;color:#fff">Super! 🎉</button>'
           +'</div>';
         gainXP(score*15);
         if (pct >= 80) launchConfetti();
@@ -724,9 +724,9 @@ onMessageSent = function(text) {
     setTimeout(function() {
       var ov2 = document.createElement('div');
       ov2.style.cssText = 'position:fixed;bottom:80px;left:50%;transform:translateX(-50%);z-index:9400;max-width:300px;width:90%;';
-      ov2.innerHTML = '<div style="background:rgba(74,158,255,0.15);border:1px solid rgba(74,158,255,0.4);border-radius:14px;padding:12px;display:flex;align-items:center;gap:12px;cursor:pointer" onclick="this.parentElement.remove();launchAdaptiveQuiz()">'
+      ov2.innerHTML = '<div style="background:rgba(90,184,255,0.15);border:1px solid rgba(90,184,255,0.4);border-radius:14px;padding:12px;display:flex;align-items:center;gap:12px;cursor:pointer" onclick="this.parentElement.remove();launchAdaptiveQuiz()">'
         +'<span style="font-size:1.5rem">🎯</span>'
-        +'<div><div style="font-size:0.78rem;font-weight:800;color:#4a9eff">Quiz rapide disponible!</div>'
+        +'<div><div style="font-size:0.78rem;font-weight:800;color:#5ab8ff">Quiz rapide disponible!</div>'
         +'<div style="font-size:0.65rem;color:rgba(255,255,255,0.45)">Teste les mots de ce dialogue →</div></div>'
         +'</div>';
       document.body.appendChild(ov2);
@@ -765,7 +765,7 @@ onMessageSent = function(text) {
 
   // Enregistrer XP quotidien toutes les 5min
   setInterval(function() {
-    var today = new Date().toISOString().split('T')[0];
+    var today = LV.dateKey();
     var history = {};
     try { history = JSON.parse(localStorage.getItem('lv_xp_history')||'{}'); } catch(e) {}
     history[today] = S.xp || 0;

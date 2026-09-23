@@ -188,7 +188,7 @@ function loadVocab(catKey) {
       // ── Tiroir fermé : affiche la catégorie active + bouton changer ──
       + '<div id="catDrawerClosed" style="display:flex;align-items:center;gap:10px;padding:10px 16px;cursor:pointer;" onclick="_toggleCatDrawer(\'vocab\')">'
       +   '<span style="font-size:1.1rem">' + activeIcon + '</span>'
-      +   '<span style="font-weight:700;font-size:0.85rem;color:#F0EAD6;flex:1;">' + escapeHtml(activeLabel) + '</span>'
+      +   '<span style="font-weight:700;font-size:0.85rem;color:#eaf4f0;flex:1;">' + escapeHtml(activeLabel) + '</span>'
       +   '<span style="font-size:0.68rem;color:rgba(255,255,255,0.30);">' + totalCats + ' catégories</span>'
       +   '<span id="catDrawerArrow" style="color:rgba(255,255,255,0.30);font-size:0.80rem;transition:transform 0.22s;">▼</span>'
       + '</div>'
@@ -325,7 +325,7 @@ function loadPhrases(catKey) {
     phraseCats.innerHTML = ''
       + '<div id="catDrawerClosed" style="display:flex;align-items:center;gap:10px;padding:10px 16px;cursor:pointer;" onclick="_toggleCatDrawer(\'phrases\')">'
       +   '<span style="font-size:1.1rem">' + activePhrIcon + '</span>'
-      +   '<span style="font-weight:700;font-size:0.85rem;color:#F0EAD6;flex:1;">' + escapeHtml(activePhrLabel) + '</span>'
+      +   '<span style="font-weight:700;font-size:0.85rem;color:#eaf4f0;flex:1;">' + escapeHtml(activePhrLabel) + '</span>'
       +   '<span style="font-size:0.68rem;color:rgba(255,255,255,0.30);">' + cats.length + ' catégories</span>'
       +   '<span id="catDrawerArrow" style="color:rgba(255,255,255,0.30);font-size:0.80rem;transition:transform 0.22s;">▼</span>'
       + '</div>'
@@ -429,7 +429,7 @@ function loadGrammar(catKey) {
     grammarCats.innerHTML = ''
       + '<div id="catDrawerClosed" style="display:flex;align-items:center;gap:10px;padding:10px 16px;cursor:pointer;" onclick="_toggleCatDrawer(\'grammar\')">'
       +   '<span style="font-size:1.1rem">' + activeGrIcon + '</span>'
-      +   '<span style="font-weight:700;font-size:0.85rem;color:#F0EAD6;flex:1;">' + escapeHtml(activeGrLabel) + '</span>'
+      +   '<span style="font-weight:700;font-size:0.85rem;color:#eaf4f0;flex:1;">' + escapeHtml(activeGrLabel) + '</span>'
       +   '<span style="font-size:0.68rem;color:rgba(255,255,255,0.30);">' + cats.length + ' catégories</span>'
       +   '<span id="catDrawerArrow" style="color:rgba(255,255,255,0.30);font-size:0.80rem;transition:transform 0.22s;">▼</span>'
       + '</div>'
@@ -513,17 +513,50 @@ if (document.readyState === 'loading') {
 // =================================================================
 // DICTIONNAIRE
 // =================================================================
+// État du dictionnaire (ces variables n'étaient déclarées nulle part : openDict()
+// et searchDict() plantaient avec « X is not defined »).
+var popupWord = '';
+var dictMode = 'word';
+var dictFromScreen = 'screen-menu';
+var dictHistory = [];
+try { dictHistory = JSON.parse(localStorage.getItem('lv_dict_history') || '[]').slice(0, 10); } catch (e) { dictHistory = []; }
+
+function _dictEmpty(icon, text) {
+  return '<div class="dict-empty"><div class="dict-empty-icon">' + icon + '</div>' + escapeHtml(text) + '</div>';
+}
+
 function openDict() {
-  dictFromScreen = document.querySelector('.screen.active')?.id || 'screen-menu';
+  var cur = document.querySelector('.screen.active');
+  if (cur && cur.id !== 'screen-dict') dictFromScreen = cur.id;
   showScreen('screen-dict');
   const input = document.getElementById('dictInput');
   if (input) {
-    input.focus();
     if (popupWord && !input.value.trim()) input.value = popupWord;
+    setTimeout(function () { input.focus(); }, 60);
   }
   const result = document.getElementById('dictResult');
   if (result && !result.innerHTML.trim()) {
-    result.innerHTML = '<div class="dict-empty"><div class="dict-empty-icon">📚</div>Entrez un mot ou une expression</div>';
+    result.innerHTML = _dictEmpty('📚', 'Entrez un mot ou une expression');
+  }
+  _bindDictDelegation();
+}
+
+// Un seul gestionnaire pour 🔊 et l'historique : le texte venant de l'IA ne passe plus
+// jamais dans un attribut onclick (risque d'injection de code).
+function _bindDictDelegation() {
+  const result = document.getElementById('dictResult');
+  if (!result || result._lvBound) return;
+  result._lvBound = true;
+  result.addEventListener('click', function (e) {
+    const say = e.target.closest('[data-say]');
+    if (say) { speakW(say.getAttribute('data-say')); return; }
+    const q = e.target.closest('[data-q]');
+    if (q) searchDictWord(q.getAttribute('data-q'));
+  });
+  const input = document.getElementById('dictInput');
+  if (input && !input._lvEnter) {
+    input._lvEnter = true;
+    input.addEventListener('keydown', function (e) { if (e.key === 'Enter') searchDict(); });
   }
 }
 
@@ -531,71 +564,46 @@ async function searchDict() {
   const input = document.getElementById('dictInput');
   const result = document.getElementById('dictResult');
   if (!input || !result) return;
-  const q = input.value.trim();
-  if (!q) {
-    result.innerHTML = '<div class="dict-empty"><div class="dict-empty-icon">📚</div>Entrez un mot ou une expression</div>';
-    return;
-  }
+  _bindDictDelegation();
+  const q = input.value.trim().slice(0, 200);
+  if (!q) { result.innerHTML = _dictEmpty('📚', 'Entrez un mot ou une expression'); return; }
   if (dictHistory[0] !== q) {
-    dictHistory = [q].concat(dictHistory.filter(item => item !== q)).slice(0, 10);
+    dictHistory = [q].concat(dictHistory.filter(function (item) { return item !== q; })).slice(0, 10);
+    try { localStorage.setItem('lv_dict_history', JSON.stringify(dictHistory)); } catch (e) {}
   }
-  result.innerHTML = '<div class="dict-empty"><div class="dict-empty-icon">⏳</div>Recherche en cours...</div>';
-  const nl = LANG_NAMES[S.nativeLang] || 'français';
-  const tl = LANG_NAMES[S.targetLang] || 'anglais';
+  result.innerHTML = _dictEmpty('⏳', 'Recherche en cours…');
   const isCJK = ['zh', 'ja', 'ru'].includes(S.targetLang);
   const showRoman = isCJK && S.scriptPref !== 'native';
   try {
-    const prompt = `You are a pedagogical dictionary. For the expression "${q}" between ${nl} and ${tl}, reply ONLY with valid JSON (no markdown, no explanation): {"translation":"...","roman":"...","grammar":"...","example":"..."}. "translation" = best translation. "roman" = romanization if useful else empty string. "grammar" = very brief grammatical note. "example" = one short natural example sentence.`;
-    let resultData;
-    if (typeof callAPIWithFallback === 'function') {
-      try {
-        resultData = await callAPIWithFallback('/api/translate', {
-          word: q, nativeLang: S.nativeLang, targetLang: S.targetLang
-        });
-      } catch(e) { resultData = null; }
+    const res = await callAPIWithFallback('/api/translate', {
+      word: q, nativeLang: S.nativeLang, targetLang: S.targetLang, mode: 'dictionary'
+    });
+    // Nouveau format : champs directs. Ancien format : chaîne JSON dans `reply`.
+    let p = res;
+    if (!p.translation && p.reply) {
+      try { p = JSON.parse(String(p.reply).replace(/```json|```/g, '').trim()); }
+      catch (e) { p = { translation: p.reply }; }
     }
-    // [CORRECTION] L'ancien fallback appelait directement
-    // https://api.anthropic.com/v1/messages depuis le navigateur avec
-    // 'x-api-key': '' (clé vide). Cet appel échouait toujours (401) et,
-    // s'il avait un jour reçu une vraie clé, l'aurait exposée publiquement
-    // dans le code source livré au client. Retiré : en cas d'échec de
-    // callAPIWithFallback, on tombe directement sur le bloc catch
-    // ci-dessous, qui affichait déjà un message "Indisponible pour le
-    // moment" — comportement final inchangé pour l'utilisateur, sans le
-    // risque de sécurité ni l'appel mort.
-    if (!resultData || !resultData.reply) {
-      throw new Error('Dictionnaire indisponible : callAPIWithFallback a échoué ou est absent.');
-    }
-    let p;
-    try {
-      p = JSON.parse((resultData.reply || '{}').replace(/```json|```/g, '').trim());
-    } catch {
-      p = { translation: resultData.reply || q, roman: '', grammar: '', example: '' };
-    }
+    if (!p.translation) throw new Error('réponse vide');
     const hist = dictHistory.slice(1, 9);
-    const translation = escapeHtml(p.translation || q);
-    const roman = escapeHtml(p.roman || '');
-    const grammar = escapeHtml(p.grammar || '');
-    const example = escapeHtml(p.example || '');
-    let histHTML = '';
-    if (hist.length) {
-      histHTML = '<div style="font-size:0.65rem;color:var(--dim);letter-spacing:2px;text-transform:uppercase;margin:15px 0 8px 0">Historique</div>'
-        + '<div class="dict-chips">'
-        + hist.map(h => `<span class="dict-chip" onclick="searchDictWord('${escapeHtml(h).replace(/'/g, "\\'")}')">${escapeHtml(h)}</span>`).join('')
-        + '</div>';
-    }
+    const histHTML = hist.length
+      ? '<div class="dict-hist-label">Historique</div><div class="dict-chips">'
+        + hist.map(function (h) { return '<span class="dict-chip" data-q="' + escapeHtml(h) + '">' + escapeHtml(h) + '</span>'; }).join('')
+        + '</div>'
+      : '';
     result.innerHTML = '<div class="dict-card">'
-      + '<div style="font-size:0.68rem;color:var(--dim);margin-bottom:5px">"' + escapeHtml(q) + '"</div>'
-      + '<div class="dict-word">' + translation + '</div>'
-      + (roman && showRoman ? '<div class="dict-roman">' + roman + '</div>' : '')
-      + (grammar ? '<div style="font-size:0.7rem;color:var(--purple);font-weight:800;margin:5px 0">' + grammar + '</div>' : '')
-      + (example ? '<div class="dict-example">💡 ' + example + '</div>' : '')
-      + '<button class="dict-listen-btn" onclick="speakW(\'' + translation.replace(/'/g, "\\'") + '\')">🔊 Écouter</button>'
-      + '</div>'
-      + histHTML;
+      + '<div class="dict-query">« ' + escapeHtml(q) + ' »</div>'
+      + '<div class="dict-word">' + escapeHtml(p.translation) + '</div>'
+      + (p.roman && showRoman ? '<div class="dict-roman">' + escapeHtml(p.roman) + '</div>' : '')
+      + (p.grammar ? '<div class="dict-grammar">' + escapeHtml(p.grammar) + '</div>' : '')
+      + (p.example ? '<div class="dict-example">💡 ' + escapeHtml(p.example) + '</div>' : '')
+      + '<button class="dict-listen-btn" data-say="' + escapeHtml(p.translation) + '">🔊 Écouter</button>'
+      + '</div>' + histHTML;
+    if (typeof updateDailyProgress === 'function') updateDailyProgress('vocab', 1);
   } catch (e) {
-    console.warn('Dictionary search failed:', e);
-    result.innerHTML = '<div class="dict-empty"><div class="dict-empty-icon">❌</div>Indisponible pour le moment</div>';
+    console.warn('Dictionnaire indisponible :', e);
+    const offline = e && e.code === 'offline';
+    result.innerHTML = _dictEmpty(offline ? '📡' : '⚠️', offline ? 'Pas de connexion internet' : 'Indisponible pour le moment — réessaie dans un instant');
   }
 }
 
@@ -607,12 +615,14 @@ function searchDictWord(w) {
 
 function setDictMode(mode, btn) {
   dictMode = mode;
-  document.querySelectorAll('.dict-mode').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
+  if (btn && btn.parentElement) {
+    btn.parentElement.querySelectorAll('button').forEach(function (b) { b.classList.remove('active'); });
+    btn.classList.add('active');
+  }
 }
 
 function closeDictBack() {
-  showScreen('screen-menu');
+  showScreen(dictFromScreen && dictFromScreen !== 'screen-dict' ? dictFromScreen : 'screen-menu');
 }
 
 // =================================================================
@@ -623,26 +633,26 @@ function addCEFRIndicator() {
   if (!hud) return;
   if (document.getElementById('cefrIndicator')) return;
   const totalXP = S.xp || 0;
-  let currentLevel = "A1", nextLevel = "A2", progressPercent = 0, levelColor = "#4ecf70", levelIcon = "🌱";
+  let currentLevel = "A1", nextLevel = "A2", progressPercent = 0, levelColor = "#37d6a5", levelIcon = "🌱";
   if (totalXP < 300) {
     currentLevel = "A1"; nextLevel = "A2";
     progressPercent = Math.min(100, Math.floor((totalXP / 300) * 100));
-    levelColor = "#4ecf70"; levelIcon = "🌱";
+    levelColor = "#37d6a5"; levelIcon = "🌱";
   } else if (totalXP < 800) {
     currentLevel = "A2"; nextLevel = "B1";
     progressPercent = Math.min(100, Math.floor(((totalXP - 300) / 500) * 100));
-    levelColor = "#4a9eff"; levelIcon = "🌟";
+    levelColor = "#5ab8ff"; levelIcon = "🌟";
   } else if (totalXP < 1500) {
     currentLevel = "B1"; nextLevel = "B2";
     progressPercent = Math.min(100, Math.floor(((totalXP - 800) / 700) * 100));
-    levelColor = "#ff9f43"; levelIcon = "🏆";
+    levelColor = "#ffc15a"; levelIcon = "🏆";
   } else if (totalXP < 2500) {
     currentLevel = "B2"; nextLevel = "C1";
     progressPercent = Math.min(100, Math.floor(((totalXP - 1500) / 1000) * 100));
-    levelColor = "#e040fb"; levelIcon = "👑";
+    levelColor = "#ff7eb6"; levelIcon = "👑";
   } else {
     currentLevel = "C1"; nextLevel = null;
-    progressPercent = 100; levelColor = "#ff6b6b"; levelIcon = "🏅";
+    progressPercent = 100; levelColor = "#ff6b7f"; levelIcon = "🏅";
   }
   const indicator = document.createElement('div');
   indicator.id = 'cefrIndicator';
@@ -663,10 +673,10 @@ function addCEFRIndicator() {
 // ZONES DU MONDE
 // =================================================================
 var ZONES = {
-  zone_debutant:     { id:'zone_debutant',     icon:'🌱', order:1, xpRequired:0,    fr:'Village de l\'Aube',    en:'Dawn Village',      color:'#4ecf70', locs:['church','school','friends'],  boss:{fr:'Le Vieil Érudit',    en:'The Old Scholar',  icon:'📚', hp:5, reward:{xp:100,gems:3,chest:'rare'},     challenge:'Mène une conversation complète de 5 échanges sur ta famille sans fautes.', check:5}},
-  zone_elementaire:  { id:'zone_elementaire',  icon:'⭐', order:2, xpRequired:300,  fr:'Bourg du Marché',       en:'Market Town',       color:'#4a9eff', locs:['market','tavern','park'],     boss:{fr:'Le Marchand Pressé', en:'The Busy Merchant', icon:'💼', hp:6, reward:{xp:200,gems:5,chest:'epic'},     challenge:'Négocie un prix, commande 3 choses ET demande des directions.'}},
-  zone_intermediaire:{ id:'zone_intermediaire', icon:'🏅', order:3, xpRequired:800,  fr:'Cité des Voyageurs',    en:'Traveler\'s City',  color:'#e040fb', locs:['station','bank','hospital'],  boss:{fr:'Le Diplomate',       en:'The Diplomat',     icon:'🎩', hp:8, reward:{xp:350,gems:8,chest:'legendary'}, challenge:'Explique un problème complexe et négocie une solution formelle.'}},
-  zone_avance:       { id:'zone_avance',        icon:'🏆', order:4, xpRequired:1500, fr:'Tour de la Maîtrise',   en:'Mastery Tower',     color:'#FFD700', locs:['police','factory','cinema'],  boss:{fr:'Le Maître des Langues',en:'Language Master', icon:'👑', hp:10,reward:{xp:500,gems:15,chest:'legendary'},challenge:'Conversation libre de 10 échanges sur un sujet complexe. Niveau C1.'}},
+  zone_debutant:     { id:'zone_debutant',     icon:'🌱', order:1, xpRequired:0,    fr:'Village de l\'Aube',    en:'Dawn Village',      color:'#37d6a5', locs:['church','school','friends'],  boss:{fr:'Le Vieil Érudit',    en:'The Old Scholar',  icon:'📚', hp:5, reward:{xp:100,gems:3,chest:'rare'},     challenge:'Mène une conversation complète de 5 échanges sur ta famille sans fautes.', check:5}},
+  zone_elementaire:  { id:'zone_elementaire',  icon:'⭐', order:2, xpRequired:300,  fr:'Bourg du Marché',       en:'Market Town',       color:'#5ab8ff', locs:['market','tavern','park'],     boss:{fr:'Le Marchand Pressé', en:'The Busy Merchant', icon:'💼', hp:6, reward:{xp:200,gems:5,chest:'epic'},     challenge:'Négocie un prix, commande 3 choses ET demande des directions.'}},
+  zone_intermediaire:{ id:'zone_intermediaire', icon:'🏅', order:3, xpRequired:800,  fr:'Cité des Voyageurs',    en:'Traveler\'s City',  color:'#ff7eb6', locs:['station','bank','hospital'],  boss:{fr:'Le Diplomate',       en:'The Diplomat',     icon:'🎩', hp:8, reward:{xp:350,gems:8,chest:'legendary'}, challenge:'Explique un problème complexe et négocie une solution formelle.'}},
+  zone_avance:       { id:'zone_avance',        icon:'🏆', order:4, xpRequired:1500, fr:'Tour de la Maîtrise',   en:'Mastery Tower',     color:'#ff8a5b', locs:['police','factory','cinema'],  boss:{fr:'Le Maître des Langues',en:'Language Master', icon:'👑', hp:10,reward:{xp:500,gems:15,chest:'legendary'},challenge:'Conversation libre de 10 échanges sur un sujet complexe. Niveau C1.'}},
 };
 
 function isZoneUnlocked(zoneId) {
@@ -693,8 +703,8 @@ function loadProfileData() {
   var masteredEl = document.getElementById('profileMasteredCount');
   var messagesEl = document.getElementById('profileMessages');
   var sessionsEl = document.getElementById('profileSessions');
-  if (favContainer) favContainer.innerHTML = favWords.slice(0,10).map(f => `<span class="fav-tag" style="display:inline-block;background:rgba(78,207,112,0.12);padding:4px 8px;border-radius:12px;margin:2px;font-size:0.7rem;">${escapeHtml(f.word)}</span>`).join('') || 'Aucun favori';
-  if (weakContainer) weakContainer.innerHTML = weakWords.slice(0,10).map(w => `<span class="weak-tag" style="display:inline-block;background:rgba(255,107,107,0.12);padding:4px 8px;border-radius:12px;margin:2px;font-size:0.7rem;">${escapeHtml(w)}</span>`).join('') || 'Aucun mot difficile';
+  if (favContainer) favContainer.innerHTML = favWords.slice(0,10).map(f => `<span class="fav-tag" style="display:inline-block;background:rgba(55,214,165,0.12);padding:4px 8px;border-radius:12px;margin:2px;font-size:0.7rem;">${escapeHtml(f.word)}</span>`).join('') || 'Aucun favori';
+  if (weakContainer) weakContainer.innerHTML = weakWords.slice(0,10).map(w => `<span class="weak-tag" style="display:inline-block;background:rgba(255,107,127,0.12);padding:4px 8px;border-radius:12px;margin:2px;font-size:0.7rem;">${escapeHtml(w)}</span>`).join('') || 'Aucun mot difficile';
   if (masteredEl) masteredEl.textContent = masteredCount;
   if (messagesEl) messagesEl.textContent = totalMessages;
   if (sessionsEl) sessionsEl.textContent = sessions;

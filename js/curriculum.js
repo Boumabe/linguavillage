@@ -452,9 +452,9 @@ var CONJUGATION_TABLE = {
 // ============================================================================
 
 var LEVELS = {
-  beginner:     { icon: '🌱', color: '#4ecf70', order: 1 },
-  intermediate: { icon: '⭐', color: '#4a9eff', order: 2 },
-  advanced:     { icon: '🏆', color: '#c084fc', order: 3 },
+  beginner:     { icon: '🌱', color: '#37d6a5', order: 1 },
+  intermediate: { icon: '⭐', color: '#5ab8ff', order: 2 },
+  advanced:     { icon: '🏆', color: '#b79cff', order: 3 },
 };
 
 var LESSONS = {

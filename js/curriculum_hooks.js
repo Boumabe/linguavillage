@@ -44,9 +44,10 @@
     // ================================================================
     var _origShowScreen = window.showScreen;
     if (_origShowScreen && !_origShowScreen._curriculum_patched) {
-      window.showScreen = function (id) {
-        _origShowScreen.call(this, id);
+      window.showScreen = function () {
+        var r = _origShowScreen.apply(this, arguments);
         _updateProgramBadge();
+        return r;
       };
       window.showScreen._curriculum_patched = true;
     }
@@ -81,8 +82,8 @@
       // Barre indicateur de niveau
       var bar = document.getElementById('level-indicator-bar');
       if (bar) {
-        var colors = { beginner: '#4ecf70', intermediate: '#4a9eff', advanced: '#c084fc', pro: '#ffd700' };
-        var color  = colors[lvl] || '#4ecf70';
+        var colors = { beginner: '#37d6a5', intermediate: '#5ab8ff', advanced: '#b79cff', pro: '#ff8a5b' };
+        var color  = colors[lvl] || '#37d6a5';
         bar.innerHTML = '<div style="flex:1;height:4px;background:rgba(255,255,255,0.06);border-radius:4px;overflow:hidden;">'
           + '<div style="height:100%;width:' + pct + '%;background:' + color + ';transition:width 0.8s cubic-bezier(0.22,1,0.36,1);border-radius:4px;"></div>'
           + '</div>'
@@ -202,14 +203,14 @@
 
       var modal = document.createElement('div');
       modal.id  = 'lv-exam-prompt';
-      modal.style.cssText = 'position:fixed;inset:0;z-index:7500;background:rgba(4,6,14,0.92);display:flex;align-items:flex-end;justify-content:center;padding:0 0 20px;animation:examFadeIn 0.22s ease;';
-      modal.innerHTML = '<div style="width:100%;max-width:440px;background:#0e1322;border:1.5px solid rgba(255,215,0,0.22);border-radius:24px 24px 16px 16px;padding:20px 20px 16px;display:flex;flex-direction:column;gap:14px;">'
+      modal.style.cssText = 'position:fixed;inset:0;z-index:7500;background:rgba(7,20,23,0.92);display:flex;align-items:flex-end;justify-content:center;padding:0 0 20px;animation:examFadeIn 0.22s ease;';
+      modal.innerHTML = '<div style="width:100%;max-width:440px;background:#10262b;border:1.5px solid rgba(255,138,91,0.22);border-radius:24px 24px 16px 16px;padding:20px 20px 16px;display:flex;flex-direction:column;gap:14px;">'
         + '<div style="text-align:center;">'
         + '<div style="font-size:2.5rem;margin-bottom:6px;">🏆</div>'
-        + '<div style="font-family:Cinzel,serif;font-weight:800;font-size:0.9rem;color:#ffd700;margin-bottom:6px;">' + (window.escapeHtml ? window.escapeHtml(title) : title) + '</div>'
+        + '<div style="font-family:var(--font-display);font-weight:800;font-size:0.9rem;color:#ff8a5b;margin-bottom:6px;">' + (window.escapeHtml ? window.escapeHtml(title) : title) + '</div>'
         + '<div style="font-size:0.8rem;color:rgba(255,255,255,0.5);line-height:1.5;font-style:italic;">"' + (window.escapeHtml ? window.escapeHtml(intro.substring(0, 120)) : intro.substring(0, 120)) + '…"</div>'
         + '</div>'
-        + '<button id="lv-ep-exam" style="width:100%;padding:13px;background:rgba(255,215,0,0.12);border:1.5px solid rgba(255,215,0,0.3);border-radius:14px;color:#ffd700;font-family:Cinzel,serif;font-weight:800;font-size:0.88rem;cursor:pointer;">⚔️ Passer le Grand Examen</button>'
+        + '<button id="lv-ep-exam" style="width:100%;padding:13px;background:rgba(255,138,91,0.12);border:1.5px solid rgba(255,138,91,0.3);border-radius:14px;color:#ff8a5b;font-family:var(--font-display);font-weight:800;font-size:0.88rem;cursor:pointer;">⚔️ Passer le Grand Examen</button>'
         + '<button id="lv-ep-chat" style="width:100%;padding:11px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:14px;color:rgba(255,255,255,0.5);font-size:0.8rem;cursor:pointer;">💬 Juste discuter</button>'
         + '</div>';
 
@@ -251,6 +252,7 @@
 
   // ── Détecter le module actif selon l'écran visible ──────────
   function _detectCurrentModule() {
+    if (document.getElementById('dlg-overlay')) return 'dialogue';   // le dialogue est une fenêtre superposée
     var screens = ['screen-vocab', 'screen-phrases', 'screen-grammar', 'screen-alphabet', 'screen-dialogue'];
     var map     = { 'screen-vocab': 'vocab', 'screen-phrases': 'phrases', 'screen-grammar': 'grammar', 'screen-alphabet': 'alphabet', 'screen-dialogue': 'dialogue' };
     for (var i = 0; i < screens.length; i++) {

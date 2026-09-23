@@ -319,7 +319,7 @@ window.LV_PHONEMES = (function() {
       .lv-phonetic {
         display:block;
         font-size:0.65em;
-        color:#4a9eff;
+        color:#5ab8ff;
         font-style:italic;
         letter-spacing:0.03em;
         margin-top:1px;
@@ -327,7 +327,7 @@ window.LV_PHONEMES = (function() {
       }
       .vi-item-phonetic {
         font-size:0.68rem;
-        color:#4a9eff;
+        color:#5ab8ff;
         font-style:italic;
         margin-left:6px;
       }

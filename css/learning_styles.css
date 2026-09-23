@@ -25,18 +25,18 @@
 }
 .vcat:hover, .pcat:hover, .gcat:hover {
   background: var(--sapphire-dim);
-  border-color: rgba(74,158,255,0.3);
+  border-color: rgba(90,184,255,0.3);
   color: var(--sapphire);
   transform: translateY(-1px);
 }
 .vcat.active, .pcat.active, .gcat.active {
   background: var(--sapphire-dim);
-  border-color: rgba(74,158,255,0.45);
+  border-color: rgba(90,184,255,0.45);
   color: var(--sapphire);
-  box-shadow: 0 0 0 1px rgba(74,158,255,0.15);
+  box-shadow: 0 0 0 1px rgba(90,184,255,0.15);
 }
 .cat-count {
-  background: rgba(74,158,255,0.15);
+  background: rgba(90,184,255,0.15);
   color: var(--sapphire);
   font-size: 0.62rem;
   font-weight: 800;
@@ -96,7 +96,7 @@
   transition: opacity var(--dur-fast);
 }
 .vocab-item:hover {
-  border-color: rgba(74,158,255,0.28);
+  border-color: rgba(90,184,255,0.28);
   transform: translateX(3px);
   box-shadow: 0 4px 20px rgba(0,0,0,0.4);
 }
@@ -123,7 +123,7 @@
   font-size: 0.62rem;
   font-weight: 700;
   color: var(--sapphire);
-  background: rgba(74,158,255,0.1);
+  background: rgba(90,184,255,0.1);
   padding: 2px 9px;
   border-radius: var(--r-pill);
 }
@@ -181,11 +181,11 @@
   border-right: none;
 }
 .vi-listen:hover {
-  background: rgba(74,158,255,0.08);
+  background: rgba(90,184,255,0.08);
   color: var(--sapphire);
 }
 .vi-practice:hover {
-  background: rgba(78,207,112,0.08);
+  background: rgba(55,214,165,0.08);
   color: var(--jade);
 }
 
@@ -289,12 +289,12 @@
   gap: 5px;
 }
 .pi-btn:first-child:hover {
-  background: rgba(74,158,255,0.1);
-  border-color: rgba(74,158,255,0.3);
+  background: rgba(90,184,255,0.1);
+  border-color: rgba(90,184,255,0.3);
   color: var(--sapphire);
 }
 .pi-btn:last-child:hover {
-  background: rgba(255,215,0,0.08);
+  background: rgba(255,138,91,0.08);
   border-color: var(--gold-trace);
   color: var(--gold-warm);
 }
@@ -336,8 +336,8 @@
 }
 .gram-tag {
   flex-shrink: 0;
-  background: rgba(192,132,252,0.12);
-  border: 1px solid rgba(192,132,252,0.25);
+  background: rgba(183,156,255,0.12);
+  border: 1px solid rgba(183,156,255,0.25);
   color: var(--amethyst);
   font-size: 0.65rem;
   font-weight: 800;
@@ -370,7 +370,7 @@
 }
 
 .gram-formula-card {
-  border-color: rgba(255,215,0,0.18);
+  border-color: rgba(255,138,91,0.18);
   background: var(--gold-glow);
 }
 .gram-formula {
@@ -399,7 +399,7 @@
   transition: all var(--dur-fast);
 }
 .gram-ex:hover {
-  border-color: rgba(192,132,252,0.25);
+  border-color: rgba(183,156,255,0.25);
   transform: translateX(2px);
 }
 
@@ -417,8 +417,8 @@
   font-family: var(--font-mono);
 }
 .gram-audio {
-  background: rgba(192,132,252,0.1);
-  border: 1px solid rgba(192,132,252,0.25);
+  background: rgba(183,156,255,0.1);
+  border: 1px solid rgba(183,156,255,0.25);
   border-radius: var(--r-pill);
   padding: 3px 11px;
   font-size: 0.65rem;
@@ -428,7 +428,7 @@
   transition: all var(--dur-fast);
 }
 .gram-audio:hover {
-  background: rgba(192,132,252,0.2);
+  background: rgba(183,156,255,0.2);
   transform: scale(1.04);
 }
 
@@ -513,7 +513,7 @@
 
 .dict-listen-btn {
   background: var(--sapphire-dim);
-  border: 1px solid rgba(74,158,255,0.3);
+  border: 1px solid rgba(90,184,255,0.3);
   border-radius: var(--r-pill);
   padding: 10px 20px;
   font-size: 0.82rem;
@@ -526,7 +526,7 @@
 }
 .dict-listen-btn:hover {
   transform: scale(1.04);
-  background: rgba(74,158,255,0.2);
+  background: rgba(90,184,255,0.2);
 }
 
 .dict-chips {

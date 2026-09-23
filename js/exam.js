@@ -370,16 +370,16 @@ window.LV_EXAM = (function () {
 
     var overlay = document.createElement('div');
     overlay.id  = 'lv-exam-overlay';
-    overlay.style.cssText = 'position:fixed;inset:0;z-index:8000;background:rgba(4,6,14,0.97);display:flex;flex-direction:column;animation:examFadeIn 0.25s ease;';
+    overlay.style.cssText = 'position:fixed;inset:0;z-index:8000;background:rgba(7,20,23,0.97);display:flex;flex-direction:column;animation:examFadeIn 0.25s ease;';
     overlay.innerHTML = '<style>@keyframes examFadeIn{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}</style>'
-      + '<div style="display:flex;align-items:center;gap:12px;padding:14px 16px;background:rgba(78,207,112,0.06);border-bottom:1px solid rgba(78,207,112,0.15);">'
-      + '<button onclick="window.LV_EXAM.close()" style="background:rgba(255,255,255,0.06);border:none;border-radius:50%;width:36px;height:36px;color:#e8e0d0;font-size:1rem;cursor:pointer;">✕</button>'
+      + '<div style="display:flex;align-items:center;gap:12px;padding:14px 16px;background:rgba(55,214,165,0.06);border-bottom:1px solid rgba(55,214,165,0.15);">'
+      + '<button onclick="window.LV_EXAM.close()" style="background:rgba(255,255,255,0.06);border:none;border-radius:50%;width:36px;height:36px;color:#eaf4f0;font-size:1rem;cursor:pointer;">✕</button>'
       + '<div style="font-size:1.4rem;">' + lesson.icon + '</div>'
       + '<div style="flex:1;">'
-      + '<div style="font-weight:800;font-size:0.95rem;color:#4ecf70;">' + (window.escapeHtml ? window.escapeHtml(title) : title) + '</div>'
+      + '<div style="font-weight:800;font-size:0.95rem;color:#37d6a5;">' + (window.escapeHtml ? window.escapeHtml(title) : title) + '</div>'
       + '<div style="font-size:0.68rem;color:rgba(255,255,255,0.35);">Évaluation · ' + _state.questions.length + ' questions</div>'
       + '</div></div>'
-      + '<div id="lv-exam-progress" style="height:3px;background:rgba(78,207,112,0.12);"><div id="lv-exam-progress-fill" style="height:100%;background:#4ecf70;width:0%;transition:width 0.4s ease;border-radius:2px;"></div></div>'
+      + '<div id="lv-exam-progress" style="height:3px;background:rgba(55,214,165,0.12);"><div id="lv-exam-progress-fill" style="height:100%;background:#37d6a5;width:0%;transition:width 0.4s ease;border-radius:2px;"></div></div>'
       + '<div id="lv-exam-body" style="flex:1;overflow-y:auto;padding:20px 16px;display:flex;flex-direction:column;gap:14px;"></div>'
       + '<div id="lv-exam-footer" style="padding:12px 16px;padding-bottom:max(12px,env(safe-area-inset-bottom));border-top:1px solid rgba(255,255,255,0.06);"></div>';
 
@@ -400,32 +400,32 @@ window.LV_EXAM = (function () {
 
     // NPC data
     var npcData = {
-      elder:    { name: 'Grand-père Koffi', emoji: '👴', color: '#4a9eff' },
-      teacher:  { name: 'Mme Dupont',       emoji: '👩‍🏫', color: '#4ecf70' },
-      director: { name: 'Réalisateur Félix',emoji: '🎥',  color: '#c084fc' },
+      elder:    { name: 'Grand-père Koffi', emoji: '👴', color: '#5ab8ff' },
+      teacher:  { name: 'Mme Dupont',       emoji: '👩‍🏫', color: '#37d6a5' },
+      director: { name: 'Réalisateur Félix',emoji: '🎥',  color: '#b79cff' },
     };
-    var npc = npcData[exam.examinerNPC] || { name: exam.examinerNPC, emoji: '🧑', color: '#ffd700' };
+    var npc = npcData[exam.examinerNPC] || { name: exam.examinerNPC, emoji: '🧑', color: '#ff8a5b' };
 
     var overlay = document.createElement('div');
     overlay.id  = 'lv-exam-overlay';
-    overlay.style.cssText = 'position:fixed;inset:0;z-index:8000;background:rgba(4,6,14,0.97);display:flex;flex-direction:column;animation:examFadeIn 0.25s ease;';
+    overlay.style.cssText = 'position:fixed;inset:0;z-index:8000;background:rgba(7,20,23,0.97);display:flex;flex-direction:column;animation:examFadeIn 0.25s ease;';
     overlay.innerHTML = '<style>@keyframes examFadeIn{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}</style>'
-      + '<div style="display:flex;align-items:center;gap:12px;padding:14px 16px;background:rgba(255,215,0,0.05);border-bottom:1px solid rgba(255,215,0,0.15);">'
-      + '<button onclick="window.LV_EXAM.close()" style="background:rgba(255,255,255,0.06);border:none;border-radius:50%;width:36px;height:36px;color:#e8e0d0;font-size:1rem;cursor:pointer;">✕</button>'
+      + '<div style="display:flex;align-items:center;gap:12px;padding:14px 16px;background:rgba(255,138,91,0.05);border-bottom:1px solid rgba(255,138,91,0.15);">'
+      + '<button onclick="window.LV_EXAM.close()" style="background:rgba(255,255,255,0.06);border:none;border-radius:50%;width:36px;height:36px;color:#eaf4f0;font-size:1rem;cursor:pointer;">✕</button>'
       + '<div style="font-size:1.6rem;">' + npc.emoji + '</div>'
       + '<div style="flex:1;">'
-      + '<div style="font-family:Cinzel,serif;font-weight:800;font-size:0.9rem;color:#ffd700;">🏆 Grand Examen</div>'
+      + '<div style="font-family:var(--font-display);font-weight:800;font-size:0.9rem;color:#ff8a5b;">🏆 Grand Examen</div>'
       + '<div style="font-size:0.68rem;color:rgba(255,255,255,0.35);">' + npc.name + ' · ' + _state.questions.length + ' questions</div>'
       + '</div></div>'
       + '<div style="flex:1;overflow-y:auto;padding:24px 20px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;text-align:center;">'
       + '<div style="font-size:4rem;">🏛️</div>'
-      + '<div style="font-family:Cinzel,serif;font-size:1.1rem;font-weight:700;color:#ffd700;line-height:1.4;">' + (window.escapeHtml ? window.escapeHtml(title) : title) + '</div>'
-      + '<div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,215,0,0.12);border-radius:16px;padding:16px 20px;max-width:360px;">'
+      + '<div style="font-family:var(--font-display);font-size:1.1rem;font-weight:700;color:#ff8a5b;line-height:1.4;">' + (window.escapeHtml ? window.escapeHtml(title) : title) + '</div>'
+      + '<div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,138,91,0.12);border-radius:16px;padding:16px 20px;max-width:360px;">'
       + '<div style="font-size:1.5rem;margin-bottom:8px;">' + npc.emoji + '</div>'
-      + '<div style="font-size:0.85rem;color:#e8e0d0;line-height:1.6;font-style:italic;">"' + (window.escapeHtml ? window.escapeHtml(intro) : intro) + '"</div>'
+      + '<div style="font-size:0.85rem;color:#eaf4f0;line-height:1.6;font-style:italic;">"' + (window.escapeHtml ? window.escapeHtml(intro) : intro) + '"</div>'
       + '</div>'
       + '<div style="font-size:0.75rem;color:rgba(255,255,255,0.35);">Score minimum requis : ' + exam.passingScore + '%</div>'
-      + '<button id="lv-grand-exam-start" style="background:linear-gradient(135deg,#ffd700,#ff9f43);border:none;border-radius:16px;padding:14px 32px;font-family:Cinzel,serif;font-weight:800;font-size:0.95rem;color:#000;cursor:pointer;letter-spacing:0.05em;">⚔️ Commencer l\'Examen</button>'
+      + '<button id="lv-grand-exam-start" style="background:linear-gradient(135deg,#ff8a5b,#ffc15a);border:none;border-radius:16px;padding:14px 32px;font-family:var(--font-display);font-weight:800;font-size:0.95rem;color:#000;cursor:pointer;letter-spacing:0.05em;">⚔️ Commencer l\'Examen</button>'
       + '</div>';
 
     document.body.appendChild(overlay);
@@ -439,8 +439,8 @@ window.LV_EXAM = (function () {
       // Ajouter le header de progression
       var prog = document.createElement('div');
       prog.id  = 'lv-exam-progress';
-      prog.style.cssText = 'height:3px;background:rgba(255,215,0,0.12);';
-      prog.innerHTML = '<div id="lv-exam-progress-fill" style="height:100%;background:#ffd700;width:0%;transition:width 0.4s ease;border-radius:2px;"></div>';
+      prog.style.cssText = 'height:3px;background:rgba(255,138,91,0.12);';
+      prog.innerHTML = '<div id="lv-exam-progress-fill" style="height:100%;background:#ff8a5b;width:0%;transition:width 0.4s ease;border-radius:2px;"></div>';
       overlay.insertBefore(prog, body);
       // Footer
       var footer = document.createElement('div');
@@ -488,7 +488,7 @@ window.LV_EXAM = (function () {
 
     // Texte de la question
     var qText = document.createElement('div');
-    qText.style.cssText = 'font-size:1rem;font-weight:700;color:#f0e8d0;line-height:1.5;';
+    qText.style.cssText = 'font-size:1rem;font-weight:700;color:#eaf4f0;line-height:1.5;';
     qText.textContent   = q.question;
     body.appendChild(qText);
 
@@ -496,7 +496,7 @@ window.LV_EXAM = (function () {
     if (q.type === 'mcq' || q.type === 'comprehension') {
       q.choices.forEach(function (choice, ci) {
         var btn = document.createElement('button');
-        btn.style.cssText = 'display:block;width:100%;padding:13px 16px;margin:4px 0;background:rgba(255,255,255,0.04);border:1.5px solid rgba(255,255,255,0.09);border-radius:14px;color:#e8e0d0;font-size:0.88rem;font-weight:600;text-align:left;cursor:pointer;transition:all 0.15s;-webkit-tap-highlight-color:transparent;';
+        btn.style.cssText = 'display:block;width:100%;padding:13px 16px;margin:4px 0;background:rgba(255,255,255,0.04);border:1.5px solid rgba(255,255,255,0.09);border-radius:14px;color:#eaf4f0;font-size:0.88rem;font-weight:600;text-align:left;cursor:pointer;transition:all 0.15s;-webkit-tap-highlight-color:transparent;';
         btn.textContent = choice;
         btn.onclick = function () { _submitAnswer(ci, btn, q); };
         body.appendChild(btn);
@@ -505,12 +505,12 @@ window.LV_EXAM = (function () {
     } else if (q.type === 'free_text' || q.type === 'free_dialogue') {
       var ta = document.createElement('textarea');
       ta.id  = 'lv-exam-textarea';
-      ta.style.cssText = 'width:100%;min-height:100px;background:rgba(255,255,255,0.06);border:1.5px solid rgba(255,215,0,0.2);border-radius:14px;padding:12px 14px;color:#f0e8d0;font-size:0.9rem;resize:none;outline:none;box-sizing:border-box;';
+      ta.style.cssText = 'width:100%;min-height:100px;background:rgba(255,255,255,0.06);border:1.5px solid rgba(255,138,91,0.2);border-radius:14px;padding:12px 14px;color:#eaf4f0;font-size:0.9rem;resize:none;outline:none;box-sizing:border-box;';
       ta.placeholder   = q.type === 'free_dialogue' ? 'Tapez votre réponse en ' + ((window.LANG_NAMES && window.LANG_NAMES[(window.S && window.S.targetLang)]) || 'la langue cible') + '...' : 'Répondez ici...';
       body.appendChild(ta);
 
       var submitBtn = document.createElement('button');
-      submitBtn.style.cssText = 'width:100%;padding:13px;background:rgba(255,215,0,0.12);border:1.5px solid rgba(255,215,0,0.25);border-radius:14px;color:#ffd700;font-weight:800;font-size:0.9rem;cursor:pointer;margin-top:4px;';
+      submitBtn.style.cssText = 'width:100%;padding:13px;background:rgba(255,138,91,0.12);border:1.5px solid rgba(255,138,91,0.25);border-radius:14px;color:#ff8a5b;font-weight:800;font-size:0.9rem;cursor:pointer;margin-top:4px;';
       submitBtn.textContent   = '✅ Valider';
       submitBtn.onclick = function () {
         var val = ta.value.trim();
@@ -533,9 +533,9 @@ window.LV_EXAM = (function () {
 
     var correct = choiceIdx === q.correct;
     btn.style.opacity = '1';
-    btn.style.background    = correct ? 'rgba(78,207,112,0.18)' : 'rgba(255,80,80,0.14)';
-    btn.style.borderColor   = correct ? '#4ecf70' : '#ff5050';
-    btn.style.color         = correct ? '#4ecf70' : '#ff7070';
+    btn.style.background    = correct ? 'rgba(55,214,165,0.18)' : 'rgba(255,93,115,0.14)';
+    btn.style.borderColor   = correct ? '#37d6a5' : '#ff5d73';
+    btn.style.color         = correct ? '#37d6a5' : '#ff8a99';
 
     if (correct) {
       _state.score += q.points;
@@ -547,7 +547,7 @@ window.LV_EXAM = (function () {
     // Montrer la bonne réponse si mauvaise
     if (!correct && q.choices) {
       allBtns.forEach(function (b, i) {
-        if (i === q.correct) { b.style.opacity = '1'; b.style.background = 'rgba(78,207,112,0.12)'; b.style.borderColor = '#4ecf70'; b.style.color = '#4ecf70'; }
+        if (i === q.correct) { b.style.opacity = '1'; b.style.background = 'rgba(55,214,165,0.12)'; b.style.borderColor = '#37d6a5'; b.style.color = '#37d6a5'; }
       });
     }
 
@@ -620,25 +620,25 @@ window.LV_EXAM = (function () {
 
     // Emoji résultat
     var emoji  = pct >= 90 ? '🏆' : pct >= 75 ? '⭐' : pct >= passingScore ? '✅' : '📚';
-    var color  = passed ? '#4ecf70' : '#ff9f43';
+    var color  = passed ? '#37d6a5' : '#ffc15a';
     var msgs   = passed
       ? { fr: 'Félicitations !', en: 'Congratulations!', es: '¡Felicitaciones!', ht: 'Felisitasyon!', de: 'Herzlichen Glückwunsch!', ru: 'Поздравляю!', zh: '恭喜！', ja: 'おめでとうございます！' }
       : { fr: 'Continuez vos efforts !', en: 'Keep practicing!', es: '¡Sigue practicando!', ht: 'Kontinye pratike!', de: 'Weiter üben!', ru: 'Продолжайте практиковаться!', zh: '继续加油！', ja: '練習を続けましょう！' };
 
     body.innerHTML = '<div style="display:flex;flex-direction:column;align-items:center;text-align:center;gap:16px;padding:20px 0;">'
       + '<div style="font-size:4rem;">' + emoji + '</div>'
-      + '<div style="font-family:Cinzel,serif;font-size:1.4rem;font-weight:700;color:' + color + ';">' + (msgs[nl] || msgs.fr) + '</div>'
+      + '<div style="font-family:var(--font-display);font-size:1.4rem;font-weight:700;color:' + color + ';">' + (msgs[nl] || msgs.fr) + '</div>'
       + '<div style="font-size:3rem;font-weight:900;color:' + color + ';">' + pct + '%</div>'
       + '<div style="font-size:0.8rem;color:rgba(255,255,255,0.35);">' + _state.score + ' / ' + _state.maxScore + ' points</div>'
       + '<div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:12px 20px;font-size:0.8rem;color:rgba(255,255,255,0.5);">'
       + (passed ? '✅ Réussi — Score minimum : ' + passingScore + '%' : '📚 Score minimum requis : ' + passingScore + '% — Continuez à pratiquer !')
       + '</div>'
-      + (passed && _state.type === 'grand_exam' ? '<div style="background:rgba(255,215,0,0.08);border:1px solid rgba(255,215,0,0.2);border-radius:14px;padding:12px 20px;font-size:0.82rem;color:#ffd700;font-weight:700;">🔓 Niveau suivant débloqué !</div>' : '')
+      + (passed && _state.type === 'grand_exam' ? '<div style="background:rgba(255,138,91,0.08);border:1px solid rgba(255,138,91,0.2);border-radius:14px;padding:12px 20px;font-size:0.82rem;color:#ff8a5b;font-weight:700;">🔓 Niveau suivant débloqué !</div>' : '')
       + '</div>';
 
     footer.innerHTML = '';
     var closeBtn = document.createElement('button');
-    closeBtn.style.cssText = 'width:100%;padding:14px;background:' + (passed ? 'rgba(78,207,112,0.12)' : 'rgba(255,255,255,0.06)') + ';border:1.5px solid ' + (passed ? 'rgba(78,207,112,0.3)' : 'rgba(255,255,255,0.1)') + ';border-radius:16px;color:' + (passed ? '#4ecf70' : '#e8e0d0') + ';font-weight:800;font-size:0.9rem;cursor:pointer;';
+    closeBtn.style.cssText = 'width:100%;padding:14px;background:' + (passed ? 'rgba(55,214,165,0.12)' : 'rgba(255,255,255,0.06)') + ';border:1.5px solid ' + (passed ? 'rgba(55,214,165,0.3)' : 'rgba(255,255,255,0.1)') + ';border-radius:16px;color:' + (passed ? '#37d6a5' : '#eaf4f0') + ';font-weight:800;font-size:0.9rem;cursor:pointer;';
     closeBtn.textContent = passed ? '🎉 Continuer' : '📚 Repratiquer';
     closeBtn.onclick = function () {
       close();
@@ -650,7 +650,7 @@ window.LV_EXAM = (function () {
 
     if (!passed) {
       var retryBtn = document.createElement('button');
-      retryBtn.style.cssText = 'width:100%;padding:12px;background:transparent;border:1px solid rgba(255,215,0,0.15);border-radius:16px;color:#ffd700;font-size:0.82rem;cursor:pointer;margin-top:8px;';
+      retryBtn.style.cssText = 'width:100%;padding:12px;background:transparent;border:1px solid rgba(255,138,91,0.15);border-radius:16px;color:#ff8a5b;font-size:0.82rem;cursor:pointer;margin-top:8px;';
       retryBtn.textContent = '🔄 Réessayer';
       retryBtn.onclick = function () {
         if (_state.type === 'lesson_eval') openLessonEval(_state.levelId, _state.lessonId);

@@ -305,13 +305,13 @@ function openCinema() {
     var safeD = escapeHtml(v.desc  || '');
     var safeLv= escapeHtml(v.level || '');
     html += '<div class="cinema-card" data-vidx="' + idx + '"'
-      + ' style="display:flex;align-items:center;gap:12px;padding:14px;background:rgba(224,64,251,0.06);'
-      + 'border:1px solid rgba(224,64,251,0.18);border-radius:14px;cursor:pointer;transition:all 0.2s;margin-bottom:10px;">'
+      + ' style="display:flex;align-items:center;gap:12px;padding:14px;background:rgba(255,126,182,0.06);'
+      + 'border:1px solid rgba(255,126,182,0.18);border-radius:14px;cursor:pointer;transition:all 0.2s;margin-bottom:10px;">'
       + '<div style="font-size:2rem;flex-shrink:0;">' + (v.thumb||'🎬') + '</div>'
       + '<div style="flex:1;min-width:0;">'
-      + '<div style="font-weight:800;font-size:0.88rem;color:#e040fb;margin-bottom:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + safeT + '</div>'
+      + '<div style="font-weight:800;font-size:0.88rem;color:#ff7eb6;margin-bottom:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + safeT + '</div>'
       + '<div style="font-size:0.72rem;color:var(--dim);margin-bottom:5px;">' + safeD + '</div>'
-      + '<span style="font-size:0.65rem;font-weight:700;background:rgba(224,64,251,0.12);color:#e040fb;padding:2px 8px;border-radius:8px;">' + safeLv + '</span>'
+      + '<span style="font-size:0.65rem;font-weight:700;background:rgba(255,126,182,0.12);color:#ff7eb6;padding:2px 8px;border-radius:8px;">' + safeLv + '</span>'
       + '</div>'
       + '<div style="flex-shrink:0;font-size:1.5rem;">▶</div>'
       + '</div>';

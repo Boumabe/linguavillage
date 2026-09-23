@@ -102,7 +102,7 @@ var SOCIAL_RANKS = [
                es:'Tienes tu propia habitación. Los vecinos te saludan por tu nombre.',
                ht:'Ou gen chanm pa ou. Vwazen yo salye ou pa non ou.'},
     unlocks:  ['residential_quarter','library','school_district'],
-    color:    '#4ecf70',
+    color:    '#37d6a5',
     ceremony: true,
   },
   {
@@ -115,7 +115,7 @@ var SOCIAL_RANKS = [
                es:'Tienes tu tarjeta de residente. Puedes votar, trabajar, atestiguar.',
                ht:'Ou gen kat rezidans ou. Ou ka vote, travay, temwaye.'},
     unlocks:  ['city_hall','courthouse','artisan_quarter','north_forest'],
-    color:    '#4a9eff',
+    color:    '#5ab8ff',
     ceremony: true,
   },
   {
@@ -128,7 +128,7 @@ var SOCIAL_RANKS = [
                es:'Negocias, intercambias, construyes lazos económicos por todo el país.',
                ht:'Ou negosye, ou echanje, ou bati lyen ekonomik atravè peyi a.'},
     unlocks:  ['trade_port','mountain_pass','southern_village'],
-    color:    '#ff9f43',
+    color:    '#ffc15a',
     ceremony: true,
   },
   {
@@ -141,7 +141,7 @@ var SOCIAL_RANKS = [
                es:'El gobernador te consulta. Tus palabras influyen en las decisiones de la ciudad.',
                ht:'Gouvènè a konsulte ou. Mo ou yo enfliyanse desizyon vil la.'},
     unlocks:  ['governors_palace','ancient_ruins','mountain_peak'],
-    color:    '#e040fb',
+    color:    '#ff7eb6',
     ceremony: true,
   },
   {
@@ -154,7 +154,7 @@ var SOCIAL_RANKS = [
                es:'Representas a Lingoria en las negociaciones internacionales.',
                ht:'Ou reprezante Lingoria nan negosyasyon entènasyonal.'},
     unlocks:  ['embassy_row','lighthouse_isle','capital_spire'],
-    color:    '#ffd700',
+    color:    '#ff8a5b',
     ceremony: true,
   },
   {
@@ -167,7 +167,7 @@ var SOCIAL_RANKS = [
                es:'Lingoria te considera uno de los suyos. Tu voz es la voz de la ciudad.',
                ht:'Lingoria konsidere ou youn nan pa yo. Vwa ou se vwa vil la.'},
     unlocks:  ['all'],
-    color:    '#ff6b6b',
+    color:    '#ff6b7f',
     ceremony: true,
   },
 ];
@@ -188,7 +188,7 @@ var WORLD_MAP = {
              ht:'Premye souf Lingoria. Pò a plen ak lang melanje.'},
       ambiance: 'coastal',
       emoji: '⚓',
-      color: '#4a9eff',
+      color: '#5ab8ff',
       xMin:0.05, yMin:0.75, xMax:0.35, yMax:0.95,
       requiredRank: 'stranger',
       locations: [
@@ -211,7 +211,7 @@ var WORLD_MAP = {
              ht:'Lavi chak jou Lingoria. Isit, chak ri gen pwòp istwa pa li.'},
       ambiance: 'village',
       emoji: '🏘️',
-      color: '#4ecf70',
+      color: '#37d6a5',
       xMin:0.25, yMin:0.50, xMax:0.60, yMax:0.80,
       requiredRank: 'stranger',
       locations: [
@@ -238,7 +238,7 @@ var WORLD_MAP = {
              ht:'Atelye yo santi bwa ak fòj. Chak atizán gen teknik sekrè pa li.'},
       ambiance: 'workshop',
       emoji: '⚒️',
-      color: '#ff9f43',
+      color: '#ffc15a',
       xMin:0.55, yMin:0.55, xMax:0.85, yMax:0.80,
       requiredRank: 'citizen',
       locations: [
@@ -284,7 +284,7 @@ var WORLD_MAP = {
              ht:'Bato soti toupatou vin kanpe isit. Se isit tout bagay ap negosye.'},
       ambiance: 'trading',
       emoji: '🚢',
-      color: '#4a9eff',
+      color: '#5ab8ff',
       xMin:0.05, yMin:0.40, xMax:0.30, yMax:0.70,
       requiredRank: 'merchant',
       locations: [
@@ -326,7 +326,7 @@ var WORLD_MAP = {
              ht:'Kè politik Lingoria. Isit, mo yo gen yon pwa reyèl.'},
       ambiance: 'capital',
       emoji: '🏛️',
-      color: '#ffd700',
+      color: '#ff8a5b',
       xMin:0.30, yMin:0.48, xMax:0.60, yMax:0.52,
       requiredRank: 'counselor',
       locations: [
@@ -521,17 +521,17 @@ function _triggerRankUpCeremony(rank, nl) {
 
   overlay.innerHTML = [
     '<div style="text-align:center;padding:32px 24px;max-width:340px;">',
-    '<div style="font-size:0.7rem;font-weight:800;letter-spacing:0.20em;color:rgba(255,215,0,0.6);',
+    '<div style="font-size:0.7rem;font-weight:800;letter-spacing:0.20em;color:rgba(255,138,91,0.6);',
     'text-transform:uppercase;margin-bottom:12px;">LINGORIA VOUS RECONNAÎT</div>',
     '<div style="font-size:5rem;margin-bottom:16px;animation:rankSpin 0.8s cubic-bezier(0.22,1,0.36,1)">'+rank.icon+'</div>',
-    '<div style="font-family:Cinzel,serif;font-size:1.8rem;font-weight:900;color:'+rank.color+';',
+    '<div style="font-family:var(--font-display);font-size:1.8rem;font-weight:900;color:'+rank.color+';',
     'text-shadow:0 0 30px '+rank.color+';margin-bottom:10px;">'+rankLabel+'</div>',
     '<div style="font-size:0.88rem;color:rgba(255,255,255,0.65);line-height:1.6;margin-bottom:20px;">'+rankDesc+'</div>',
-    '<div style="font-size:0.72rem;color:#4ecf70;background:rgba(78,207,112,0.1);border:1px solid rgba(78,207,112,0.3);',
+    '<div style="font-size:0.72rem;color:#37d6a5;background:rgba(55,214,165,0.1);border:1px solid rgba(55,214,165,0.3);',
     'border-radius:12px;padding:8px 16px;margin-bottom:24px;">🗺️ '+unlockMsg+'</div>',
     '<button onclick="document.getElementById(\'rank-ceremony\').remove()" ',
     'style="background:'+rank.color+';border:none;border-radius:16px;padding:14px 36px;',
-    'font-family:Cinzel,serif;font-weight:800;font-size:0.92rem;color:#000;cursor:pointer;',
+    'font-family:var(--font-display);font-weight:800;font-size:0.92rem;color:#000;cursor:pointer;',
     'box-shadow:0 4px 24px '+rank.color+'66;">✨ Explorer</button>',
     '</div>',
   ].join('');
@@ -565,7 +565,7 @@ function openWorldMap() {
   overlay.id  = 'world-map-overlay';
   overlay.style.cssText = [
     'position:fixed;inset:0;z-index:9500;',
-    'background:#060c1a;',
+    'background:#06161a;',
     'display:flex;flex-direction:column;',
     'animation:mapFadeIn 0.35s ease;',
   ].join('');
@@ -576,8 +576,8 @@ function openWorldMap() {
     + 'background:rgba(255,255,255,0.03);border-bottom:1px solid rgba(255,255,255,0.07);flex-shrink:0;';
   header.innerHTML = '<button onclick="document.getElementById(\'world-map-overlay\').remove()" '
     + 'style="background:rgba(255,255,255,0.08);border:none;border-radius:50%;width:36px;height:36px;'
-    + 'color:#e8e0d0;font-size:1rem;cursor:pointer;flex-shrink:0;">✕</button>'
-    + '<div><div style="font-family:Cinzel,serif;font-size:1rem;font-weight:700;color:#ffd700;">🗺️ LINGORIA</div>'
+    + 'color:#eaf4f0;font-size:1rem;cursor:pointer;flex-shrink:0;">✕</button>'
+    + '<div><div style="font-family:var(--font-display);font-size:1rem;font-weight:700;color:#ff8a5b;">🗺️ LINGORIA</div>'
     + '<div style="font-size:0.68rem;color:rgba(255,255,255,0.35);margin-top:1px;">'
     + rank.icon + ' ' + (rank.label[nl]||rank.label.fr) + ' · ' + xp + ' XP</div></div>';
 
@@ -591,7 +591,7 @@ function openWorldMap() {
   infoPanel.id  = 'map-info-panel';
   infoPanel.style.cssText = [
     'flex-shrink:0;padding:12px 16px;',
-    'background:rgba(6,12,26,0.98);',
+    'background:rgba(6,22,26,0.98);',
     'border-top:1px solid rgba(255,255,255,0.07);',
     'min-height:64px;transition:all 0.3s ease;',
   ].join('');
@@ -629,13 +629,13 @@ function _renderMap(canvas, xp, nl, rank, infoPanel) {
 
   // ── Fond : océan ──
   var ocean = ctx.createLinearGradient(0, 0, W, H);
-  ocean.addColorStop(0, '#060c1a');
+  ocean.addColorStop(0, '#06161a');
   ocean.addColorStop(1, '#0a1628');
   ctx.fillStyle = ocean;
   ctx.fillRect(0, 0, W, H);
 
   // Grille d'eau subtile
-  ctx.strokeStyle = 'rgba(74,158,255,0.06)';
+  ctx.strokeStyle = 'rgba(90,184,255,0.06)';
   ctx.lineWidth   = 0.5;
   for (var gx = 0; gx < W; gx += 40) {
     ctx.beginPath(); ctx.moveTo(gx,0); ctx.lineTo(gx,H); ctx.stroke();
@@ -647,7 +647,7 @@ function _renderMap(canvas, xp, nl, rank, infoPanel) {
   // ── Île principale (forme organique) ──
   ctx.save();
   ctx.fillStyle = '#1a3a1a';
-  ctx.shadowColor = 'rgba(78,207,112,0.15)';
+  ctx.shadowColor = 'rgba(55,214,165,0.15)';
   ctx.shadowBlur  = 30;
   ctx.beginPath();
   ctx.moveTo(W*0.04, H*0.50);
@@ -660,7 +660,7 @@ function _renderMap(canvas, xp, nl, rank, infoPanel) {
   ctx.restore();
 
   // Contour de l'île
-  ctx.strokeStyle = 'rgba(78,207,112,0.25)';
+  ctx.strokeStyle = 'rgba(55,214,165,0.25)';
   ctx.lineWidth   = 1.5;
   ctx.stroke();
 
@@ -675,7 +675,7 @@ function _renderMap(canvas, xp, nl, rank, infoPanel) {
     var ty = ((toReg.yMin   + toReg.yMax)/2)    * H;
     ctx.save();
     ctx.strokeStyle = route.type === 'boulevard'
-      ? 'rgba(255,215,0,0.30)'
+      ? 'rgba(255,138,91,0.30)'
       : route.type === 'mountain_road'
       ? 'rgba(180,180,180,0.20)'
       : 'rgba(200,170,100,0.22)';
@@ -747,7 +747,7 @@ function _renderMap(canvas, xp, nl, rank, infoPanel) {
   // Nom du pays en titre
   ctx.save();
   ctx.font        = 'bold ' + Math.round(W*0.045) + 'px Cinzel,serif';
-  ctx.fillStyle   = 'rgba(255,215,0,0.18)';
+  ctx.fillStyle   = 'rgba(255,138,91,0.18)';
   ctx.textAlign   = 'center';
   ctx.textBaseline= 'top';
   ctx.fillText('LINGORIA', W/2, H*0.02);
@@ -787,7 +787,7 @@ function _onRegionTap(region, unlocked, nl, xp, infoPanel) {
     infoPanel.innerHTML = '<div style="display:flex;align-items:center;gap:12px;">'
       + '<div style="font-size:2rem">' + region.emoji + '</div>'
       + '<div><div style="font-weight:800;font-size:0.92rem;color:#fff">' + name + '</div>'
-      + '<div style="font-size:0.72rem;color:#ff9f43;margin-top:3px;">🔒 ' + lockedMsg + reqLabel + '</div></div></div>';
+      + '<div style="font-size:0.72rem;color:#ffc15a;margin-top:3px;">🔒 ' + lockedMsg + reqLabel + '</div></div></div>';
     return;
   }
 
@@ -831,7 +831,7 @@ function playIntroStory(nativeLang, onComplete) {
 
   var textEl = document.createElement('div');
   textEl.style.cssText = [
-    'font-family:Cinzel,serif;font-size:clamp(1rem,4vw,1.4rem);',
+    'font-family:var(--font-display);font-size:clamp(1rem,4vw,1.4rem);',
     'color:rgba(255,255,255,0.85);text-align:center;',
     'max-width:320px;line-height:1.8;padding:24px;',
     'opacity:0;transition:opacity 0.8s ease;',

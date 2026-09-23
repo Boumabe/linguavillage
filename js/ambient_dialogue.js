@@ -183,7 +183,7 @@ window.LV_AMBIENT = (function () {
     // Bulle arrondie
     var r = 14 * dpr;
     ctx2.fillStyle = 'rgba(20,20,30,0.88)';
-    ctx2.strokeStyle = 'rgba(255,215,0,0.4)';
+    ctx2.strokeStyle = 'rgba(255,138,91,0.4)';
     ctx2.lineWidth = 2 * dpr;
     ctx2.beginPath();
     ctx2.moveTo(r, 0);
@@ -195,7 +195,7 @@ window.LV_AMBIENT = (function () {
     ctx2.fill();
     ctx2.stroke();
 
-    ctx2.fillStyle = '#f0e8d0';
+    ctx2.fillStyle = '#eaf4f0';
     ctx2.textAlign = 'center';
     ctx2.textBaseline = 'middle';
     lines.forEach(function (line, i) {

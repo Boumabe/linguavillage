@@ -324,7 +324,7 @@ function _renderAlphaScreen(lang, nativeLang, data) {
     var lbl = (group.label && (group.label[nl] || group.label.fr)) || '';
     var sec = document.createElement('div');
     sec.style.marginBottom = '20px';
-    sec.innerHTML = '<div class="vocab-cat-label" style="font-size:0.68rem;font-weight:800;color:rgba(255,215,0,0.55);letter-spacing:0.08em;margin-bottom:10px;text-transform:uppercase;padding:0 4px;">' + lbl + '</div>';
+    sec.innerHTML = '<div class="vocab-cat-label" style="font-size:0.68rem;font-weight:800;color:rgba(255,138,91,0.55);letter-spacing:0.08em;margin-bottom:10px;text-transform:uppercase;padding:0 4px;">' + lbl + '</div>';
     var grid = document.createElement('div');
     grid.style.cssText = 'display:grid;grid-template-columns:repeat(auto-fill,minmax(72px,1fr));gap:8px;';
     group.chars.forEach(function(ch) {
@@ -332,19 +332,19 @@ function _renderAlphaScreen(lang, nativeLang, data) {
       var card = document.createElement('div');
       card.style.cssText = [
         'display:flex;flex-direction:column;align-items:center;justify-content:center;',
-        'background:rgba(255,255,255,0.05);border:1.5px solid rgba(255,215,0,0.14);',
+        'background:rgba(255,255,255,0.05);border:1.5px solid rgba(255,138,91,0.14);',
         'border-radius:14px;padding:14px 6px;cursor:pointer;transition:all 0.18s;',
         '-webkit-tap-highlight-color:transparent;text-align:center;'
       ].join('');
       card.innerHTML = '<div style="font-size:1.9rem;line-height:1;margin-bottom:4px;">' + ch.c + '</div>'
-        + '<div style="font-size:0.70rem;font-weight:800;color:#ffd700;margin-bottom:3px;">' + ch.r + '</div>'
+        + '<div style="font-size:0.70rem;font-weight:800;color:#ff8a5b;margin-bottom:3px;">' + ch.r + '</div>'
         + '<div style="font-size:0.58rem;color:rgba(255,255,255,0.32);line-height:1.3;">' + mnem + '</div>';
       card.addEventListener('click', function() {
         _speak(ch.c, lang);
-        card.style.borderColor = '#4ecf70';
-        card.style.background  = 'rgba(78,207,112,0.10)';
+        card.style.borderColor = '#37d6a5';
+        card.style.background  = 'rgba(55,214,165,0.10)';
         setTimeout(function() {
-          card.style.borderColor = 'rgba(255,215,0,0.14)';
+          card.style.borderColor = 'rgba(255,138,91,0.14)';
           card.style.background  = 'rgba(255,255,255,0.05)';
         }, 700);
       });
@@ -358,7 +358,7 @@ function _renderAlphaScreen(lang, nativeLang, data) {
   var btnWrap = document.createElement('div');
   btnWrap.style.cssText = 'padding:12px 0 24px;';
   var btn = document.createElement('button');
-  btn.style.cssText = 'width:100%;padding:14px;background:rgba(255,215,0,0.08);border:1px solid rgba(255,215,0,0.25);border-radius:16px;color:#ffd700;font-weight:800;font-size:0.88rem;cursor:pointer;';
+  btn.style.cssText = 'width:100%;padding:14px;background:rgba(255,138,91,0.08);border:1px solid rgba(255,138,91,0.25);border-radius:16px;color:#ff8a5b;font-weight:800;font-size:0.88rem;cursor:pointer;';
   btn.textContent = ui('see_mnemo', nl);
   btn.onclick = function() { openMnemonics(lang, nl); };
   btnWrap.appendChild(btn);
@@ -390,11 +390,11 @@ function _renderMnemoScreen(lang, nativeLang) {
       + '<div style="font-size:1.8rem;line-height:1;">' + item.word + '</div>'
       + '<div style="flex:1;">'
       + '<div style="font-size:0.78rem;color:rgba(255,255,255,0.40);margin-bottom:1px;">' + item.roman + '</div>'
-      + '<div style="font-weight:800;font-size:0.92rem;color:#e8e0d0;">→ ' + meaning + '</div>'
+      + '<div style="font-weight:800;font-size:0.92rem;color:#eaf4f0;">→ ' + meaning + '</div>'
       + '</div>'
-      + '<div style="font-size:1.2rem;color:rgba(255,215,0,0.4);">🔊</div>'
+      + '<div style="font-size:1.2rem;color:rgba(255,138,91,0.4);">🔊</div>'
       + '</div>'
-      + '<div style="margin-top:10px;padding:10px 12px;background:rgba(78,207,112,0.07);border-left:3px solid #4ecf70;border-radius:0 10px 10px 0;font-size:0.82rem;color:#4ecf70;line-height:1.5;">' + tip + '</div>';
+      + '<div style="margin-top:10px;padding:10px 12px;background:rgba(55,214,165,0.07);border-left:3px solid #37d6a5;border-radius:0 10px 10px 0;font-size:0.82rem;color:#37d6a5;line-height:1.5;">' + tip + '</div>';
     card.addEventListener('click', function() { _speak(item.word, lang); });
     bodyEl.appendChild(card);
   });
