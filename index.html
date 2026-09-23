@@ -2,17 +2,22 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <meta name="theme-color" content="#06080e">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#071417">
   <meta name="mobile-web-app-capable" content="yes">
+  <meta name="color-scheme" content="dark">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="description" content="Apprenez les langues en vivant — IA conversationnelle, village immersif, vocabulaire, grammaire.">
   <link rel="manifest" href="manifest.json">
+  <link rel="icon" type="image/png" sizes="48x48" href="icons/favicon-48.png">
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
   <title>LinguaVillage</title>
 
-  <!-- Typographie v2 : Cinzel + Sora + JetBrains Mono -->
-  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;900&family=Sora:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <!-- Typographie : Fraunces (titres) + Sora (interface). 2 familles, 5 graisses : léger, rendu immédiat (display=swap) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Sora:wght@400;500;600;700&display=swap" rel="stylesheet">
 
   <!-- Design system v2 -->
   <link rel="stylesheet" href="css/styles_v2.css">
@@ -22,18 +27,20 @@
   <link rel="stylesheet" href="css/world_styles.css">
   <!-- Styles Programme d'apprentissage / Évaluations / Grands Examens -->
   <link rel="stylesheet" href="css/program_styles.css">
+  <!-- Thème « Lagon » v3 : jetons de couleur, composants, dialogue, village — chargé EN DERNIER -->
+  <link rel="stylesheet" href="css/theme_v3.css">
 
   <style>
     /* ── Styles de secours critiques — s'appliquent avant le CSS externe ── */
-    .screen { display:none; position:fixed; inset:0; overflow-y:auto; background:#090c15; flex-direction:column; }
+    .screen { display:none; position:fixed; top:0; right:0; bottom:0; left:0; overflow-y:auto; background:#0a1b1f; flex-direction:column; }
     .screen.active { display:flex; }
-    #screen-village { overflow:hidden !important; display:none; flex-direction:column; height:100dvh; height:100vh; max-height:100dvh; }
+    #screen-village { overflow:hidden !important; display:none; flex-direction:column; height:100vh; height:100dvh; }
     #screen-village.active { display:flex; }
     #screen-village .village-canvas-wrap { flex:1 1 0; min-height:0; position:relative; overflow:hidden; }
     #screen-village #villageCanvas { display:block; width:100% !important; height:100% !important; touch-action:none; }
     /* Welcome fallback */
     #screen-welcome { align-items:center; justify-content:flex-start; overflow-y:auto;
-      background: radial-gradient(ellipse 80% 50% at 50% -10%, rgba(255,215,0,0.06) 0%, transparent 70%), #090c15; }
+      background: radial-gradient(ellipse 80% 50% at 50% -10%, rgba(255,138,91,0.06) 0%, transparent 70%), #0a1b1f; }
     /* Twinkle animation (utilisée par quote.js et welcome) */
     @keyframes twinkle { from { opacity:0.1; transform:scale(0.8); } to { opacity:0.9; transform:scale(1.2); } }
 
@@ -41,23 +48,23 @@
     #catDrawerOpen { display:none; flex-wrap:wrap; gap:6px; padding:4px 16px 12px; border-top:1px solid rgba(255,255,255,0.05); }
     #catDrawerClosed { display:flex; align-items:center; gap:10px; padding:10px 16px; cursor:pointer; background:rgba(255,255,255,0.02); border-bottom:1px solid rgba(255,255,255,0.06); transition:background 0.18s; }
     #catDrawerClosed:active { background:rgba(255,255,255,0.05); }
-    .vcat,.pcat,.gcat { display:inline-flex;align-items:center;gap:5px;background:#131928;border:1.5px solid rgba(255,255,255,0.07);border-radius:999px;padding:6px 12px;font-size:0.70rem;font-weight:700;color:#9B8E77;cursor:pointer;white-space:nowrap;transition:all 0.15s ease;-webkit-tap-highlight-color:transparent; }
-    .vcat.active,.pcat.active,.gcat.active { background:rgba(255,215,0,0.10);border-color:rgba(255,215,0,0.25);color:#E8B84B; }
+    .vcat,.pcat,.gcat { display:inline-flex;align-items:center;gap:5px;background:#163239;border:1.5px solid rgba(255,255,255,0.07);border-radius:999px;padding:6px 12px;font-size:0.70rem;font-weight:700;color:#8fb1ac;cursor:pointer;white-space:nowrap;transition:all 0.15s ease;-webkit-tap-highlight-color:transparent; }
+    .vcat.active,.pcat.active,.gcat.active { background:rgba(255,138,91,0.10);border-color:rgba(255,138,91,0.25);color:#ff9d75; }
     .cat-count { background:rgba(255,255,255,0.08);border-radius:8px;padding:1px 6px;font-size:0.60rem;font-weight:800; }
   </style>
 </head>
 
 <body>
 
-<!-- ── Debug bar (retirer en production) ───────────────────────── -->
-<div id="debug">✅ Chargement...</div>
+<!-- Barre de diagnostic : invisible sauf avec ?debug dans l'URL (voir core.js) -->
+<div id="debug" hidden></div>
 
 <!-- ── Notification toast ──────────────────────────────────────── -->
-<div id="notif"></div>
+<div id="notif" role="status" aria-live="polite"></div>
 
 <!-- ── Overlays globaux ────────────────────────────────────────── -->
 <div id="weatherOverlay"></div>
-<div id="wordPopup" style="position:fixed;background:#0e1322;border:1px solid rgba(255,215,0,0.3);border-radius:18px;padding:16px;display:none;z-index:10001;flex-direction:column;gap:8px;box-shadow:0 8px 40px rgba(0,0,0,0.7);backdrop-filter:blur(20px);"></div>
+<div id="wordPopup" style="position:fixed;background:#10262b;border:1px solid rgba(255,138,91,0.3);border-radius:18px;padding:16px;display:none;z-index:10001;flex-direction:column;gap:8px;box-shadow:0 8px 40px rgba(0,0,0,0.7);backdrop-filter:blur(20px);"></div>
 
 
 <!-- ================================================================
@@ -83,14 +90,14 @@
     <div class="input-group">
       <div class="step-label" id="lbl-native">🌍 Votre langue maternelle</div>
       <div class="lang-grid" id="nativeGrid">
-        <div class="lang-tile" data-native="fr"><span class="lf">🇫🇷</span><span class="ln">Français</span></div>
-        <div class="lang-tile" data-native="ht"><span class="lf">🇭🇹</span><span class="ln">Kreyòl</span></div>
-        <div class="lang-tile" data-native="en"><span class="lf">🇬🇧</span><span class="ln">English</span></div>
-        <div class="lang-tile" data-native="es"><span class="lf">🇪🇸</span><span class="ln">Español</span></div>
-        <div class="lang-tile" data-native="de"><span class="lf">🇩🇪</span><span class="ln">Deutsch</span></div>
-        <div class="lang-tile" data-native="ru"><span class="lf">🇷🇺</span><span class="ln">Русский</span></div>
-        <div class="lang-tile" data-native="zh"><span class="lf">🇨🇳</span><span class="ln">中文</span></div>
-        <div class="lang-tile" data-native="ja"><span class="lf">🇯🇵</span><span class="ln">日本語</span></div>
+        <div class="lang-tile" role="button" tabindex="0" data-native="fr"><span class="lf">🇫🇷</span><span class="ln">Français</span></div>
+        <div class="lang-tile" role="button" tabindex="0" data-native="ht"><span class="lf">🇭🇹</span><span class="ln">Kreyòl</span></div>
+        <div class="lang-tile" role="button" tabindex="0" data-native="en"><span class="lf">🇬🇧</span><span class="ln">English</span></div>
+        <div class="lang-tile" role="button" tabindex="0" data-native="es"><span class="lf">🇪🇸</span><span class="ln">Español</span></div>
+        <div class="lang-tile" role="button" tabindex="0" data-native="de"><span class="lf">🇩🇪</span><span class="ln">Deutsch</span></div>
+        <div class="lang-tile" role="button" tabindex="0" data-native="ru"><span class="lf">🇷🇺</span><span class="ln">Русский</span></div>
+        <div class="lang-tile" role="button" tabindex="0" data-native="zh"><span class="lf">🇨🇳</span><span class="ln">中文</span></div>
+        <div class="lang-tile" role="button" tabindex="0" data-native="ja"><span class="lf">🇯🇵</span><span class="ln">日本語</span></div>
       </div>
     </div>
 
@@ -104,14 +111,14 @@
     <div class="input-group form-step" id="step3" style="display:none">
       <div class="step-label" id="lbl-target">🎯 Langue à apprendre</div>
       <div class="lang-grid" id="targetGrid">
-        <div class="lang-tile" data-lang="en"><span class="lf">🇬🇧</span><span class="ln">English</span></div>
-        <div class="lang-tile" data-lang="fr"><span class="lf">🇫🇷</span><span class="ln">Français</span></div>
-        <div class="lang-tile" data-lang="es"><span class="lf">🇪🇸</span><span class="ln">Español</span></div>
-        <div class="lang-tile" data-lang="ht"><span class="lf">🇭🇹</span><span class="ln">Kreyòl</span></div>
-        <div class="lang-tile" data-lang="de"><span class="lf">🇩🇪</span><span class="ln">Deutsch</span></div>
-        <div class="lang-tile" data-lang="ru"><span class="lf">🇷🇺</span><span class="ln">Русский</span></div>
-        <div class="lang-tile" data-lang="zh"><span class="lf">🇨🇳</span><span class="ln">中文</span></div>
-        <div class="lang-tile" data-lang="ja"><span class="lf">🇯🇵</span><span class="ln">日本語</span></div>
+        <div class="lang-tile" role="button" tabindex="0" data-lang="en"><span class="lf">🇬🇧</span><span class="ln">English</span></div>
+        <div class="lang-tile" role="button" tabindex="0" data-lang="fr"><span class="lf">🇫🇷</span><span class="ln">Français</span></div>
+        <div class="lang-tile" role="button" tabindex="0" data-lang="es"><span class="lf">🇪🇸</span><span class="ln">Español</span></div>
+        <div class="lang-tile" role="button" tabindex="0" data-lang="ht"><span class="lf">🇭🇹</span><span class="ln">Kreyòl</span></div>
+        <div class="lang-tile" role="button" tabindex="0" data-lang="de"><span class="lf">🇩🇪</span><span class="ln">Deutsch</span></div>
+        <div class="lang-tile" role="button" tabindex="0" data-lang="ru"><span class="lf">🇷🇺</span><span class="ln">Русский</span></div>
+        <div class="lang-tile" role="button" tabindex="0" data-lang="zh"><span class="lf">🇨🇳</span><span class="ln">中文</span></div>
+        <div class="lang-tile" role="button" tabindex="0" data-lang="ja"><span class="lf">🇯🇵</span><span class="ln">日本語</span></div>
       </div>
     </div>
 
@@ -146,132 +153,109 @@
      ================================================================ -->
 <div class="screen" id="screen-menu">
 
-  <!-- Header sticky -->
-  <div class="menu-header">
+  <!-- Barre du haut -->
+  <header class="menu-header">
     <span class="menu-player" id="menuPlayer">👤</span>
     <span class="menu-lang" id="menuLang"></span>
-    <button onclick="showProgression()" style="background:rgba(255,215,0,0.08);border:1px solid rgba(255,215,0,0.2);color:var(--gold-warm);padding:4px 12px;border-radius:999px;font-size:0.7rem;font-weight:800;cursor:pointer;display:flex;align-items:center;gap:5px;transition:all 0.2s;" onmouseover="this.style.background='rgba(255,215,0,0.15)'" onmouseout="this.style.background='rgba(255,215,0,0.08)'">
-      <span id="gemDisplay">💎 0</span><span>·</span><span>📊</span>
-    </button>
-    <div class="menu-xp-wrap">
+    <span class="mh-spacer"></span>
+    <button type="button" class="mh-chip gems" onclick="openShop()" aria-label="Boutique"><span id="gemDisplay">💎 0</span></button>
+    <button type="button" class="mh-chip xp" onclick="showProgression()" aria-label="Statistiques">
       <span class="menu-xp-val" id="menuXP">0 XP</span>
-      <div class="xp-bar-bg"><div class="xp-bar-fill" id="xpFill"></div></div>
-    </div>
-  </div>
+      <span class="xp-bar-bg"><span class="xp-bar-fill" id="xpFill"></span></span>
+    </button>
+  </header>
 
-  <!-- Corps du menu -->
   <div class="menu-body">
 
-    <!-- Greeting personnalisé -->
     <div class="menu-greeting" id="menuGreeting">Bonjour !</div>
     <div class="menu-greeting-sub" id="menu-sub-text">Choisissez votre mode d'apprentissage</div>
 
-    <!-- Streak banner (visible seulement si streak > 0) -->
-    <div class="streak-banner" id="streakBanner" style="display:none;">
-      <div class="streak-fire">🔥</div>
-      <div class="streak-info">
-        <div class="streak-val" id="streakVal">0 🔥</div>
-        <div class="streak-label" id="streakLabel">jours consécutifs</div>
+    <!-- Carte « Aujourd'hui » : objectif du jour + série + reprendre (remplie par engage.js) -->
+    <section class="hero" id="streakBanner" aria-label="Aujourd'hui">
+      <div class="hero-ring" aria-hidden="true">
+        <svg viewBox="0 0 80 80"><circle class="bg" cx="40" cy="40" r="34"/><circle class="fg" id="heroRingFg" cx="40" cy="40" r="34" transform="rotate(-90 40 40)"/></svg>
+        <div class="hero-ring-c"><b id="heroGoalVal">0/50</b></div>
       </div>
-      <button class="streak-protect" onclick="useStreakFreeze()">🛡️ Protéger</button>
-    </div>
+      <div class="hero-info">
+        <div class="hero-label" id="heroGoalLabel">Objectif du jour · XP</div>
+        <div class="hero-streak"><span class="flame" aria-hidden="true">🔥</span><b id="streakVal">0</b><span id="streakLabel">jours consécutifs</span></div>
+        <div class="hero-meta">
+          <button type="button" class="hero-pill" id="heroShield" onclick="useStreakFreeze()" aria-label="Boucliers de série">🛡️ ×1</button>
+          <span class="hero-pill boost" id="heroBoost" hidden></span>
+          <button type="button" class="hero-pill ghost" onclick="LV_ENGAGE.cycleGoal()" aria-label="Changer l'objectif du jour">Objectif</button>
+        </div>
+      </div>
+      <button type="button" class="hero-cta" onclick="LV_ENGAGE.resume()">
+        <span id="heroCtaLabel">Commencer avec le Village</span>
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+      </button>
+    </section>
 
-    <!-- Titre section -->
-    <div style="font-size:0.62rem;font-weight:800;letter-spacing:0.14em;text-transform:uppercase;color:var(--text-ghost);margin:4px 0 8px;" id="menu-title-text">Que voulez-vous faire ?</div>
+    <div class="section-title" id="menu-title-text">Que voulez-vous faire ?</div>
 
-    <!-- Grille des modes -->
     <div class="menu-grid">
 
-      <!-- Village -->
-      <div class="menu-card" data-mode="village" onclick="goVillage()">
-        <div class="m-icon">🏘️</div>
-        <div class="m-label" id="mb-village">Village</div>
-        <div class="m-desc" id="mb-village-d">Conversations IA + correcteur</div>
-        <div class="m-badge new">LIVE</div>
-      </div>
+      <button type="button" class="menu-card wide" data-mode="village" onclick="goVillage()">
+        <span class="m-icon"><svg viewBox="0 0 24 24"><path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/><path d="M10 20v-6h4v6"/></svg></span>
+        <span class="m-text"><span class="m-label" id="mb-village">Village</span><span class="m-desc" id="mb-village-d">Conversations IA + correcteur</span></span>
+        <span class="m-badge new">LIVE</span>
+      </button>
 
-      <!-- Vocabulaire -->
-      <div class="menu-card" data-mode="vocab" onclick="showScreen('screen-vocab');if(typeof ensureLearningBindings==='function')ensureLearningBindings();if(typeof loadVocab==='function')loadVocab(Object.keys(window.VOCAB||{})[0]||'verbes')">
-        <div class="m-icon">📖</div>
-        <div class="m-label" id="mb-vocab">Vocabulaire</div>
-        <div class="m-desc" id="mb-vocab-d">Mots essentiels par catégories</div>
-        <div class="m-badge">1500</div>
-      </div>
+      <button type="button" class="menu-card" data-mode="vocab" onclick="showScreen('screen-vocab');if(typeof ensureLearningBindings==='function')ensureLearningBindings();if(typeof loadVocab==='function')loadVocab(Object.keys(window.VOCAB||{})[0]||'verbes')">
+        <span class="m-icon"><svg viewBox="0 0 24 24"><path d="M4 5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2z"/><path d="M4 19V5"/><path d="M9 7h6"/></svg></span>
+        <span class="m-label" id="mb-vocab">Vocabulaire</span><span class="m-desc" id="mb-vocab-d">Mots essentiels par catégories</span>
+        <span class="m-badge">1500</span>
+      </button>
 
-      <!-- Phrases -->
-      <div class="menu-card" data-mode="phrases" onclick="showScreen('screen-phrases');if(typeof ensureLearningBindings==='function')ensureLearningBindings();if(typeof loadPhrases==='function')loadPhrases(Object.keys(window.PHRASES_DATA||{})[0]||'quotidien')">
-        <div class="m-icon">💬</div>
-        <div class="m-label" id="mb-phrases">Phrases</div>
-        <div class="m-desc" id="mb-phrases-d">Expressions du quotidien</div>
-        <div class="m-badge">1000</div>
-      </div>
+      <button type="button" class="menu-card" data-mode="phrases" onclick="showScreen('screen-phrases');if(typeof ensureLearningBindings==='function')ensureLearningBindings();if(typeof loadPhrases==='function')loadPhrases(Object.keys(window.PHRASES_DATA||{})[0]||'quotidien')">
+        <span class="m-icon"><svg viewBox="0 0 24 24"><path d="M4 5h16v11H9l-5 4z"/></svg></span>
+        <span class="m-label" id="mb-phrases">Phrases</span><span class="m-desc" id="mb-phrases-d">Expressions du quotidien</span>
+        <span class="m-badge">1000</span>
+      </button>
 
-      <!-- Grammaire -->
-      <div class="menu-card" data-mode="grammar" onclick="showScreen('screen-grammar');if(typeof loadGrammar==='function')loadGrammar('present')">
-        <div class="m-icon">✏️</div>
-        <div class="m-label" id="mb-grammar">Grammaire</div>
-        <div class="m-desc" id="mb-grammar-d">Règles et exemples</div>
-        <div class="m-badge">500+</div>
-      </div>
+      <button type="button" class="menu-card" data-mode="grammar" onclick="showScreen('screen-grammar');if(typeof loadGrammar==='function')loadGrammar('present')">
+        <span class="m-icon"><svg viewBox="0 0 24 24"><path d="M4 20l1-4 11-11 3 3L8 19z"/><path d="M14 7l3 3"/></svg></span>
+        <span class="m-label" id="mb-grammar">Grammaire</span><span class="m-desc" id="mb-grammar-d">Règles et exemples</span>
+        <span class="m-badge">500+</span>
+      </button>
 
-      <!-- Alphabet -->
-      <div class="menu-card" data-mode="alphabet" onclick="if(typeof openAlphabet==='function')openAlphabet()">
-        <div class="m-icon">🔤</div>
-        <div class="m-label" id="mb-alpha">Alphabet</div>
-        <div class="m-desc" id="mb-alpha-d">Hiragana · Cyrillique · Pinyin</div>
-        <div class="m-badge new">ABC</div>
-      </div>
+      <button type="button" class="menu-card" data-mode="alphabet" onclick="if(typeof openAlphabet==='function')openAlphabet()">
+        <span class="m-icon"><svg viewBox="0 0 24 24"><path d="M3 18l4-11 4 11M4.5 14h5"/><circle cx="17" cy="15" r="3"/><path d="M20 12v6"/></svg></span>
+        <span class="m-label" id="mb-alpha">Alphabet</span><span class="m-desc" id="mb-alpha-d">Hiragana · Cyrillique · Pinyin</span>
+        <span class="m-badge new">ABC</span>
+      </button>
 
-      <!-- Dictionnaire -->
-      <div class="menu-card" data-mode="dict" onclick="openDict()">
-        <div class="m-icon">📚</div>
-        <div class="m-label" id="mb-dict">Dictionnaire</div>
-        <div class="m-desc" id="mb-dict-d">Traduction mot ou phrase</div>
-        <div class="m-badge" style="background:var(--sapphire);">∞</div>
-      </div>
+      <button type="button" class="menu-card" data-mode="dict" onclick="openDict()">
+        <span class="m-icon"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6"/><path d="M20 20l-4.5-4.5"/></svg></span>
+        <span class="m-label" id="mb-dict">Dictionnaire</span><span class="m-desc" id="mb-dict-d">Traduction mot ou phrase</span>
+        <span class="m-badge alt">∞</span>
+      </button>
 
-      <!-- Cinéma FSI -->
-      <div class="menu-card" data-mode="cinema" onclick="openCinema()">
-        <div class="m-icon">🎬</div>
-        <div class="m-label">Cinéma</div>
-        <div class="m-desc">Cours vidéo FSI & BBC</div>
-        <div class="m-badge new">FSI</div>
-      </div>
+      <button type="button" class="menu-card" data-mode="cinema" onclick="openCinema()">
+        <span class="m-icon"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M10 9.5v5l4.5-2.5z"/></svg></span>
+        <span class="m-label" id="mb-cinema">Cinéma</span><span class="m-desc" id="mb-cinema-d">Cours vidéo FSI & BBC</span>
+        <span class="m-badge new">FSI</span>
+      </button>
 
-      <!-- Jeu de mots -->
-      <div class="menu-card" data-mode="wordgame" onclick="openWordGame()">
-        <div class="m-icon">✍️</div>
-        <div class="m-label">Jeu de mots</div>
-        <div class="m-desc">Forme des mots · Favoris</div>
-        <div class="m-badge" style="background:var(--amethyst);">▶</div>
-      </div>
+      <button type="button" class="menu-card" data-mode="wordgame" onclick="openWordGame()">
+        <span class="m-icon"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="8" height="8" rx="2"/><rect x="13" y="3" width="8" height="8" rx="2"/><rect x="3" y="13" width="8" height="8" rx="2"/><path d="M17 13v8M13 17h8"/></svg></span>
+        <span class="m-label" id="mb-wordgame">Jeu de mots</span><span class="m-desc" id="mb-wordgame-d">Forme des mots · Favoris</span>
+        <span class="m-badge alt2">▶</span>
+      </button>
+
+      <button type="button" class="menu-card wide slim" data-mode="mnemonics" onclick="if(typeof openMnemonics==='function')openMnemonics()">
+        <span class="m-icon"><svg viewBox="0 0 24 24"><path d="M9 18h6M10 21h4"/><path d="M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2.1h5c0-.9.4-1.6 1-2.1A6 6 0 0 0 12 3z"/></svg></span>
+        <span class="m-text"><span class="m-label" id="mb-mnem">Mnémotechniques</span><span class="m-desc" id="mb-mnem-d">Trucs mémoire adaptés à votre langue cible</span></span>
+        <span class="m-chev" aria-hidden="true">›</span>
+      </button>
+
+      <button type="button" class="menu-card wide slim program" onclick="if(window.LV_PROGRAM)window.LV_PROGRAM.open()">
+        <span class="m-icon"><svg viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-7"/><path d="M2 20h20"/></svg></span>
+        <span class="m-text"><span class="m-label">Programme d'apprentissage</span><span class="m-desc">Niveaux, leçons, évaluations & Grands Examens</span></span>
+        <span class="m-pill" id="program-level-badge">🌱 Débutant · 0%</span>
+      </button>
 
     </div><!-- /.menu-grid -->
-
-    <!-- Mnémotechniques (ligne séparée, bouton pleine largeur) -->
-    <div style="margin-top:8px;">
-      <div class="menu-card" data-mode="mnemonics" onclick="if(typeof openMnemonics==='function')openMnemonics()" style="flex-direction:row;align-items:center;gap:14px;padding:14px 18px;">
-        <div class="m-icon" style="font-size:1.5rem;">🧠</div>
-        <div>
-          <div class="m-label" id="mb-mnem">Mnémotechniques</div>
-          <div class="m-desc" id="mb-mnem-d">Trucs mémoire adaptés à votre langue cible</div>
-        </div>
-        <div style="margin-left:auto;color:var(--text-ghost);font-size:1rem;">›</div>
-      </div>
-    </div>
-
-    <!-- Programme d'apprentissage (niveaux, leçons, évaluations, Grands Examens) -->
-    <div style="margin-top:8px;">
-      <button class="menu-program-btn" onclick="if(window.LV_PROGRAM)window.LV_PROGRAM.open()" style="border:1.5px solid rgba(255,215,0,0.20);font:inherit;color:inherit;">
-        <div class="menu-program-icon">📊</div>
-        <div class="menu-program-content">
-          <div class="menu-program-title">Programme d'apprentissage</div>
-          <div class="menu-program-sub">Niveaux, leçons, évaluations & Grands Examens</div>
-        </div>
-        <div class="menu-program-badge" id="program-level-badge">🌱 Débutant · 0%</div>
-        <div class="menu-program-arrow">›</div>
-      </button>
-    </div>
 
   </div><!-- /.menu-body -->
 </div><!-- /#screen-menu -->
@@ -316,80 +300,13 @@
      ================================================================ -->
 <div class="screen" id="screen-location">
   <div class="u-header">
-    <button class="back-btn" onclick="showScreen('screen-village');window._villageLoopActive=true;window._villageLoopRunning=true;requestAnimationFrame(window.drawVillage);">← Village</button>
+    <button class="back-btn" onclick="showScreen('screen-village')">← Village</button>
     <div class="u-title" id="locTitle"></div>
     <span id="locWeather"></span>
   </div>
   <div id="missionsPanel"></div>
   <div class="npc-list" id="npcList"></div>
 </div>
-
-
-<!-- ================================================================
-     ÉCRAN 5 — DIALOGUE (cœur de l'expérience)
-     ================================================================ -->
-<div class="screen" id="screen-dialogue">
-
-  <!-- Header NPC -->
-  <div class="dial-header">
-    <div class="dial-av" id="dialAv">🧑</div>
-    <div class="dial-info">
-      <div class="dial-name" id="dialName"></div>
-      <div class="dial-role" id="dialRole"></div>
-    </div>
-    <button class="back-btn" style="margin-left:auto;flex-shrink:0;" onclick="
-      if(window._villageDialogueMode){
-        window._villageDialogueMode=false;
-        if(typeof window.goVillage==='function'){
-          window.running=true;
-          showScreen('screen-village');
-          requestAnimationFrame(function(){if(window.renderer)window._loop&&window._loop();});
-        } else { showScreen('screen-location'); }
-      } else { showScreen('screen-location'); }
-    ">←</button>
-  </div>
-
-  <!-- PLI Bar — Progressive Linguistic Immersion -->
-  <div class="pli-bar-wrap">
-    <span class="pli-label">immersion</span>
-    <div class="pli-track">
-      <div class="pli-fill" id="pliBarFill" style="width:45%"></div>
-    </div>
-    <span class="pli-pct" id="pliPct">45% cible</span>
-  </div>
-
-  <!-- Zone de messages -->
-  <div class="chat-msgs" id="chatMsgs"></div>
-
-  <!-- Zone de saisie -->
-  <div class="dial-input-area">
-
-    <!-- Starter suggestions — rampe de sécurité post-guided -->
-    <div class="starter-row" id="starterRow" style="display:none;"></div>
-
-    <!-- Input + send -->
-    <div class="dial-input-wrap">
-      <input class="dial-input" id="dialInput" type="text" placeholder="Votre réponse…" autocomplete="off" autocorrect="off" spellcheck="false">
-      <button class="dial-send" id="dialSend" onclick="sendMsg()">➤</button>
-    </div>
-
-    <!-- Actions secondaires -->
-    <div class="dial-actions">
-      <button class="d-btn" onclick="reqHint()">💡 Indice</button>
-      <button class="d-btn" onclick="reqTranslate()">🔤 Traduire</button>
-      <button class="d-btn voice" id="voiceBtn" onclick="toggleVoice()">🎤 Parler</button>
-    </div>
-
-    <!-- Panneau de correction — reformulé en découverte -->
-    <div class="correction-panel" id="corrPanel">
-      <div class="corr-title" id="corrTitle">✨ ASTUCE</div>
-      <div class="corr-original" id="corrOrig"></div>
-      <div class="corr-corrected" id="corrFixed"></div>
-      <div class="corr-explain" id="corrExplain"></div>
-    </div>
-
-  </div><!-- /.dial-input-area -->
-</div><!-- /#screen-dialogue -->
 
 
 <!-- ================================================================
@@ -501,7 +418,7 @@
   <div class="u-header">
     <button class="back-btn" onclick="cinemaStop();showScreen('screen-village')">← Village</button>
     <div class="u-title" id="cinema-title">🎬 Cinéma</div>
-    <span id="cinema-lang-badge" style="font-size:0.75rem;font-weight:700;color:#e040fb;background:rgba(224,64,251,0.1);border:1px solid rgba(224,64,251,0.25);padding:4px 12px;border-radius:999px;"></span>
+    <span id="cinema-lang-badge" style="font-size:0.75rem;font-weight:700;color:#ff7eb6;background:rgba(255,126,182,0.1);border:1px solid rgba(255,126,182,0.25);padding:4px 12px;border-radius:999px;"></span>
   </div>
 
   <!-- Compteur ressources -->
@@ -509,14 +426,14 @@
 
   <!-- Player embed (caché par défaut) -->
   <div id="cinema-player-wrap" class="cinema-player-wrap" style="display:none;">
-    <iframe id="cinema-player" allowfullscreen allow="autoplay; fullscreen; picture-in-picture"></iframe>
+    <iframe id="cinema-player" title="Lecteur vidéo" allowfullscreen allow="autoplay; fullscreen; picture-in-picture" referrerpolicy="no-referrer" sandbox="allow-scripts allow-same-origin allow-presentation"></iframe>
   </div>
 
   <!-- Infos du contenu en cours -->
   <div id="cinema-playing-info" class="cinema-player-info" style="display:none;">
     <div class="cinema-playing-title" id="cinema-playing-title"></div>
     <div class="cinema-playing-desc"  id="cinema-playing-desc"></div>
-    <button onclick="cinemaStop()" style="margin-top:8px;background:rgba(255,107,107,0.12);border:1px solid rgba(255,107,107,0.3);color:var(--coral);padding:6px 16px;border-radius:999px;font-size:0.72rem;font-weight:700;cursor:pointer;">■ Arrêter</button>
+    <button onclick="cinemaStop()" style="margin-top:8px;background:rgba(255,107,127,0.12);border:1px solid rgba(255,107,127,0.3);color:var(--coral);padding:6px 16px;border-radius:999px;font-size:0.72rem;font-weight:700;cursor:pointer;">■ Arrêter</button>
   </div>
 
   <!-- Liste des vidéos -->
@@ -609,6 +526,9 @@
      SCRIPTS — ORDRE CRITIQUE
      ================================================================ -->
 
+<!-- 0. Socle commun (API, navigation, erreurs) — TOUJOURS en premier -->
+<script src="js/core.js"></script>
+
 <!-- 1. État global et données -->
 <script src="js/sound.js"></script>
 <script src="js/animation.js"></script>
@@ -628,34 +548,31 @@
 <script src="js/quote_v2.js"></script>
 
 <!-- 3. Fonctionnalités terrain -->
-<script src="js/player.js"></script>
 <script src="js/phonemes.js"></script>
 <script src="js/sprites.js"></script>
 <script src="js/memory.js"></script>
-<!-- Three.js — moteur 3D KROVA panoramique -->
-<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
-<!-- [AJOUTÉ] Citoyens intelligents (personnalité/relations) et moteur de
-     rencontres ambiantes entre PNJ. Chargés avant village_3d.js car ce
-     dernier appelle LV_AMBIENT.registerWalkers() dès son initialisation. -->
+<!-- Three.js r128 — copie LOCALE (avant : CDN jsDelivr) : même origine, mise en cache par l'appli, fonctionne hors-ligne -->
+<script src="vendor/three/three.min.js"></script>
+<script src="vendor/three/OrbitControls.js"></script>
+<script src="vendor/three/GLTFLoader.js"></script>
+<!-- Citoyens intelligents + rencontres ambiantes : chargés avant village_3d.js -->
 <script src="js/citizens.js"></script>
 <script src="js/ambient_dialogue.js"></script>
 <script src="js/village_3d.js"></script>
 
-<!-- 4. Dialogue — AVANT guided (guided patche openDialogue) -->
+<!-- 4. Dialogue — module unique (guidé + libre + voix) -->
 <script src="js/dialogue.js"></script>
-<script src="js/guided_v2.js"></script>
 
 <!-- 5. Modules additionnels -->
 <script src="js/alphabet.js"></script>
-<script src="js/pnj.js"></script>
 <script src="js/gamification.js"></script>
+<script src="js/engage.js"></script>
 <script src="js/learning.js"></script>
 <script src="js/cinema.js"></script>
 <script src="js/advanced.js"></script>
 <script src="js/onboarding.js"></script>
 <script src="js/wordgame.js"></script>
+<script src="js/pwa.js"></script>
 
 <!-- 6. App principale — EN DERNIER -->
 <script src="js/app_v2.js" defer></script>

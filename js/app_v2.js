@@ -10,7 +10,9 @@
 // ================================================================
 
 // ── Constantes globales ─────────────────────────────────────────
-var API = 'https://linguavillage-api--marckensbou2.replit.app';
+// Base de l'API : définie dans core.js (même origine sur Vercel). L'ancienne URL Replit
+// écrasait celle de data.js car ce fichier s'exécute en dernier.
+var API = (window.LV && LV.apiBase) || '';
 
 window.FLAGS = {
   fr:'🇫🇷', es:'🇪🇸', en:'🇬🇧', de:'🇩🇪',
@@ -114,6 +116,10 @@ window.addEventListener('DOMContentLoaded', function() {
       try {
         if (typeof applyUI === 'function') applyUI(S.nativeLang);
         _initSession();
+        // Raccourcis de l'icône (manifest) : ?go=village | ?go=vocab
+        var go = window.LV_PENDING_GO;
+        if (go === 'village' && typeof goVillage === 'function') setTimeout(goVillage, 50);
+        else if (go === 'vocab') setTimeout(function () { var c = document.querySelector('[data-mode="vocab"]'); if (c) c.click(); }, 50);
         return;
       } catch(e) { console.warn('Restore failed:', e); }
     }
@@ -131,14 +137,8 @@ window.addEventListener('DOMContentLoaded', function() {
 
 // ── Warmup API ──────────────────────────────────────────────────
 function _warmupAPI() {
-  // Requête légère, silencieuse — réveille Replit si endormi
-  fetch(API + '/ping', {
-    method: 'GET',
-    signal: AbortSignal.timeout ? AbortSignal.timeout(8000) : undefined
-  }).catch(function() {
-    // Silencieux — l'utilisateur ne voit rien
-    console.log('API warmup attempted');
-  });
+  // Requête légère et silencieuse : réveille la fonction serverless (démarrage à froid).
+  if (window.LV && LV.api) LV.api.warmup();
 }
 
 // ================================================================
@@ -322,26 +322,22 @@ function _goToMenu() {
   if (gemDisplay) gemDisplay.textContent = '💎 ' + ((S_missions && S_missions.gems) || 0);
   if (xpFill) xpFill.style.width = ((S.xp || 0) % 100) + '%';
 
-  // Message de bienvenue personnalisé selon l'heure
+  // Message de bienvenue personnalisé selon l'heure (matin / après-midi / soir) et la langue
   if (menuGreet) {
     var hour = new Date().getHours();
-    var greetings = {
-      fr: [
-        hour < 12 ? 'Bonjour' : hour < 18 ? 'Bonsoir' : 'Bonne nuit',
-        (S.playerName || '') + ' !'
-      ],
-      en: [
-        hour < 12 ? 'Good morning' : hour < 18 ? 'Good evening' : 'Good night',
-        (S.playerName || '') + '!'
-      ],
-      es: [
-        hour < 12 ? 'Buenos días' : hour < 18 ? 'Buenas tardes' : 'Buenas noches',
-        (S.playerName || '') + '!'
-      ]
+    var slot = hour < 12 ? 0 : hour < 18 ? 1 : 2;
+    var GREET = {
+      fr: ['Bonjour', 'Bon après-midi', 'Bonsoir'],
+      en: ['Good morning', 'Good afternoon', 'Good evening'],
+      es: ['Buenos días', 'Buenas tardes', 'Buenas noches'],
+      ht: ['Bonjou', 'Bonjou', 'Bonswa'],
+      de: ['Guten Morgen', 'Guten Tag', 'Guten Abend'],
+      ru: ['Доброе утро', 'Добрый день', 'Добрый вечер'],
+      zh: ['早上好', '下午好', '晚上好'],
+      ja: ['おはよう', 'こんにちは', 'こんばんは']
     };
     var nl = S.nativeLang || 'fr';
-    var g = greetings[nl] || greetings.fr;
-    menuGreet.textContent = g[0] + ', ' + g[1];
+    menuGreet.textContent = (GREET[nl] || GREET.fr)[slot] + ', ' + (S.playerName || '') + ' !';
   }
 
   try { if (typeof saveGame === 'function') saveGame(); } catch(e) {}
@@ -407,21 +403,15 @@ window.showQuoteThenMenu = function() {
 // SYSTÈME XP PREMIUM — Visuels + Loss Aversion
 // ================================================================
 
-// Remplace gainXP avec animation toast
-// [CORRECTION] Cette fonction écrasait silencieusement celle de state.js
-// (chargé avant, mais app_v2.js est `defer` donc s'exécute après et gagne
-// toujours). La version state.js jouait un son XP, une animation popup
-// dorée avec gestion de combo, et surtout déclenchait
-// LV_WORLD.checkRankUp() — le système de progression sociale "Lingoria"
-// (cérémonies de montée de rang). Ces appels sont restaurés ci-dessous ;
-// le toast visuel et la mise à jour de la barre PLI propres à cette
-// version sont conservés tels quels.
+// gainXP — version unique (l'ancienne copie de state.js a été supprimée).
+// Gère : boost XP ×2, HUD, toast, son, combo, rang social, objectif du jour, badges, sauvegarde.
 window.gainXP = function(amount, sourceEl) {
   if (!S || !amount) return;
+  var boosted = !!(S.xpBoostEnd && S.xpBoostEnd > Date.now());
+  if (boosted) amount = Math.round(amount * 2);
   var oldXP = S.xp || 0;
   S.xp = oldXP + amount;
 
-  // Mise à jour HUD
   var hudXP   = document.getElementById('hudXP');
   var menuXP  = document.getElementById('menuXP');
   var xpFill  = document.getElementById('xpFill');
@@ -429,14 +419,10 @@ window.gainXP = function(amount, sourceEl) {
   if (menuXP) menuXP.textContent = S.xp + ' XP';
   if (xpFill) xpFill.style.width = (S.xp % 100) + '%';
 
-  // Toast visuel XP flottant (apport app_v2.js, conservé)
-  _showXPToast('+' + amount + ' XP', sourceEl);
+  _showXPToast('+' + amount + ' XP' + (boosted ? ' ⚡' : ''), sourceEl);
 
-  // Son + animation popup dorée avec combo (restauré depuis state.js).
-  // xpPop() joue déjà LV_SOUND.play('xp') en interne (voir animation.js).
-  if (window.LV_ANIM && typeof window.LV_ANIM.xpPop === 'function') {
-    window.LV_ANIM.xpPop(amount, sourceEl);
-  }
+  // xpPop() joue déjà le son XP (voir animation.js)
+  if (window.LV_ANIM && typeof window.LV_ANIM.xpPop === 'function') window.LV_ANIM.xpPop(amount, sourceEl);
   window._comboCount = (window._comboCount || 0) + 1;
   clearTimeout(window._comboTimer);
   window._comboTimer = setTimeout(function() { window._comboCount = 0; }, 4000);
@@ -444,16 +430,12 @@ window.gainXP = function(amount, sourceEl) {
     window.LV_ANIM.comboFlash(window._comboCount);
   }
 
-  // Rang social Lingoria (restauré depuis state.js) — déclenche la
-  // cérémonie de montée de rang si le joueur vient de passer un seuil.
   if (window.LV_WORLD && typeof window.LV_WORLD.checkRankUp === 'function') {
     window.LV_WORLD.checkRankUp(oldXP, S.xp, S.nativeLang || 'fr');
   }
   if (typeof updateSocialRankHUD === 'function') updateSocialRankHUD();
-
-  // PLI bar update si en dialogue
   if (typeof PLI !== 'undefined') PLI.updateBar();
-
+  if (window.LV_ENGAGE) { try { window.LV_ENGAGE.onXP(amount); } catch (e) {} }
   if (typeof checkBadges === 'function') checkBadges();
   if (typeof saveGame   === 'function') saveGame();
 };
@@ -482,17 +464,7 @@ function _showXPToast(text, sourceEl) {
   setTimeout(function() { toast.remove(); }, 1300);
 }
 
-// ================================================================
-// NAVIGATION
-// ================================================================
-window.showScreen = function(id) {
-  document.querySelectorAll('.screen').forEach(function(s) {
-    s.classList.remove('active');
-    s.style.display = '';
-  });
-  var target = document.getElementById(id);
-  if (target) target.classList.add('active');
-};
+// (La navigation — showScreen — est désormais dans core.js, avec gestion du bouton retour.)
 
 // ================================================================
 // STARTER SUGGESTIONS — rampe de sécurité du dialogue libre
@@ -629,11 +601,11 @@ window.updateStreak = function() {
   var streakBanner = document.getElementById('streakBanner');
   if (!streakBanner) return;
 
-  if (G.streak > 0) {
-    streakBanner.style.display = 'flex';
+  {
+    streakBanner.style.display = '';   // la carte « Aujourd'hui » reste toujours visible (objectif du jour)
     var streakVal = document.getElementById('streakVal');
     var streakLabel = document.getElementById('streakLabel');
-    if (streakVal) streakVal.textContent = G.streak + ' 🔥';
+    if (streakVal) streakVal.textContent = String(G.streak || 0);
     if (streakLabel) {
       var nl = S.nativeLang || 'fr';
       var labels = {
@@ -641,20 +613,22 @@ window.updateStreak = function() {
         en: 'days in a row',
         es: 'días seguidos',
         ht: 'jou konsekitif',
-        de: 'Tage in Folge'
+        de: 'Tage in Folge',
+        ru: 'дней подряд',
+        zh: '连续天数',
+        ja: '日連続'
       };
       streakLabel.textContent = labels[nl] || labels.fr;
     }
-  } else {
-    streakBanner.style.display = 'none';
   }
+  if (window.LV_ENGAGE) { try { LV_ENGAGE.render(); } catch (e) {} }
 };
 
 // ================================================================
 // CONFETTI PREMIUM
 // ================================================================
 window.launchConfetti = function() {
-  var colors = ['#FFD700','#E8B84B','#4ecf70','#4a9eff','#c084fc','#ff9f43'];
+  var colors = ['#ff8a5b','#ff9d75','#37d6a5','#5ab8ff','#b79cff','#ffc15a'];
   for (var i = 0; i < 70; i++) {
     (function(delay) {
       setTimeout(function() {

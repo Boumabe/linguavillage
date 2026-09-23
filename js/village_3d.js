@@ -11,14 +11,26 @@
 // la génération procédurale par de vrais modèles 3D
 // ═══════════════════════════════════════════════════════════════
 
-window.addEventListener('error', function (e) {
-    var el = document.getElementById('debug');
-    if (el) { el.textContent = 'ERREUR JS: ' + e.message + ' (' + (e.filename || '').split('/').pop() + ':' + e.lineno + ')'; el.style.background = '#c0392b'; el.style.color = '#fff'; }
-});
+// (Les erreurs JS sont capturées par core.js ; la barre #debug n'apparaît qu'avec ?debug)
 
 var gltfLoader = new THREE.GLTFLoader();
 var _modelCache = {};
 var _decorCache = {};
+var _glbPending = {};   // chemin -> [callbacks] : un même fichier n'est plus téléchargé/décodé plusieurs fois en parallèle
+
+function _loadGLB(path, ok, fail) {
+    if (_glbPending[path]) { _glbPending[path].push({ ok: ok, fail: fail }); return; }
+    _glbPending[path] = [{ ok: ok, fail: fail }];
+    gltfLoader.load(path, function (gltf) {
+        var q = _glbPending[path]; delete _glbPending[path];
+        // Le premier appelant reçoit la scène d'origine (elle sert ensuite de modèle à cloner).
+        // Les suivants reçoivent le MÊME objet : les fonctions d'appel clonent elles-mêmes.
+        q.forEach(function (c) { try { c.ok(gltf); } catch (e) { console.error(e); } });
+    }, undefined, function (error) {
+        var q = _glbPending[path]; delete _glbPending[path];
+        q.forEach(function (c) { if (c.fail) c.fail(error); });
+    });
+}
 
 // Mapping bâtiment (id de BUILDINGS_3D) → fichier GLB à utiliser
 // "scale" est un point de départ — ajuste-le après le premier test
@@ -49,8 +61,7 @@ function _groundModel(model) {
 // Affiche un message directement dans la barre debug du jeu (#debug)
 // pour diagnostiquer sans avoir besoin de la console navigateur.
 function _showDebug(msg) {
-    var el = document.getElementById('debug');
-    if (el) { el.textContent = msg; el.style.background = '#c0392b'; el.style.color = '#fff'; }
+    if (window.LV) LV.debugMsg(msg, true);
     console.error(msg);
 }
 
@@ -61,29 +72,25 @@ function _loadBuildingModel(path, onLoaded) {
         onLoaded(_modelCache[path].clone());
         return;
     }
-    gltfLoader.load(
+    _loadGLB(
         path,
         function (gltf) {
             try {
-                _groundModel(gltf.scene);
-                if (!_debugSizeShown) {
-                    _debugSizeShown = true;
-                    var box = new THREE.Box3().setFromObject(gltf.scene);
-                    var size = box.getSize(new THREE.Vector3());
-                    var el = document.getElementById('debug');
-                    if (el) {
-                        el.textContent = 'MODELE OK: ' + path + ' taille native = ' + size.x.toFixed(2) + ' x ' + size.y.toFixed(2) + ' x ' + size.z.toFixed(2);
-                        el.style.background = '#2980b9';
-                        el.style.color = '#fff';
+                if (!_modelCache[path]) {
+                    _groundModel(gltf.scene);
+                    if (!_debugSizeShown) {
+                        _debugSizeShown = true;
+                        var box = new THREE.Box3().setFromObject(gltf.scene);
+                        var size = box.getSize(new THREE.Vector3());
+                        if (window.LV) LV.debugMsg('MODELE OK: ' + path + ' taille native = ' + size.x.toFixed(2) + ' x ' + size.y.toFixed(2) + ' x ' + size.z.toFixed(2));
                     }
+                    _modelCache[path] = gltf.scene;
                 }
-                _modelCache[path] = gltf.scene;
-                onLoaded(gltf.scene.clone());
+                onLoaded(_modelCache[path].clone());
             } catch (e) {
                 _showDebug('ERREUR TRAITEMENT: ' + path + ' → ' + e.message);
             }
         },
-        undefined,
         function (error) {
             _showDebug('ERREUR CHARGEMENT: ' + path + ' → ' + (error && error.message ? error.message : 'fichier introuvable ou invalide'));
         }
@@ -104,11 +111,10 @@ function loadDecorModel(path, position, scale, rotationY, onLoaded) {
         place(_decorCache[path].clone());
         return;
     }
-    gltfLoader.load(path, function (gltf) {
-        _groundModel(gltf.scene);
-        _decorCache[path] = gltf.scene;
-        place(gltf.scene.clone());
-    }, undefined, function (error) {
+    _loadGLB(path, function (gltf) {
+        if (!_decorCache[path]) { _groundModel(gltf.scene); _decorCache[path] = gltf.scene; }
+        place(_decorCache[path].clone());
+    }, function (error) {
         console.error('Erreur chargement décor GLB:', path, error);
     });
 }
@@ -285,7 +291,7 @@ var playerAvatar = null;
 var playerSpeed = 46;
 var playerFacing = 0; // orientation actuelle (radians) — 0 = cohérent avec la rotation de spawn du modèle
 var cameraSnapped = false; // évite le glissement visible de l'ancienne vue au premier chargement
-var joystick = { active: false, dx: 0, dy: 0, baseEl: null, handleEl: null, maxRadius: 42, pointerId: null };
+var joystick = { active: false, dx: 0, dy: 0, baseEl: null, handleEl: null, maxRadius: 32, pointerId: null };
 var PLAYER_MODE = true; // true = caméra suiveuse derrière le joueur, false = ancien mode orbite libre
 var sprites = [];
 var trees = [];
@@ -293,6 +299,8 @@ var windmillBlades = null;
 var raycaster, pointer;
 var canvasEl;
 var running = false;
+var _rafId = 0;           // identifiant de la SEULE boucle de rendu autorisée
+var _holds = {};          // raisons de pause (ex. 'dialogue') — voir LV_VILLAGE
 
 // Systèmes d'ambiance
 var _birds3D = [];
@@ -394,7 +402,7 @@ window.goVillage = function () {
         requestAnimationFrame(function () {
             if (!renderer) _init3D();
             else _onResize();
-            if (!running) { running = true; _loop(); }
+            _evalLoop();
         });
     });
 
@@ -2009,24 +2017,43 @@ function _buildNPCWalkers() {
         { citizenId: 'bartender', emoji: '🍺',   color: 0xa5d6a7 },
     ];
 
+    var RING = 96;                                   // allée circulaire autour de la fontaine
+    function ang(b) { return Math.atan2(b.z, b.x); }
+    function door(b) {                               // devant le bâtiment, côté place
+        var d = Math.sqrt(b.x * b.x + b.z * b.z) || 1, k = (d - (b.radius || 16) - 14) / d;
+        return new THREE.Vector3(b.x * k, 0, b.z * k);
+    }
+    function routeBetween(a, b) {
+        var pts = [door(a)], a1 = ang(a), diff = ang(b) - a1;
+        while (diff > Math.PI) diff -= Math.PI * 2;
+        while (diff < -Math.PI) diff += Math.PI * 2;
+        var steps = Math.max(1, Math.ceil(Math.abs(diff) / (Math.PI / 8)));
+        for (var i = 0; i <= steps; i++) {
+            var an = a1 + diff * i / steps;
+            pts.push(new THREE.Vector3(Math.cos(an) * RING, 0, Math.sin(an) * RING));
+        }
+        pts.push(door(b));
+        return pts;
+    }
+
     npcConfigs.forEach(function(cfg, idx) {
         var sprite = _makeEmojiSprite(cfg.emoji, 12);
-        var startBuilding = BUILDINGS_3D[idx % BUILDINGS_3D.length];
-        var endBuilding = BUILDINGS_3D[(idx + 2) % BUILDINGS_3D.length];
-        
-        sprite.position.set(startBuilding.x, _smoothNoise(startBuilding.x, startBuilding.z) + 3, startBuilding.z);
-        
+        var a = BUILDINGS_3D[idx % BUILDINGS_3D.length];
+        var b = BUILDINGS_3D[(idx + 3) % BUILDINGS_3D.length];
+        var route = routeBetween(a, b);
+        var lens = [];
+        for (var i = 0; i < route.length - 1; i++) lens.push(Math.max(1, route[i].distanceTo(route[i + 1])));
+
         sprite.userData = {
             citizenId: cfg.citizenId,
-            start: new THREE.Vector3(startBuilding.x, _smoothNoise(startBuilding.x, startBuilding.z) + 3, startBuilding.z),
-            end: new THREE.Vector3(endBuilding.x, _smoothNoise(endBuilding.x, endBuilding.z) + 3, endBuilding.z),
-            progress: Math.random(),
-            speed: 0.05 + Math.random() * 0.08,
-            waitTime: 0,
-            isWaiting: false,
-            baseY: _smoothNoise(startBuilding.x, startBuilding.z) + 3
+            route: route, lens: lens,
+            seg: Math.floor(Math.random() * (route.length - 1)), segT: Math.random(),
+            speed: 12 + Math.random() * 7,               // unités/seconde
+            waitTime: 0, isWaiting: false, seed: Math.random() * 10
         };
-        
+        var a0 = route[sprite.userData.seg];
+        sprite.position.set(a0.x, _smoothNoise(a0.x, a0.z) + 3, a0.z);
+
         scene.add(sprite);
         _npcWalkers.push(sprite);
     });
@@ -2094,9 +2121,12 @@ function _buildCelestialBodies() {
 function _updateDayNightCycle(t) {
     if (!_dayNightCycle) return;
     
-    // Cycle complet en 5 minutes
-    var cycleDuration = 300;
-    _timeOfDay = (t % cycleDuration) / cycleDuration;
+    // Le village suit l'HEURE RÉELLE du joueur (0 = minuit, 0.5 = midi).
+    // Avant : cycle de 5 min démarrant à minuit → le village s'ouvrait toujours de nuit.
+    var now = new Date();
+    var hour = (window._lvForcedHour != null) ? window._lvForcedHour
+             : now.getHours() + now.getMinutes() / 60 + now.getSeconds() / 3600;
+    _timeOfDay = (hour % 24) / 24;
     
     var sunAngle = _timeOfDay * Math.PI * 2 - Math.PI / 2;
     var sunX = Math.cos(sunAngle) * 400;
@@ -2126,10 +2156,12 @@ function _updateDayNightCycle(t) {
     }
     
     // Couleurs atmosphériques
-    var dayColor = new THREE.Color(PALETTE.skyDay);
-    var sunsetColor = new THREE.Color(PALETTE.skySunset);
-    var nightColor = new THREE.Color(PALETTE.skyNight);
-    var currentColor = new THREE.Color();
+    // Couleurs réutilisées (avant : 6 objets THREE.Color créés à CHAQUE image → ramasse-miettes = saccades)
+    var C = _updateDayNightCycle._c || (_updateDayNightCycle._c = {
+        day: new THREE.Color(PALETTE.skyDay), sunset: new THREE.Color(PALETTE.skySunset), night: new THREE.Color(PALETTE.skyNight),
+        cur: new THREE.Color(), fogDay: new THREE.Color(PALETTE.fogDay), fogNight: new THREE.Color(PALETTE.fogNight), fog: new THREE.Color()
+    });
+    var dayColor = C.day, sunsetColor = C.sunset, nightColor = C.night, currentColor = C.cur;
     
     var sunHeight = Math.sin(sunAngle);
     if (sunHeight > 0.3) {
@@ -2144,12 +2176,16 @@ function _updateDayNightCycle(t) {
     
     scene.background = currentColor;
     
-    // Fog
-    var fogDay = new THREE.Color(PALETTE.fogDay);
-    var fogNight = new THREE.Color(PALETTE.fogNight);
-    var currentFog = new THREE.Color();
-    currentFog.lerpColors(fogNight, fogDay, Math.max(0, sunHeight));
-    scene.fog.color = currentFog;
+    // Brouillard
+    C.fog.lerpColors(C.fogNight, C.fogDay, Math.max(0, sunHeight));
+    scene.fog.color.copy(C.fog);
+    // Lumière ambiante : plus douce la nuit (avant : identique jour et nuit)
+    // Jour → nuit : lumière ambiante ET exposition baissent, la scène devient réellement nocturne
+    // (avant : la nuit ressemblait au jour car seule la couleur du ciel changeait).
+    var dayF = Math.max(0, Math.min(1, sunHeight + 0.25));
+    if (_hemiLight) _hemiLight.intensity = 0.20 + 0.42 * dayF;
+    if (_ambientLight) _ambientLight.intensity = 0.10 + 0.15 * dayF;
+    if (renderer) renderer.toneMappingExposure = 0.72 + 0.28 * dayF;
     
     // Étoiles
     if (_stars) {
@@ -2223,7 +2259,7 @@ function _makeLabelSprite(num, badgeColorHex, title, subtitle) {
 
     var textX = circleR * 2 + gap + 2;
     ctx2.textAlign = 'left';
-    ctx2.fillStyle = '#1a2233';
+    ctx2.fillStyle = '#163239';
     if (subtitle) {
         ctx2.font = 'bold 16px Sora, system-ui, sans-serif';
         ctx2.fillText(title, textX, pillH / 2 - 10);
@@ -2256,7 +2292,7 @@ function _makeSimplePillSprite(text) {
     ctx2.fillStyle = 'rgba(255,255,255,0.92)';
     _roundRect(ctx2, 0, 0, w, h, h / 2);
     ctx2.fill();
-    ctx2.fillStyle = '#1a2233';
+    ctx2.fillStyle = '#163239';
     ctx2.font = 'bold 16px Sora, system-ui, sans-serif';
     ctx2.textAlign = 'center';
     ctx2.textBaseline = 'middle';
@@ -2298,19 +2334,32 @@ function _initPlayerAvatar() {
     });
 }
 
+// ═══════════════════════════════════════════════════════════════
+// CONTRÔLES DU JOUEUR (v3)
+//  • joystick RELATIF À LA CAMÉRA (avant : relatif au monde → « haut » n'allait plus
+//    vers l'avant dès que le personnage avait tourné)
+//  • glisser un doigt sur la scène = tourner la vue
+//  • déplacement lissé + collisions (bâtiments, fontaine, limites du village)
+//  • bouton « Parler » qui apparaît près d'un bâtiment ou d'un habitant
+// ═══════════════════════════════════════════════════════════════
+var _camAz = Math.PI;                 // direction de la vue : 0 → vers +z, π → vers -z (vue initiale)
+var _vel = { x: 0, z: 0 };
+var PLAYER_R = 6, WORLD_R = 262;
+var _colliders = null;
+var _camDrag = { id: null, x: 0, total: 0, moved: false, lastEnd: 0 };
+var _nearKey = '', _nearTarget = null, _lastNear = 0, _talkBtn = null;
+
 function _initJoystick() {
     var wrap = document.querySelector('.village-canvas-wrap') || document.getElementById('screen-village') || document.body;
+    ['lv-joystick-base', 'lv-talk-btn'].forEach(function (id) { var old = document.getElementById(id); if (old) old.remove(); });
 
     var base = document.createElement('div');
     base.id = 'lv-joystick-base';
-    base.style.cssText = 'position:absolute;left:24px;bottom:28px;width:100px;height:100px;'
-        + 'border-radius:50%;background:rgba(255,255,255,0.15);border:2px solid rgba(255,255,255,0.35);'
-        + 'z-index:500;touch-action:none;';
+    base.className = 'lv-joy';
+    base.setAttribute('role', 'application'); base.setAttribute('aria-label', 'Joystick de déplacement');
     var handle = document.createElement('div');
     handle.id = 'lv-joystick-handle';
-    handle.style.cssText = 'position:absolute;left:50%;top:50%;width:44px;height:44px;margin:-22px;'
-        + 'border-radius:50%;background:rgba(255,255,255,0.55);border:2px solid rgba(255,255,255,0.8);'
-        + 'pointer-events:none;';
+    handle.className = 'lv-joy-handle';
     base.appendChild(handle);
     wrap.style.position = wrap.style.position || 'relative';
     wrap.appendChild(base);
@@ -2318,107 +2367,231 @@ function _initJoystick() {
     joystick.baseEl = base;
     joystick.handleEl = handle;
 
-    function getCenter() {
-        var r = base.getBoundingClientRect();
-        return { x: r.left + r.width / 2, y: r.top + r.height / 2 };
-    }
-
     function onStart(e) {
         joystick.active = true;
         joystick.pointerId = e.pointerId;
-        base.setPointerCapture && base.setPointerCapture(e.pointerId);
+        try { base.setPointerCapture && base.setPointerCapture(e.pointerId); } catch (err) { /* pointeur déjà relâché */ }
         onMove(e);
     }
     function onMove(e) {
         if (!joystick.active || (joystick.pointerId !== null && e.pointerId !== joystick.pointerId)) return;
-        var c = getCenter();
-        var dx = e.clientX - c.x;
-        var dy = e.clientY - c.y;
+        var r = base.getBoundingClientRect();
+        var dx = e.clientX - (r.left + r.width / 2);
+        var dy = e.clientY - (r.top + r.height / 2);
         var dist = Math.min(Math.sqrt(dx * dx + dy * dy), joystick.maxRadius);
         var angle = Math.atan2(dy, dx);
-        var hx = Math.cos(angle) * dist;
-        var hy = Math.sin(angle) * dist;
-        handle.style.left = 'calc(50% + ' + hx + 'px)';
-        handle.style.top = 'calc(50% + ' + hy + 'px)';
+        var hx = Math.cos(angle) * dist, hy = Math.sin(angle) * dist;
+        handle.style.transform = 'translate(' + hx + 'px,' + hy + 'px)';
         joystick.dx = hx / joystick.maxRadius;
         joystick.dy = hy / joystick.maxRadius;
     }
     function onEnd(e) {
         if (joystick.pointerId !== null && e.pointerId !== joystick.pointerId) return;
-        joystick.active = false;
-        joystick.dx = 0;
-        joystick.dy = 0;
-        joystick.pointerId = null;
-        handle.style.left = '50%';
-        handle.style.top = '50%';
+        joystick.active = false; joystick.dx = 0; joystick.dy = 0; joystick.pointerId = null;
+        handle.style.transform = 'translate(0,0)';
     }
-
     base.addEventListener('pointerdown', onStart);
     window.addEventListener('pointermove', onMove);
     window.addEventListener('pointerup', onEnd);
     window.addEventListener('pointercancel', onEnd);
+
+    _initCameraDrag();
+
+    _talkBtn = document.createElement('button');
+    _talkBtn.id = 'lv-talk-btn'; _talkBtn.className = 'lv-talk'; _talkBtn.type = 'button'; _talkBtn.hidden = true;
+    _talkBtn.addEventListener('click', function () {
+        if (_nearTarget && typeof _nearTarget.act === 'function') { if (window.LV) LV.haptic(12); _nearTarget.act(); }
+    });
+    wrap.appendChild(_talkBtn);
+}
+
+function _initCameraDrag() {
+    if (!canvasEl || canvasEl._lvDrag) return;
+    canvasEl._lvDrag = true;
+    canvasEl.addEventListener('pointerdown', function (e) {
+        if (_camDrag.id !== null) return;
+        _camDrag.id = e.pointerId; _camDrag.x = e.clientX; _camDrag.total = 0; _camDrag.moved = false;
+    });
+    canvasEl.addEventListener('pointermove', function (e) {
+        if (e.pointerId !== _camDrag.id) return;
+        var dx = e.clientX - _camDrag.x; _camDrag.x = e.clientX;
+        _camDrag.total += Math.abs(dx);
+        if (_camDrag.total > 8) _camDrag.moved = true;
+        if (_camDrag.moved) _camAz += dx * 0.006;      // glisser vers la droite = la vue tourne vers la gauche
+    });
+    function end(e) {
+        if (e.pointerId !== _camDrag.id) return;
+        if (_camDrag.moved) _camDrag.lastEnd = performance.now();   // sert à ignorer le « clic » qui suit un glissement
+        _camDrag.id = null;
+    }
+    canvasEl.addEventListener('pointerup', end);
+    canvasEl.addEventListener('pointercancel', end);
+}
+
+function _resolveCollisions(x, z) {
+    if (!_colliders) {
+        _colliders = BUILDINGS_3D.map(function (b) { return { x: b.x, z: b.z, r: (b.radius || 16) + 3 }; });
+        _colliders.push({ x: 0, z: 0, r: 27 });               // fontaine centrale
+    }
+    for (var i = 0; i < _colliders.length; i++) {
+        var c = _colliders[i], dx = x - c.x, dz = z - c.z, d = Math.sqrt(dx * dx + dz * dz), min = c.r + PLAYER_R;
+        if (d < min && d > 0.001) { x = c.x + dx / d * min; z = c.z + dz / d * min; }   // on glisse le long de l'obstacle
+    }
+    var rr = Math.sqrt(x * x + z * z);
+    if (rr > WORLD_R) { x *= WORLD_R / rr; z *= WORLD_R / rr; }
+    return { x: x, z: z };
+}
+
+// Correspondance habitant (citizenId) → lieu + PNJ pour ouvrir le dialogue
+var _citizenIndex = null;
+function _citizenNpc(id) {
+    if (!_citizenIndex) {
+        _citizenIndex = {};
+        if (typeof LOCATIONS !== 'undefined') LOCATIONS.forEach(function (l) {
+            (l.npcs || []).forEach(function (n) { if (!_citizenIndex[n.id]) _citizenIndex[n.id] = { locId: l.id, npc: n }; });
+        });
+    }
+    return _citizenIndex[id] || null;
+}
+
+// Cherche l'interaction la plus proche (5 fois par seconde) et met à jour le bouton « Parler »
+function _updateNearby(t) {
+    if (!playerAvatar || !_talkBtn || t - _lastNear < 0.2) return;
+    _lastNear = t;
+    var px = playerAvatar.position.x, pz = playerAvatar.position.z;
+    var nl = (window.S && S.nativeLang) || 'fr', xp = (window.S && S.xp) || 0;
+    var best = null, bestScore = 1e9;
+
+    BUILDINGS_3D.forEach(function (b) {
+        var d = Math.sqrt((px - b.x) * (px - b.x) + (pz - b.z) * (pz - b.z)) - (b.radius || 16);
+        if (d > 26 || (b.lockXP > 0 && xp < b.lockXP)) return;
+        if (d < bestScore) {
+            bestScore = d;
+            best = { key: 'b:' + b.id, emoji: b.emoji || '🏠', label: (b.name && (b.name[nl] || b.name.fr)) || b.id, verb: '',
+                     act: function () { _onTapBuilding(b.id); } };
+        }
+    });
+    _npcWalkers.forEach(function (w) {
+        var dx = px - w.position.x, dz = pz - w.position.z, d = Math.sqrt(dx * dx + dz * dz);
+        if (d > 24) return;
+        if (!w.userData.isWaiting) { w.userData.isWaiting = true; w.userData.waitTime = 3; }   // l'habitant s'arrête pour vous accueillir
+        var ci = _citizenNpc(w.userData.citizenId); if (!ci) return;
+        if (d - 8 < bestScore) {                                  // une personne passe avant un bâtiment
+            bestScore = d - 8;
+            best = { key: 'w:' + w.userData.citizenId, emoji: ci.npc.emoji || '💬', label: ci.npc.name, verb: '💬 ',
+                     act: function () { window._v3dDialogue(ci.locId, ci.npc.id); } };
+        }
+    });
+
+    var key = best ? best.key : '';
+    if (key !== _nearKey) {
+        _nearKey = key; _nearTarget = best;
+        if (best) {
+            _talkBtn.innerHTML = '<span class="lv-talk-emoji">' + LV.esc(best.emoji) + '</span><span class="lv-talk-label">' + LV.esc(best.verb + best.label) + '</span>';
+            _talkBtn.hidden = false;
+            if (window.LV) LV.haptic(8);
+        } else _talkBtn.hidden = true;
+    }
 }
 
 function _updatePlayerAndCamera(dt) {
     if (!playerAvatar) return;
 
-    var moving = joystick.active && (Math.abs(joystick.dx) > 0.08 || Math.abs(joystick.dy) > 0.08);
+    var jx = joystick.active ? joystick.dx : 0, jy = joystick.active ? joystick.dy : 0;
+    var mag = Math.min(1, Math.sqrt(jx * jx + jy * jy));
+    if (mag < 0.1) { jx = jy = 0; mag = 0; }
 
-    if (moving) {
-        // Joystick haut (dy<0) = avancer vers le fond du village (-z)
-        var moveX = joystick.dx;
-        var moveZ = joystick.dy;
-        var len = Math.sqrt(moveX * moveX + moveZ * moveZ) || 1;
-        moveX /= len; moveZ /= len;
+    // Joystick → direction MONDE, relative à la caméra
+    var fx = Math.sin(_camAz), fz = Math.cos(_camAz);     // vers l'avant (là où regarde la caméra)
+    var rx = -fz, rz = fx;                                // vers la droite de l'écran
+    var tvx = 0, tvz = 0;
+    if (mag > 0) {
+        var ux = (fx * -jy + rx * jx), uz = (fz * -jy + rz * jx);
+        var ul = Math.sqrt(ux * ux + uz * uz) || 1;
+        tvx = ux / ul * playerSpeed * mag; tvz = uz / ul * playerSpeed * mag;
+    }
+    // Accélération / freinage progressifs (plus de départs et d'arrêts « secs »)
+    var k = Math.min(1, dt * (mag > 0 ? 9 : 12));
+    _vel.x += (tvx - _vel.x) * k; _vel.z += (tvz - _vel.z) * k;
+    var speed = Math.sqrt(_vel.x * _vel.x + _vel.z * _vel.z);
 
-        var nx = playerAvatar.position.x + moveX * playerSpeed * dt;
-        var nz = playerAvatar.position.z + moveZ * playerSpeed * dt;
-        playerAvatar.position.x = nx;
-        playerAvatar.position.z = nz;
-        playerAvatar.position.y = _smoothNoise(nx, nz);
-
-        var targetFacing = Math.atan2(moveX, moveZ);
+    if (speed > 0.5) {
+        var p = _resolveCollisions(playerAvatar.position.x + _vel.x * dt, playerAvatar.position.z + _vel.z * dt);
+        playerAvatar.position.x = p.x; playerAvatar.position.z = p.z;
+        var targetFacing = Math.atan2(_vel.x, _vel.z);
         var diff = targetFacing - playerFacing;
         while (diff > Math.PI) diff -= Math.PI * 2;
         while (diff < -Math.PI) diff += Math.PI * 2;
-        playerFacing += diff * Math.min(1, dt * 8);
+        playerFacing += diff * Math.min(1, dt * 10);
         playerAvatar.rotation.y = playerFacing;
-
-        // Rebond de marche simulé (pas de squelette animé dans le GLB actuel)
-        playerAvatar.userData.walkPhase = (playerAvatar.userData.walkPhase || 0) + dt * 11;
-        var bob = Math.abs(Math.sin(playerAvatar.userData.walkPhase)) * 3.2;
-        playerAvatar.position.y += bob;
-        playerAvatar.rotation.z = Math.sin(playerAvatar.userData.walkPhase) * 0.09;
-    } else if (playerAvatar.rotation.z) {
-        playerAvatar.rotation.z *= 0.8; // retour au repos si arrêté
+        // Rebond de marche simulé (le GLB n'a pas de squelette animé)
+        playerAvatar.userData.walkPhase = (playerAvatar.userData.walkPhase || 0) + dt * (6 + speed * 0.11);
+        playerAvatar.rotation.z = Math.sin(playerAvatar.userData.walkPhase) * 0.09 * (speed / playerSpeed);
+        playerAvatar.position.y = _smoothNoise(p.x, p.z) + Math.abs(Math.sin(playerAvatar.userData.walkPhase)) * 3.2 * (speed / playerSpeed);
+    } else {
+        playerAvatar.position.y = _smoothNoise(playerAvatar.position.x, playerAvatar.position.z);
+        playerAvatar.rotation.z *= 0.8;
     }
 
-    // Caméra troisième personne : derrière et au-dessus, suit avec un
-    // léger amortissement pour éviter les à-coups.
-    var behindDist = 60, height = 34;
-    var camTargetX = playerAvatar.position.x - Math.sin(playerFacing) * behindDist;
-    var camTargetZ = playerAvatar.position.z - Math.cos(playerFacing) * behindDist;
+    // Caméra à la troisième personne, orientée par _camAz, avec amortissement
+    var dist = 62, height = 36;
+    var camTargetX = playerAvatar.position.x - Math.sin(_camAz) * dist;
+    var camTargetZ = playerAvatar.position.z - Math.cos(_camAz) * dist;
     var camTargetY = playerAvatar.position.y + height;
-
     if (!cameraSnapped) {
-        // Premier frame avec le joueur chargé : on saute directement à la
-        // bonne position, pas de glissement visible depuis l'ancienne vue.
         camera.position.set(camTargetX, camTargetY, camTargetZ);
-        camera.lookAt(playerAvatar.position.x, playerAvatar.position.y + 14, playerAvatar.position.z);
         cameraSnapped = true;
-        return;
+    } else {
+        var ck = Math.min(1, dt * 6);
+        camera.position.x += (camTargetX - camera.position.x) * ck;
+        camera.position.y += (camTargetY - camera.position.y) * ck;
+        camera.position.z += (camTargetZ - camera.position.z) * ck;
     }
-
-    camera.position.x += (camTargetX - camera.position.x) * Math.min(1, dt * 4);
-    camera.position.y += (camTargetY - camera.position.y) * Math.min(1, dt * 4);
-    camera.position.z += (camTargetZ - camera.position.z) * Math.min(1, dt * 4);
     camera.lookAt(playerAvatar.position.x, playerAvatar.position.y + 14, playerAvatar.position.z);
 }
+
+// ── Contrôle de la boucle de rendu ────────────────────────────────
+// Une seule boucle, qui ne tourne QUE si l'écran village est visible, l'onglet actif
+// et aucune fenêtre (dialogue…) ne la retient. Avant : la boucle démarrait en double
+// (bouton « Village » de la barre) ou restait figée après un dialogue.
+function _shouldRun() {
+    var scr = window.LV ? LV.currentScreen() : 'screen-village';
+    return !!renderer && !!clock && scr === 'screen-village' && !document.hidden && Object.keys(_holds).length === 0;
+}
+function _evalLoop() {
+    var want = _shouldRun();
+    if (want && !_rafId) {
+        running = true;
+        clock.getDelta();                       // écarte la durée de la pause
+        _rafId = requestAnimationFrame(_loop);
+    } else if (!want && _rafId) {
+        running = false;
+        cancelAnimationFrame(_rafId); _rafId = 0;
+    }
+}
+window.LV_VILLAGE = {
+    suspend: function (reason) { _holds[reason || 'x'] = 1; _evalLoop(); },
+    resume:  function (reason) { delete _holds[reason || 'x']; _evalLoop(); },
+    // Pour les tests / démonstrations : force l'heure du jour (0–24), ou null pour l'heure réelle.
+    setTime: function (h) { window._lvForcedHour = (h == null ? null : h); },
+    teleport: function (x, z) { if (playerAvatar) { playerAvatar.position.x = x; playerAvatar.position.z = z; } },   // tests
+    // Diagnostic (tests / ?debug) : position du joueur, orientation de la vue, cible proche, boucle active
+    state: function () {
+        return { player: playerAvatar ? { x: +playerAvatar.position.x.toFixed(1), z: +playerAvatar.position.z.toFixed(1) } : null,
+                 az: +_camAz.toFixed(2), near: _nearKey, loop: !!_rafId, holds: Object.keys(_holds), hour: +(_timeOfDay * 24).toFixed(1),
+                 bg: scene && scene.background ? scene.background.getHexString() : null, fog: scene && scene.fog ? scene.fog.color.getHexString() : null,
+                 hemi: _hemiLight ? +_hemiLight.intensity.toFixed(2) : null, sun: _sunLight ? +_sunLight.intensity.toFixed(2) : null,
+                 walkers: _npcWalkers.map(function (w) { return { id: w.userData.citizenId, x: +w.position.x.toFixed(0), z: +w.position.z.toFixed(0), wait: !!w.userData.isWaiting }; }) };
+    }
+};
+if (window.LV) LV.on('screen', _evalLoop);
+document.addEventListener('visibilitychange', _evalLoop);
+
 function _loop() {
-    if (!running) return;
-    requestAnimationFrame(_loop);
+    if (!running) { _rafId = 0; return; }
+    _rafId = requestAnimationFrame(_loop);
+    deltaTime = Math.min(clock.getDelta(), 0.05);   // plafonné : pas de « téléportation » après un ralentissement
     var t = clock.elapsedTime;
-    deltaTime = clock.getDelta();
 
     // Cycle jour/nuit
     _updateDayNightCycle(t);
@@ -2474,33 +2647,30 @@ function _loop() {
         s.material.opacity = 0.4 - (s.position.y - s.userData.basePos.y) * 0.05;
     });
 
-    // PNJ ambulants
+    // PNJ ambulants : suivent un itinéraire (porte → allée circulaire → porte) sans traverser les bâtiments
     _npcWalkers.forEach(function (npc) {
-        if (npc.userData.isWaiting) {
-            npc.userData.waitTime -= deltaTime;
-            if (npc.userData.waitTime <= 0) {
-                npc.userData.isWaiting = false;
-            }
-            // Animation d'attente : regarder autour
-            npc.scale.x = 1 + Math.sin(t * 2 + npc.userData.progress * 10) * 0.05;
+        var u = npc.userData;
+        if (u.isWaiting) {
+            u.waitTime -= deltaTime;
+            if (u.waitTime <= 0) u.isWaiting = false;
+            npc.position.y = _smoothNoise(npc.position.x, npc.position.z) + 3 + Math.sin(t * 2 + u.seed) * 0.25;   // respiration
             return;
         }
-
-        npc.userData.progress += npc.userData.speed * deltaTime;
-        
-        if (npc.userData.progress >= 1) {
-            npc.userData.progress = 0;
-            npc.userData.isWaiting = true;
-            npc.userData.waitTime = 2 + Math.random() * 3;
-            // Swap start/end
-            var temp = npc.userData.start;
-            npc.userData.start = npc.userData.end;
-            npc.userData.end = temp;
+        var r = u.route, len = u.lens[u.seg];
+        u.segT += (u.speed * deltaTime) / len;
+        while (u.segT >= 1) {
+            u.segT -= 1; u.seg++;
+            if (u.seg >= r.length - 1) {               // arrivé : demi-tour après une pause
+                u.route = r.slice().reverse(); u.lens = u.lens.slice().reverse(); u.seg = 0; u.segT = 0;
+                u.isWaiting = true; u.waitTime = 2 + Math.random() * 3;
+                break;
+            }
+            len = u.lens[u.seg];
         }
-
-        var p = npc.userData.progress;
-        npc.position.lerpVectors(npc.userData.start, npc.userData.end, p);
-        npc.position.y = _smoothNoise(npc.position.x, npc.position.z) + 3;
+        var a2 = u.route[u.seg], b2 = u.route[u.seg + 1];
+        npc.position.x = a2.x + (b2.x - a2.x) * u.segT;
+        npc.position.z = a2.z + (b2.z - a2.z) * u.segT;
+        npc.position.y = _smoothNoise(npc.position.x, npc.position.z) + 3 + Math.abs(Math.sin(t * 9 + u.seed)) * 1.1;   // pas
     });
 
     // [AJOUTÉ] Détection de croisement entre marcheurs + affichage des
@@ -2543,6 +2713,7 @@ function _loop() {
 
     if (PLAYER_MODE) {
         _updatePlayerAndCamera(deltaTime);
+        _updateNearby(t);
     } else {
         controls && controls.update();
     }
@@ -2568,6 +2739,7 @@ function _onResize() {
 // CLIC / TAP SUR BÂTIMENT — API inchangée
 // ═══════════════════════════════════════════════════════════════
 function _onCanvasClick(e) {
+    if (performance.now() - _camDrag.lastEnd < 350) return;   // fin d'un glissement de vue, pas un tap
     var rect = canvasEl.getBoundingClientRect();
     _raycastAt(e.clientX - rect.left, e.clientY - rect.top, rect);
 }
@@ -2686,14 +2858,14 @@ function _onTapBuilding(id) {
     var npcList  = document.getElementById('npcList');
     if (locTitle) locTitle.textContent = b.npc ? (b.npc + ' ') + name : name;
 
-    if (!npcList) { running = false; if (typeof showScreen==='function') showScreen('screen-location'); return; }
+    if (!npcList) { if (typeof showScreen==='function') showScreen('screen-location'); return; }
 
     var html = '';
 
     // ── Lore du lieu ──
     if (desc) {
         html += '<div style="margin:0 16px 12px;padding:12px 14px;'
-          + 'background:rgba(255,255,255,0.04);border-left:3px solid rgba(255,215,0,0.28);'
+          + 'background:rgba(255,255,255,0.04);border-left:3px solid rgba(255,138,91,0.28);'
           + 'border-radius:0 12px 12px 0;font-size:0.78rem;color:rgba(255,255,255,0.50);'
           + 'font-style:italic;line-height:1.55;">' + desc + '</div>';
     }
@@ -2705,11 +2877,11 @@ function _onTapBuilding(id) {
         var npcRole  = npcData.role  ? (npcData.role[nl] || npcData.role.fr || '') : '';
         var npcBio   = npcData.bio   ? (npcData.bio[nl]  || npcData.bio.fr  || '') : '';
         var npcFirst = npcData.firstMeet ? (npcData.firstMeet[nl] || npcData.firstMeet.fr || '') : '';
-        var accentColor = '#4ecf70';
-        if (b.id === 'market')  accentColor = '#ffd700';
-        if (b.id === 'library') accentColor = '#c084fc';
-        if (b.id === 'school')  accentColor = '#4ecf70';
-        if (b.id === 'castle')  accentColor = '#aa44ff';
+        var accentColor = '#37d6a5';
+        if (b.id === 'market')  accentColor = '#ff8a5b';
+        if (b.id === 'library') accentColor = '#b79cff';
+        if (b.id === 'school')  accentColor = '#37d6a5';
+        if (b.id === 'castle')  accentColor = '#b79cff';
 
         html += '<div style="margin:0 16px 12px;display:flex;align-items:flex-start;gap:14px;'
           + 'padding:16px 16px;background:rgba(255,255,255,0.04);'
@@ -2719,7 +2891,7 @@ function _onTapBuilding(id) {
           + 'border:2px solid ' + accentColor + ';display:flex;align-items:center;justify-content:center;'
           + 'font-size:1.7rem;flex-shrink:0;">' + npcEmoji + '</div>'
           + '<div style="flex:1;min-width:0;">'
-          + '<div style="font-weight:800;font-size:0.95rem;color:#f0e8d0;">' + npcName + '</div>'
+          + '<div style="font-weight:800;font-size:0.95rem;color:#eaf4f0;">' + npcName + '</div>'
           + '<div style="font-size:0.68rem;color:rgba(255,255,255,0.38);margin-top:2px;">' + npcRole + '</div>'
           + (npcBio ? '<div style="font-size:0.74rem;color:rgba(255,255,255,0.50);margin-top:6px;line-height:1.45;">' + npcBio + '</div>' : '')
           + (npcFirst ? '<div style="font-size:0.72rem;color:' + accentColor + ';margin-top:8px;font-style:italic;line-height:1.4;">'
@@ -2732,7 +2904,7 @@ function _onTapBuilding(id) {
           + 'display:flex;align-items:center;gap:14px;width:calc(100% - 32px);margin:0 16px 10px;'
           + 'padding:14px 18px;background:linear-gradient(135deg,' + accentColor + '18,' + accentColor + '08);'
           + 'border:1.5px solid ' + accentColor + '55;border-radius:16px;cursor:pointer;'
-          + 'color:#f0e8d0;text-align:left;transition:all 0.18s;"'
+          + 'color:#eaf4f0;text-align:left;transition:all 0.18s;"'
           + ' onmouseover="this.style.background=\'' + accentColor + '28\'"'
           + ' onmouseout="this.style.background=\'linear-gradient(135deg,' + accentColor + '18,' + accentColor + '08)\'">'
           + '<span style="font-size:1.6rem;">🗣️</span>'
@@ -2754,7 +2926,7 @@ function _onTapBuilding(id) {
           + 'display:flex;align-items:center;gap:14px;width:calc(100% - 32px);margin:0 16px 10px;'
           + 'padding:14px 18px;background:rgba(255,255,255,0.04);'
           + 'border:1.5px solid rgba(255,255,255,0.08);border-radius:16px;cursor:pointer;'
-          + 'color:#f0e8d0;text-align:left;">'
+          + 'color:#eaf4f0;text-align:left;">'
           + '<span style="font-size:1.4rem;">' + (b.action === 'lessons' ? '📖' : '💬') + '</span>'
           + '<div><div style="font-weight:800;font-size:0.88rem;">' + actLabel + '</div>'
           + '<div style="font-size:0.68rem;color:rgba(255,255,255,0.38);margin-top:2px;">'
@@ -2778,9 +2950,9 @@ function _onTapBuilding(id) {
             var uTitle = matchedUnit.title[nl] || matchedUnit.title.fr || matchedUnit.title.en;
             var uRule  = matchedUnit.rule ? (matchedUnit.rule[nl] || matchedUnit.rule.fr) : '';
             var currHtml = '<div style="margin:0 16px 12px;padding:12px 14px;'
-              + 'background:rgba(255,215,0,0.05);border:1px solid rgba(255,215,0,0.15);'
+              + 'background:rgba(255,138,91,0.05);border:1px solid rgba(255,138,91,0.15);'
               + 'border-radius:14px;">'
-              + '<div style="font-size:0.66rem;font-weight:800;letter-spacing:0.05em;color:#ffd700;text-transform:uppercase;margin-bottom:4px;">📚 ' + uTitle + '</div>'
+              + '<div style="font-size:0.66rem;font-weight:800;letter-spacing:0.05em;color:#ff8a5b;text-transform:uppercase;margin-bottom:4px;">📚 ' + uTitle + '</div>'
               + (uRule ? '<div style="font-size:0.74rem;color:rgba(255,255,255,0.55);line-height:1.4;">' + uRule + '</div>' : '')
               + '</div>';
             html = currHtml + html;
@@ -2789,35 +2961,18 @@ function _onTapBuilding(id) {
 
     npcList.innerHTML = html;
 
-    running = false;
     if (typeof showScreen === 'function') showScreen('screen-location');
-
-    // Patch bouton retour
-    var back = document.querySelector('#screen-location .back-btn');
-    if (back) {
-        back._v3dPatched = false;
-    }
-    if (back && !back._v3dPatched) {
-        back._v3dPatched = true;
-        var orig = back.onclick;
-        back.onclick = function () {
-            if (typeof orig === 'function') orig.call(this);
-            else if (typeof showScreen === 'function') showScreen('screen-village');
-            running = true;
-            requestAnimationFrame(function(){ _loop(); });
-        };
-    }
+    // (Le bouton « ← Village » n'a plus besoin de patch : la boucle reprend d'elle-même
+    //  quand l'écran village redevient actif — voir _evalLoop.)
 }
 
 // ═══════════════════════════════════════════════════════════════
 // DIALOGUE & ACTION — API inchangées
 // ═══════════════════════════════════════════════════════════════
 window._v3dDialogue = function(locId, npcId) {
-    running = false;
 
     if (typeof LOCATIONS === 'undefined' || typeof openDialogue !== 'function') {
         console.warn('LOCATIONS ou openDialogue non disponible');
-        if (typeof showScreen === 'function') showScreen('screen-dialogue');
         return;
     }
 
@@ -2845,25 +3000,9 @@ window._v3dDialogue = function(locId, npcId) {
     if (typeof updateDailyProgress === 'function') updateDailyProgress('dialogue', 1);
     if (typeof updateWeeklyProgress === 'function') updateWeeklyProgress('talk_npc', 1);
 
-    setTimeout(function() {
-        var backBtns = document.querySelectorAll('#screen-dialogue .back-btn, #screen-dialogue [onclick*="screen-location"], #screen-dialogue [onclick*="goVillage"]');
-        backBtns.forEach(function(btn) {
-            if (!btn._v3dDialPatch) {
-                btn._v3dDialPatch = true;
-                var origClick = btn.onclick;
-                btn.onclick = function(e) {
-                    running = true;
-                    if (typeof origClick === 'function') origClick.call(this, e);
-                    else if (typeof showScreen === 'function') showScreen('screen-village');
-                    requestAnimationFrame(function(){ if(renderer) _loop(); });
-                };
-            }
-        });
-    }, 200);
 };
 
 window._v3dAction = function(action) {
-    running = false;
     switch (action) {
         case 'lessons':
             if (typeof ensureLearningBindings === 'function') ensureLearningBindings();
@@ -2895,12 +3034,13 @@ function _buildNavBar() {
     var old = document.querySelector('.village-nav-bar'); if (old) old.remove();
     var vs = document.getElementById('screen-village'); if (!vs) return;
     var tl = (window.S && S.targetLang) || 'fr';
+    var svg = function (d) { return '<svg viewBox="0 0 24 24" aria-hidden="true">' + d + '</svg>'; };
     var tabs = [
-        { id: 'village',  icon: '🏘️' },
-        { id: 'lessons',  icon: '📖' },
-        { id: 'practice', icon: '💬' },
-        { id: 'alphabet', icon: '🔤' },
-        { id: 'profile',  icon: '👤' },
+        { id: 'village',  icon: svg('<path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/><path d="M10 20v-6h4v6"/>') },
+        { id: 'lessons',  icon: svg('<path d="M4 5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2z"/><path d="M4 19V5"/><path d="M9 7h6"/>') },
+        { id: 'practice', icon: svg('<path d="M4 5h16v11H9l-5 4z"/>') },
+        { id: 'alphabet', icon: svg('<path d="M3 18l4-11 4 11M4.5 14h5"/><circle cx="17" cy="15" r="3"/><path d="M20 12v6"/>') },
+        { id: 'profile',  icon: svg('<circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7"/>') },
     ];
     var nav = document.createElement('nav');
     nav.className = 'village-nav-bar';
@@ -2912,21 +3052,7 @@ function _buildNavBar() {
     }).join('');
     vs.appendChild(nav);
 
-    if (!document.getElementById('vnb-css')) {
-        var st = document.createElement('style');
-        st.id = 'vnb-css';
-        st.textContent = '.village-nav-bar{flex-shrink:0;display:flex;align-items:stretch;justify-content:space-around;'
-          + 'background:rgba(6,8,16,0.98);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);'
-          + 'border-top:1px solid rgba(255,255,255,0.06);padding:6px 0 max(6px,env(safe-area-inset-bottom));z-index:30;}'
-          + '.vnb-btn{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;'
-          + 'background:none;border:none;color:rgba(255,255,255,0.32);font-size:0.58rem;font-weight:800;'
-          + 'letter-spacing:0.03em;padding:6px 0;cursor:pointer;transition:color 0.18s;-webkit-tap-highlight-color:transparent;}'
-          + '.vnb-btn.active{color:#4ecf70;}.vnb-btn:active{opacity:0.7;}'
-          + '.vnb-icon{font-size:1.25rem;line-height:1;transition:transform 0.18s;}'
-          + '.vnb-btn.active .vnb-icon{transform:scale(1.18);}'
-          + '.vnb-label{font-size:0.56rem;font-family:Sora,Nunito,system-ui;}';
-        document.head.appendChild(st);
-    }
+    // (Le style de la barre est maintenant dans css/theme_v3.css)
 }
 
 window._navTo = function (s) {
@@ -2934,28 +3060,24 @@ window._navTo = function (s) {
     var btn = document.getElementById('vnb-' + s); if (btn) btn.classList.add('active');
     switch (s) {
         case 'village':
-            running = true;
-            if (renderer) _loop();
+            if (window.LV && LV.currentScreen() !== 'screen-village' && typeof showScreen === 'function') showScreen('screen-village');
+            _evalLoop();
             break;
         case 'lessons':
-            running = false;
             if (typeof ensureLearningBindings === 'function') ensureLearningBindings();
             var fk = window.VOCAB ? Object.keys(window.VOCAB)[0] : null;
             if (fk && typeof loadVocab === 'function') loadVocab(fk);
             if (typeof showScreen === 'function') showScreen('screen-vocab');
             break;
         case 'practice':
-            running = false;
             var fp = window.PHRASES_DATA ? Object.keys(window.PHRASES_DATA)[0] : null;
             if (fp && typeof loadPhrases === 'function') loadPhrases(fp);
             if (typeof showScreen === 'function') showScreen('screen-phrases');
             break;
         case 'alphabet':
-            running = false;
             if (typeof openAlphabet === 'function') openAlphabet((window.S && S.targetLang) || 'en', (window.S && S.nativeLang) || 'fr');
             break;
         case 'profile':
-            running = false;
             if (typeof showScreen === 'function') showScreen('screen-profile');
             break;
     }

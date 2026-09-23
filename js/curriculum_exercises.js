@@ -244,11 +244,11 @@ function _generateItems(type, targetLang, nativeLang, count) {
 // 3. UI — overlay réutilisant le style visuel du quiz adaptatif existant
 // ============================================================================
 var FORMAT_META = {
-  translate:     { icon:'🔤', label:{ fr:'Traduction', en:'Translation' }, color:'#4a9eff' },
-  transform:     { icon:'🔄', label:{ fr:'Transformation', en:'Transformation' }, color:'#ff9f43' },
-  distinguish:   { icon:'👂', label:{ fr:'Distinguer les sons', en:'Sound discrimination' }, color:'#c084fc' },
-  pattern_drill: { icon:'🗣️', label:{ fr:'Substitution', en:'Pattern drill' }, color:'#4ecf70' },
-  fill_blank:    { icon:'✏️', label:{ fr:'Compléter', en:'Fill in the blank' }, color:'#ffd700' },
+  translate:     { icon:'🔤', label:{ fr:'Traduction', en:'Translation' }, color:'#5ab8ff' },
+  transform:     { icon:'🔄', label:{ fr:'Transformation', en:'Transformation' }, color:'#ffc15a' },
+  distinguish:   { icon:'👂', label:{ fr:'Distinguer les sons', en:'Sound discrimination' }, color:'#b79cff' },
+  pattern_drill: { icon:'🗣️', label:{ fr:'Substitution', en:'Pattern drill' }, color:'#37d6a5' },
+  fill_blank:    { icon:'✏️', label:{ fr:'Compléter', en:'Fill in the blank' }, color:'#ff8a5b' },
 };
 
 function openExercise(forceType) {
@@ -296,10 +296,10 @@ function _renderOverlay() {
   var bodyHtml = _renderItemBody(item, nl);
 
   ov.innerHTML =
-    '<div style="background:linear-gradient(135deg,#0f1830,#0a0a14);border:1px solid ' + meta.color + '4d;'
+    '<div style="background:linear-gradient(135deg,#10262b,#081a1e);border:1px solid ' + meta.color + '4d;'
     + 'border-radius:22px;padding:24px;max-width:360px;width:100%">'
     + '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">'
-    + '<div style="font-family:Cinzel,serif;font-size:0.86rem;color:' + meta.color + '">' + meta.icon + ' ' + (meta.label[nl] || meta.label.fr) + '</div>'
+    + '<div style="font-family:var(--font-display);font-size:0.86rem;color:' + meta.color + '">' + meta.icon + ' ' + (meta.label[nl] || meta.label.fr) + '</div>'
     + '<span style="font-size:0.65rem;color:rgba(255,255,255,0.35)">' + (_state.current + 1) + '/' + _state.items.length + '</span>'
     + '</div>'
     + '<div style="height:4px;background:rgba(255,255,255,0.07);border-radius:2px;margin-bottom:18px;overflow:hidden">'
@@ -313,11 +313,11 @@ function _renderItemBody(item, nl) {
   if (item.type === 'translate') {
     return '<div style="font-size:0.72rem;color:rgba(255,255,255,0.4);margin-bottom:8px;">'
       + { fr:'Traduis :', en:'Translate:' }[nl]
-      + '</div><div style="font-size:1.2rem;font-weight:900;color:#f0e8d0;margin-bottom:18px;text-align:center">' + _escape(item.prompt) + '</div>'
+      + '</div><div style="font-size:1.2rem;font-weight:900;color:#eaf4f0;margin-bottom:18px;text-align:center">' + _escape(item.prompt) + '</div>'
       + '<input id="exInput" type="text" placeholder="..." style="width:100%;box-sizing:border-box;padding:12px;'
-      + 'background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.15);border-radius:12px;color:#f0e8d0;'
+      + 'background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.15);border-radius:12px;color:#eaf4f0;'
       + 'font-size:0.92rem;margin-bottom:12px;" onkeydown="if(event.key===\'Enter\')window.LV_EXERCISES._checkInput()">'
-      + '<button onclick="window.LV_EXERCISES._checkInput()" style="width:100%;padding:12px;background:linear-gradient(135deg,#1a3a8a,#4a9eff);'
+      + '<button onclick="window.LV_EXERCISES._checkInput()" style="width:100%;padding:12px;background:linear-gradient(135deg,#1a3a8a,#5ab8ff);'
       + 'border:none;border-radius:12px;color:#fff;font-weight:800;cursor:pointer;">' + ({ fr:'Valider', en:'Check' }[nl]) + '</button>'
       + '<div id="exFeedback" style="margin-top:10px;font-size:0.78rem;text-align:center;min-height:18px;"></div>';
   }
@@ -325,12 +325,12 @@ function _renderItemBody(item, nl) {
   if (item.type === 'transform') {
     return '<div style="font-size:0.72rem;color:rgba(255,255,255,0.4);margin-bottom:8px;">'
       + (item.modeLabel[nl] || item.modeLabel.fr) + '</div>'
-      + '<div style="font-size:1.05rem;font-weight:800;color:#f0e8d0;margin-bottom:6px;text-align:center">' + _escape(item.prompt) + '</div>'
+      + '<div style="font-size:1.05rem;font-weight:800;color:#eaf4f0;margin-bottom:6px;text-align:center">' + _escape(item.prompt) + '</div>'
       + '<div style="font-size:0.72rem;color:rgba(255,255,255,0.35);margin-bottom:16px;text-align:center;font-style:italic;">(' + _escape(item.native) + ')</div>'
       + '<input id="exInput" type="text" placeholder="..." style="width:100%;box-sizing:border-box;padding:12px;'
-      + 'background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.15);border-radius:12px;color:#f0e8d0;'
+      + 'background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.15);border-radius:12px;color:#eaf4f0;'
       + 'font-size:0.92rem;margin-bottom:12px;" onkeydown="if(event.key===\'Enter\')window.LV_EXERCISES._checkInput()">'
-      + '<button onclick="window.LV_EXERCISES._checkInput()" style="width:100%;padding:12px;background:linear-gradient(135deg,#c2410c,#ff9f43);'
+      + '<button onclick="window.LV_EXERCISES._checkInput()" style="width:100%;padding:12px;background:linear-gradient(135deg,#c2410c,#ffc15a);'
       + 'border:none;border-radius:12px;color:#fff;font-weight:800;cursor:pointer;">' + ({ fr:'Valider', en:'Check' }[nl]) + '</button>'
       + '<div id="exFeedback" style="margin-top:10px;font-size:0.78rem;text-align:center;min-height:18px;"></div>';
   }
@@ -338,33 +338,33 @@ function _renderItemBody(item, nl) {
   if (item.type === 'distinguish') {
     return '<div style="font-size:0.72rem;color:rgba(255,255,255,0.4);margin-bottom:10px;">'
       + ({ fr:'Écoute la nuance, puis continue :', en:'Note the nuance, then continue:' }[nl]) + '</div>'
-      + '<div style="font-size:1.05rem;font-weight:800;color:#f0e8d0;margin-bottom:12px;text-align:center">' + _escape(item.prompt) + '</div>'
-      + '<div style="font-size:0.78rem;color:#c084fc;background:rgba(192,132,252,0.08);border:1px solid rgba(192,132,252,0.2);'
+      + '<div style="font-size:1.05rem;font-weight:800;color:#eaf4f0;margin-bottom:12px;text-align:center">' + _escape(item.prompt) + '</div>'
+      + '<div style="font-size:0.78rem;color:#b79cff;background:rgba(183,156,255,0.08);border:1px solid rgba(183,156,255,0.2);'
       + 'border-radius:12px;padding:12px;margin-bottom:16px;line-height:1.5;">' + _escape(item.explanation) + '</div>'
-      + '<button onclick="window.LV_EXERCISES._nextItem(true)" style="width:100%;padding:12px;background:linear-gradient(135deg,#6d28d9,#c084fc);'
+      + '<button onclick="window.LV_EXERCISES._nextItem(true)" style="width:100%;padding:12px;background:linear-gradient(135deg,#6d28d9,#b79cff);'
       + 'border:none;border-radius:12px;color:#fff;font-weight:800;cursor:pointer;">' + ({ fr:'Compris !', en:'Got it!' }[nl]) + '</button>';
   }
 
   if (item.type === 'pattern_drill') {
     return '<div style="font-size:0.72rem;color:rgba(255,255,255,0.4);margin-bottom:8px;">'
-      + ({ fr:'Patron : ', en:'Pattern: ' }[nl]) + '<span style="color:#4ecf70;font-weight:700;">' + _escape(item.pattern) + '</span></div>'
+      + ({ fr:'Patron : ', en:'Pattern: ' }[nl]) + '<span style="color:#37d6a5;font-weight:700;">' + _escape(item.pattern) + '</span></div>'
       + '<div style="font-size:0.72rem;color:rgba(255,255,255,0.4);margin-bottom:6px;">' + ({ fr:'Mot à insérer :', en:'Word to insert:' }[nl]) + '</div>'
-      + '<div style="font-size:1.1rem;font-weight:900;color:#f0e8d0;margin-bottom:18px;text-align:center">' + _escape(item.cue) + '</div>'
+      + '<div style="font-size:1.1rem;font-weight:900;color:#eaf4f0;margin-bottom:18px;text-align:center">' + _escape(item.cue) + '</div>'
       + '<input id="exInput" type="text" placeholder="..." style="width:100%;box-sizing:border-box;padding:12px;'
-      + 'background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.15);border-radius:12px;color:#f0e8d0;'
+      + 'background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.15);border-radius:12px;color:#eaf4f0;'
       + 'font-size:0.92rem;margin-bottom:12px;" onkeydown="if(event.key===\'Enter\')window.LV_EXERCISES._checkInput()">'
-      + '<button onclick="window.LV_EXERCISES._checkInput()" style="width:100%;padding:12px;background:linear-gradient(135deg,#15803d,#4ecf70);'
+      + '<button onclick="window.LV_EXERCISES._checkInput()" style="width:100%;padding:12px;background:linear-gradient(135deg,#15803d,#37d6a5);'
       + 'border:none;border-radius:12px;color:#fff;font-weight:800;cursor:pointer;">' + ({ fr:'Valider', en:'Check' }[nl]) + '</button>'
       + '<div id="exFeedback" style="margin-top:10px;font-size:0.78rem;text-align:center;min-height:18px;"></div>';
   }
 
   if (item.type === 'fill_blank') {
     return '<div style="font-size:0.72rem;color:rgba(255,255,255,0.4);margin-bottom:8px;">' + _escape(item.promptNative) + '</div>'
-      + '<div style="font-size:1.1rem;font-weight:900;color:#f0e8d0;margin-bottom:18px;text-align:center">' + _escape(item.promptBlanked) + '</div>'
+      + '<div style="font-size:1.1rem;font-weight:900;color:#eaf4f0;margin-bottom:18px;text-align:center">' + _escape(item.promptBlanked) + '</div>'
       + '<input id="exInput" type="text" placeholder="..." style="width:100%;box-sizing:border-box;padding:12px;'
-      + 'background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.15);border-radius:12px;color:#f0e8d0;'
+      + 'background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.15);border-radius:12px;color:#eaf4f0;'
       + 'font-size:0.92rem;margin-bottom:12px;" onkeydown="if(event.key===\'Enter\')window.LV_EXERCISES._checkInput()">'
-      + '<button onclick="window.LV_EXERCISES._checkInput()" style="width:100%;padding:12px;background:linear-gradient(135deg,#92400e,#ffd700);'
+      + '<button onclick="window.LV_EXERCISES._checkInput()" style="width:100%;padding:12px;background:linear-gradient(135deg,#92400e,#ff8a5b);'
       + 'border:none;border-radius:12px;color:#1a1300;font-weight:800;cursor:pointer;">' + ({ fr:'Valider', en:'Check' }[nl]) + '</button>'
       + '<div id="exFeedback" style="margin-top:10px;font-size:0.78rem;text-align:center;min-height:18px;"></div>';
   }
@@ -388,7 +388,7 @@ function _checkInput() {
   var correct = given === expected;
 
   if (fb) {
-    fb.style.color = correct ? '#4ecf70' : '#e05555';
+    fb.style.color = correct ? '#37d6a5' : '#ff6b7f';
     fb.textContent = correct
       ? '✅ ' + item.answer
       : '❌ ' + ({ fr:'Réponse : ', en:'Answer: ' }[nl] || 'Réponse : ') + item.answer;
@@ -420,15 +420,15 @@ function _renderComplete() {
   var pct = Math.round((_state.score / total) * 100);
   var xpGain = _state.score * 12;
 
-  ov.innerHTML = '<div style="background:linear-gradient(135deg,#0f1830,#0a0a14);border:1px solid rgba(255,215,0,0.3);'
+  ov.innerHTML = '<div style="background:linear-gradient(135deg,#10262b,#081a1e);border:1px solid rgba(255,138,91,0.3);'
     + 'border-radius:22px;padding:28px;max-width:340px;width:100%;text-align:center">'
     + '<div style="font-size:2.8rem;margin-bottom:8px">' + (pct >= 80 ? '🏆' : pct >= 50 ? '⭐' : '📚') + '</div>'
-    + '<div style="font-family:Cinzel,serif;color:#ffd700;font-size:1rem;margin-bottom:5px">'
+    + '<div style="font-family:var(--font-display);color:#ff8a5b;font-size:1rem;margin-bottom:5px">'
     + ({ fr:'Exercice terminé !', en:'Exercise complete!' }[nl]) + '</div>'
-    + '<div style="font-size:1.4rem;font-weight:900;color:#f0e8d0;margin-bottom:4px">' + _state.score + '/' + total + '</div>'
-    + '<div style="font-size:0.78rem;color:#4ecf70;margin-bottom:18px;font-weight:800">+' + xpGain + ' XP</div>'
-    + '<button onclick="document.getElementById(\'exerciseOv\').remove()" style="background:linear-gradient(135deg,#92400e,#ffd700);'
-    + 'border:none;border-radius:13px;padding:11px 26px;font-family:Cinzel,serif;font-weight:700;cursor:pointer;font-size:0.85rem;color:#1a1300;">'
+    + '<div style="font-size:1.4rem;font-weight:900;color:#eaf4f0;margin-bottom:4px">' + _state.score + '/' + total + '</div>'
+    + '<div style="font-size:0.78rem;color:#37d6a5;margin-bottom:18px;font-weight:800">+' + xpGain + ' XP</div>'
+    + '<button onclick="document.getElementById(\'exerciseOv\').remove()" style="background:linear-gradient(135deg,#92400e,#ff8a5b);'
+    + 'border:none;border-radius:13px;padding:11px 26px;font-family:var(--font-display);font-weight:700;cursor:pointer;font-size:0.85rem;color:#1a1300;">'
     + ({ fr:'Super ! 🎉', en:'Great! 🎉' }[nl]) + '</button></div>';
 
   if (typeof gainXP === 'function') gainXP(xpGain);

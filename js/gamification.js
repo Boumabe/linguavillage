@@ -77,28 +77,45 @@ var SURPRISE_VIDEOS = {
 // =================================================================
 // STREAK
 // =================================================================
+// Jours écoulés entre deux dates locales 'AAAA-MM-JJ' (1 = hier).
+function _daysBetween(a, b) {
+  return Math.round((new Date(b + 'T12:00:00') - new Date(a + 'T12:00:00')) / 86400000);
+}
+function _streakUp() {
+  G.streak++;
+  if (G.streak > G.bestStreak) G.bestStreak = G.streak;
+  if (G.streak % 30 === 0)     { showStreakMilestone(G.streak); grantChest('legendary'); }
+  else if (G.streak % 7 === 0) { showStreakMilestone(G.streak); grantChest('rare'); }
+  else if (typeof showNotif === 'function') showNotif('🔥 Série de ' + G.streak + ' jours !');
+  if (typeof updateWeeklyProgress === 'function') updateWeeklyProgress('streak', 1);
+}
+// Série de jours consécutifs. Dates LOCALES (l'ancienne version utilisait l'heure UTC :
+// en Haïti le « jour » changeait à 19 h). Un bouclier protège UN jour manqué ;
+// pour n jours manqués il en faut n.
 function checkDailyStreak() {
-  var today     = new Date().toISOString().split('T')[0];
-  var yesterday = new Date(Date.now()-86400000).toISOString().split('T')[0];
+  var today = LV.dateKey();
   if (G.lastPlayDate === today) return;
-  if (G.lastPlayDate === yesterday) {
-    G.streak++;
-    if (G.streak > G.bestStreak) G.bestStreak = G.streak;
-    if (G.streak % 30 === 0)     { showStreakMilestone(G.streak); grantChest('legendary'); }
-    else if (G.streak % 7 === 0) { showStreakMilestone(G.streak); grantChest('rare'); }
-    else if (typeof showNotif === 'function') showNotif('🔥 Streak ' + G.streak + ' jours!');
-    // Défi hebdo streak
-    if (typeof updateWeeklyProgress === 'function') updateWeeklyProgress('streak', 1);
-  } else if (G.lastPlayDate && G.lastPlayDate !== today) {
-    if (G.streak > 0 && G.streakFreezes > 0 && !G.streakFreezeUsed) {
-      G.streakFreezes--; G.streakFreezeUsed = true;
-      showNotif('🛡️ Bouclier utilisé! Streak sauvé: ' + G.streak + ' jours');
-    } else if (G.streak > 0) { showStreakLost(G.streak); G.streak = 1; }
-    else G.streak = 1;
-  } else G.streak = 1;
+  if (!G.lastPlayDate) {
+    G.streak = 1;
+  } else {
+    var gap = _daysBetween(G.lastPlayDate, today);
+    if (gap === 1) {
+      _streakUp();
+    } else if (gap > 1) {
+      var missed = gap - 1;
+      if (G.streak > 0 && (G.streakFreezes || 0) >= missed) {
+        G.streakFreezes -= missed;
+        showNotif('🛡️ ' + missed + ' bouclier' + (missed > 1 ? 's' : '') + ' utilisé' + (missed > 1 ? 's' : '') + ' — série sauvée : ' + G.streak + ' jours');
+        _streakUp();
+      } else if (G.streak > 0) {
+        showStreakLost(G.streak); G.streak = 1;
+      } else G.streak = 1;
+    } else if (!G.streak) G.streak = 1; // horloge de l'appareil modifiée : on ne pénalise pas
+  }
   G.lastPlayDate = today; G.streakFreezeUsed = false;
-  G.stats.sessionsPlayed = (G.stats.sessionsPlayed||0)+1;
-  updateStreakDisplay(); checkDailyChallenge(); 
+  G.stats.sessionsPlayed = (G.stats.sessionsPlayed || 0) + 1;
+  updateStreakDisplay(); checkDailyChallenge();
+  if (window.LV_ENGAGE) { try { LV_ENGAGE.onNewDay(); } catch (e) {} }
   if (typeof saveGame === 'function') saveGame();
 }
 
@@ -109,10 +126,10 @@ function showStreakMilestone(n) {
   var reward = n>=30?'Coffre Légendaire':'Coffre Rare';
   ov.innerHTML = '<div style="text-align:center;padding:28px">'
     +'<div style="font-size:4rem;margin-bottom:10px">🔥</div>'
-    +'<div style="font-family:Cinzel,serif;color:#ff9f43;font-size:1.4rem;margin-bottom:6px">'+msg+'</div>'
-    +'<div style="color:#f0e8d0;font-size:1rem;margin-bottom:4px">'+n+' jours consécutifs!</div>'
-    +'<div style="color:#4ecf70;font-size:0.82rem;margin-bottom:20px">🎁 Récompense: '+reward+'</div>'
-    +'<button onclick="this.parentElement.parentElement.remove()" style="background:linear-gradient(135deg,#ff6b00,#ff9f43);border:none;border-radius:14px;padding:11px 28px;font-family:Cinzel,serif;font-weight:700;cursor:pointer;font-size:0.88rem;color:#fff">🔥 Continuer!</button>'
+    +'<div style="font-family:var(--font-display);color:#ffc15a;font-size:1.4rem;margin-bottom:6px">'+msg+'</div>'
+    +'<div style="color:#eaf4f0;font-size:1rem;margin-bottom:4px">'+n+' jours consécutifs!</div>'
+    +'<div style="color:#37d6a5;font-size:0.82rem;margin-bottom:20px">🎁 Récompense: '+reward+'</div>'
+    +'<button onclick="this.parentElement.parentElement.remove()" style="background:linear-gradient(135deg,#e2643a,#ffc15a);border:none;border-radius:14px;padding:11px 28px;font-family:var(--font-display);font-weight:700;cursor:pointer;font-size:0.88rem;color:#fff">🔥 Continuer!</button>'
     +'</div>';
   document.body.appendChild(ov); 
   if (typeof launchConfetti === 'function') launchConfetti();
@@ -123,17 +140,17 @@ function showStreakLost(n) {
   ov.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.92);z-index:9999;display:flex;align-items:center;justify-content:center;';
   ov.innerHTML = '<div style="text-align:center;padding:28px;max-width:280px">'
     +'<div style="font-size:3rem;margin-bottom:10px">💔</div>'
-    +'<div style="font-family:Cinzel,serif;color:#e05555;font-size:1.1rem;margin-bottom:8px">Streak perdu!</div>'
+    +'<div style="font-family:var(--font-display);color:#ff6b7f;font-size:1.1rem;margin-bottom:8px">Streak perdu!</div>'
     +'<div style="color:rgba(255,255,255,0.55);font-size:0.82rem;margin-bottom:6px">Tu avais '+n+' jours consécutifs...</div>'
-    +'<div style="color:#FFD700;font-size:0.75rem;margin-bottom:18px">💡 Achète un bouclier en boutique pour te protéger</div>'
-    +'<button onclick="this.parentElement.parentElement.remove()" style="background:rgba(224,85,85,0.18);border:1px solid #e05555;border-radius:13px;padding:9px 24px;font-family:Cinzel,serif;color:#e05555;cursor:pointer;font-size:0.82rem">Recommencer</button>'
+    +'<div style="color:#ff8a5b;font-size:0.75rem;margin-bottom:18px">💡 Achète un bouclier en boutique pour te protéger</div>'
+    +'<button onclick="this.parentElement.parentElement.remove()" style="background:rgba(255,107,127,0.18);border:1px solid #ff6b7f;border-radius:13px;padding:9px 24px;font-family:var(--font-display);color:#ff6b7f;cursor:pointer;font-size:0.82rem">Recommencer</button>'
     +'</div>';
   document.body.appendChild(ov);
 }
 
 function updateStreakDisplay() {
   var el = document.getElementById('streakDisplay');
-  if (el) { el.textContent = '🔥 '+(G.streak||0); el.style.color = G.streak>=7?'#ff9f43':'#ffcc55'; }
+  if (el) { el.textContent = '🔥 '+(G.streak||0); el.style.color = G.streak>=7?'#ffc15a':'#ffb08f'; }
 }
 
 // =================================================================
@@ -161,8 +178,8 @@ function openMissionsPanel(locId) {
   var nl = S.nativeLang || 'fr';
   var gems = S_missions ? (S_missions.gems || 0) : 0;
   var doneCount = S_missions ? Object.keys(S_missions.completed || {}).length : 0;
-  var html = '<div style="padding:9px 13px 6px;background:rgba(255,215,0,0.05);border-bottom:1px solid rgba(255,215,0,0.12);">'
-    +'<div style="font-family:Cinzel,serif;font-size:0.83rem;color:#FFD700;margin-bottom:2px">🎯 Missions</div>'
+  var html = '<div style="padding:9px 13px 6px;background:rgba(255,138,91,0.05);border-bottom:1px solid rgba(255,138,91,0.12);">'
+    +'<div style="font-family:var(--font-display);font-size:0.83rem;color:#ff8a5b;margin-bottom:2px">🎯 Missions</div>'
     +'<div style="font-size:0.62rem;color:rgba(255,255,255,0.38)">💎 '+gems+' gemmes · '+doneCount+' complétées</div>'
     +'</div><div style="overflow-y:auto;max-height:195px;padding:8px;">';
   missions.forEach(function(m){
@@ -170,12 +187,12 @@ function openMissionsPanel(locId) {
     var title = (m.title[nl] || m.title.fr || '');
     var desc = (m.desc[nl] || m.desc.fr || '');
     var badge = done ? '✅' : ('+'+m.xp+' XP · '+'💎'.repeat(m.gem));
-    html += '<div style="background:'+(done?'rgba(78,207,112,0.07)':'rgba(255,255,255,0.03)')+';border:1px solid '+(done?'rgba(78,207,112,0.25)':'rgba(255,255,255,0.09)')+';border-radius:10px;padding:9px 10px;margin-bottom:5px;cursor:'+(done?'default':'pointer')+'"'
+    html += '<div style="background:'+(done?'rgba(55,214,165,0.07)':'rgba(255,255,255,0.03)')+';border:1px solid '+(done?'rgba(55,214,165,0.25)':'rgba(255,255,255,0.09)')+';border-radius:10px;padding:9px 10px;margin-bottom:5px;cursor:'+(done?'default':'pointer')+'"'
       +(done?'':' onclick="startMission(\''+m.id+'\',\''+locId+'\')"')+'>'
       +'<div style="display:flex;align-items:center;gap:7px;margin-bottom:3px">'
       +'<span style="font-size:1.05rem">'+m.icon+'</span>'
-      +'<span style="font-weight:800;font-size:0.8rem;color:'+(done?'#4ecf70':'#f0e8d0')+'">'+title+'</span>'
-      +'<span style="margin-left:auto;font-size:0.62rem;color:'+(done?'#4ecf70':'#FFD700')+'">'+badge+'</span>'
+      +'<span style="font-weight:800;font-size:0.8rem;color:'+(done?'#37d6a5':'#eaf4f0')+'">'+title+'</span>'
+      +'<span style="margin-left:auto;font-size:0.62rem;color:'+(done?'#37d6a5':'#ff8a5b')+'">'+badge+'</span>'
       +'</div>'
       +'<div style="font-size:0.68rem;color:rgba(255,255,255,0.42)">'+desc+'</div>'
       +'</div>';
@@ -191,8 +208,8 @@ function startMission(missionId, locId) {
   _activeMission = missions.find(function(m){ return m.id === missionId; });
   if (!_activeMission) return;
   var nl = S.nativeLang || 'fr';
-  var inp = document.getElementById('dialInput');
-  if (inp) { inp.placeholder = '💡 ' + (_activeMission.hint?.[nl] || ''); inp.style.borderColor = '#FFD700'; }
+  var inp = document.getElementById('dlg-input');
+  if (inp) { inp.placeholder = '💡 ' + (_activeMission.hint?.[nl] || ''); inp.style.borderColor = '#ff8a5b'; }
   showNotif('🎯 ' + (_activeMission.title[nl] || _activeMission.title.fr || ''));
 }
 function completeMission(m) {
@@ -213,7 +230,7 @@ function checkMissionInMessage(text) {
   var hit = _activeMission.check.some(function(kw){ return lower.includes(kw.toLowerCase()); });
   if (hit) {
     completeMission(_activeMission); _activeMission = null;
-    var inp = document.getElementById('dialInput');
+    var inp = document.getElementById('dlg-input');
     if (inp) { inp.placeholder = 'Votre réponse...'; inp.style.borderColor = ''; }
   }
 }
@@ -303,20 +320,22 @@ function defeatBoss(zoneId) {}
 // =================================================================
 var CHEST_TYPES = {
   common:    {id:'common',    icon:'📦', fr:'Coffre Commun',    color:'#888888', rewards:[{type:'xp',value:20,w:50},{type:'xp',value:30,w:30},{type:'gems',value:1,w:15},{type:'boost',value:30,w:5}]},
-  rare:      {id:'rare',      icon:'💎', fr:'Coffre Rare',      color:'#4a9eff', rewards:[{type:'xp',value:60,w:40},{type:'gems',value:2,w:35},{type:'gems',value:3,w:15},{type:'boost',value:60,w:10}]},
-  epic:      {id:'epic',      icon:'💜', fr:'Coffre Épique',    color:'#e040fb', rewards:[{type:'xp',value:100,w:30},{type:'gems',value:4,w:35},{type:'gems',value:6,w:20},{type:'boost',value:120,w:15}]},
-  legendary: {id:'legendary', icon:'🌟', fr:'Coffre Légendaire',color:'#FFD700', rewards:[{type:'xp',value:200,w:20},{type:'gems',value:8,w:30},{type:'gems',value:12,w:30},{type:'boost',value:180,w:20}]},
+  rare:      {id:'rare',      icon:'💎', fr:'Coffre Rare',      color:'#5ab8ff', rewards:[{type:'xp',value:60,w:40},{type:'gems',value:2,w:35},{type:'gems',value:3,w:15},{type:'boost',value:60,w:10}]},
+  epic:      {id:'epic',      icon:'💜', fr:'Coffre Épique',    color:'#ff7eb6', rewards:[{type:'xp',value:100,w:30},{type:'gems',value:4,w:35},{type:'gems',value:6,w:20},{type:'boost',value:120,w:15}]},
+  legendary: {id:'legendary', icon:'🌟', fr:'Coffre Légendaire',color:'#ff8a5b', rewards:[{type:'xp',value:200,w:20},{type:'gems',value:8,w:30},{type:'gems',value:12,w:30},{type:'boost',value:180,w:20}]},
 };
 function grantChest(type) {
+  // Le coffre s'ouvre avec animation et donne vraiment une récompense (voir engage.js).
+  if (window.LV_ENGAGE && typeof LV_ENGAGE.openChest === 'function') return LV_ENGAGE.openChest(type);
   var chest = CHEST_TYPES[type] || CHEST_TYPES.common;
-  showNotif(chest.icon + ' ' + chest.fr + ' reçu!');
+  showNotif(chest.icon + ' ' + chest.fr + ' reçu !');
 }
 
 // =================================================================
 // DÉFIS QUOTIDIENS
 // =================================================================
 function checkDailyChallenge() {
-  var today = new Date().toISOString().split('T')[0];
+  var today = LV.dateKey();
   if (!G.dailyChallenge || G.dailyChallenge.date !== today) {
     G.dailyChallenge = {id:'dc1', type:'dialogue', done:false, date:today, progress:0, target:5};
     saveGame();
@@ -337,8 +356,6 @@ function updateDailyProgress(type, amount) {
 // =================================================================
 // PROGRESSION, BOUTIQUE, MODE SURPRISE
 // =================================================================
-function showProgression() { showNotif('📊 Progression — ' + (S.xp || 0) + ' XP'); }
-function openShop() { showNotif('🏪 Boutique'); }
 var _surpriseActive = false;
 function launchSurpriseMode() {
   if (_surpriseActive) return;
@@ -350,15 +367,15 @@ function launchSurpriseMode() {
   ov.id = 'surpriseOverlay';
   ov.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.95);z-index:10000;display:flex;align-items:center;justify-content:center;padding:20px;';
   ov.innerHTML = `
-    <div style="background:linear-gradient(135deg,#0f1830,#0a0a14);border:2px solid #ffd700;border-radius:24px;padding:24px;max-width:400px;width:100%;text-align:center;">
+    <div style="background:linear-gradient(135deg,#10262b,#081a1e);border:2px solid #ff8a5b;border-radius:24px;padding:24px;max-width:400px;width:100%;text-align:center;">
       <div style="font-size:3rem;margin-bottom:12px;">⚡🎬</div>
-      <div style="font-family:'Cinzel',serif;font-size:1.1rem;color:#ffd700;margin-bottom:8px;">Mode Surprise!</div>
+      <div style="font-family:var(--font-display);font-size:1.1rem;color:#ff8a5b;margin-bottom:8px;">Mode Surprise!</div>
       <div style="font-size:0.85rem;color:var(--text);margin-bottom:16px;">Découvre cette vidéo éducative pour progresser en ${LANG_NAMES[lang] || lang}</div>
-      <div style="background:rgba(224,64,251,0.08);border-radius:16px;margin-bottom:16px;overflow:hidden;">
-        <iframe src="https://archive.org/embed/${video.id}" style="width:100%;height:180px;border:none;" allowfullscreen></iframe>
+      <div style="background:rgba(255,126,182,0.08);border-radius:16px;margin-bottom:16px;overflow:hidden;">
+        <iframe src="https://archive.org/embed/${video.id}" style="width:100%;height:180px;border:none;" allowfullscreen loading="lazy" referrerpolicy="no-referrer" sandbox="allow-scripts allow-same-origin allow-presentation"></iframe>
       </div>
-      <div style="font-weight:800;color:#e040fb;margin-bottom:12px;">${video.t} — ${video.diff}</div>
-      <button onclick="closeSurpriseMode()" style="background:rgba(255,107,107,0.1);border:1px solid rgba(255,107,107,0.3);border-radius:14px;padding:10px 20px;color:#ff6b6b;font-weight:800;cursor:pointer;">Fermer</button>
+      <div style="font-weight:800;color:#ff7eb6;margin-bottom:12px;">${video.t} — ${video.diff}</div>
+      <button onclick="closeSurpriseMode()" style="background:rgba(255,107,127,0.1);border:1px solid rgba(255,107,127,0.3);border-radius:14px;padding:10px 20px;color:#ff6b7f;font-weight:800;cursor:pointer;">Fermer</button>
     </div>
   `;
   document.body.appendChild(ov);
@@ -410,7 +427,10 @@ function initGame(){
   checkBadges();
   initWeeklyChallenges();
 }
-initGame();
+// Lancé APRÈS le chargement complet : showNotif, gainXP… (app_v2.js) doivent exister.
+// (Avant : un badge gagné au démarrage plantait avec « showNotif is not defined ».)
+if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', initGame);
+else initGame();
 // Exporter les fonctions nécessaires globalement
 window.updateWeeklyProgress = updateWeeklyProgress;
 window.initWeeklyChallenges = initWeeklyChallenges;
@@ -424,4 +444,5 @@ window.completeMission = completeMission;
 window.checkMissionInMessage = checkMissionInMessage;
 window.grantChest = grantChest;
 window.launchSurpriseMode = launchSurpriseMode;
+window.CHEST_TYPES = CHEST_TYPES;
 window.closeSurpriseMode = closeSurpriseMode;

@@ -24,7 +24,7 @@ window.LV_PROGRAM = (function () {
 
     var overlay = document.createElement('div');
     overlay.id  = 'lv-program-overlay';
-    overlay.style.cssText = 'position:fixed;inset:0;z-index:7000;background:#090c15;display:flex;flex-direction:column;animation:progFadeIn 0.25s ease;';
+    overlay.style.cssText = 'position:fixed;inset:0;z-index:7000;background:#0a1b1f;display:flex;flex-direction:column;animation:progFadeIn 0.25s ease;';
     overlay.innerHTML = '<style>@keyframes progFadeIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}</style>';
 
     // ── Header ────────────────────────────────────────────────
@@ -34,12 +34,12 @@ window.LV_PROGRAM = (function () {
 
     var header = document.createElement('div');
     header.style.cssText = 'display:flex;align-items:center;gap:12px;padding:14px 16px;background:rgba(255,255,255,0.03);border-bottom:1px solid rgba(255,255,255,0.06);flex-shrink:0;';
-    header.innerHTML = '<button id="lv-prog-back" style="background:rgba(255,255,255,0.06);border:none;border-radius:50%;width:36px;height:36px;color:#e8e0d0;font-size:1rem;cursor:pointer;">←</button>'
+    header.innerHTML = '<button id="lv-prog-back" style="background:rgba(255,255,255,0.06);border:none;border-radius:50%;width:36px;height:36px;color:#eaf4f0;font-size:1rem;cursor:pointer;">←</button>'
       + '<div style="flex:1;">'
-      + '<div style="font-family:Cinzel,serif;font-weight:800;font-size:0.95rem;color:#ffd700;">' + (titles[nl] || titles.fr) + '</div>'
+      + '<div style="font-family:var(--font-display);font-weight:800;font-size:0.95rem;color:#ff8a5b;">' + (titles[nl] || titles.fr) + '</div>'
       + '<div style="font-size:0.68rem;color:rgba(255,255,255,0.35);">' + (flags[tl] || '') + ' ' + (tnames[tl] || tl) + '</div>'
       + '</div>'
-      + '<div id="lv-prog-xp" style="font-size:0.8rem;font-weight:800;color:#ffd700;background:rgba(255,215,0,0.08);border:1px solid rgba(255,215,0,0.18);padding:4px 12px;border-radius:999px;">' + ((window.S && window.S.xp) || 0) + ' XP</div>';
+      + '<div id="lv-prog-xp" style="font-size:0.8rem;font-weight:800;color:#ff8a5b;background:rgba(255,138,91,0.08);border:1px solid rgba(255,138,91,0.18);padding:4px 12px;border-radius:999px;">' + ((window.S && window.S.xp) || 0) + ' XP</div>';
     overlay.appendChild(header);
 
     // ── Corps scrollable ─────────────────────────────────────
@@ -79,11 +79,11 @@ window.LV_PROGRAM = (function () {
 
       lvHeader.innerHTML = '<div style="font-size:1.6rem;">' + level.icon + '</div>'
         + '<div style="flex:1;">'
-        + '<div style="font-family:Cinzel,serif;font-weight:800;font-size:0.95rem;color:' + level.color + ';">' + lvLabel + '</div>'
+        + '<div style="font-family:var(--font-display);font-weight:800;font-size:0.95rem;color:' + level.color + ';">' + lvLabel + '</div>'
         + '<div style="font-size:0.65rem;color:rgba(255,255,255,0.3);">' + (refDur[nl] || refDur.fr) + '</div>'
         + '</div>'
         + (isCurrent ? '<div style="font-size:0.62rem;font-weight:800;background:rgba(' + _hexToRgb(level.color) + ',0.15);color:' + level.color + ';padding:3px 9px;border-radius:8px;">EN COURS</div>' : '')
-        + (examPassed ? '<div style="font-size:0.62rem;font-weight:800;background:rgba(78,207,112,0.15);color:#4ecf70;padding:3px 9px;border-radius:8px;">✅ VALIDÉ</div>' : '')
+        + (examPassed ? '<div style="font-size:0.62rem;font-weight:800;background:rgba(55,214,165,0.15);color:#37d6a5;padding:3px 9px;border-radius:8px;">✅ VALIDÉ</div>' : '')
         + (!isUnlocked ? '<div style="font-size:1rem;">🔒</div>' : '')
         + '<div style="font-size:0.75rem;font-weight:800;color:' + level.color + ';">' + levelProg + '%</div>';
 
@@ -114,7 +114,7 @@ window.LV_PROGRAM = (function () {
 
         // État visuel
         var stateIcon = evalPassed ? '✅' : evalUnlocked ? '🎯' : '📚';
-        var stateColor = evalPassed ? '#4ecf70' : evalUnlocked ? '#ffd700' : 'rgba(255,255,255,0.25)';
+        var stateColor = evalPassed ? '#37d6a5' : evalUnlocked ? '#ff8a5b' : 'rgba(255,255,255,0.25)';
 
         // Barre de progression XP de la leçon
         var xpPct  = Math.min(100, Math.round((xpEarned / xpNeeded) * 100));
@@ -122,7 +122,7 @@ window.LV_PROGRAM = (function () {
         lCard.innerHTML = '<div style="font-size:1.4rem;flex-shrink:0;margin-top:2px;">' + lesson.icon + '</div>'
           + '<div style="flex:1;min-width:0;">'
           + '<div style="display:flex;align-items:center;gap:6px;margin-bottom:3px;">'
-          + '<span style="font-weight:800;font-size:0.85rem;color:#f0e8d0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + (window.escapeHtml ? window.escapeHtml(lessonTitle) : lessonTitle) + '</span>'
+          + '<span style="font-weight:800;font-size:0.85rem;color:#eaf4f0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + (window.escapeHtml ? window.escapeHtml(lessonTitle) : lessonTitle) + '</span>'
           + '<span style="margin-left:auto;font-size:0.9rem;flex-shrink:0;">' + stateIcon + '</span>'
           + '</div>'
           + '<div style="font-size:0.68rem;color:rgba(255,255,255,0.35);margin-bottom:6px;line-height:1.4;">' + (window.escapeHtml ? window.escapeHtml(lessonDesc) : lessonDesc) + '</div>'
@@ -133,10 +133,10 @@ window.LV_PROGRAM = (function () {
           + '<span style="font-size:0.6rem;color:rgba(255,255,255,0.28);white-space:nowrap;">' + xpEarned + '/' + xpNeeded + ' XP</span>'
           + '</div>'
           + (evalUnlocked && !evalPassed
-            ? '<button data-level="' + levelId + '" data-lesson="' + lesson.id + '" class="lv-eval-btn" style="margin-top:7px;padding:6px 14px;background:rgba(255,215,0,0.1);border:1px solid rgba(255,215,0,0.25);border-radius:999px;color:#ffd700;font-size:0.72rem;font-weight:800;cursor:pointer;transition:all 0.15s;">🎯 Passer l\'évaluation</button>'
+            ? '<button data-level="' + levelId + '" data-lesson="' + lesson.id + '" class="lv-eval-btn" style="margin-top:7px;padding:6px 14px;background:rgba(255,138,91,0.1);border:1px solid rgba(255,138,91,0.25);border-radius:999px;color:#ff8a5b;font-size:0.72rem;font-weight:800;cursor:pointer;transition:all 0.15s;">🎯 Passer l\'évaluation</button>'
             : '')
           + (evalPassed
-            ? '<div style="margin-top:5px;font-size:0.68rem;color:#4ecf70;font-weight:700;">✅ Évaluation réussie · ' + (lessonData.evalScore || 0) + '%</div>'
+            ? '<div style="margin-top:5px;font-size:0.68rem;color:#37d6a5;font-weight:700;">✅ Évaluation réussie · ' + (lessonData.evalScore || 0) + '%</div>'
             : '')
           + '</div>';
 
@@ -160,7 +160,7 @@ window.LV_PROGRAM = (function () {
       // Grand examen
       if (grandExam) {
         var examCard = document.createElement('div');
-        examCard.style.cssText = 'margin:0 8px 12px;padding:14px 16px;background:' + (examPassed ? 'rgba(78,207,112,0.06)' : examUnlocked ? 'rgba(255,215,0,0.06)' : 'rgba(255,255,255,0.02)') + ';border:1.5px solid ' + (examPassed ? 'rgba(78,207,112,0.25)' : examUnlocked ? 'rgba(255,215,0,0.22)' : 'rgba(255,255,255,0.06)') + ';border-radius:16px;display:flex;align-items:center;gap:12px;cursor:' + (examUnlocked && !examPassed && isUnlocked ? 'pointer' : 'default') + ';transition:all 0.2s;';
+        examCard.style.cssText = 'margin:0 8px 12px;padding:14px 16px;background:' + (examPassed ? 'rgba(55,214,165,0.06)' : examUnlocked ? 'rgba(255,138,91,0.06)' : 'rgba(255,255,255,0.02)') + ';border:1.5px solid ' + (examPassed ? 'rgba(55,214,165,0.25)' : examUnlocked ? 'rgba(255,138,91,0.22)' : 'rgba(255,255,255,0.06)') + ';border-radius:16px;display:flex;align-items:center;gap:12px;cursor:' + (examUnlocked && !examPassed && isUnlocked ? 'pointer' : 'default') + ';transition:all 0.2s;';
 
         var examTitle = grandExam.title[nl] || grandExam.title.fr;
         var npcData   = { elder: '👴', teacher: '👩‍🏫', director: '🎥' };
@@ -168,7 +168,7 @@ window.LV_PROGRAM = (function () {
 
         examCard.innerHTML = '<div style="font-size:1.8rem;">' + (examPassed ? '🏆' : examUnlocked ? '⚔️' : '🔒') + '</div>'
           + '<div style="flex:1;">'
-          + '<div style="font-family:Cinzel,serif;font-weight:800;font-size:0.82rem;color:' + (examPassed ? '#4ecf70' : examUnlocked ? '#ffd700' : 'rgba(255,255,255,0.3)') + ';">' + (window.escapeHtml ? window.escapeHtml(examTitle) : examTitle) + '</div>'
+          + '<div style="font-family:var(--font-display);font-weight:800;font-size:0.82rem;color:' + (examPassed ? '#37d6a5' : examUnlocked ? '#ff8a5b' : 'rgba(255,255,255,0.3)') + ';">' + (window.escapeHtml ? window.escapeHtml(examTitle) : examTitle) + '</div>'
           + '<div style="font-size:0.65rem;color:rgba(255,255,255,0.3);margin-top:2px;">'
           + examEmoji + ' Examinateur · Score requis : ' + grandExam.passingScore + '%'
           + (examPassed ? ' · Score obtenu : ' + (prog.grandExams[levelId] && prog.grandExams[levelId].score || 0) + '%' : '')
@@ -176,8 +176,8 @@ window.LV_PROGRAM = (function () {
           + '</div>';
 
         if (examUnlocked && !examPassed && isUnlocked) {
-          examCard.onmouseenter = function () { this.style.background = 'rgba(255,215,0,0.10)'; };
-          examCard.onmouseleave = function () { this.style.background = 'rgba(255,215,0,0.06)'; };
+          examCard.onmouseenter = function () { this.style.background = 'rgba(255,138,91,0.10)'; };
+          examCard.onmouseleave = function () { this.style.background = 'rgba(255,138,91,0.06)'; };
           examCard.onclick = function () {
             overlay.remove();
             window.LV_EXAM.openGrandExam(levelId);

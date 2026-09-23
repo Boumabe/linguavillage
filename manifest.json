@@ -1,45 +1,36 @@
 {
+  "id": "./",
   "name": "LinguaVillage",
   "short_name": "LinguaVillage",
-  "description": "Apprendre les langues en explorant un village — IA conversationnelle, vocabulaire, grammaire, et mini-jeux",
-  "start_url": "/",
-  "display": "standalone",
-  "background_color": "#07090f",
-  "theme_color": "#ffd700",
-  "orientation": "portrait",
-  "icons": [
-    {
-      "src": "https://raw.githubusercontent.com/twitter/twemoji/master/assets/72x72/1f3d8.png",
-      "sizes": "72x72",
-      "type": "image/png"
-    },
-    {
-      "src": "https://raw.githubusercontent.com/twitter/twemoji/master/assets/72x72/1f3d8.png",
-      "sizes": "192x192",
-      "type": "image/png"
-    },
-    {
-      "src": "https://raw.githubusercontent.com/twitter/twemoji/master/assets/72x72/1f3d8.png",
-      "sizes": "512x512",
-      "type": "image/png"
-    }
-  ],
-  "categories": ["education", "games"],
+  "description": "Apprendre les langues en explorant un village — IA conversationnelle, vocabulaire, grammaire et mini-jeux",
   "lang": "fr",
+  "dir": "ltr",
+  "start_url": "./?source=pwa",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#071417",
+  "theme_color": "#071417",
+  "categories": ["education", "games"],
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-512-maskable.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ],
   "shortcuts": [
     {
       "name": "Village",
       "short_name": "Village",
-      "description": "Conversations avec les PNJ",
-      "url": "/?village=true",
-      "icons": [{ "src": "https://raw.githubusercontent.com/twitter/twemoji/master/assets/72x72/1f3d8.png", "sizes": "72x72" }]
+      "description": "Parler avec les habitants",
+      "url": "./?go=village",
+      "icons": [{ "src": "icons/icon-192.png", "sizes": "192x192" }]
     },
     {
       "name": "Vocabulaire",
       "short_name": "Vocab",
-      "description": "Mots et flashcards",
-      "url": "/?vocab=true",
-      "icons": [{ "src": "https://raw.githubusercontent.com/twitter/twemoji/master/assets/72x72/1f4d6.png", "sizes": "72x72" }]
+      "description": "Mots et cartes mémoire",
+      "url": "./?go=vocab",
+      "icons": [{ "src": "icons/icon-192.png", "sizes": "192x192" }]
     }
   ]
 }

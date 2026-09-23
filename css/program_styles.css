@@ -15,9 +15,9 @@
   padding: 14px 18px;
   margin-bottom: 10px;
   background: linear-gradient(135deg,
-    rgba(255,215,0,0.07) 0%,
-    rgba(78,207,112,0.04) 100%);
-  border: 1.5px solid rgba(255,215,0,0.20);
+    rgba(255,138,91,0.07) 0%,
+    rgba(55,214,165,0.04) 100%);
+  border: 1.5px solid rgba(255,138,91,0.20);
   border-radius: 18px;
   cursor: pointer;
   transition: all 0.22s ease;
@@ -31,7 +31,7 @@
   position: absolute;
   inset: 0;
   background: linear-gradient(135deg,
-    rgba(255,215,0,0.05),
+    rgba(255,138,91,0.05),
     transparent);
   opacity: 0;
   transition: opacity 0.2s;
@@ -45,10 +45,10 @@
 
 .menu-program-content { flex: 1; min-width: 0; }
 .menu-program-title {
-  font-family: Cinzel, serif;
+  font-family:var(--font-display);
   font-size: 0.88rem;
   font-weight: 700;
-  color: #ffd700;
+  color: #ff8a5b;
   margin-bottom: 2px;
 }
 .menu-program-sub {
@@ -61,8 +61,8 @@
   flex-shrink: 0;
   font-size: 0.62rem;
   font-weight: 800;
-  background: rgba(78,207,112,0.15);
-  color: #4ecf70;
+  background: rgba(55,214,165,0.15);
+  color: #37d6a5;
   padding: 3px 9px;
   border-radius: 8px;
   white-space: nowrap;
@@ -71,7 +71,7 @@
 .menu-program-arrow {
   flex-shrink: 0;
   font-size: 1.1rem;
-  color: rgba(255,215,0,0.35);
+  color: rgba(255,138,91,0.35);
 }
 
 /* ================================================================
@@ -88,7 +88,7 @@
 }
 .level-indicator-icon { font-size: 1rem; }
 .level-indicator-label {
-  font-family: Cinzel, serif;
+  font-family:var(--font-display);
   font-weight: 700;
   font-size: 0.72rem;
 }
@@ -124,24 +124,24 @@
   letter-spacing: 0.04em;
 }
 .current-level-badge.beginner {
-  background: rgba(78,207,112,0.12);
-  border: 1px solid rgba(78,207,112,0.25);
-  color: #4ecf70;
+  background: rgba(55,214,165,0.12);
+  border: 1px solid rgba(55,214,165,0.25);
+  color: #37d6a5;
 }
 .current-level-badge.intermediate {
-  background: rgba(74,158,255,0.12);
-  border: 1px solid rgba(74,158,255,0.25);
-  color: #4a9eff;
+  background: rgba(90,184,255,0.12);
+  border: 1px solid rgba(90,184,255,0.25);
+  color: #5ab8ff;
 }
 .current-level-badge.advanced {
-  background: rgba(192,132,252,0.12);
-  border: 1px solid rgba(192,132,252,0.25);
-  color: #c084fc;
+  background: rgba(183,156,255,0.12);
+  border: 1px solid rgba(183,156,255,0.25);
+  color: #b79cff;
 }
 .current-level-badge.pro {
-  background: rgba(255,215,0,0.12);
-  border: 1px solid rgba(255,215,0,0.25);
-  color: #ffd700;
+  background: rgba(255,138,91,0.12);
+  border: 1px solid rgba(255,138,91,0.25);
+  color: #ff8a5b;
 }
 
 /* ================================================================
@@ -153,7 +153,7 @@
   left: 50%;
   transform: translateX(-50%) translateY(100px);
   background: rgba(10,20,12,0.97);
-  border: 1.5px solid #ffd700;
+  border: 1.5px solid #ff8a5b;
   border-radius: 18px;
   padding: 12px 20px;
   display: flex;
@@ -161,9 +161,9 @@
   gap: 12px;
   font-size: 0.82rem;
   font-weight: 700;
-  color: #ffd700;
+  color: #ff8a5b;
   z-index: 9990;
-  box-shadow: 0 8px 32px rgba(255,215,0,0.20);
+  box-shadow: 0 8px 32px rgba(255,138,91,0.20);
   transition: transform 0.4s cubic-bezier(0.22,1,0.36,1);
   white-space: nowrap;
   max-width: 90vw;
@@ -182,18 +182,18 @@
   align-items: center;
   gap: 6px;
   padding: 4px 12px;
-  background: rgba(255,215,0,0.06);
-  border: 1px solid rgba(255,215,0,0.14);
+  background: rgba(255,138,91,0.06);
+  border: 1px solid rgba(255,138,91,0.14);
   border-radius: 999px;
   font-size: 0.68rem;
   font-weight: 700;
-  color: #ffd700;
+  color: #ff8a5b;
   cursor: pointer;
   transition: all 0.18s;
   -webkit-tap-highlight-color: transparent;
 }
 .village-progress-pill:active {
-  background: rgba(255,215,0,0.12);
+  background: rgba(255,138,91,0.12);
   transform: scale(0.95);
 }
 
@@ -206,15 +206,15 @@
   right: -4px;
   width: 12px;
   height: 12px;
-  background: #ffd700;
+  background: #ff8a5b;
   border-radius: 50%;
-  border: 2px solid #090c15;
+  border: 2px solid #0a1b1f;
   animation: examPulse 1.4s ease-in-out infinite;
   z-index: 10;
 }
 @keyframes examPulse {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(255,215,0,0.6); }
-  50%       { box-shadow: 0 0 0 6px rgba(255,215,0,0); }
+  0%, 100% { box-shadow: 0 0 0 0 rgba(255,138,91,0.6); }
+  50%       { box-shadow: 0 0 0 6px rgba(255,138,91,0); }
 }
 
 /* ================================================================
@@ -224,9 +224,9 @@
   margin: 12px 16px;
   padding: 16px 18px;
   background: linear-gradient(135deg,
-    rgba(255,215,0,0.06),
-    rgba(255,215,0,0.02));
-  border: 1.5px solid rgba(255,215,0,0.22);
+    rgba(255,138,91,0.06),
+    rgba(255,138,91,0.02));
+  border: 1.5px solid rgba(255,138,91,0.22);
   border-radius: 18px;
   display: flex;
   align-items: center;
@@ -241,7 +241,7 @@
   content: '';
   position: absolute;
   inset: 0;
-  background: linear-gradient(135deg, rgba(255,215,0,0.08), transparent);
+  background: linear-gradient(135deg, rgba(255,138,91,0.08), transparent);
   opacity: 0;
   transition: opacity 0.2s;
 }
@@ -257,10 +257,10 @@
 .grand-exam-icon { font-size: 2.2rem; flex-shrink: 0; }
 .grand-exam-info { flex: 1; min-width: 0; }
 .grand-exam-title {
-  font-family: Cinzel, serif;
+  font-family:var(--font-display);
   font-size: 0.82rem;
   font-weight: 700;
-  color: #ffd700;
+  color: #ff8a5b;
   margin-bottom: 3px;
   white-space: nowrap;
   overflow: hidden;
@@ -273,7 +273,7 @@
 }
 .grand-exam-arrow {
   font-size: 1.2rem;
-  color: rgba(255,215,0,0.35);
+  color: rgba(255,138,91,0.35);
   flex-shrink: 0;
 }
 
@@ -289,8 +289,8 @@
 }
 
 @keyframes passedGlow {
-  0%, 100% { text-shadow: 0 0 10px rgba(78,207,112,0.4); }
-  50%       { text-shadow: 0 0 24px rgba(78,207,112,0.8), 0 0 40px rgba(78,207,112,0.3); }
+  0%, 100% { text-shadow: 0 0 10px rgba(55,214,165,0.4); }
+  50%       { text-shadow: 0 0 24px rgba(55,214,165,0.8), 0 0 40px rgba(55,214,165,0.3); }
 }
 .exam-passed-glow {
   animation: passedGlow 2s ease-in-out infinite;
@@ -306,9 +306,9 @@
   flex-shrink: 0;
 }
 .lesson-state-dot.locked       { background: rgba(255,255,255,0.12); }
-.lesson-state-dot.in-progress  { background: #ffd700; animation: dotPulse 1.2s ease-in-out infinite; }
-.lesson-state-dot.eval-ready   { background: #4a9eff; }
-.lesson-state-dot.completed    { background: #4ecf70; }
+.lesson-state-dot.in-progress  { background: #ff8a5b; animation: dotPulse 1.2s ease-in-out infinite; }
+.lesson-state-dot.eval-ready   { background: #5ab8ff; }
+.lesson-state-dot.completed    { background: #37d6a5; }
 
 @keyframes dotPulse {
   0%, 100% { opacity: 0.6; transform: scale(1); }
@@ -350,10 +350,10 @@
   text-align: center;
 }
 .program-stat-value {
-  font-family: Cinzel, serif;
+  font-family:var(--font-display);
   font-size: 1.1rem;
   font-weight: 900;
-  color: #ffd700;
+  color: #ff8a5b;
   margin-bottom: 2px;
 }
 .program-stat-label {

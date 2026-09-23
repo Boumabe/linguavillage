@@ -2,40 +2,7 @@
 // LinguaVillage — Lieux thématiques + progression pédagogique
 // ================================================================
 
-window.API = window.API || 'https://linguavillage.vercel.app';
-
-var _apiCache = {};
-var lastAPICall = 0;
-var MIN_API_INTERVAL = 300;
-
-async function callAPIWithFallback(endpoint, data, options) {
-  options = options || {};
-  var skipCache = options.skipCache || false;
-  var timeout   = options.timeout || 12000;
-  // Normaliser l'endpoint : accepter /dialogue et /api/dialogue
-  if (endpoint && !endpoint.startsWith('/api/') && !endpoint.startsWith('http')) {
-    endpoint = '/api' + endpoint;
-  }
-  var cacheKey  = endpoint + JSON.stringify(data);
-  if (!skipCache && _apiCache[cacheKey]) return _apiCache[cacheKey];
-  var now  = Date.now();
-  var wait = MIN_API_INTERVAL - (now - lastAPICall);
-  if (wait > 0) await new Promise(function(r){ setTimeout(r, wait); });
-  lastAPICall = Date.now();
-  var controller = new AbortController();
-  var timer = setTimeout(function(){ controller.abort(); }, timeout);
-  try {
-    var r = await fetch(window.API + endpoint, {
-      method:'POST', headers:{'Content-Type':'application/json'},
-      body:JSON.stringify(data), signal:controller.signal
-    });
-    clearTimeout(timer);
-    if (!r.ok) throw new Error('HTTP ' + r.status);
-    var result = await r.json();
-    if (!skipCache) _apiCache[cacheKey] = result;
-    return result;
-  } catch(e) { clearTimeout(timer); throw e; }
-}
+// (L'URL de l'API et callAPIWithFallback sont désormais dans core.js)
 
 // =================================================================
 // CONSTANTES

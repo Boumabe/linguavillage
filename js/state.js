@@ -1,4 +1,5 @@
-// state.js – corrigé (pas de callAPIWithFallback ici)
+// state.js — état global du joueur + textes d'interface
+// (showScreen est dans core.js ; gainXP est dans app_v2.js ; saveGame est dans save.js)
 window.S = window.S || {
   playerName: '', nativeLang: '', targetLang: '', scriptPref: 'both',
   xp: 0, level: 1, chatHistory: [], currentNPC: null, currentLoc: null,
@@ -6,20 +7,11 @@ window.S = window.S || {
 };
 var S = window.S;
 
-window.showScreen = function(id) {
-  document.querySelectorAll('.screen').forEach(s => {
-    s.classList.remove('active');
-    s.style.display = '';
-  });
-  const el = document.getElementById(id);
-  if (el) el.classList.add('active');
-};
-
 window.applyUI = function(lang) {
   if (!window.UI_TEXT) return;
   const t = UI_TEXT[lang] || UI_TEXT.fr;
   if (!t) return;
-  const setText = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
+  const setText = (id, val) => { const el = document.getElementById(id); if (el && val != null) el.textContent = val; };
   setText('ws-sub', t.sub);
   setText('lbl-native', t.lbl_native);
   setText('lbl-name', t.lbl_name);
@@ -39,82 +31,21 @@ window.applyUI = function(lang) {
   setText('mb-grammar-d', t.mb_grammar_d);
   setText('mb-dict', t.mb_dict);
   setText('mb-dict-d', t.mb_dict_d);
+  // Libellés absents de UI_TEXT : traduits ici (l'interface reste dans la langue maternelle du joueur)
+  const X = MENU_EXTRA[lang] || MENU_EXTRA.fr;
+  Object.keys(X).forEach(function (id) { setText(id, X[id]); });
+  document.documentElement.lang = lang;
 };
 
-window.showNotif = function(msg, duration = 2800) {
-  const el = document.getElementById('notif');
-  if (!el) return;
-  el.textContent = msg;
-  el.classList.add('show');
-  clearTimeout(window._notifTimer);
-  window._notifTimer = setTimeout(() => el.classList.remove('show'), duration);
-};
-
-window._prevXPForRank = 0;
-window._comboCount    = 0;
-window._comboTimer    = null;
-
-window.gainXP = function(amount, sourceEl) {
-  if (!S) return;
-  var oldXP = S.xp || 0;
-  S.xp = oldXP + (amount || 0);
-
-  // HUD updates
-  var hudXP  = document.getElementById('hudXP');
-  var menuXP = document.getElementById('menuXP');
-  var xpFill = document.getElementById('xpFill');
-  if (hudXP)  hudXP.textContent  = S.xp + ' XP';
-  if (menuXP) menuXP.textContent = S.xp + ' XP';
-  if (xpFill) {
-    xpFill.style.transition = 'width 0.6s cubic-bezier(0.22,1,0.36,1)';
-    xpFill.style.width = (S.xp % 100) + '%';
-  }
-
-  // Son + animation XP
-  if (window.LV_SOUND) window.LV_SOUND.play('xp');
-  if (window.LV_ANIM)  window.LV_ANIM.xpPop(amount, sourceEl);
-
-  // Combo
-  clearTimeout(window._comboTimer);
-  window._comboCount = (window._comboCount || 0) + 1;
-  window._comboTimer = setTimeout(function() { window._comboCount = 0; }, 4000);
-  if (window._comboCount >= 3 && window.LV_ANIM) window.LV_ANIM.comboFlash(window._comboCount);
-
-  // Vérifier déblocages de bâtiments (RPG)
-  if (typeof checkBuildUnlocks === 'function') checkBuildUnlocks(S.xp);
-
-  // Vérifier montée de rang social (monde)
-  if (window.LV_WORLD && typeof window.LV_WORLD.checkRankUp === 'function') {
-    window.LV_WORLD.checkRankUp(oldXP, S.xp, S.nativeLang || 'fr');
-  }
-  if (typeof updateSocialRankHUD === 'function') updateSocialRankHUD();
-
-  if (typeof checkBadges === 'function') checkBadges();
-  if (typeof saveGame    === 'function') saveGame();
-};
-
-window.saveGame = function() {
-  try {
-    localStorage.setItem('linguavillage_save', JSON.stringify({
-      S: window.S, missions: window.S_missions, game: window.S_game, timestamp: Date.now()
-    }));
-  } catch(e) { console.warn(e); }
-};
-
-window.updateStreak = function() {
-  if (typeof checkDailyStreak === 'function') checkDailyStreak();
-  if (typeof updateStreakDisplay === 'function') updateStreakDisplay();
-};
-
-window.launchConfetti = function() {
-  const colors = ['#FFD700','#4ecf70','#4a9eff','#e040fb','#ff9f43'];
-  for (let i = 0; i < 60; i++) setTimeout(() => {
-    const c = document.createElement('div');
-    c.style.cssText = `position:fixed;top:-10px;left:${Math.random()*100}%;width:${6+Math.random()*8}px;height:${6+Math.random()*8}px;background:${colors[Math.floor(Math.random()*colors.length)]};border-radius:${Math.random()>0.5?'50%':'2px'};z-index:99999;pointer-events:none;opacity:1;transition:transform 1s ease-out, opacity 0.5s ease 0.8s`;
-    document.body.appendChild(c);
-    setTimeout(() => { c.style.transform = `translateY(${window.innerHeight+20}px) rotate(${Math.random()*720}deg)`; c.style.opacity = '0'; }, 20);
-    setTimeout(() => c.remove(), 2000);
-  }, i * 30);
+var MENU_EXTRA = {
+  fr: { 'mb-alpha':'Alphabet','mb-alpha-d':'Hiragana · Cyrillique · Pinyin','mb-cinema':'Cinéma','mb-cinema-d':'Cours vidéo FSI & BBC','mb-wordgame':'Jeu de mots','mb-wordgame-d':'Forme des mots · Favoris','mb-mnem':'Mnémotechniques','mb-mnem-d':'Trucs mémoire adaptés à votre langue cible' },
+  en: { 'mb-alpha':'Alphabet','mb-alpha-d':'Hiragana · Cyrillic · Pinyin','mb-cinema':'Cinema','mb-cinema-d':'FSI & BBC video courses','mb-wordgame':'Word game','mb-wordgame-d':'Build words · Favorites','mb-mnem':'Memory tricks','mb-mnem-d':'Mnemonics for your target language' },
+  es: { 'mb-alpha':'Alfabeto','mb-alpha-d':'Hiragana · Cirílico · Pinyin','mb-cinema':'Cine','mb-cinema-d':'Cursos en vídeo FSI y BBC','mb-wordgame':'Juego de palabras','mb-wordgame-d':'Forma palabras · Favoritos','mb-mnem':'Trucos de memoria','mb-mnem-d':'Mnemotecnia para tu idioma' },
+  ht: { 'mb-alpha':'Alfabè','mb-alpha-d':'Hiragana · Sirilik · Pinyin','mb-cinema':'Sinema','mb-cinema-d':'Kou videyo FSI ak BBC','mb-wordgame':'Jwèt mo','mb-wordgame-d':'Fòme mo · Favori','mb-mnem':'Trik memwa','mb-mnem-d':'Trik pou memorize nan lang ou aprann nan' },
+  de: { 'mb-alpha':'Alphabet','mb-alpha-d':'Hiragana · Kyrillisch · Pinyin','mb-cinema':'Kino','mb-cinema-d':'FSI- & BBC-Videokurse','mb-wordgame':'Wortspiel','mb-wordgame-d':'Wörter bilden · Favoriten','mb-mnem':'Merkhilfen','mb-mnem-d':'Eselsbrücken für deine Zielsprache' },
+  ru: { 'mb-alpha':'Алфавит','mb-alpha-d':'Хирагана · Кириллица · Пиньинь','mb-cinema':'Кино','mb-cinema-d':'Видеокурсы FSI и BBC','mb-wordgame':'Игра слов','mb-wordgame-d':'Составляй слова · Избранное','mb-mnem':'Мнемоника','mb-mnem-d':'Приёмы запоминания для изучаемого языка' },
+  zh: { 'mb-alpha':'字母表','mb-alpha-d':'平假名 · 西里尔字母 · 拼音','mb-cinema':'影院','mb-cinema-d':'FSI 与 BBC 视频课程','mb-wordgame':'文字游戏','mb-wordgame-d':'组词 · 收藏','mb-mnem':'记忆技巧','mb-mnem-d':'适合目标语言的助记法' },
+  ja: { 'mb-alpha':'文字','mb-alpha-d':'ひらがな · キリル文字 · ピンイン','mb-cinema':'シネマ','mb-cinema-d':'FSI と BBC のビデオ講座','mb-wordgame':'ワードゲーム','mb-wordgame-d':'単語づくり · お気に入り','mb-mnem':'記憶術','mb-mnem-d':'学習言語のための覚え方' }
 };
 
 console.log("✅ state.js chargé");

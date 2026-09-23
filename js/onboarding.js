@@ -144,25 +144,25 @@ window.LV_ONBOARDING = (function() {
   const LEVELS = [
     {
       id:'zero', icon:'🌱',
-      color:'#4ecf70', bg:'rgba(78,207,112,0.10)', border:'rgba(78,207,112,0.30)',
+      color:'#37d6a5', bg:'rgba(55,214,165,0.10)', border:'rgba(55,214,165,0.30)',
       label:{ fr:'Zéro absolu', en:'Absolute zero', es:'Cero absoluto', ht:'Zewo absoli', de:'Absoluter Anfänger', ru:'Абсолютный ноль', zh:'零基础', ja:'完全な初心者' },
       desc:{ fr:"Je ne connais aucun mot", en:"I don't know any words", es:"No conozco ninguna palabra", ht:"Mwen pa konnen okenn mo", de:"Ich kenne keine Wörter", ru:"Я не знаю ни одного слова", zh:"我不认识任何单词", ja:"単語を一つも知りません" }
     },
     {
       id:'beginner', icon:'⭐',
-      color:'#4a9eff', bg:'rgba(74,158,255,0.10)', border:'rgba(74,158,255,0.30)',
+      color:'#5ab8ff', bg:'rgba(90,184,255,0.10)', border:'rgba(90,184,255,0.30)',
       label:{ fr:'Quelques mots', en:'A few words', es:'Algunas palabras', ht:'Kèk mo', de:'Einige Wörter', ru:'Несколько слов', zh:'几个词', ja:'少しの単語' },
       desc:{ fr:"Je connais bonjour, merci...", en:"I know hello, thanks...", es:"Conozco hola, gracias...", ht:"Mwen konnen bonjou, mèsi...", de:"Ich kenne Hallo, Danke...", ru:"Я знаю привет, спасибо...", zh:"我知道你好，谢谢...", ja:"こんにちは、ありがとうは知っています..." }
     },
     {
       id:'elementary', icon:'📚',
-      color:'#c084fc', bg:'rgba(192,132,252,0.10)', border:'rgba(192,132,252,0.30)',
+      color:'#b79cff', bg:'rgba(183,156,255,0.10)', border:'rgba(183,156,255,0.30)',
       label:{ fr:'Niveau élémentaire', en:'Elementary level', es:'Nivel elemental', ht:'Nivo elemantè', de:'Grundkenntnisse', ru:'Начальный уровень', zh:'初级水平', ja:'初級レベル' },
       desc:{ fr:"Je peux faire des phrases simples", en:"I can make simple sentences", es:"Puedo hacer frases simples", ht:"Mwen ka fè fraz senp", de:"Ich kann einfache Sätze bilden", ru:"Я могу строить простые предложения", zh:"我能造简单的句子", ja:"簡単な文が作れます" }
     },
     {
       id:'intermediate', icon:'🎓',
-      color:'#ffd700', bg:'rgba(255,215,0,0.10)', border:'rgba(255,215,0,0.30)',
+      color:'#ff8a5b', bg:'rgba(255,138,91,0.10)', border:'rgba(255,138,91,0.30)',
       label:{ fr:'Intermédiaire', en:'Intermediate', es:'Intermedio', ht:'Entèmedyè', de:'Mittelstufe', ru:'Средний уровень', zh:'中级', ja:'中級' },
       desc:{ fr:"Je peux avoir une conversation", en:"I can hold a conversation", es:"Puedo tener una conversación", ht:"Mwen ka fè yon konvèsasyon", de:"Ich kann mich unterhalten", ru:"Я могу поддержать разговор", zh:"我能进行对话", ja:"会話ができます" }
     }
@@ -810,7 +810,7 @@ window.LV_ONBOARDING = (function() {
 
     wrap.innerHTML =
       '<div style="font-size:2.8rem;margin-bottom:8px;">' + flag + '</div>'
-    + '<div style="font-family:Cinzel,serif;font-size:1.35rem;color:#ffd700;margin-bottom:6px;">' + ui.levelTitle(langName) + '</div>'
+    + '<div style="font-family:var(--font-display);font-size:1.35rem;color:#ff8a5b;margin-bottom:6px;">' + ui.levelTitle(langName) + '</div>'
     + '<div style="font-size:0.78rem;color:rgba(255,255,255,0.45);margin-bottom:24px;">' + ui.levelSub + '</div>'
     + '<div id="ob-levels" style="display:flex;flex-direction:column;gap:12px;margin-bottom:20px;"></div>'
     + '<button id="ob-skip" style="background:none;border:none;color:rgba(255,255,255,0.28);font-size:0.72rem;text-decoration:underline;cursor:pointer;padding:8px;">' + ui.skip + '</button>';
@@ -869,21 +869,21 @@ window.LV_ONBOARDING = (function() {
 
     var rows = data.sounds.map(function(s) {
       var tipText = (s.tip && (s.tip[nativeLang] || s.tip.fr)) || '';
-      return '<div style="background:rgba(74,158,255,0.06);border:1px solid rgba(74,158,255,0.2);border-radius:14px;padding:14px;display:flex;align-items:center;gap:14px;">'
-        + '<span style="font-family:Cinzel,serif;font-size:1.6rem;color:#4a9eff;font-weight:900;min-width:44px;text-align:center;">' + s.char + '</span>'
+      return '<div style="background:rgba(90,184,255,0.06);border:1px solid rgba(90,184,255,0.2);border-radius:14px;padding:14px;display:flex;align-items:center;gap:14px;">'
+        + '<span style="font-family:var(--font-display);font-size:1.6rem;color:#5ab8ff;font-weight:900;min-width:44px;text-align:center;">' + s.char + '</span>'
         + '<div style="flex:1;">'
-        + '<div style="font-size:0.8rem;font-weight:700;color:#e8e0d0;margin-bottom:3px;">ex : <em>' + s.example + '</em></div>'
+        + '<div style="font-size:0.8rem;font-weight:700;color:#eaf4f0;margin-bottom:3px;">ex : <em>' + s.example + '</em></div>'
         + '<div style="font-size:0.72rem;color:rgba(255,255,255,0.55);line-height:1.4;">' + tipText + '</div>'
         + '</div>'
-        + '<button class="ob-speak" data-word="' + s.example + '" style="background:rgba(74,158,255,0.1);border:1px solid rgba(74,158,255,0.2);color:#4a9eff;padding:6px 12px;border-radius:10px;cursor:pointer;font-size:0.8rem;flex-shrink:0;">🔊</button>'
+        + '<button class="ob-speak" data-word="' + s.example + '" style="background:rgba(90,184,255,0.1);border:1px solid rgba(90,184,255,0.2);color:#5ab8ff;padding:6px 12px;border-radius:10px;cursor:pointer;font-size:0.8rem;flex-shrink:0;">🔊</button>'
         + '</div>';
     }).join('');
 
     wrap.innerHTML =
-      '<div style="font-size:1.1rem;font-weight:700;color:#4a9eff;margin-bottom:4px;">' + ui.soundsTitle(langName) + '</div>'
+      '<div style="font-size:1.1rem;font-weight:700;color:#5ab8ff;margin-bottom:4px;">' + ui.soundsTitle(langName) + '</div>'
     + '<div style="font-size:0.75rem;color:rgba(255,255,255,0.4);margin-bottom:16px;">' + ui.soundsSub + '</div>'
     + '<div style="display:flex;flex-direction:column;gap:10px;margin-bottom:22px;">' + rows + '</div>'
-    + '<button id="ob-next" style="width:100%;background:linear-gradient(135deg,#a86800,#ffd700);border:none;border-radius:14px;padding:14px;font-family:Cinzel,serif;font-weight:700;font-size:0.9rem;color:#0a0a0a;cursor:pointer;">' + ui.contSounds + '</button>';
+    + '<button id="ob-next" style="width:100%;background:linear-gradient(135deg,#a86800,#ff8a5b);border:none;border-radius:14px;padding:14px;font-family:var(--font-display);font-weight:700;font-size:0.9rem;color:#0a0a0a;cursor:pointer;">' + ui.contSounds + '</button>';
 
     container.appendChild(wrap);
 
@@ -906,18 +906,18 @@ window.LV_ONBOARDING = (function() {
 
     var cards = data.words.map(function(w) {
       var translation = (w.meaning && (w.meaning[nativeLang] || w.meaning.fr)) || '';
-      return '<div class="ob-word" data-word="' + w.w + '" style="background:rgba(78,207,112,0.07);border:1.5px solid rgba(78,207,112,0.22);border-radius:14px;padding:12px 10px;text-align:center;cursor:pointer;transition:all 0.15s;-webkit-tap-highlight-color:transparent;">'
-        + '<div style="font-size:1rem;font-weight:800;color:#4ecf70;margin-bottom:3px;">' + w.w + '</div>'
-        + '<div style="font-size:0.7rem;color:#4a9eff;font-style:italic;margin-bottom:4px;">' + w.tr + '</div>'
+      return '<div class="ob-word" data-word="' + w.w + '" style="background:rgba(55,214,165,0.07);border:1.5px solid rgba(55,214,165,0.22);border-radius:14px;padding:12px 10px;text-align:center;cursor:pointer;transition:all 0.15s;-webkit-tap-highlight-color:transparent;">'
+        + '<div style="font-size:1rem;font-weight:800;color:#37d6a5;margin-bottom:3px;">' + w.w + '</div>'
+        + '<div style="font-size:0.7rem;color:#5ab8ff;font-style:italic;margin-bottom:4px;">' + w.tr + '</div>'
         + '<div style="font-size:0.68rem;color:rgba(255,255,255,0.6);font-weight:600;background:rgba(255,255,255,0.06);border-radius:6px;padding:2px 6px;">' + translation + '</div>'
         + '</div>';
     }).join('');
 
     wrap.innerHTML =
-      '<div style="font-size:1.1rem;font-weight:700;color:#4ecf70;margin-bottom:3px;">' + ui.wordsTitle + '</div>'
+      '<div style="font-size:1.1rem;font-weight:700;color:#37d6a5;margin-bottom:3px;">' + ui.wordsTitle + '</div>'
     + '<div style="font-size:0.75rem;color:rgba(255,255,255,0.4);margin-bottom:14px;">' + ui.wordsSub + '</div>'
     + '<div style="display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:22px;">' + cards + '</div>'
-    + '<button id="ob-next" style="width:100%;background:linear-gradient(135deg,#a86800,#ffd700);border:none;border-radius:14px;padding:14px;font-family:Cinzel,serif;font-weight:700;font-size:0.9rem;color:#0a0a0a;cursor:pointer;">' + ui.contWords + '</button>';
+    + '<button id="ob-next" style="width:100%;background:linear-gradient(135deg,#a86800,#ff8a5b);border:none;border-radius:14px;padding:14px;font-family:var(--font-display);font-weight:700;font-size:0.9rem;color:#0a0a0a;cursor:pointer;">' + ui.contWords + '</button>';
 
     container.appendChild(wrap);
 
@@ -943,22 +943,22 @@ window.LV_ONBOARDING = (function() {
     var patternText   = (data.structure.pattern && (data.structure.pattern[nativeLang] || data.structure.pattern.fr)) || '';
     var breakdownHTML = (data.structure.breakdown || []).map(function(b) {
       var nlText = (b.nl && (b.nl[nativeLang] || b.nl.fr)) || '';
-      return '<span style="background:rgba(192,132,252,0.1);border:1px solid rgba(192,132,252,0.2);border-radius:8px;padding:5px 12px;font-size:0.75rem;text-align:center;">'
-        + '<span style="color:#f0e8d0;font-weight:700;">' + b.tl + '</span>'
+      return '<span style="background:rgba(183,156,255,0.1);border:1px solid rgba(183,156,255,0.2);border-radius:8px;padding:5px 12px;font-size:0.75rem;text-align:center;">'
+        + '<span style="color:#eaf4f0;font-weight:700;">' + b.tl + '</span>'
         + '<br><span style="color:rgba(255,255,255,0.45);font-size:0.65rem;">= ' + nlText + '</span>'
         + '</span>';
     }).join('');
 
     wrap.innerHTML =
-      '<div style="font-size:1.1rem;font-weight:700;color:#c084fc;margin-bottom:14px;">' + ui.structTitle + '</div>'
-    + '<div style="background:rgba(192,132,252,0.08);border:1.5px solid rgba(192,132,252,0.22);border-radius:16px;padding:18px;margin-bottom:14px;text-align:center;">'
-    + '<div style="font-size:0.62rem;font-weight:800;letter-spacing:0.14em;text-transform:uppercase;color:#c084fc;margin-bottom:8px;">' + ui.structLabel + '</div>'
-    + '<div style="font-size:0.95rem;font-weight:700;color:#e8e0d0;margin-bottom:10px;">' + patternText + '</div>'
-    + '<div style="font-family:Cinzel,serif;font-size:1.1rem;color:#ffd700;margin-bottom:14px;">' + data.structure.example + '</div>'
+      '<div style="font-size:1.1rem;font-weight:700;color:#b79cff;margin-bottom:14px;">' + ui.structTitle + '</div>'
+    + '<div style="background:rgba(183,156,255,0.08);border:1.5px solid rgba(183,156,255,0.22);border-radius:16px;padding:18px;margin-bottom:14px;text-align:center;">'
+    + '<div style="font-size:0.62rem;font-weight:800;letter-spacing:0.14em;text-transform:uppercase;color:#b79cff;margin-bottom:8px;">' + ui.structLabel + '</div>'
+    + '<div style="font-size:0.95rem;font-weight:700;color:#eaf4f0;margin-bottom:10px;">' + patternText + '</div>'
+    + '<div style="font-family:var(--font-display);font-size:1.1rem;color:#ff8a5b;margin-bottom:14px;">' + data.structure.example + '</div>'
     + '<div style="display:flex;justify-content:center;gap:8px;flex-wrap:wrap;">' + breakdownHTML + '</div>'
     + '</div>'
-    + '<div style="background:rgba(255,215,0,0.06);border:1px solid rgba(255,215,0,0.15);border-radius:12px;padding:12px;font-size:0.78rem;text-align:center;color:rgba(255,255,255,0.6);line-height:1.6;margin-bottom:20px;">' + ui.structTip + '</div>'
-    + '<button id="ob-finish" style="width:100%;background:linear-gradient(135deg,#a86800,#ffd700);border:none;border-radius:16px;padding:16px;font-family:Cinzel,serif;font-weight:800;font-size:1rem;color:#0a0a0a;cursor:pointer;box-shadow:0 4px 24px rgba(255,215,0,0.25);">' + ui.enter + '</button>';
+    + '<div style="background:rgba(255,138,91,0.06);border:1px solid rgba(255,138,91,0.15);border-radius:12px;padding:12px;font-size:0.78rem;text-align:center;color:rgba(255,255,255,0.6);line-height:1.6;margin-bottom:20px;">' + ui.structTip + '</div>'
+    + '<button id="ob-finish" style="width:100%;background:linear-gradient(135deg,#a86800,#ff8a5b);border:none;border-radius:16px;padding:16px;font-family:var(--font-display);font-weight:800;font-size:1rem;color:#0a0a0a;cursor:pointer;box-shadow:0 4px 24px rgba(255,138,91,0.25);">' + ui.enter + '</button>';
 
     container.appendChild(wrap);
     document.getElementById('ob-finish').onclick = function() { finish(); };
@@ -975,7 +975,7 @@ window.LV_ONBOARDING = (function() {
       container.className = 'screen';
       document.body.appendChild(container);
     }
-    container.style.cssText = 'display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding:24px 16px;background:radial-gradient(ellipse at 50% 20%,#0d1a2e 0%,#07090f 70%);overflow-y:auto;';
+    container.style.cssText = 'display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding:24px 16px;background:radial-gradient(ellipse at 50% 20%,#0d2228 0%,#071417 70%);overflow-y:auto;';
     container.innerHTML = '';
 
     if (step === 0) renderLevel(container);

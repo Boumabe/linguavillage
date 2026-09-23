@@ -115,7 +115,7 @@ window.LV_WORDGAME = (function() {
       sc.className = 'screen';
       sc.style.cssText = [
         'display:none', 'flex-direction:column', 'align-items:center',
-        'background:radial-gradient(ellipse at 50% 20%,#0d1a2e 0%,#07090f 70%)',
+        'background:radial-gradient(ellipse at 50% 20%,#0d2228 0%,#071417 70%)',
         'padding:0', 'overflow:hidden'
       ].join(';');
       document.body.appendChild(sc);
@@ -131,20 +131,20 @@ window.LV_WORDGAME = (function() {
     sc.innerHTML = `
       <!-- Header -->
       <div style="width:100%;display:flex;align-items:center;padding:12px 16px;
-                  border-bottom:1px solid rgba(255,215,0,0.12);background:rgba(7,9,15,0.9);
+                  border-bottom:1px solid rgba(255,138,91,0.12);background:rgba(7,20,23,0.9);
                   flex-shrink:0;gap:10px;">
         <button onclick="window.LV_WORDGAME.close()"
           style="background:transparent;border:1px solid rgba(255,255,255,0.12);
-                 color:rgba(232,224,208,0.5);padding:5px 12px;border-radius:8px;
+                 color:rgba(234,244,240,0.5);padding:5px 12px;border-radius:8px;
                  font-size:0.72rem;font-weight:700;cursor:pointer;">← Jeu</button>
         <button onclick="window.LV_WORDGAME.goToMenu()"
-          style="background:transparent;border:1px solid rgba(78,207,112,0.3);
-                 color:#4ecf70;padding:5px 12px;border-radius:8px;
+          style="background:transparent;border:1px solid rgba(55,214,165,0.3);
+                 color:#37d6a5;padding:5px 12px;border-radius:8px;
                  font-size:0.72rem;font-weight:700;cursor:pointer;">🏠 Menu</button>
-        <div style="font-family:'Cinzel',serif;font-size:0.9rem;font-weight:700;
-                    color:#ffd700;flex:1;">🔤 Jeu de mots ${langFlag}</div>
+        <div style="font-family:var(--font-display);font-size:0.9rem;font-weight:700;
+                    color:#ff8a5b;flex:1;">🔤 Jeu de mots ${langFlag}</div>
         <div id="wg-score-display"
-          style="font-size:0.82rem;font-weight:800;color:#4ecf70;">
+          style="font-size:0.82rem;font-weight:800;color:#37d6a5;">
           ⭐ 0 pts
         </div>
       </div>
@@ -156,22 +156,22 @@ window.LV_WORDGAME = (function() {
 
         <!-- Info niveau -->
         <div style="font-size:0.72rem;color:rgba(255,255,255,0.35);text-align:center;">
-          Niveau : <strong style="color:#ffd700;">${level}</strong>
-          &nbsp;•&nbsp; Série : <span id="wg-streak" style="color:#4ecf70;">0</span>
+          Niveau : <strong style="color:#ff8a5b;">${level}</strong>
+          &nbsp;•&nbsp; Série : <span id="wg-streak" style="color:#37d6a5;">0</span>
         </div>
 
         <!-- Indice / phonétique -->
         <div id="wg-hint" style="min-height:24px;text-align:center;font-size:0.78rem;
-                                  color:#4a9eff;font-style:italic;"></div>
+                                  color:#5ab8ff;font-style:italic;"></div>
 
         <!-- Zone de réponse (lettres choisies) -->
         <div style="width:100%;">
           <div style="font-size:0.68rem;font-weight:800;letter-spacing:0.1em;
-                      text-transform:uppercase;color:rgba(255,215,0,0.5);
+                      text-transform:uppercase;color:rgba(255,138,91,0.5);
                       margin-bottom:8px;text-align:center;">Ton mot</div>
           <div id="wg-answer-zone"
-            style="min-height:56px;background:rgba(255,215,0,0.05);
-                   border:2px dashed rgba(255,215,0,0.2);border-radius:14px;
+            style="min-height:56px;background:rgba(255,138,91,0.05);
+                   border:2px dashed rgba(255,138,91,0.2);border-radius:14px;
                    display:flex;align-items:center;justify-content:center;
                    flex-wrap:wrap;gap:6px;padding:10px;cursor:pointer;"
             onclick="window.LV_WORDGAME.clearLast()">
@@ -194,13 +194,13 @@ window.LV_WORDGAME = (function() {
         <!-- Boutons action -->
         <div style="display:flex;gap:8px;width:100%;">
           <button onclick="window.LV_WORDGAME.clearAll()"
-            style="flex:1;background:rgba(255,107,107,0.08);border:1px solid rgba(255,107,107,0.2);
-                   color:#ff6b6b;padding:11px;border-radius:12px;font-weight:700;
+            style="flex:1;background:rgba(255,107,127,0.08);border:1px solid rgba(255,107,127,0.2);
+                   color:#ff6b7f;padding:11px;border-radius:12px;font-weight:700;
                    font-size:0.82rem;cursor:pointer;">🗑 Effacer</button>
           <button onclick="window.LV_WORDGAME.check()"
             id="wg-check-btn"
-            style="flex:2;background:linear-gradient(135deg,#a86800,#ffd700);border:none;
-                   border-radius:12px;padding:11px;font-family:'Cinzel',serif;
+            style="flex:2;background:linear-gradient(135deg,#a86800,#ff8a5b);border:none;
+                   border-radius:12px;padding:11px;font-family:var(--font-display);
                    font-weight:700;font-size:0.88rem;color:#0a0a0a;cursor:pointer;">
             ✓ Valider
           </button>
@@ -220,7 +220,7 @@ window.LV_WORDGAME = (function() {
         <!-- Collection de mots découverts -->
         <div style="width:100%;margin-top:8px;">
           <div style="font-size:0.68rem;font-weight:800;letter-spacing:0.1em;
-                      text-transform:uppercase;color:rgba(255,215,0,0.4);
+                      text-transform:uppercase;color:rgba(255,138,91,0.4);
                       margin-bottom:10px;">Ta collection — cette session</div>
           <div id="wg-collection"
             style="display:flex;flex-wrap:wrap;gap:6px;min-height:32px;">
@@ -272,14 +272,14 @@ window.LV_WORDGAME = (function() {
         data-letter-idx="${i}"
         style="
           width:44px;height:44px;
-          background:${used ? 'rgba(255,255,255,0.05)' : 'rgba(255,215,0,0.1)'};
-          border:2px solid ${used ? 'rgba(255,255,255,0.08)' : 'rgba(255,215,0,0.35)'};
+          background:${used ? 'rgba(255,255,255,0.05)' : 'rgba(255,138,91,0.1)'};
+          border:2px solid ${used ? 'rgba(255,255,255,0.08)' : 'rgba(255,138,91,0.35)'};
           border-radius:10px;
-          color:${used ? 'rgba(255,255,255,0.15)' : '#ffd700'};
+          color:${used ? 'rgba(255,255,255,0.15)' : '#ff8a5b'};
           font-size:1.2rem;font-weight:800;cursor:${used ? 'default' : 'pointer'};
           transition:all 0.15s;
           font-family:'Nunito',sans-serif;
-          ${used ? '' : 'box-shadow:0 2px 8px rgba(255,215,0,0.15);'}
+          ${used ? '' : 'box-shadow:0 2px 8px rgba(255,138,91,0.15);'}
         "
         ${used ? 'disabled' : ''}>
         ${letter}
@@ -329,9 +329,9 @@ window.LV_WORDGAME = (function() {
     zone.innerHTML = _state.selected.map((idx, pos) => `
       <span onclick="window.LV_WORDGAME._removeAt(${pos})"
         style="display:inline-flex;align-items:center;justify-content:center;
-               width:40px;height:40px;background:rgba(255,215,0,0.15);
-               border:2px solid rgba(255,215,0,0.4);border-radius:9px;
-               color:#ffd700;font-size:1.15rem;font-weight:800;cursor:pointer;
+               width:40px;height:40px;background:rgba(255,138,91,0.15);
+               border:2px solid rgba(255,138,91,0.4);border-radius:9px;
+               color:#ff8a5b;font-size:1.15rem;font-weight:800;cursor:pointer;
                font-family:'Nunito',sans-serif;transition:all 0.1s;"
         title="Retirer cette lettre">
         ${_state.scrambled[idx]}
@@ -377,9 +377,9 @@ window.LV_WORDGAME = (function() {
     if (!fb) return;
     fb.textContent = msg;
     fb.style.display = 'block';
-    fb.style.background = success ? 'rgba(78,207,112,0.1)' : 'rgba(255,107,107,0.1)';
-    fb.style.border = '1px solid ' + (success ? 'rgba(78,207,112,0.3)' : 'rgba(255,107,107,0.3)');
-    fb.style.color = success ? '#4ecf70' : '#ff6b6b';
+    fb.style.background = success ? 'rgba(55,214,165,0.1)' : 'rgba(255,107,127,0.1)';
+    fb.style.border = '1px solid ' + (success ? 'rgba(55,214,165,0.3)' : 'rgba(255,107,127,0.3)');
+    fb.style.color = success ? '#37d6a5' : '#ff6b7f';
     setTimeout(() => { if(fb) fb.style.display = 'none'; }, 1500);
   }
 
@@ -423,9 +423,9 @@ window.LV_WORDGAME = (function() {
 
     col.innerHTML = _state.discovered.map(w => `
       <div style="display:flex;align-items:center;gap:5px;
-                  background:rgba(78,207,112,0.08);border:1px solid rgba(78,207,112,0.2);
+                  background:rgba(55,214,165,0.08);border:1px solid rgba(55,214,165,0.2);
                   border-radius:10px;padding:5px 10px;">
-        <span style="font-size:0.8rem;color:#4ecf70;font-weight:700;">${w}</span>
+        <span style="font-size:0.8rem;color:#37d6a5;font-weight:700;">${w}</span>
         <button onclick="window.LV_WORDGAME.addFav('${w}')"
           title="Ajouter aux favoris"
           style="background:none;border:none;cursor:pointer;font-size:0.85rem;
